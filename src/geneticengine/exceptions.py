@@ -1,0 +1,2 @@
+class GeneticEngineError(Exception):
+    pass
