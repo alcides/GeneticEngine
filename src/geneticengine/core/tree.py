@@ -2,7 +2,7 @@ from geneticengine.core.utils import get_arguments
 
 
 class Node(object):
-    def evaluate(self, *args):
+    def evaluate(self, **kwargs):
         return None
 
     def __repr__(self):

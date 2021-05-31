@@ -23,8 +23,15 @@ class Grammar(object):
                     self.extract(argt, nodes)
 
     def __repr__(self):
+        def wrap(n):
+            if hasattr(n, "__name__"):
+                return n.__name__
+            if hasattr(n, "__metadata__"):
+                return n.__metadata__[0]
+            return n
+
         def format(x):
-            args = ", ".join([f"{a}: {at.__name__}" for (a, at) in get_arguments(x)])
+            args = ", ".join([f"{a}: {wrap(at)}" for (a, at) in get_arguments(x)])
             return f"{x.__name__}({args})"
 
         prods = ";".join(
