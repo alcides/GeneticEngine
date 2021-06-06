@@ -1,20 +1,13 @@
 import sys
 
-from typing import Annotated, Any
+from typing import Annotated, Any, TypeVar
 
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.grammar import Grammar
-from geneticengine.core.utils import get_arguments
+from geneticengine.core.representations.base import Representation
+from geneticengine.core.tree import Node
+from geneticengine.core.utils import get_arguments, isTerminal
 from geneticengine.exceptions import GeneticEngineError
-
-
-def isTerminal(p: type) -> bool:
-    for (a, at) in get_arguments(p):
-        if hasattr(at, "__metadata__"):
-            continue
-        else:
-            return False
-    return True
 
 
 def random_individual(
@@ -41,5 +34,32 @@ def random_individual(
         raise GeneticEngineError(f"No productions for non-terminal {starting_symbol}")
     rule = r.choice(valid_productions)
     args = [random_individual(r, g, depth - 1, at) for (a, at) in get_arguments(rule)]
+    node = rule(*args)
+    node.depth = max([1] + [n.depth for n in args if hasattr(n, "depth")])
+    node.nodes = 1 + sum([n.nodes for n in args if hasattr(n, "nodes")])
+    return node
 
-    return rule(*args)
+
+def mutate(r: RandomSource, g: Grammar, i: Node) -> Node:
+    c = r.randint(0, i.nodes)
+    if c == 0:
+        ty = i.__class__.__bases__[1]
+        replacement = random_individual(r, g, i.depth + 1, ty)
+        return replacement
+    else:
+        for field in i.__annotations__:
+            if hasattr(i.__annotations__[field], "nodes"):
+                count = getattr(i, field).nodes
+                if c < count:
+                    setattr(i, field, mutate(r, g, getattr(i, field)))
+                    break
+                else:
+                    c -= count
+        return i
+
+
+treebased_representation = Representation(
+    create_individual=random_individual,
+    mutate_individual=mutate,
+    crossover_individuals=lambda x, y, a, b: (a, b),
+)

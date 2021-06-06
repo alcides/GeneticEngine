@@ -4,40 +4,35 @@ from geneticengine.metahandlers.vars import VarRange
 
 
 from typing import Annotated, Protocol
+from dataclasses import dataclass
 
 
 class Number(Protocol):
     pass
 
 
+@dataclass
 class Plus(Node, Number):
-    def __init__(self, left: Number, right: Number):
-        self.left = left
-        self.right = right
+    left: Number
+    right: Number
 
     def evaluate(self, **kwargs):
         return self.left.evaluate(**kwargs) + self.right.evaluate(**kwargs)
 
-    def __repr__(self):
-        return f"({self.left} + {self.right})"
 
-
+@dataclass
 class Mul(Node, Number):
-    def __init__(self, left: Number, right: Number):
-        self.left = left
-        self.right = right
+    left: Number
+    right: Number
 
     def evaluate(self, **kwargs):
         return self.left.evaluate(**kwargs) * self.right.evaluate(**kwargs)
 
-    def __repr__(self):
-        return f"({self.left} * {self.right})"
 
-
+@dataclass
 class SafeDiv(Node, Number):
-    def __init__(self, left: Number, right: Number):
-        self.left = left
-        self.right = right
+    left: Number
+    right: Number
 
     def evaluate(self, **kwargs):
         d1 = self.left.evaluate(**kwargs)
@@ -46,27 +41,18 @@ class SafeDiv(Node, Number):
             d2 = 0.000001
         return d1 / d2
 
-    def __repr__(self):
-        return f"({self.left} / {self.right})"
 
-
+@dataclass
 class Literal(Node, Number):
-    def __init__(self, val: Annotated[int, IntRange(-10, 11)]):
-        self.val = val
+    val: Annotated[int, IntRange(-10, 11)]
 
     def evaluate(self, **kwargs):
         return self.val
 
-    def __repr__(self):
-        return str(self.val)
 
-
+@dataclass
 class Var(Node, Number):
-    def __init__(self, name: Annotated[str, VarRange(["x", "y", "z"])]):
-        self.name = name
+    name: Annotated[str, VarRange(["x", "y", "z"])]
 
     def evaluate(self, **kwargs):
         return kwargs[self.name]
-
-    def __repr__(self):
-        return self.name
