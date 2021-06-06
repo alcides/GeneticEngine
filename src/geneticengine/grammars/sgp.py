@@ -19,6 +19,9 @@ class Plus(Node, Number):
     def evaluate(self, **kwargs):
         return self.left.evaluate(**kwargs) + self.right.evaluate(**kwargs)
 
+    def __str__(self) -> str:
+        return f"({self.left} * {self.right})"
+
 
 @dataclass
 class Mul(Node, Number):
@@ -27,6 +30,9 @@ class Mul(Node, Number):
 
     def evaluate(self, **kwargs):
         return self.left.evaluate(**kwargs) * self.right.evaluate(**kwargs)
+
+    def __str__(self) -> str:
+        return f"({self.left} * {self.right})"
 
 
 @dataclass
@@ -41,6 +47,9 @@ class SafeDiv(Node, Number):
             d2 = 0.000001
         return d1 / d2
 
+    def __str__(self) -> str:
+        return f"({self.left}/{self.right})"
+
 
 @dataclass
 class Literal(Node, Number):
@@ -49,6 +58,9 @@ class Literal(Node, Number):
     def evaluate(self, **kwargs):
         return self.val
 
+    def __str__(self) -> str:
+        return str(self.val)
+
 
 @dataclass
 class Var(Node, Number):
@@ -56,3 +68,6 @@ class Var(Node, Number):
 
     def evaluate(self, **kwargs):
         return kwargs[self.name]
+
+    def __str__(self) -> str:
+        return self.name

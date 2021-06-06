@@ -8,11 +8,12 @@ print("Grammar:")
 print(repr(g))
 
 
+fitness_function = lambda x: x.evaluate(x=1, y=2, z=3)
+
 alg = GP(
     g,
     treebased_representation,
-    lambda x: x.evaluate(x=1, y=2, z=3),
-    selection=create_tournament(5),
+    fitness_function,
 )
 (b, bf) = alg.evolve()
 print(bf, b)

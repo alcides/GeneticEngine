@@ -1,4 +1,5 @@
-from typing import Callable, List, Protocol, Tuple, TypeVar
+from dataclasses import dataclass
+from typing import Any, Callable, Generic, List, Optional, Protocol, Tuple, TypeVar
 from copy import deepcopy
 from geneticengine.core.tree import Node
 from geneticengine.core.grammar import Grammar
@@ -7,28 +8,17 @@ from geneticengine.core.representations.base import Representation
 from geneticengine.core.representations.treebased import treebased_representation
 
 
+@dataclass
 class Individual(object):
-    def __init__(self, genotype, evaluation_function, representation):
-        self.genotype = genotype
-        self.fitness = None
-        self.evaluation_function = evaluation_function
-        self.representation = representation
+    genotype: Any
+    fitness: Optional[float] = None
 
-    def get_fitness(self):
-        if self.fitness is None:
-            self.fitness = self.evaluation_function(self.genotype)
-        return self.fitness
-
-    def mutate(self, random: RandomSource, grammar: Grammar):
-        self.genotype = self.representation.mutate_individual(
-            random, grammar, self.genotype
-        )
-        self.fitness = None
-        return self
+    def __str__(self) -> str:
+        return str(self.genotype)
 
 
 def create_tournament(
-    tournament_size: int,
+    evaluation_function: Callable[[Node], float], tournament_size: int, minimize=False
 ) -> Callable[[RandomSource, List[Individual], int], List[Individual]]:
     def tournament(
         r: RandomSource, population: List[Individual], n: int
@@ -38,7 +28,9 @@ def create_tournament(
             candidates = [r.choice(population) for _ in range(tournament_size)]
             winner = candidates[0]
             for o in candidates[1:]:
-                if o.get_fitness() > winner.get_fitness():
+                if o.fitness > winner.fitness and not minimize:
+                    winner = o
+                if o.fitness < winner.fitness and minimize:
                     winner = o
             winners.append(winner)
         return winners
@@ -54,68 +46,103 @@ class GP(object):
         evaluation_function: Callable[[Node], float],
         population_size: int = 200,
         elitism: int = 5,
-        novelty: int = 5,
-        number_of_generations: int = 1000,
-        max_depth: int = 10,
-        selection: Callable[
-            [RandomSource, List[Individual], int], List[Individual]
-        ] = lambda r, pop, n: pop[:n],
-        probability_mutation=0.2,
-        probability_crossover=0.2,
+        novelty: int = 10,
+        number_of_generations: int = 100,
+        max_depth: int = 15,
+        selection: Tuple[str, int] = ("tournament", 5),
+        probability_mutation: float = 0.8,
+        probability_crossover: float = -1,
+        minimize: bool = False,
     ):
         self.grammar = g
         self.representation = representation
-        self.evaluation = evaluation_function
+        self.evaluation_function = evaluation_function
         self.random = RandomSource(123)
         self.population_size = population_size
         self.elitism = elitism
         self.novelty = novelty
         self.number_of_generations = number_of_generations
         self.max_depth = max_depth
-        self.selection = selection
         self.probability_mutation = probability_mutation
         self.probability_crossover = probability_crossover
+        self.minimize = minimize
+        if selection[0] == "tournament":
+            self.selection = create_tournament(
+                self.evaluation_function, selection[1], self.minimize
+            )
+        else:
+            self.selection = lambda r, ls, n: [x for x in ls[:n]]
 
     def create_individual(self):
         return Individual(
-            self.representation.create_individual(
+            genotype=self.representation.create_individual(
                 self.random, self.grammar, self.max_depth
             ),
-            self.evaluation,
-            self.representation,
+            fitness=None,
         )
 
     def selectOne(self, population):
         return self.selection(self.random, population, 1)[0]
 
+    def evaluate(self, individual: Individual) -> float:
+        if individual.fitness is None:
+            individual.fitness = self.evaluation_function(individual.genotype)
+        return individual.fitness
+
     def evolve(self):
+        if self.minimize:
+            keyfitness = lambda x: self.evaluate(x)
+        else:
+            keyfitness = lambda x: -self.evaluate(x)
+
         population = [self.create_individual() for _ in range(self.population_size)]
-        population = sorted(population, key=lambda x: x.get_fitness())
+        population = sorted(population, key=keyfitness)
 
         for gen in range(self.number_of_generations):
             npop = [self.create_individual() for _ in range(self.novelty)]
             npop.extend([deepcopy(x) for x in population[: self.elitism]])
             spotsLeft = self.population_size - self.elitism - self.novelty
             for _ in range(spotsLeft // 2):
+                p1 = self.selectOne(population)
+                p2 = self.selectOne(population)
                 if self.random.randint(0, 100) < self.probability_crossover * 100:
                     # Crossover
-                    (p1, p2) = self.representation.crossover_individuals(
-                        self.random, self.grammar, p1, p2
+                    (g1, g2) = self.representation.crossover_individuals(
+                        self.random, self.grammar, p1.genotype, p2.genotype
                     )
-                else:
-                    p1 = self.selectOne(population)
-                    p2 = self.selectOne(population)
+                    p1 = Individual(g1)
+                    p2 = Individual(g2)
                 if self.random.randint(0, 100) < self.probability_mutation * 100:
-                    p1 = p1.mutate(self.random, self.grammar)
+                    p1 = Individual(
+                        genotype=self.representation.mutate_individual(
+                            self.random, self.grammar, p1.genotype
+                        ),
+                        fitness=None,
+                    )
                 if self.random.randint(0, 100) < self.probability_mutation * 100:
-                    p2 = p2.mutate(self.random, self.grammar)
+                    p2 = Individual(
+                        genotype=self.representation.mutate_individual(
+                            self.random, self.grammar, p2.genotype
+                        ),
+                        fitness=None,
+                    )
                 npop.append(p1)
                 npop.append(p2)
 
             population = npop
-            population = sorted(population, key=lambda x: -x.get_fitness())
-            print("BEST at", gen, "is", round(population[0].get_fitness(), 0))
-        return (population[0], population[0].get_fitness())
+            population = sorted(population, key=keyfitness)
+            self.printFitnesses(population, "G:" + str(gen))
+            print(
+                "BEST at",
+                gen,
+                "is",
+                round(self.evaluate(population[0]), 0),
+                population[0],
+            )
+        return (population[0], self.evaluate(population[0]))
 
     def printFitnesses(self, pop, prefix):
-        print(prefix, [round(x.get_fitness(), 0) for x in pop])
+        print(prefix)
+        for x in pop:
+            print(round(self.evaluate(x), 0), str(x))
+        print("---")

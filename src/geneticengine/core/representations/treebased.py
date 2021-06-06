@@ -1,6 +1,7 @@
 import sys
+from copy import deepcopy
 
-from typing import Annotated, Any, TypeVar
+from typing import Annotated, Any, TypeVar, Tuple
 
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.grammar import Grammar
@@ -40,26 +41,70 @@ def random_individual(
     return node
 
 
-def mutate(r: RandomSource, g: Grammar, i: Node) -> Node:
-    c = r.randint(0, i.nodes)
+def mutate_inner(r: RandomSource, g: Grammar, i: Node) -> Node:
+    c = r.randint(0, i.nodes - 1)
+    # print(f"#Nodes: {i.nodes}, choice: {c}")
     if c == 0:
         ty = i.__class__.__bases__[1]
         replacement = random_individual(r, g, i.depth + 1, ty)
         return replacement
     else:
         for field in i.__annotations__:
-            if hasattr(i.__annotations__[field], "nodes"):
+            child = getattr(i, field)
+            if hasattr(child, "nodes"):
                 count = getattr(i, field).nodes
-                if c < count:
-                    setattr(i, field, mutate(r, g, getattr(i, field)))
-                    break
+                if c <= count:
+                    setattr(i, field, mutate_inner(r, g, getattr(i, field)))
+                    return i
                 else:
                     c -= count
         return i
 
 
+def mutate(r: RandomSource, g: Grammar, i: Node) -> Node:
+    return mutate_inner(r, g, deepcopy(i))
+
+
+def find_in_tree(ty: type, o: Node):
+    if ty in o.__class__.__bases__:
+        yield o
+    for field in o.__annotations__:
+        child = getattr(o, field)
+        if hasattr(child, "__annotations__"):
+            yield from find_in_tree(ty, child)
+
+
+def tree_crossover_inner(
+    r: RandomSource, g: Grammar, i: Node, o: Node
+) -> Tuple[Node, Node]:
+    c = r.randint(0, i.nodes - 1)
+    if c == 0:
+        ty = i.__class__.__bases__[1]
+        replacement = r.choice(list(find_in_tree(ty, o)))
+        if replacement is None:
+            replacement = random_individual(r, g, i.depth + 1, ty)
+        return (replacement, o)
+    else:
+        for field in i.__annotations__:
+            child = getattr(i, field)
+            if hasattr(child, "nodes"):
+                count = getattr(i, field).nodes
+                if c <= count:
+                    setattr(i, field, tree_crossover_inner(r, g, getattr(i, field), o))
+                    return (i, o)
+                else:
+                    c -= count
+        return (i, o)
+
+
+def tree_crossover(
+    r: RandomSource, g: Grammar, p1: Node, p2: Node
+) -> Tuple[Node, Node]:
+    return tree_crossover_inner(r, g, deepcopy(p1), deepcopy(p2))
+
+
 treebased_representation = Representation(
     create_individual=random_individual,
     mutate_individual=mutate,
-    crossover_individuals=lambda x, y, a, b: (a, b),
+    crossover_individuals=tree_crossover,
 )
