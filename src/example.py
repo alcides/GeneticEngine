@@ -1,9 +1,19 @@
+from dataclasses import dataclass
+
 from geneticengine.algorithms.gp import GP, create_tournament
 from geneticengine.grammars.sgp import Plus, Literal, Number, Mul, SafeDiv, Var
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.tree import Node
 from geneticengine.core.representations.treebased import treebased_representation
 
-g = extract_grammar([Plus, Mul, SafeDiv, Literal, Var], Number)
+
+@dataclass
+class Zero(Node, Number):
+    def evaluate(self, **kwargs):
+        return 0
+
+
+g = extract_grammar([Plus, Mul, SafeDiv, Literal, Var, Zero], Number)
 print("Grammar:")
 print(repr(g))
 
