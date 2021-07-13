@@ -7,7 +7,7 @@ class VarRange(object):
     def __init__(self, options):
         self.options = options
 
-    def generate(self, r: RandomSource):
+    def generate(self, r: RandomSource, v):
         return r.choice(self.options)
 
     def __repr__(self):

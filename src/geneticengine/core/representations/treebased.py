@@ -1,7 +1,7 @@
 import sys
 from copy import deepcopy
 
-from typing import Annotated, Any, TypeVar, Tuple
+from typing import Annotated, Any, TypeVar, Tuple, List
 
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.grammar import Grammar
@@ -22,9 +22,19 @@ def random_individual(
 
     if starting_symbol is int:
         return r.randint(-(sys.maxsize - 1), sys.maxsize)
+    elif hasattr(starting_symbol, "__origin__"):
+        if starting_symbol.__origin__ is list:  # List
+            size = r.randint(0, depth)
+            return [
+                random_individual(r, g, depth, starting_symbol.__args__[0])
+                for _ in range(size)
+            ]
     if hasattr(starting_symbol, "__metadata__"):
         metahandler = starting_symbol.__metadata__[0]
-        return metahandler.generate(r)
+        recursive_generator = lambda: random_individual(
+            r, g, depth, starting_symbol.__args__[0]
+        )
+        return metahandler.generate(r, recursive_generator)
     if starting_symbol not in g.productions:
         raise GeneticEngineError(f"Symbol {starting_symbol} not in grammar rules.")
 

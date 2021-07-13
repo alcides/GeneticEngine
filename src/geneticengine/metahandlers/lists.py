@@ -7,13 +7,14 @@ min = TypeVar("min", covariant=True)
 max = TypeVar("max", covariant=True)
 
 
-class IntRange(object):
+class ListSizeBetween(object):
     def __init__(self, min, max):
         self.min = min
         self.max = max
 
-    def generate(self, r: RandomSource, v):
-        return r.randint(self.min, self.max)
+    def generate(self, r: RandomSource, recursive_generator):
+        size = r.randint(self.min, self.max)
+        return [recursive_generator() for _ in range(size)]
 
     def __repr__(self):
-        return f"[{self.min}...{self.max}]"
+        return f"ListSizeBetween[{self.min}...{self.max}]"
