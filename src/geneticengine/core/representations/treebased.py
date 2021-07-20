@@ -1,7 +1,8 @@
+from dataclasses import dataclass
 import sys
 from copy import deepcopy
 
-from typing import Annotated, Any, TypeVar, Tuple, List
+from typing import Annotated, Any, Dict, TypeVar, Tuple, List
 
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.grammar import Grammar
@@ -11,9 +12,16 @@ from geneticengine.core.utils import get_arguments, isTerminal
 from geneticengine.exceptions import GeneticEngineError
 
 
+@dataclass
+class ProcessedGrammar(object):
+    g: Grammar
+    distanceToTerminal: Dict[Node, int]
+
+
 def random_individual(
-    r: RandomSource, g: Grammar, depth: int = 5, starting_symbol: Any = None
+    r: RandomSource, pg: ProcessedGrammar, depth: int = 5, starting_symbol: Any = None
 ):
+    g = pg.g
     if depth < 0:
         raise GeneticEngineError("Recursion Depth reached")
 
@@ -39,12 +47,12 @@ def random_individual(
         raise GeneticEngineError(f"Symbol {starting_symbol} not in grammar rules.")
 
     valid_productions = g.productions[starting_symbol]
-    if depth <= 1:
-        valid_productions = [vp for vp in valid_productions if isTerminal(vp)]
+
+    valid_productions = [vp for vp in valid_productions if pg.distanceToTerminal[vp] <= depth]
     if not valid_productions:
         raise GeneticEngineError(f"No productions for non-terminal {starting_symbol}")
     rule = r.choice(valid_productions)
-    args = [random_individual(r, g, depth - 1, at) for (a, at) in get_arguments(rule)]
+    args = [random_individual(r, pg, depth - 1, at) for (a, at) in get_arguments(rule)]
     node = rule(*args)
     node.depth = max([1] + [n.depth for n in args if hasattr(n, "depth")])
     node.nodes = 1 + sum([n.nodes for n in args if hasattr(n, "nodes")])
@@ -106,15 +114,50 @@ def tree_crossover_inner(
                     c -= count
         return (i, o)
 
-
 def tree_crossover(
     r: RandomSource, g: Grammar, p1: Node, p2: Node
 ) -> Tuple[Node, Node]:
     return tree_crossover_inner(r, g, deepcopy(p1), deepcopy(p2))
 
+def preprocess_grammar(g: Grammar) -> ProcessedGrammar:
+    choice = set()
+    for k in g.productions.keys():
+        choice.add(k)
+    sequence = set()
+    for vv in g.productions.values():
+        for v in vv:
+            if v not in choice:
+                sequence.add(v)
+    all_sym = sequence.union(choice)
+    dist_to_terminal = {}
+    for s in all_sym:
+        dist_to_terminal[s] = 1000000
+    changed = True
+    while changed:
+        changed = False
+        for sym in all_sym:
+            old_val = dist_to_terminal[sym]
+            val = old_val
+            if sym in choice:
+                for prod in g.productions[sym]:
+                    val = min(val, dist_to_terminal[prod])
+            else:
+                if hasattr(sym, "__annotations__"):
+                    val = dist_to_terminal[sym.__annotations__.values().__iter__().__next__()]
+                    for prod in sym.__annotations__.values():
+                        val = max(val, dist_to_terminal[prod]+1)
+                else:
+                    val = 1
+            if val != old_val:
+                changed = True
+                dist_to_terminal[sym] = val
+
+
+    return ProcessedGrammar(g=g, distanceToTerminal=dist_to_terminal)
 
 treebased_representation = Representation(
     create_individual=random_individual,
     mutate_individual=mutate,
     crossover_individuals=tree_crossover,
+    preprocess_grammar=preprocess_grammar
 )

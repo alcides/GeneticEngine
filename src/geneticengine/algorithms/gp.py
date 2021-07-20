@@ -54,7 +54,7 @@ class GP(object):
         probability_crossover: float = -1,
         minimize: bool = False,
     ):
-        self.grammar = g
+        self.grammar = representation.preprocess_grammar(g)
         self.representation = representation
         self.evaluation_function = evaluation_function
         self.random = RandomSource(123)
