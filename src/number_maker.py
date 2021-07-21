@@ -16,6 +16,12 @@ class One(Node, Expr):
     def evaluate(self, **kwargs):
         return 1
 
+    def size(self):
+        return 1
+
+    def __str__(self) -> str:
+        return "1"
+
 
 @dataclass
 class Add(Node, Expr):
@@ -25,18 +31,52 @@ class Add(Node, Expr):
     def evaluate(self, **kwargs):
         return self.left.evaluate() + self.right.evaluate()
 
+    def size(self):
+        return self.left.size() + self.right.size() + 1
+
+    def __str__(self) -> str:
+        return "(" + str(self.left) + " + " + str(self.right) + ")"
+
+@dataclass
+class Sub(Node, Expr):
+    left: Node
+    right: Node
+
+    def evaluate(self, **kwargs):
+        return self.left.evaluate() - self.right.evaluate()
+
+    def size(self):
+        return self.left.size() + self.right.size() + 1
+
+    def __str__(self) -> str:
+        return "(" + str(self.left) + " - " + str(self.right) + ")"
+
+@dataclass
+class Mul(Node, Expr):
+    left: Node
+    right: Node
+
+    def evaluate(self, **kwargs):
+        return self.left.evaluate() * self.right.evaluate()
+
+    def size(self):
+        return self.left.size() + self.right.size() + 1
+
+    def __str__(self) -> str:
+        return "(" + str(self.left) + " * " + str(self.right) + ")"
+
 
 if __name__ == "__main__":
-    g = extract_grammar([One, Add], Expr)
-    target = 5
+    g = extract_grammar([One, Add, Sub, Mul], Expr)
+    target = 64
     alg = GP(
         g,
         treebased_representation,
-        lambda p: -abs(target - p.evaluate()),
-        minimize=False,
-        max_depth=10,
+        lambda p: (abs(target - p.evaluate()) - 1/p.size()),
+        minimize=True,
+        max_depth=8,
         number_of_generations=50,
-        population_size=1500,
+        population_size=1000,
         novelty=50,
     )
     (b, bf) = alg.evolve()

@@ -53,6 +53,7 @@ class GP(object):
         probability_mutation: float = 0.8,
         probability_crossover: float = -1,
         minimize: bool = False,
+        force_individual: Any = None
     ):
         self.grammar = representation.preprocess_grammar(g)
         self.representation = representation
@@ -72,6 +73,7 @@ class GP(object):
             )
         else:
             self.selection = lambda r, ls, n: [x for x in ls[:n]]
+        self.force_individual = force_individual
 
     def create_individual(self):
         return Individual(
@@ -96,6 +98,11 @@ class GP(object):
             keyfitness = lambda x: -self.evaluate(x)
 
         population = [self.create_individual() for _ in range(self.population_size)]
+        if self.force_individual is not None:
+            population[0] = Individual(
+            genotype=self.force_individual,
+            fitness=None,
+        )
         population = sorted(population, key=keyfitness)
 
         for gen in range(self.number_of_generations):
