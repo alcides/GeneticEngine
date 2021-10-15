@@ -2,13 +2,13 @@ from dataclasses import dataclass
 import sys
 from copy import deepcopy
 
-from typing import Annotated, Any, Dict, TypeVar, Tuple, List
+from typing import Annotated, Any, Dict, TypeVar, Tuple, List, _AnnotatedAlias
 
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.representations.base import Representation
 from geneticengine.core.tree import Node
-from geneticengine.core.utils import get_arguments, isTerminal
+from geneticengine.core.utils import get_arguments
 from geneticengine.exceptions import GeneticEngineError
 
 
@@ -129,7 +129,7 @@ def preprocess_grammar(g: Grammar) -> ProcessedGrammar:
             if v not in choice:
                 sequence.add(v)
     all_sym = sequence.union(choice)
-    dist_to_terminal = {}
+    dist_to_terminal = {int:1,str:1}
     for s in all_sym:
         dist_to_terminal[s] = 1000000
     changed = True
@@ -143,8 +143,19 @@ def preprocess_grammar(g: Grammar) -> ProcessedGrammar:
                     val = min(val, dist_to_terminal[prod])
             else:
                 if hasattr(sym, "__annotations__"):
-                    val = dist_to_terminal[sym.__annotations__.values().__iter__().__next__()]
-                    for prod in sym.__annotations__.values():
+                    var = sym.__annotations__.values()
+                    if isinstance(list(var)[0],_AnnotatedAlias):
+                        # import IPython as ip
+                        # ip.embed()
+                        # Should actually analyse and give a sensable value
+                        t = list(var)[0].__origin__
+                    else:
+                        t = var.__iter__().__next__()
+                    val = dist_to_terminal[t]
+                    for prod in var:
+                        if isinstance(prod,_AnnotatedAlias):
+                            prod = prod.__origin__
+                        print(prod)
                         val = max(val, dist_to_terminal[prod]+1)
                 else:
                     val = 1

@@ -1,5 +1,5 @@
 from random import Random
-from typing import Protocol, TypeVar, ForwardRef, Tuple, get_args
+from typing import TypeVar, ForwardRef, Tuple, get_args
 
 from geneticengine.core.random.sources import RandomSource
 
