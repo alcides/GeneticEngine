@@ -3,11 +3,11 @@ from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.vars import VarRange
 
 
-from typing import Annotated
+from typing import Annotated, Protocol
 from dataclasses import dataclass
 
 
-class Number(object):
+class Number(Protocol):
     pass
 
 
@@ -20,7 +20,7 @@ class Plus(Node, Number):
         return self.left.evaluate(**kwargs) + self.right.evaluate(**kwargs)
 
     def __str__(self) -> str:
-        return f"({self.left} + {self.right})"
+        return f"({self.left} * {self.right})"
 
 
 @dataclass
@@ -64,10 +64,10 @@ class Literal(Node, Number):
 
 @dataclass
 class Var(Node, Number):
-    val: Annotated[str, VarRange(["x", "y", "z"])]
+    name: Annotated[str, VarRange(["x", "y", "z"])]
 
     def evaluate(self, **kwargs):
-        return kwargs[self.val]
+        return kwargs[self.name]
 
     def __str__(self) -> str:
-        return self.val
+        return self.name

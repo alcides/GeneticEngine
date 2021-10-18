@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Annotated, List, Tuple
+from typing import Annotated, List, Protocol, Tuple
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.treebased import treebased_representation
 from geneticengine.core.tree import Node
@@ -8,7 +8,7 @@ from geneticengine.metahandlers.lists import ListSizeBetween
 from geneticengine.algorithms.gp import GP
 
 
-class Expr(object):
+class Expr(Protocol):
     pass
 
 

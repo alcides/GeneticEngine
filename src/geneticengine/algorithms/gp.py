@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Callable, Generic, List, Optional, Tuple, TypeVar
+from typing import Any, Callable, Generic, List, Optional, Protocol, Tuple, TypeVar
 from copy import deepcopy
 from geneticengine.core.tree import Node
 from geneticengine.core.grammar import Grammar
@@ -138,14 +138,12 @@ class GP(object):
 
             population = npop
             population = sorted(population, key=keyfitness)
-            # self.printFitnesses(population, "G:" + str(gen))
+            self.printFitnesses(population, "G:" + str(gen))
             print(
                 "BEST at",
                 gen,
-                "/",
-                self.number_of_generations,
                 "is",
-                round(self.evaluate(population[0]), 2),
+                round(self.evaluate(population[0]), 0),
                 population[0],
             )
         return (population[0], self.evaluate(population[0]))

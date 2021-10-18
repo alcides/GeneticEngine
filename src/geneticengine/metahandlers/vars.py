@@ -1,4 +1,4 @@
-from typing import Generic, TypeVar, ForwardRef, Tuple, get_args
+from typing import Generic, Protocol, TypeVar, ForwardRef, Tuple, get_args
 
 from geneticengine.core.random.sources import RandomSource
 
