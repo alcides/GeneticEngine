@@ -138,12 +138,14 @@ class GP(object):
 
             population = npop
             population = sorted(population, key=keyfitness)
-            self.printFitnesses(population, "G:" + str(gen))
+            # self.printFitnesses(population, "G:" + str(gen))
             print(
                 "BEST at",
                 gen,
+                "/",
+                self.number_of_generations,
                 "is",
-                round(self.evaluate(population[0]), 0),
+                round(self.evaluate(population[0]), 2),
                 population[0],
             )
         return (population[0], self.evaluate(population[0]))

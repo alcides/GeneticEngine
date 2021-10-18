@@ -20,7 +20,7 @@ class Plus(Node, Number):
         return self.left.evaluate(**kwargs) + self.right.evaluate(**kwargs)
 
     def __str__(self) -> str:
-        return f"({self.left} * {self.right})"
+        return f"({self.left} + {self.right})"
 
 
 @dataclass
@@ -64,10 +64,10 @@ class Literal(Node, Number):
 
 @dataclass
 class Var(Node, Number):
-    name: Annotated[str, VarRange(["x", "y", "z"])]
+    val: Annotated[str, VarRange(["x", "y", "z"])]
 
     def evaluate(self, **kwargs):
-        return kwargs[self.name]
+        return kwargs[self.val]
 
     def __str__(self) -> str:
-        return self.name
+        return self.val
