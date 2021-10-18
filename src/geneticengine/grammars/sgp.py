@@ -64,10 +64,10 @@ class Literal(Node, Number):
 
 @dataclass
 class Var(Node, Number):
-    val: Annotated[str, VarRange(["x", "y", "z"])]
+    name: Annotated[str, VarRange(["x", "y", "z"])]
 
     def evaluate(self, **kwargs):
-        return kwargs[self.val]
+        return kwargs[self.name]
 
     def __str__(self) -> str:
-        return self.val
+        return self.name
