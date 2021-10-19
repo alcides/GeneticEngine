@@ -18,6 +18,7 @@ bunch = load_diabetes()
 # Prepare Grammar
 Var.__annotations__["name"] = Annotated[str, VarRange(bunch.feature_names)]
 g = extract_grammar([Plus, Mul, SafeDiv, Literal, Var], Number)
+print("Grammar: {}.".format(repr(g)))
 
 
 def safediv(x, y):
