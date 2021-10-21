@@ -13,7 +13,7 @@ class RandomMutations(object):
     def evolve(self):
         best = 0
         best_ind = None
-        i = random_individual(self.random, self.grammar, 10)
+        i = random_individual(self.random, self.grammar, 10) # Puts in grammar but random_individual takes Processed Grammar
         for _ in range(1000):
             i = mutate(self.random, self.grammar, i)
             f = self.evaluation(i)
