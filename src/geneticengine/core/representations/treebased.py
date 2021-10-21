@@ -64,7 +64,7 @@ def mutate_inner(r: RandomSource, g: Grammar, i: Node) -> Node:
     # print(f"#Nodes: {i.nodes}, choice: {c}")
     if c == 0:
         ty = i.__class__.__bases__[1]
-        replacement = random_individual(r, g, i.depth + 1, ty)
+        replacement = random_individual(r, g, i.depth + 1, ty) # Should take a ProcessedGrammar in stead of Grammar
         return replacement
     else:
         for field in i.__annotations__:
@@ -100,7 +100,7 @@ def tree_crossover_inner(
         ty = i.__class__.__bases__[1]
         replacement = r.choice(list(find_in_tree(ty, o)))
         if replacement is None:
-            replacement = random_individual(r, g, i.depth + 1, ty)
+            replacement = random_individual(r, g, i.depth + 1, ty) # Should take a ProcessedGrammar in stead of Grammar
         return (replacement, o)
     else:
         for field in i.__annotations__:
@@ -117,7 +117,7 @@ def tree_crossover_inner(
 def tree_crossover(
     r: RandomSource, g: Grammar, p1: Node, p2: Node
 ) -> Tuple[Node, Node]:
-    return tree_crossover_inner(r, g, deepcopy(p1), deepcopy(p2))
+    return tree_crossover_inner(r, g, deepcopy(p1), deepcopy(p2)) # Should take a ProcessedGrammar in stead of Grammar
 
 def preprocess_grammar(g: Grammar) -> ProcessedGrammar:
     choice = set()
