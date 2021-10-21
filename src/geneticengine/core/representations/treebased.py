@@ -86,9 +86,9 @@ def mutate(r: RandomSource, g: Grammar, i: Node) -> Node:
 def find_in_tree(ty: type, o: Node):
     if ty in o.__class__.__bases__:
         yield o
-    for field in o.__annotations__:
-        child = getattr(o, field)
-        if hasattr(child, "__annotations__"):
+    if hasattr(o, "__annotations__"):
+        for field in o.__annotations__:
+            child = getattr(o, field)
             yield from find_in_tree(ty, child)
 
 
@@ -108,7 +108,7 @@ def tree_crossover_inner(
             if hasattr(child, "nodes"):
                 count = getattr(i, field).nodes
                 if c <= count:
-                    setattr(i, field, tree_crossover_inner(r, g, getattr(i, field), o))
+                    setattr(i, field, tree_crossover_inner(r, g, getattr(i, field), o)[0]) # tree_crossover_inner returns a tuple. This is not desired in the usecase in this line. [0] added to take first argument. This workaround should be fixed
                     return (i, o)
                 else:
                     c -= count
