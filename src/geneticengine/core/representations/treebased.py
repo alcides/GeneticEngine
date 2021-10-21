@@ -34,13 +34,13 @@ def random_individual(
         if starting_symbol.__origin__ is list:  # List
             size = r.randint(0, depth)
             return [
-                random_individual(r, g, depth, starting_symbol.__args__[0])
+                random_individual(r, pg, depth, starting_symbol.__args__[0])
                 for _ in range(size)
             ]
     if hasattr(starting_symbol, "__metadata__"):
         metahandler = starting_symbol.__metadata__[0]
         recursive_generator = lambda: random_individual(
-            r, g, depth, starting_symbol.__args__[0]
+            r, pg, depth, starting_symbol.__args__[0]
         )
         return metahandler.generate(r, recursive_generator)
     if starting_symbol not in g.productions:
