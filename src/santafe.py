@@ -50,11 +50,18 @@ class Action(Protocol):
 class ActionBlock(Node, Action):
     actions: Annotated[List[Action], ListSizeBetween(2, 3)]
 
+    def __init__(self,actions):
+        self.actions = actions
+
 
 @dataclass
 class IfFood(Node, Action):
     yes_food: Action
     no_food: Action
+
+    def __init__(self,yes_food,no_food):
+        self.yes_food = yes_food
+        self.no_food = no_food
 
 
 @dataclass
