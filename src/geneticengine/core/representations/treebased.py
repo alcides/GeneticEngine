@@ -2,7 +2,7 @@ from dataclasses import dataclass
 import sys
 from copy import deepcopy
 
-from typing import Annotated, Any, Dict, TypeVar, Tuple, List, _AnnotatedAlias
+from typing import Annotated, Any, Dict, TypeVar, Tuple, List, _AnnotatedAlias, _GenericAlias
 
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.grammar import Grammar
@@ -145,17 +145,18 @@ def preprocess_grammar(g: Grammar) -> ProcessedGrammar:
                 if hasattr(sym, "__annotations__"):
                     var = sym.__annotations__.values()
                     if isinstance(list(var)[0],_AnnotatedAlias):
-                        # import IPython as ip
-                        # ip.embed()
                         # Should actually analyse and give a sensable value
                         t = list(var)[0].__origin__
                     else:
                         t = var.__iter__().__next__()
+                    if isinstance(t,_GenericAlias):
+                        t = t.__args__[0]
                     val = dist_to_terminal[t]
                     for prod in var:
                         if isinstance(prod,_AnnotatedAlias):
                             prod = prod.__origin__
-                        print(prod)
+                        if isinstance(prod,_GenericAlias):
+                            prod = prod.__args__[0]
                         val = max(val, dist_to_terminal[prod]+1)
                 else:
                     val = 1
