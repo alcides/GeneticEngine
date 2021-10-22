@@ -127,9 +127,10 @@ def simulate(a: Action, map_str: str) -> int:
         Direction.EAST,
     )  # row, col, direction
     while next_instructions:
-        current_instruction = next_instructions.pop()
-        if isinstance(current_instruction, ActionBlock):
-            next_instructions = current_instruction.actions + next_instructions
+        current_instruction = next_instructions.pop(0) # Default is -1
+        if isinstance(current_instruction, ActionBlock): # ActionBlock contains list of action lists.
+            for action in reversed(current_instruction.actions):
+                next_instructions = action + next_instructions
         elif isinstance(current_instruction, IfFood):
             if food_in_front(current_pos, map):
                 next_instructions.insert(0, current_instruction.yes_food)
