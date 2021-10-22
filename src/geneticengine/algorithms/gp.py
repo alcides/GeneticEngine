@@ -50,8 +50,11 @@ class GP(object):
         number_of_generations: int = 100,
         max_depth: int = 15,
         selection: Tuple[str, int] = ("tournament", 5),
-        probability_mutation: float = 0.8,
-        probability_crossover: float = -1,
+        # -----
+        # As given in A Field Guide to GP, p.17, by Poli and Mcphee
+        probability_mutation: float = 0.01,
+        probability_crossover: float = 0.9,
+        # -----
         minimize: bool = False,
         force_individual: Any = None
     ):
@@ -146,7 +149,7 @@ class GP(object):
                 self.number_of_generations,
                 "is",
                 round(self.evaluate(population[0]), 2),
-                population[0],
+                # population[0]
             )
         return (population[0], self.evaluate(population[0]))
 
