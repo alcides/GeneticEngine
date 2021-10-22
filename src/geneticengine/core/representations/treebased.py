@@ -116,7 +116,7 @@ def tree_crossover_inner(
 def tree_crossover(
     r: RandomSource, pg: ProcessedGrammar, p1: Node, p2: Node
 ) -> Tuple[Node, Node]:
-    return tree_crossover_inner(r, pg, deepcopy(p1), deepcopy(p2)),p2
+    return tree_crossover_inner(r, pg, deepcopy(p1), deepcopy(p2)),tree_crossover_inner(r, pg, deepcopy(p2), deepcopy(p1))
 
 def preprocess_grammar(g: Grammar) -> ProcessedGrammar:
     choice = set()
