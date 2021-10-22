@@ -100,23 +100,23 @@ def tree_crossover_inner(
         replacement = r.choice(list(find_in_tree(ty, o)))
         if replacement is None:
             replacement = random_individual(r, pg, i.depth + 1, ty) 
-        return (replacement, o)
+        return replacement
     else:
         for field in i.__annotations__:
             child = getattr(i, field)
             if hasattr(child, "nodes"):
                 count = getattr(i, field).nodes
                 if c <= count:
-                    setattr(i, field, tree_crossover_inner(r, pg, getattr(i, field), o)[0]) # tree_crossover_inner returns a tuple. This is not desired in the usecase in this line. [0] added to take first argument. This workaround should be fixed
-                    return (i, o)
+                    setattr(i, field, tree_crossover_inner(r, pg, getattr(i, field), o))
+                    return i
                 else:
                     c -= count
-        return (i, o)
+        return i
 
 def tree_crossover(
     r: RandomSource, pg: ProcessedGrammar, p1: Node, p2: Node
 ) -> Tuple[Node, Node]:
-    return tree_crossover_inner(r, pg, deepcopy(p1), deepcopy(p2))
+    return tree_crossover_inner(r, pg, deepcopy(p1), deepcopy(p2)),p2
 
 def preprocess_grammar(g: Grammar) -> ProcessedGrammar:
     choice = set()
