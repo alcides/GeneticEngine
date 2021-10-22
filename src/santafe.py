@@ -166,7 +166,6 @@ if __name__ == "__main__":
         minimize=False,
         max_depth=10,
         number_of_generations=50,
-        probability_crossover=.5,
         population_size=1500,
         novelty=50,
     )

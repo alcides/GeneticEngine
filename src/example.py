@@ -38,7 +38,6 @@ alg = GP(
     g,
     treebased_representation,
     fit,
-    probability_crossover=.5,
     number_of_generations=100,
     minimize=True,
 )
