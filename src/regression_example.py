@@ -59,6 +59,7 @@ alg = GP(
     g,
     treebased_representation,
     fitness_function,
+    probability_crossover=.5,
     minimize=True,
 )
 (b, bf) = alg.evolve()
