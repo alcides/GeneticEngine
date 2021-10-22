@@ -95,6 +95,8 @@ class GP(object):
         return individual.fitness
 
     def evolve(self):
+        # Evolve creates a new population for every generation. This population is created using the complete old population. This is not optimal. The fittest functions should be chosen with a higher probability. A new evolve function is desirable. 
+
         if self.minimize:
             keyfitness = lambda x: self.evaluate(x)
         else:
