@@ -17,8 +17,8 @@ class GP(object):
         representation: Representation,
         evaluation_function: Callable[[Node], float],
         population_size: int = 200,
-        novelty: int = 10,
         n_elites: int = 5,
+        n_novelties: int = 10,
         number_of_generations: int = 100,
         max_depth: int = 15,
         selection_method: Tuple[str, int] = ("tournament", 5),
@@ -35,8 +35,8 @@ class GP(object):
         self.evaluation_function = evaluation_function
         self.random = RandomSource(123)
         self.population_size = population_size
-        self.novelty = novelty
         self.elitism = selection.create_elitism(n_elites)
+        self.novelty = selection.create_novelties(n_novelties,self.create_individual)
         self.number_of_generations = number_of_generations
         self.max_depth = max_depth
         self.probability_mutation = probability_mutation
@@ -82,8 +82,8 @@ class GP(object):
         population = sorted(population, key=keyfitness)
 
         for gen in range(self.number_of_generations):
-            npop = [self.create_individual() for _ in range(self.novelty)]
             spotsLeft = self.population_size - self.elitism - self.novelty
+            npop = self.novelty()
             npop.extend(self.elitism(population))
             for _ in range(spotsLeft // 2):
                 # It's possible to let individuals reproduce with themselve
