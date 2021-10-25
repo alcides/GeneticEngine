@@ -1,4 +1,5 @@
 from typing import List, Callable
+from copy import deepcopy
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.algorithms.gp.Individual import Individual
 
@@ -18,3 +19,14 @@ def create_tournament(tournament_size: int, minimize=False) -> Callable[[RandomS
         return winners
 
     return tournament
+
+
+def create_elitism(n_elites: int) -> Callable[[List[Individual]], List[Individual]]:
+    
+    def elitism(population: List[Individual]) ->  List[Individual]:
+        population = population.sort(key=Individual.fitness)
+        return [deepcopy(x) for x in population[: n_elites]]
+    
+    return elitism
+
+
