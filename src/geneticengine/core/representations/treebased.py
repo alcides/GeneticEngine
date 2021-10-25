@@ -116,7 +116,18 @@ def tree_crossover_inner(
 def tree_crossover(
     r: RandomSource, pg: ProcessedGrammar, p1: Node, p2: Node
 ) -> Tuple[Node, Node]:
+    '''
+    Given the two input trees [p1] and [p2], the grammar and the random source, this function returns two trees that are created by crossing over [p1] and [p2]. The first tree returned has [p1] as the base, and the second tree has [p2] as a base.
+    '''
     return tree_crossover_inner(r, pg, deepcopy(p1), deepcopy(p2)),tree_crossover_inner(r, pg, deepcopy(p2), deepcopy(p1))
+
+def tree_crossover_single_tree(
+    r: RandomSource, pg: ProcessedGrammar, p1: Node, p2: Node
+) -> Tuple[Node, Node]:
+    '''
+    Given the two input trees [p1] and [p2], the grammar and the random source, this function returns one tree that is created by crossing over [p1] and [p2]. The tree returned has [p1] as the base.
+    '''
+    return tree_crossover_inner(r, pg, deepcopy(p1), deepcopy(p2))
 
 def preprocess_grammar(g: Grammar) -> ProcessedGrammar:
     choice = set()
