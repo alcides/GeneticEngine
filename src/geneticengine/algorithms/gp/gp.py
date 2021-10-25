@@ -37,7 +37,8 @@ class GP(object):
         self.random = RandomSource(123)
         self.population_size = population_size
         self.elitism = selection.create_elitism(n_elites)
-        self.novelty = selection.create_novelties(n_novelties,self.create_individual)
+        self.novelty = selection.create_novelties(self.create_individual)
+        self.n_novelties = n_novelties
         self.number_of_generations = number_of_generations
         self.max_depth = max_depth
         self.probability_mutation = probability_mutation
@@ -83,7 +84,7 @@ class GP(object):
         population = sorted(population, key=keyfitness)
 
         for gen in range(self.number_of_generations):
-            npop = self.novelty()
+            npop = self.novelty(self.n_novelties)
             npop.extend(self.elitism(population, keyfitness))
             spotsLeft = self.population_size - len(npop)
             for _ in range(spotsLeft // 2):

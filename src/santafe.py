@@ -167,7 +167,7 @@ if __name__ == "__main__":
         max_depth=10,
         number_of_generations=50,
         population_size=1500,
-        novelty=50,
+        n_novelties=50,
     )
     (b, bf) = alg.evolve()
     print(bf, b)

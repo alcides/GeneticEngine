@@ -30,9 +30,9 @@ def create_elitism(n_elites: int) -> Callable[[List[Individual], Callable[[Indiv
     return elitism
 
 
-def create_novelties(n_novelties: int, create_individual: Callable[[], Individual]) -> Callable[[], List[Individual]]:
+def create_novelties(create_individual: Callable[[], Individual]) -> Callable[[int], List[Individual]]:
     
-    def novelties() ->  List[Individual]:
+    def novelties(n_novelties: int) ->  List[Individual]:
         return [create_individual() for _ in range(n_novelties)]
     
     return novelties
