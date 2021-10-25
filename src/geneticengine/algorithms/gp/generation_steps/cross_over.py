@@ -1,11 +1,11 @@
-from typing import Callable
+from typing import Callable, Tuple
 from geneticengine.algorithms.gp.Individual import Individual
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.base import Representation
 from geneticengine.core.representations.treebased import ProcessedGrammar
 
 
-def create_cross_over(r: RandomSource, representation: Representation, pg: ProcessedGrammar) -> Callable[[Individual,Individual],(Individual,Individual)]:
+def create_cross_over(r: RandomSource, representation: Representation, pg: ProcessedGrammar) -> Callable[[Individual,Individual],Tuple[Individual]]:
     
     def cross_over_double(individual1: Individual,individual2: Individual):
         (g1, g2) = representation.crossover_individuals(
