@@ -8,6 +8,7 @@ from geneticengine.core.representations.treebased import ProcessedGrammar, treeb
 from geneticengine.algorithms.gp.Individual import Individual
 import geneticengine.algorithms.gp.generation_steps.selection as selection
 import geneticengine.algorithms.gp.generation_steps.mutation as mutation
+import geneticengine.algorithms.gp.generation_steps.cross_over as cross_over
 
 
 
@@ -40,6 +41,7 @@ class GP(object):
         self.elitism = selection.create_elitism(n_elites)
         self.novelty = selection.create_novelties(self.create_individual)
         self.mutation = mutation.create_mutation(self.random,self.representation,self.pg)
+        self.cross_over = cross_over.create_cross_over(self.random,self.representation,self.pg)
         self.n_novelties = n_novelties
         self.number_of_generations = number_of_generations
         self.max_depth = max_depth
@@ -90,12 +92,7 @@ class GP(object):
                 candidates = self.selection(self.random, population, 1)[0]
                 (p1,p2) = candidates[0],candidates[1]
                 if self.random.randint(0, 100) < self.probability_crossover * 100:
-                    # Crossover
-                    (g1, g2) = self.representation.crossover_individuals(
-                        self.random, self.pg, p1.genotype, p2.genotype
-                    )
-                    p1 = Individual(g1)
-                    p2 = Individual(g2)
+                    (p1, p2) = self.cross_over(p1,p2)
                 if self.random.randint(0, 100) < self.probability_mutation * 100:
                     p1 = self.mutation(p1)
                 if self.random.randint(0, 100) < self.probability_mutation * 100:
