@@ -4,7 +4,7 @@ from geneticengine.core.tree import Node
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.base import Representation
-from geneticengine.core.representations.treebased import treebased_representation
+from geneticengine.core.representations.treebased import ProcessedGrammar, treebased_representation
 from geneticengine.algorithms.gp.Individual import Individual
 import geneticengine.algorithms.gp.generation_steps.selection as selection
 
@@ -31,7 +31,7 @@ class GP(object):
         force_individual: Any = None
     ):
         # Add check to input numbers (n_elitism, n_novelties, population_size) 
-        self.grammar = representation.preprocess_grammar(g)
+        self.pg : ProcessedGrammar = representation.preprocess_grammar(g)
         self.representation = representation
         self.evaluation_function = evaluation_function
         self.random = RandomSource(123)
@@ -55,7 +55,7 @@ class GP(object):
     def create_individual(self):
         return Individual(
             genotype=self.representation.create_individual(
-                self.random, self.grammar, self.max_depth
+                self.random, self.pg, self.max_depth
             ),
             fitness=None,
         )
@@ -94,21 +94,21 @@ class GP(object):
                 if self.random.randint(0, 100) < self.probability_crossover * 100:
                     # Crossover
                     (g1, g2) = self.representation.crossover_individuals(
-                        self.random, self.grammar, p1.genotype, p2.genotype
+                        self.random, self.pg, p1.genotype, p2.genotype
                     )
                     p1 = Individual(g1)
                     p2 = Individual(g2)
                 if self.random.randint(0, 100) < self.probability_mutation * 100:
                     p1 = Individual(
                         genotype=self.representation.mutate_individual(
-                            self.random, self.grammar, p1.genotype
+                            self.random, self.pg, p1.genotype
                         ),
                         fitness=None,
                     )
                 if self.random.randint(0, 100) < self.probability_mutation * 100:
                     p2 = Individual(
                         genotype=self.representation.mutate_individual(
-                            self.random, self.grammar, p2.genotype
+                            self.random, self.pg, p2.genotype
                         ),
                         fitness=None,
                     )
