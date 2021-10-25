@@ -30,6 +30,7 @@ class GP(object):
         minimize: bool = False,
         force_individual: Any = None
     ):
+        # Add check to input numbers (n_elitism, n_novelties, population_size) 
         self.grammar = representation.preprocess_grammar(g)
         self.representation = representation
         self.evaluation_function = evaluation_function
