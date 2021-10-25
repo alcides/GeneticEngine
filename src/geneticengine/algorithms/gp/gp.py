@@ -7,6 +7,7 @@ from geneticengine.core.representations.base import Representation
 from geneticengine.core.representations.treebased import ProcessedGrammar, treebased_representation
 from geneticengine.algorithms.gp.Individual import Individual
 import geneticengine.algorithms.gp.generation_steps.selection as selection
+import geneticengine.algorithms.gp.generation_steps.mutation as mutation
 
 
 
@@ -38,6 +39,7 @@ class GP(object):
         self.population_size = population_size
         self.elitism = selection.create_elitism(n_elites)
         self.novelty = selection.create_novelties(self.create_individual)
+        self.mutation = mutation.create_mutation(self.random,self.representation,self.pg)
         self.n_novelties = n_novelties
         self.number_of_generations = number_of_generations
         self.max_depth = max_depth
@@ -99,19 +101,9 @@ class GP(object):
                     p1 = Individual(g1)
                     p2 = Individual(g2)
                 if self.random.randint(0, 100) < self.probability_mutation * 100:
-                    p1 = Individual(
-                        genotype=self.representation.mutate_individual(
-                            self.random, self.pg, p1.genotype
-                        ),
-                        fitness=None,
-                    )
+                    p1 = self.mutation(p1)
                 if self.random.randint(0, 100) < self.probability_mutation * 100:
-                    p2 = Individual(
-                        genotype=self.representation.mutate_individual(
-                            self.random, self.pg, p2.genotype
-                        ),
-                        fitness=None,
-                    )
+                    p2 = self.mutation(p2)
                 npop.append(p1)
                 npop.append(p2)
 
