@@ -62,9 +62,6 @@ class GP(object):
             fitness=None,
         )
 
-    def selectOne(self, population):
-        return self.selection(self.random, population, 1)[0]
-
     def evaluate(self, individual: Individual) -> float:
         if individual.fitness is None:
             individual.fitness = self.evaluation_function(individual.genotype)
@@ -90,9 +87,8 @@ class GP(object):
             npop.extend(self.elitism(population, self.keyfitness()))
             spotsLeft = self.population_size - len(npop)
             for _ in range(spotsLeft // 2):
-                # It's possible to let individuals reproduce with themselve
-                p1 = self.selectOne(population)
-                p2 = self.selectOne(population)
+                candidates = self.selection(self.random, population, 1)[0]
+                (p1,p2) = candidates[0],candidates[1]
                 if self.random.randint(0, 100) < self.probability_crossover * 100:
                     # Crossover
                     (g1, g2) = self.representation.crossover_individuals(
