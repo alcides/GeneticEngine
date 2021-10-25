@@ -4,9 +4,9 @@ from geneticengine.algorithms.gp.Individual import Individual
 
 def create_tournament(tournament_size: int, minimize=False) -> Callable[[RandomSource, List[Individual], int], List[Individual]]:
     
-    def tournament(r: RandomSource, population: List[Individual], n: int) -> List[Individual]:
+    def tournament(r: RandomSource, population: List[Individual], n_winners: int) -> List[Individual]:
         winners = []
-        for _ in range(n):
+        for _ in range(n_winners):
             candidates = [r.choice(population) for _ in range(tournament_size)]
             winner = candidates[0]
             for o in candidates[1:]:
