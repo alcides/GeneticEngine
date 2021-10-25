@@ -112,6 +112,7 @@ class GP(object):
             npop.extend([deepcopy(x) for x in population[: self.elitism]])
             spotsLeft = self.population_size - self.elitism - self.novelty
             for _ in range(spotsLeft // 2):
+                # It's possible to let individuals reproduce with themselve
                 p1 = self.selectOne(population)
                 p2 = self.selectOne(population)
                 if self.random.randint(0, 100) < self.probability_crossover * 100:
