@@ -21,10 +21,10 @@ def create_tournament(tournament_size: int, minimize=False) -> Callable[[RandomS
     return tournament
 
 
-def create_elitism(n_elites: int) -> Callable[[List[Individual]], List[Individual]]:
+def create_elitism(n_elites: int) -> Callable[[List[Individual], Callable[[Individual], float]], List[Individual]]:
     
-    def elitism(population: List[Individual]) ->  List[Individual]:
-        population = population.sort(key=Individual.fitness)
+    def elitism(population: List[Individual], fitness: Callable[[Individual], float]) ->  List[Individual]:
+        population = sorted(population,key=fitness)
         return [deepcopy(x) for x in population[: n_elites]]
     
     return elitism
