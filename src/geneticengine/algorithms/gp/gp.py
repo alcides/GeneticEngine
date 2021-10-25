@@ -82,9 +82,9 @@ class GP(object):
         population = sorted(population, key=keyfitness)
 
         for gen in range(self.number_of_generations):
-            spotsLeft = self.population_size - self.elitism - self.novelty
             npop = self.novelty()
             npop.extend(self.elitism(population))
+            spotsLeft = self.population_size - len(npop)
             for _ in range(spotsLeft // 2):
                 # It's possible to let individuals reproduce with themselve
                 p1 = self.selectOne(population)
