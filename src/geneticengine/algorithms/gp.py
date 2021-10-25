@@ -17,12 +17,9 @@ class Individual(object):
         return str(self.genotype)
 
 
-def create_tournament(
-    evaluation_function: Callable[[Node], float], tournament_size: int, minimize=False
-) -> Callable[[RandomSource, List[Individual], int], List[Individual]]:
-    def tournament(
-        r: RandomSource, population: List[Individual], n: int
-    ) -> List[Individual]:
+def create_tournament(tournament_size: int, minimize=False) -> Callable[[RandomSource, List[Individual], int], List[Individual]]:
+    
+    def tournament(r: RandomSource, population: List[Individual], n: int) -> List[Individual]:
         winners = []
         for _ in range(n):
             candidates = [r.choice(population) for _ in range(tournament_size)]
