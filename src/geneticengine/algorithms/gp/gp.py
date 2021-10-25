@@ -89,7 +89,7 @@ class GP(object):
             npop.extend(self.elitism(population, self.keyfitness()))
             spotsLeft = self.population_size - len(npop)
             for _ in range(spotsLeft // 2):
-                candidates = self.selection(self.random, population, 1)[0]
+                candidates = self.selection(self.random, population, 2)
                 (p1,p2) = candidates[0],candidates[1]
                 if self.random.randint(0, 100) < self.probability_crossover * 100:
                     (p1, p2) = self.cross_over(p1,p2)
