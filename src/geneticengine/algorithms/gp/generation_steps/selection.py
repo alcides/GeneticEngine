@@ -16,6 +16,7 @@ def create_tournament(tournament_size: int, minimize=False) -> Callable[[RandomS
                 if o.fitness < winner.fitness and minimize:
                     winner = o
             winners.append(winner)
+            candidates.remove(winner)
         return winners
 
     return tournament

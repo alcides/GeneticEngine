@@ -67,25 +67,25 @@ class GP(object):
         if individual.fitness is None:
             individual.fitness = self.evaluation_function(individual.genotype)
         return individual.fitness
+    
+    def keyfitness(self):
+        if self.minimize:
+            return lambda x: self.evaluate(x)
+        else:
+            return lambda x: -self.evaluate(x)
 
     def evolve(self):
-
-        if self.minimize:
-            keyfitness = lambda x: self.evaluate(x)
-        else:
-            keyfitness = lambda x: -self.evaluate(x)
-
         population = [self.create_individual() for _ in range(self.population_size)]
         if self.force_individual is not None:
             population[0] = Individual(
             genotype=self.force_individual,
             fitness=None,
         )
-        population = sorted(population, key=keyfitness)
+        population = sorted(population, key=self.keyfitness())
 
         for gen in range(self.number_of_generations):
             npop = self.novelty(self.n_novelties)
-            npop.extend(self.elitism(population, keyfitness))
+            npop.extend(self.elitism(population, self.keyfitness()))
             spotsLeft = self.population_size - len(npop)
             for _ in range(spotsLeft // 2):
                 # It's possible to let individuals reproduce with themselve
@@ -116,7 +116,7 @@ class GP(object):
                 npop.append(p2)
 
             population = npop
-            population = sorted(population, key=keyfitness)
+            population = sorted(population, key=self.keyfitness())
             # self.printFitnesses(population, "G:" + str(gen))
             print(
                 "BEST at",
