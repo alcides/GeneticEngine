@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from typing import Any, Callable, Generic, List, Optional, Protocol, Tuple, TypeVar
 from copy import deepcopy
 from geneticengine.core.tree import Node
@@ -6,33 +5,9 @@ from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.base import Representation
 from geneticengine.core.representations.treebased import treebased_representation
+from geneticengine.algorithms.gp.Individual import Individual
+import geneticengine.algorithms.gp.generation_steps.selection as selection
 
-
-@dataclass
-class Individual(object):
-    genotype: Any
-    fitness: Optional[float] = None
-
-    def __str__(self) -> str:
-        return str(self.genotype)
-
-
-def create_tournament(tournament_size: int, minimize=False) -> Callable[[RandomSource, List[Individual], int], List[Individual]]:
-    
-    def tournament(r: RandomSource, population: List[Individual], n: int) -> List[Individual]:
-        winners = []
-        for _ in range(n):
-            candidates = [r.choice(population) for _ in range(tournament_size)]
-            winner = candidates[0]
-            for o in candidates[1:]:
-                if o.fitness > winner.fitness and not minimize:
-                    winner = o
-                if o.fitness < winner.fitness and minimize:
-                    winner = o
-            winners.append(winner)
-        return winners
-
-    return tournament
 
 
 class GP(object):
@@ -46,7 +21,7 @@ class GP(object):
         novelty: int = 10,
         number_of_generations: int = 100,
         max_depth: int = 15,
-        selection: Tuple[str, int] = ("tournament", 5),
+        selection_method: Tuple[str, int] = ("tournament", 5),
         # -----
         # As given in A Field Guide to GP, p.17, by Poli and Mcphee
         probability_mutation: float = 0.01,
@@ -67,9 +42,9 @@ class GP(object):
         self.probability_mutation = probability_mutation
         self.probability_crossover = probability_crossover
         self.minimize = minimize
-        if selection[0] == "tournament":
-            self.selection = create_tournament(
-                self.evaluation_function, selection[1], self.minimize
+        if selection_method[0] == "tournament":
+            self.selection = selection.create_tournament(
+                selection_method[1], self.minimize
             )
         else:
             self.selection = lambda r, ls, n: [x for x in ls[:n]]

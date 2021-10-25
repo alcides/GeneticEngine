@@ -5,7 +5,7 @@ from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.treebased import treebased_representation
 from geneticengine.core.tree import Node
 from geneticengine.metahandlers.lists import ListSizeBetween
-from geneticengine.algorithms.gp import GP
+from geneticengine.algorithms.gp.gp import GP
 
 
 map = """.###............................
