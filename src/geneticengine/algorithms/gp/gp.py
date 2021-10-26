@@ -41,7 +41,7 @@ class GP(object):
         self.elitism = selection.create_elitism(n_elites)
         self.novelty = selection.create_novelties(self.create_individual)
         self.mutation = mutation.create_mutation(self.random,self.representation,self.pg)
-        self.cross_over = cross_over.create_cross_over(self.random, self.representation, self.pg, probability_crossover)
+        self.cross_over = cross_over.create_cross_over(self.random,self.representation,self.pg,probability_crossover)
         self.n_novelties = n_novelties
         self.number_of_generations = number_of_generations
         self.max_depth = max_depth
