@@ -40,7 +40,7 @@ class GP(object):
         self.population_size = population_size
         self.elitism = selection.create_elitism(n_elites)
         self.novelty = selection.create_novelties(self.create_individual)
-        self.mutation = mutation.create_mutation(self.random, self.representation, self.pg, probability_mutation)
+        self.mutation = mutation.create_mutation(self.random,self.representation,self.pg)
         self.cross_over = cross_over.create_cross_over(self.random, self.representation, self.pg, probability_crossover)
         self.n_novelties = n_novelties
         self.number_of_generations = number_of_generations
@@ -92,8 +92,10 @@ class GP(object):
                 candidates = self.selection(self.random, population, 2)
                 (p1,p2) = candidates[0],candidates[1]
                 (p1, p2) = self.cross_over(p1,p2)
-                p1 = self.mutation(p1)
-                p2 = self.mutation(p2)
+                if self.random.randint(0, 100) < self.probability_mutation * 100:
+                    p1 = self.mutation(p1)
+                if self.random.randint(0, 100) < self.probability_mutation * 100:
+                    p2 = self.mutation(p2)
                 npop.append(p1)
                 npop.append(p2)
 
