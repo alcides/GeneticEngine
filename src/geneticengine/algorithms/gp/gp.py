@@ -19,7 +19,7 @@ class GP(object):
         representation: Representation,
         evaluation_function: Callable[[Node], float],
         population_size: int = 200,
-        n_elites: int = 5,
+        n_elites: int = 5, # Shouldn't this be a percentage of population size?
         n_novelties: int = 10,
         number_of_generations: int = 100,
         max_depth: int = 15,
