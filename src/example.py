@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from random import random
 
-from geneticengine.algorithms.gp import GP, create_tournament
+from geneticengine.algorithms.gp.gp import GP
 from geneticengine.grammars.sgp import Plus, Literal, Number, Mul, SafeDiv, Var
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.tree import Node
@@ -38,7 +38,6 @@ alg = GP(
     g,
     treebased_representation,
     fit,
-    probability_crossover=.5,
     number_of_generations=100,
     minimize=True,
 )

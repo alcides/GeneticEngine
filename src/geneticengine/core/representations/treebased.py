@@ -14,14 +14,14 @@ from geneticengine.exceptions import GeneticEngineError
 
 @dataclass
 class ProcessedGrammar(object):
-    g: Grammar
+    grammar: Grammar
     distanceToTerminal: Dict[Node, int]
 
 
 def random_individual(
     r: RandomSource, pg: ProcessedGrammar, depth: int = 5, starting_symbol: Any = None
 ):
-    g = pg.g
+    g = pg.grammar
     if depth < 0:
         raise GeneticEngineError("Recursion Depth reached")
 
@@ -31,7 +31,7 @@ def random_individual(
     if starting_symbol is int:
         return r.randint(-(sys.maxsize - 1), sys.maxsize)
     elif hasattr(starting_symbol, "__origin__"):
-        if starting_symbol.__origin__ is list:  # List
+        if starting_symbol.__origin__ is list:
             size = r.randint(0, depth)
             return [
                 random_individual(r, pg, depth, starting_symbol.__args__[0])
@@ -59,12 +59,11 @@ def random_individual(
     return node
 
 
-def mutate_inner(r: RandomSource, g: Grammar, i: Node) -> Node:
+def mutate_inner(r: RandomSource, pg: ProcessedGrammar, i: Node) -> Node:
     c = r.randint(0, i.nodes - 1)
-    # print(f"#Nodes: {i.nodes}, choice: {c}")
     if c == 0:
         ty = i.__class__.__bases__[1]
-        replacement = random_individual(r, g, i.depth + 1, ty) # Should take a ProcessedGrammar in stead of Grammar
+        replacement = random_individual(r, pg, i.depth + 1, ty)
         return replacement
     else:
         for field in i.__annotations__:
@@ -72,15 +71,15 @@ def mutate_inner(r: RandomSource, g: Grammar, i: Node) -> Node:
             if hasattr(child, "nodes"):
                 count = getattr(i, field).nodes
                 if c <= count:
-                    setattr(i, field, mutate_inner(r, g, getattr(i, field)))
+                    setattr(i, field, mutate_inner(r, pg, getattr(i, field)))
                     return i
                 else:
                     c -= count
         return i
 
 
-def mutate(r: RandomSource, g: Grammar, i: Node) -> Node:
-    return mutate_inner(r, g, deepcopy(i))
+def mutate(r: RandomSource, pg: ProcessedGrammar, i: Node) -> Node:
+    return mutate_inner(r, pg, deepcopy(i))
 
 
 def find_in_tree(ty: type, o: Node):
@@ -93,31 +92,42 @@ def find_in_tree(ty: type, o: Node):
 
 
 def tree_crossover_inner(
-    r: RandomSource, g: Grammar, i: Node, o: Node
+    r: RandomSource, pg: ProcessedGrammar, i: Node, o: Node
 ) -> Tuple[Node, Node]:
     c = r.randint(0, i.nodes - 1)
     if c == 0:
         ty = i.__class__.__bases__[1]
         replacement = r.choice(list(find_in_tree(ty, o)))
         if replacement is None:
-            replacement = random_individual(r, g, i.depth + 1, ty) # Should take a ProcessedGrammar in stead of Grammar
-        return (replacement, o)
+            replacement = random_individual(r, pg, i.depth + 1, ty) 
+        return replacement
     else:
         for field in i.__annotations__:
             child = getattr(i, field)
             if hasattr(child, "nodes"):
                 count = getattr(i, field).nodes
                 if c <= count:
-                    setattr(i, field, tree_crossover_inner(r, g, getattr(i, field), o)[0]) # tree_crossover_inner returns a tuple. This is not desired in the usecase in this line. [0] added to take first argument. This workaround should be fixed
-                    return (i, o)
+                    setattr(i, field, tree_crossover_inner(r, pg, getattr(i, field), o))
+                    return i
                 else:
                     c -= count
-        return (i, o)
+        return i
 
 def tree_crossover(
-    r: RandomSource, g: Grammar, p1: Node, p2: Node
+    r: RandomSource, pg: ProcessedGrammar, p1: Node, p2: Node
 ) -> Tuple[Node, Node]:
-    return tree_crossover_inner(r, g, deepcopy(p1), deepcopy(p2)) # Should take a ProcessedGrammar in stead of Grammar
+    '''
+    Given the two input trees [p1] and [p2], the grammar and the random source, this function returns two trees that are created by crossing over [p1] and [p2]. The first tree returned has [p1] as the base, and the second tree has [p2] as a base.
+    '''
+    return tree_crossover_inner(r, pg, deepcopy(p1), deepcopy(p2)),tree_crossover_inner(r, pg, deepcopy(p2), deepcopy(p1))
+
+def tree_crossover_single_tree(
+    r: RandomSource, pg: ProcessedGrammar, p1: Node, p2: Node
+) -> Tuple[Node, Node]:
+    '''
+    Given the two input trees [p1] and [p2], the grammar and the random source, this function returns one tree that is created by crossing over [p1] and [p2]. The tree returned has [p1] as the base.
+    '''
+    return tree_crossover_inner(r, pg, deepcopy(p1), deepcopy(p2))
 
 def preprocess_grammar(g: Grammar) -> ProcessedGrammar:
     choice = set()
@@ -145,7 +155,6 @@ def preprocess_grammar(g: Grammar) -> ProcessedGrammar:
                 if hasattr(sym, "__annotations__"):
                     var = sym.__annotations__.values()
                     if isinstance(list(var)[0],_AnnotatedAlias):
-                        # Should actually analyse and give a sensable value
                         t = list(var)[0].__origin__
                     else:
                         t = var.__iter__().__next__()
@@ -165,7 +174,7 @@ def preprocess_grammar(g: Grammar) -> ProcessedGrammar:
                 dist_to_terminal[sym] = val
 
 
-    return ProcessedGrammar(g=g, distanceToTerminal=dist_to_terminal)
+    return ProcessedGrammar(grammar=g, distanceToTerminal=dist_to_terminal)
 
 treebased_representation = Representation(
     create_individual=random_individual,

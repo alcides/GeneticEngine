@@ -6,7 +6,7 @@ from sklearn.datasets import load_diabetes
 from sklearn.metrics import mean_squared_error
 
 
-from geneticengine.algorithms.gp import GP, create_tournament
+from geneticengine.algorithms.gp.gp import GP
 from geneticengine.grammars.sgp import Plus, Literal, Number, Mul, SafeDiv, Var
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.treebased import treebased_representation
@@ -59,7 +59,6 @@ alg = GP(
     g,
     treebased_representation,
     fitness_function,
-    probability_crossover=.5,
     minimize=True,
 )
 (b, bf) = alg.evolve()

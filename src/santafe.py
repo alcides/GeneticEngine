@@ -5,7 +5,7 @@ from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.treebased import treebased_representation
 from geneticengine.core.tree import Node
 from geneticengine.metahandlers.lists import ListSizeBetween
-from geneticengine.algorithms.gp import GP
+from geneticengine.algorithms.gp.gp import GP
 
 
 map = """.###............................
@@ -166,9 +166,8 @@ if __name__ == "__main__":
         minimize=False,
         max_depth=10,
         number_of_generations=50,
-        probability_crossover=.5,
         population_size=1500,
-        novelty=50,
+        n_novelties=50,
     )
     (b, bf) = alg.evolve()
     print(bf, b)
