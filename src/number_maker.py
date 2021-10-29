@@ -5,7 +5,7 @@ from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.treebased import treebased_representation
 from geneticengine.core.tree import Node
 from geneticengine.metahandlers.lists import ListSizeBetween
-from geneticengine.algorithms.gp import GP
+from geneticengine.algorithms.gp.gp import GP
 
 
 class Expr(Protocol):
@@ -28,6 +28,10 @@ class Add(Node, Expr):
     left: Node
     right: Node
 
+    def __init__(self,left,right):
+        self.left = left
+        self.right = right
+    
     def evaluate(self, **kwargs):
         return self.left.evaluate() + self.right.evaluate()
 
@@ -42,6 +46,10 @@ class Sub(Node, Expr):
     left: Node
     right: Node
 
+    def __init__(self,left,right):
+        self.left = left
+        self.right = right
+    
     def evaluate(self, **kwargs):
         return self.left.evaluate() - self.right.evaluate()
 
@@ -56,6 +64,10 @@ class Mul(Node, Expr):
     left: Node
     right: Node
 
+    def __init__(self,left,right):
+        self.left = left
+        self.right = right
+    
     def evaluate(self, **kwargs):
         return self.left.evaluate() * self.right.evaluate()
 
@@ -76,8 +88,8 @@ if __name__ == "__main__":
         minimize=True,
         max_depth=8,
         number_of_generations=50,
-        population_size=1000,
-        novelty=50,
+        population_size=100,
+        n_novelties=5,
     )
     (b, bf) = alg.evolve()
     print(bf, b)
