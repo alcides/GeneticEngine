@@ -63,7 +63,7 @@ def mutate_inner(r: RandomSource, pg: ProcessedGrammar, i: Node) -> Node:
     c = r.randint(0, i.nodes - 1)
     if c == 0:
         ty = i.__class__.__bases__[1]
-        replacement = random_individual(r, pg, i.depth + 1, ty)
+        replacement = random_individual(r, pg, i.depth, ty)
         return replacement
     else:
         for field in i.__annotations__:
@@ -99,7 +99,7 @@ def tree_crossover_inner(
         ty = i.__class__.__bases__[1]
         replacement = r.choice(list(find_in_tree(ty, o)))
         if replacement is None:
-            replacement = random_individual(r, pg, i.depth + 1, ty) 
+            replacement = random_individual(r, pg, i.depth, ty) 
         return replacement
     else:
         for field in i.__annotations__:
