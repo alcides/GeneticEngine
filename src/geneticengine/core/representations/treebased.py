@@ -54,7 +54,7 @@ def random_individual(
     rule = r.choice(valid_productions)
     args = [random_individual(r, pg, depth - 1, at) for (a, at) in get_arguments(rule)]
     node = rule(*args)
-    node.depth = max([1] + [n.depth for n in args if hasattr(n, "depth")])
+    node.depth = max([1] + [(n.depth + 1) for n in args if hasattr(n, "depth")])
     node.nodes = 1 + sum([n.nodes for n in args if hasattr(n, "nodes")])
     return node
 
