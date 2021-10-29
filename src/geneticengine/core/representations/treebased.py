@@ -54,7 +54,7 @@ def random_individual(
     rule = r.choice(valid_productions)
     args = [random_individual(r, pg, depth - 1, at) for (a, at) in get_arguments(rule)]
     node = rule(*args)
-    node.depth = max([1] + [(n.depth + 1) for n in args if hasattr(n, "depth")])
+    node.d_to_term = max([1] + [(n.d_to_term + 1) for n in args if hasattr(n, "depth")])
     node.nodes = 1 + sum([n.nodes for n in args if hasattr(n, "nodes")])
     return node
 
@@ -63,7 +63,7 @@ def mutate_inner(r: RandomSource, pg: ProcessedGrammar, i: Node) -> Node:
     c = r.randint(0, i.nodes - 1)
     if c == 0:
         ty = i.__class__.__bases__[1]
-        replacement = random_individual(r, pg, i.depth, ty)
+        replacement = random_individual(r, pg, i.d_to_term, ty)
         return replacement
     else:
         for field in i.__annotations__:
@@ -99,7 +99,7 @@ def tree_crossover_inner(
         ty = i.__class__.__bases__[1]
         replacement = r.choice(list(find_in_tree(ty, o)))
         if replacement is None:
-            replacement = random_individual(r, pg, i.depth, ty) 
+            replacement = random_individual(r, pg, i.d_to_term, ty) 
         return replacement
     else:
         for field in i.__annotations__:
