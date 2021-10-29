@@ -23,6 +23,7 @@ class GP(object):
         n_novelties: int = 10,
         number_of_generations: int = 100,
         max_depth: int = 15,
+        max_init_depth: int = 15,
         selection_method: Tuple[str, int] = ("tournament", 5),
         # -----
         # As given in A Field Guide to GP, p.17, by Poli and Mcphee
@@ -44,7 +45,7 @@ class GP(object):
         self.cross_over = cross_over.create_cross_over(self.random,self.representation,self.pg)
         self.n_novelties = n_novelties
         self.number_of_generations = number_of_generations
-        self.max_depth = max_depth
+        self.max_init_depth = max_init_depth
         self.probability_mutation = probability_mutation
         self.probability_crossover = probability_crossover
         self.minimize = minimize
@@ -59,7 +60,7 @@ class GP(object):
     def create_individual(self):
         return Individual(
             genotype=self.representation.create_individual(
-                self.random, self.pg, self.max_depth
+                self.random, self.pg, self.max_init_depth
             ),
             fitness=None,
         )
