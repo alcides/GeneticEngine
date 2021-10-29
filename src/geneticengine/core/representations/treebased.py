@@ -19,10 +19,10 @@ class ProcessedGrammar(object):
 
 
 def random_individual(
-    r: RandomSource, pg: ProcessedGrammar, depth: int = 5, starting_symbol: Any = None
+    r: RandomSource, pg: ProcessedGrammar, d_to_term: int = 5, starting_symbol: Any = None, depth: int = 1
 ):
     g = pg.grammar
-    if depth < 0:
+    if d_to_term < 0:
         raise GeneticEngineError("Recursion Depth reached")
 
     if starting_symbol is None:
@@ -32,15 +32,15 @@ def random_individual(
         return r.randint(-(sys.maxsize - 1), sys.maxsize)
     elif hasattr(starting_symbol, "__origin__"):
         if starting_symbol.__origin__ is list:
-            size = r.randint(0, depth)
+            size = r.randint(0, d_to_term)
             return [
-                random_individual(r, pg, depth, starting_symbol.__args__[0])
+                random_individual(r, pg, d_to_term, starting_symbol.__args__[0], depth + 1)
                 for _ in range(size)
             ]
     if hasattr(starting_symbol, "__metadata__"):
         metahandler = starting_symbol.__metadata__[0]
         recursive_generator = lambda: random_individual(
-            r, pg, depth, starting_symbol.__args__[0]
+            r, pg, d_to_term, starting_symbol.__args__[0], depth + 1
         )
         return metahandler.generate(r, recursive_generator)
     if starting_symbol not in g.productions:
@@ -48,14 +48,17 @@ def random_individual(
 
     valid_productions = g.productions[starting_symbol]
 
-    valid_productions = [vp for vp in valid_productions if pg.distanceToTerminal[vp] <= depth]
+    valid_productions = [vp for vp in valid_productions if pg.distanceToTerminal[vp] <= d_to_term]
     if not valid_productions:
         raise GeneticEngineError(f"No productions for non-terminal {starting_symbol}")
     rule = r.choice(valid_productions)
-    args = [random_individual(r, pg, depth - 1, at) for (a, at) in get_arguments(rule)]
+    args = [random_individual(r, pg, d_to_term - 1, at, depth + 1) for (a, at) in get_arguments(rule)]
     node = rule(*args)
-    node.d_to_term = max([1] + [(n.d_to_term + 1) for n in args if hasattr(n, "depth")])
+    node.depth = depth
+    node.d_to_term = max([1] + [(n.d_to_term + 1) for n in args if hasattr(n, "d_to_term")])
     node.nodes = 1 + sum([n.nodes for n in args if hasattr(n, "nodes")])
+    import IPython as ip
+    ip.embed()
     return node
 
 
