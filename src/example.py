@@ -38,8 +38,10 @@ alg = GP(
     g,
     treebased_representation,
     fit,
-    number_of_generations=100,
+    population_size=4,
+    max_init_depth=3,
+    number_of_generations=3,
     minimize=True,
 )
-(b, bf) = alg.evolve()
+(b, bf) = alg.evolve(verbose=1)
 print(bf, b)
