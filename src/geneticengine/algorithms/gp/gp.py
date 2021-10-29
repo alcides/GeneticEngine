@@ -76,7 +76,7 @@ class GP(object):
         else:
             return lambda x: -self.evaluate(x)
 
-    def evolve(self):
+    def evolve(self,verbose=0):
         population = [self.create_individual() for _ in range(self.population_size)]
         if self.force_individual is not None:
             population[0] = Individual(
@@ -103,15 +103,16 @@ class GP(object):
 
             population = npop
             population = sorted(population, key=self.keyfitness())
-            # self.printFitnesses(population, "G:" + str(gen))
+            if verbose == 1:
+                self.printFitnesses(population, "G:" + str(gen))
+                print("Best population:{}.".format(population[0]))
             print(
                 "BEST at",
-                gen,
+                gen + 1,
                 "/",
                 self.number_of_generations,
                 "is",
                 round(self.evaluate(population[0]), 2),
-                # population[0]
             )
         return (population[0], self.evaluate(population[0]))
 
