@@ -2,6 +2,10 @@ from geneticengine.core.utils import get_arguments
 
 
 class Node(object):
+    depth = None
+    distance_to_term = None
+    nodes = None
+    
     def evaluate(self, **kwargs):
         return None
 
