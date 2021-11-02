@@ -130,6 +130,23 @@ def tree_crossover_single_tree(
     '''
     return tree_crossover_inner(r, pg, deepcopy(p1), deepcopy(p2))
 
+def relabel_nodes(i: Node, depth: int = 1):
+    print("Node: {}, nodes: {}, distance_to_term: {}, depth: {}.".format(i,i.nodes,i.distance_to_term,i.depth))
+    i.depth = depth
+    nodess = [0]
+    distance_to_terms = [0]
+    if hasattr(i, "__annotations__"):
+        for field in i.__annotations__:
+            child = getattr(i, field)
+            if type(child) not in [int,str]:
+                _, nodes, distance_to_term = relabel_nodes(child,depth + 1)
+                nodess.append(nodes)
+                distance_to_terms.append(distance_to_term)
+    i.nodes = sum(nodess) + 1
+    i.distance_to_term = max(distance_to_terms) + 1
+    print("Node: {}, nodes: {}, distance_to_term: {}, depth: {}.".format(i,i.nodes,i.distance_to_term,i.depth))
+    return i, i.nodes, i.distance_to_term
+
 def preprocess_grammar(g: Grammar) -> ProcessedGrammar:
     choice = set()
     for k in g.productions.keys():
