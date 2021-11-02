@@ -57,8 +57,6 @@ def random_individual(
     node.depth = depth
     node.d_to_term = max([1] + [(n.d_to_term + 1) for n in args if hasattr(n, "d_to_term")])
     node.nodes = 1 + sum([n.nodes for n in args if hasattr(n, "nodes")])
-    import IPython as ip
-    ip.embed()
     return node
 
 
