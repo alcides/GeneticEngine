@@ -36,9 +36,11 @@ class OneHalve(Node,Expr):
     def __str__(self) -> str:
         return "0.5"
 
-
+@dataclass
 class PlusOneHalve(Node,Expr):
-    
+    def __init__(self):
+        pass
+
     def __str__(self) -> str:
         return "x = (" + 'x' + " + " + str(OneHalve()) + ")"
 
