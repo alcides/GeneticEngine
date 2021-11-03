@@ -4,12 +4,14 @@ from geneticengine.core.tree import Node
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.base import Representation
-from geneticengine.core.representations.treebased import ProcessedGrammar, treebased_representation
+from geneticengine.core.representations.treebased import (
+    ProcessedGrammar,
+    treebased_representation,
+)
 from geneticengine.algorithms.gp.Individual import Individual
 import geneticengine.algorithms.gp.generation_steps.selection as selection
 import geneticengine.algorithms.gp.generation_steps.mutation as mutation
 import geneticengine.algorithms.gp.generation_steps.cross_over as cross_over
-
 
 
 class GP(object):
@@ -19,7 +21,7 @@ class GP(object):
         representation: Representation,
         evaluation_function: Callable[[Node], float],
         population_size: int = 200,
-        n_elites: int = 5, # Shouldn't this be a percentage of population size?
+        n_elites: int = 5,  # Shouldn't this be a percentage of population size?
         n_novelties: int = 10,
         number_of_generations: int = 100,
         max_depth: int = 15,
@@ -30,18 +32,23 @@ class GP(object):
         probability_crossover: float = 0.9,
         # -----
         minimize: bool = False,
-        force_individual: Any = None
+        force_individual: Any = None,
+        seed: int = 123,
     ):
-        # Add check to input numbers (n_elitism, n_novelties, population_size) 
-        self.pg : ProcessedGrammar = representation.preprocess_grammar(g)
+        # Add check to input numbers (n_elitism, n_novelties, population_size)
+        self.pg: ProcessedGrammar = representation.preprocess_grammar(g)
         self.representation = representation
         self.evaluation_function = evaluation_function
-        self.random = RandomSource(123)
+        self.random = RandomSource(seed)
         self.population_size = population_size
         self.elitism = selection.create_elitism(n_elites)
         self.novelty = selection.create_novelties(self.create_individual)
-        self.mutation = mutation.create_mutation(self.random,self.representation,self.pg)
-        self.cross_over = cross_over.create_cross_over(self.random,self.representation,self.pg)
+        self.mutation = mutation.create_mutation(
+            self.random, self.representation, self.pg
+        )
+        self.cross_over = cross_over.create_cross_over(
+            self.random, self.representation, self.pg
+        )
         self.n_novelties = n_novelties
         self.number_of_generations = number_of_generations
         self.max_depth = max_depth
@@ -68,7 +75,7 @@ class GP(object):
         if individual.fitness is None:
             individual.fitness = self.evaluation_function(individual.genotype)
         return individual.fitness
-    
+
     def keyfitness(self):
         if self.minimize:
             return lambda x: self.evaluate(x)
@@ -79,9 +86,9 @@ class GP(object):
         population = [self.create_individual() for _ in range(self.population_size)]
         if self.force_individual is not None:
             population[0] = Individual(
-            genotype=self.force_individual,
-            fitness=None,
-        )
+                genotype=self.force_individual,
+                fitness=None,
+            )
         population = sorted(population, key=self.keyfitness())
 
         for gen in range(self.number_of_generations):
@@ -90,9 +97,9 @@ class GP(object):
             spotsLeft = self.population_size - len(npop)
             for _ in range(spotsLeft // 2):
                 candidates = self.selection(self.random, population, 2)
-                (p1,p2) = candidates[0],candidates[1]
+                (p1, p2) = candidates[0], candidates[1]
                 if self.random.randint(0, 100) < self.probability_crossover * 100:
-                    (p1, p2) = self.cross_over(p1,p2)
+                    (p1, p2) = self.cross_over(p1, p2)
                 if self.random.randint(0, 100) < self.probability_mutation * 100:
                     p1 = self.mutation(p1)
                 if self.random.randint(0, 100) < self.probability_mutation * 100:

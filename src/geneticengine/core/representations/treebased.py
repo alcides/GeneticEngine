@@ -2,7 +2,16 @@ from dataclasses import dataclass
 import sys
 from copy import deepcopy
 
-from typing import Annotated, Any, Dict, TypeVar, Tuple, List, _AnnotatedAlias, _GenericAlias
+from typing import (
+    Annotated,
+    Any,
+    Dict,
+    TypeVar,
+    Tuple,
+    List,
+    _AnnotatedAlias,
+    _GenericAlias,
+)
 
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.grammar import Grammar
@@ -30,6 +39,8 @@ def random_individual(
 
     if starting_symbol is int:
         return r.randint(-(sys.maxsize - 1), sys.maxsize)
+    elif starting_symbol is float:
+        return r.random_float(-100000, 100000)
     elif hasattr(starting_symbol, "__origin__"):
         if starting_symbol.__origin__ is list:
             size = r.randint(0, depth)
@@ -47,8 +58,9 @@ def random_individual(
         raise GeneticEngineError(f"Symbol {starting_symbol} not in grammar rules.")
 
     valid_productions = g.productions[starting_symbol]
-
-    valid_productions = [vp for vp in valid_productions if pg.distanceToTerminal[vp] <= depth]
+    valid_productions = [
+        vp for vp in valid_productions if pg.distanceToTerminal[vp] <= depth
+    ]
     if not valid_productions:
         raise GeneticEngineError(f"No productions for non-terminal {starting_symbol}")
     rule = r.choice(valid_productions)
@@ -62,9 +74,12 @@ def random_individual(
 def mutate_inner(r: RandomSource, pg: ProcessedGrammar, i: Node) -> Node:
     c = r.randint(0, i.nodes - 1)
     if c == 0:
-        ty = i.__class__.__bases__[1]
-        replacement = random_individual(r, pg, i.depth, ty)
-        return replacement
+        ty = i.__class__.__bases__[0]
+        try:
+            replacement = random_individual(r, pg, i.depth, ty)
+            return replacement
+        except GeneticEngineError:
+            return i
     else:
         for field in i.__annotations__:
             child = getattr(i, field)
@@ -96,10 +111,13 @@ def tree_crossover_inner(
 ) -> Tuple[Node, Node]:
     c = r.randint(0, i.nodes - 1)
     if c == 0:
-        ty = i.__class__.__bases__[1]
-        replacement = r.choice(list(find_in_tree(ty, o)))
+        ty = i.__class__.__bases__[0]
+        options = list(find_in_tree(ty, o))
+        if not options:
+            return i
+        replacement = r.choice(options)
         if replacement is None:
-            replacement = random_individual(r, pg, i.depth, ty) 
+            replacement = random_individual(r, pg, i.depth, ty)
         return replacement
     else:
         for field in i.__annotations__:
@@ -113,21 +131,27 @@ def tree_crossover_inner(
                     c -= count
         return i
 
+
 def tree_crossover(
     r: RandomSource, pg: ProcessedGrammar, p1: Node, p2: Node
 ) -> Tuple[Node, Node]:
-    '''
+    """
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns two trees that are created by crossing over [p1] and [p2]. The first tree returned has [p1] as the base, and the second tree has [p2] as a base.
-    '''
-    return tree_crossover_inner(r, pg, deepcopy(p1), deepcopy(p2)),tree_crossover_inner(r, pg, deepcopy(p2), deepcopy(p1))
+    """
+    return (
+        tree_crossover_inner(r, pg, deepcopy(p1), deepcopy(p2)),
+        tree_crossover_inner(r, pg, deepcopy(p2), deepcopy(p1)),
+    )
+
 
 def tree_crossover_single_tree(
     r: RandomSource, pg: ProcessedGrammar, p1: Node, p2: Node
 ) -> Tuple[Node, Node]:
-    '''
+    """
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns one tree that is created by crossing over [p1] and [p2]. The tree returned has [p1] as the base.
-    '''
+    """
     return tree_crossover_inner(r, pg, deepcopy(p1), deepcopy(p2))
+
 
 def preprocess_grammar(g: Grammar) -> ProcessedGrammar:
     choice = set()
@@ -139,7 +163,7 @@ def preprocess_grammar(g: Grammar) -> ProcessedGrammar:
             if v not in choice:
                 sequence.add(v)
     all_sym = sequence.union(choice)
-    dist_to_terminal = {int:1,str:1}
+    dist_to_terminal = {int: 1, str: 1, float: 1}
     for s in all_sym:
         dist_to_terminal[s] = 1000000
     changed = True
@@ -154,31 +178,31 @@ def preprocess_grammar(g: Grammar) -> ProcessedGrammar:
             else:
                 if hasattr(sym, "__annotations__"):
                     var = sym.__annotations__.values()
-                    if isinstance(list(var)[0],_AnnotatedAlias):
+                    if isinstance(list(var)[0], _AnnotatedAlias):
                         t = list(var)[0].__origin__
                     else:
                         t = var.__iter__().__next__()
-                    if isinstance(t,_GenericAlias):
+                    if isinstance(t, _GenericAlias):
                         t = t.__args__[0]
                     val = dist_to_terminal[t]
                     for prod in var:
-                        if isinstance(prod,_AnnotatedAlias):
+                        if isinstance(prod, _AnnotatedAlias):
                             prod = prod.__origin__
-                        if isinstance(prod,_GenericAlias):
+                        if isinstance(prod, _GenericAlias):
                             prod = prod.__args__[0]
-                        val = max(val, dist_to_terminal[prod]+1)
+                        val = max(val, dist_to_terminal[prod] + 1)
                 else:
                     val = 1
             if val != old_val:
                 changed = True
                 dist_to_terminal[sym] = val
 
-
     return ProcessedGrammar(grammar=g, distanceToTerminal=dist_to_terminal)
+
 
 treebased_representation = Representation(
     create_individual=random_individual,
     mutate_individual=mutate,
     crossover_individuals=tree_crossover,
-    preprocess_grammar=preprocess_grammar
+    preprocess_grammar=preprocess_grammar,
 )
