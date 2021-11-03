@@ -104,6 +104,7 @@ class GP(object):
 
             population = npop
             population = sorted(population, key=self.keyfitness())
+            largest_depth = max(list(map(lambda x: x.genotype.distance_to_term,population)))
             if verbose == 1:
                 self.printFitnesses(population, "G:" + str(gen))
                 print("Best population:{}.".format(population[0]))
@@ -114,6 +115,9 @@ class GP(object):
                 self.number_of_generations,
                 "is",
                 round(self.evaluate(population[0]), 2),
+                "- Max depth is:",
+                largest_depth
+                
             )
         return (population[0], self.evaluate(population[0]))
 
