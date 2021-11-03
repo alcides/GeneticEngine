@@ -19,7 +19,7 @@ class ProcessedGrammar(object):
 
 
 def random_individual(
-    r: RandomSource, pg: ProcessedGrammar, max_depth: int = 5, starting_symbol: Any = None, depth: int = 1
+    r: RandomSource, pg: ProcessedGrammar, max_depth: int = 5, starting_symbol: Any = None, depth: int = 0
 ):
     g = pg.grammar
     if max_depth < 0:
@@ -50,7 +50,7 @@ def random_individual(
 
     valid_productions = [vp for vp in valid_productions if pg.distanceToTerminal[vp] <= max_depth]
     if not valid_productions:
-        raise GeneticEngineError(f"No productions for non-terminal {starting_symbol}")
+        raise GeneticEngineError("No productions for non-terminal node with type: {}.".format(starting_symbol))
     rule = r.choice(valid_productions)
     args = [random_individual(r, pg, max_depth - 1, at, depth + 1) for (a, at) in get_arguments(rule)]
     node = rule(*args)
@@ -64,7 +64,7 @@ def mutate_inner(r: RandomSource, pg: ProcessedGrammar, i: Node, max_depth: int)
     c = r.randint(0, i.nodes - 1)
     if c == 0:
         ty = i.__class__.__bases__[1]
-        replacement = random_individual(r, pg, max_depth - i.depth, ty)
+        replacement = random_individual(r, pg, max_depth - i.depth + 1, ty)
         return replacement
     else:
         for field in i.__annotations__:
@@ -85,13 +85,13 @@ def mutate(r: RandomSource, pg: ProcessedGrammar, i: Node, max_depth: int) -> No
     return relabeled_new_tree
 
 
-def find_in_tree(ty: type, o: Node):
-    if ty in o.__class__.__bases__:
+def find_in_tree(ty: type, o: Node, max_depth: int):
+    if ty in o.__class__.__bases__ and o.distance_to_term <= max_depth:
         yield o
     if hasattr(o, "__annotations__"):
         for field in o.__annotations__:
             child = getattr(o, field)
-            yield from find_in_tree(ty, child)
+            yield from find_in_tree(ty, child, max_depth)
 
 
 def tree_crossover_inner(
@@ -100,9 +100,9 @@ def tree_crossover_inner(
     c = r.randint(0, i.nodes - 1)
     if c == 0:
         ty = i.__class__.__bases__[1]
-        replacement = r.choice(list(find_in_tree(ty, o)))
+        replacement = r.choice(list(find_in_tree(ty, o, max_depth - i.depth + 1)))
         if replacement is None:
-            replacement = random_individual(r, pg, max_depth - i.depth, ty) 
+            replacement = random_individual(r, pg, max_depth - i.depth + 1, ty) 
         return replacement
     else:
         for field in i.__annotations__:
