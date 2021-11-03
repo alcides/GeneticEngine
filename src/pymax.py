@@ -72,6 +72,6 @@ if __name__ == "__main__":
         number_of_generations=3,
         minimize=False
     )
-    (b,bf) = alg.evolve(verbose=1)
+    (b,bf) = alg.evolve(verbose=0)
     print(b)
     print("With fitness: {}".format(bf))
