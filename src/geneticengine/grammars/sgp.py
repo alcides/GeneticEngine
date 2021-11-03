@@ -7,18 +7,14 @@ from typing import Annotated, Protocol
 from dataclasses import dataclass
 
 
-class Number(Protocol):
+class Number:
     pass
 
 
 @dataclass
-class Plus(Node, Number):
+class Plus(Number):
     left: Number
     right: Number
-
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
 
     def evaluate(self, **kwargs):
         return self.left.evaluate(**kwargs) + self.right.evaluate(**kwargs)
@@ -28,13 +24,9 @@ class Plus(Node, Number):
 
 
 @dataclass
-class Mul(Node, Number):
+class Mul(Number):
     left: Number
     right: Number
-
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
 
     def evaluate(self, **kwargs):
         return self.left.evaluate(**kwargs) * self.right.evaluate(**kwargs)
@@ -44,13 +36,9 @@ class Mul(Node, Number):
 
 
 @dataclass
-class SafeDiv(Node, Number):
+class SafeDiv(Number):
     left: Number
     right: Number
-
-    def __init__(self, left, right):
-        self.left = left
-        self.right = right
 
     def evaluate(self, **kwargs):
         d1 = self.left.evaluate(**kwargs)
@@ -64,11 +52,8 @@ class SafeDiv(Node, Number):
 
 
 @dataclass
-class Literal(Node, Number):
+class Literal(Number):
     val: Annotated[int, IntRange(-10, 11)]
-
-    def __init__(self, val):
-        self.val = val
 
     def evaluate(self, **kwargs):
         return self.val
@@ -78,11 +63,8 @@ class Literal(Node, Number):
 
 
 @dataclass
-class Var(Node, Number):
+class Var(Number):
     name: Annotated[str, VarRange(["x", "y", "z"])]
-
-    def __init__(self, name):
-        self.name = name
 
     def evaluate(self, **kwargs):
         return kwargs[self.name]

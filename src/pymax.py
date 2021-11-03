@@ -9,17 +9,15 @@ from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.lists import ListSizeBetween
 from geneticengine.algorithms.gp.gp import GP
 
-class Expr(Protocol):
+
+class Expr:
     pass
 
-@dataclass
-class ForLoop(Node,Expr):
-    iterationRange: Annotated[int, IntRange(1, 6)]
-    loopedCode: Node
 
-    def __init__(self,iterationRange,loopedCode):
-        self.iterationRange = iterationRange
-        self.loopedCode = loopedCode
+@dataclass
+class ForLoop(Expr):
+    iterationRange: Annotated[int, IntRange(1, 6)]
+    loopedCode: Expr
 
     def evaluate(self, **kwargs):
         x = self.loopedCode
@@ -32,41 +30,34 @@ class ForLoop(Node,Expr):
             if x.__class__ == PlusOneHalve:
                 for _ in range(self.iterationRange):
                     # Add recursiveness
-                    y = Plus(deepcopy(x),deepcopy(y))
+                    y = Plus(deepcopy(x), deepcopy(y))
         return y.evaluate()
 
 
-            
-
-class OneHalve(Node,Expr):
+class OneHalve(Expr):
     def evaluate(self, **kwargs):
         return 0.5
 
     def __str__(self) -> str:
         return "0.5"
 
-@dataclass
-class Plus(Node,Expr):
-    left: Node
-    right: Node
 
-    def __init__(self,left,right):
-        self.left = left
-        self.right = right
-    
+@dataclass
+class Plus(Expr):
+    left: Expr
+    right: Expr
+
     def evaluate(self, **kwargs):
         return self.left.evaluate() + self.right.evaluate()
 
     def __str__(self) -> str:
         return "(" + str(self.left) + " + " + str(self.right) + ")"
 
-@dataclass
-class PlusOneHalve(Node,Expr):
-    left: Node
 
-    def __init__(self,left):
-        self.left = left
-    
+@dataclass
+class PlusOneHalve(Expr):
+    left: Expr
+
     def evaluate(self, **kwargs):
         return self.left.evaluate() + OneHalve().evaluate()
 
@@ -75,12 +66,9 @@ class PlusOneHalve(Node,Expr):
 
 
 @dataclass
-class Mult(Node,Expr):
-    left: Node
+class Mult(Expr):
+    left: Expr
 
-    def __init__(self,left):
-        self.left = left
-    
     def evaluate(self, **kwargs):
         return self.left.evaluate() * OneHalve().evaluate()
 
@@ -88,12 +76,10 @@ class Mult(Node,Expr):
         return "(" + str(self.left) + " * " + str(OneHalve()) + ")"
 
 
-
-
 fitness_function = lambda x: x.evaluate()
 
 if __name__ == "__main__":
-    g = extract_grammar([OneHalve,PlusOneHalve,ForLoop],Expr)
+    g = extract_grammar([OneHalve, PlusOneHalve, ForLoop], Expr)
     alg = GP(
         g,
         treebased_representation,
@@ -101,8 +87,8 @@ if __name__ == "__main__":
         max_depth=5,
         population_size=40,
         number_of_generations=3,
-        minimize=False
+        minimize=False,
     )
 
-    (b,bf) = alg.evolve()
-    print(b,bf)
+    (b, bf) = alg.evolve()
+    print(b, bf)
