@@ -81,7 +81,7 @@ def mutate_inner(r: RandomSource, pg: ProcessedGrammar, i: Node) -> Node:
 
 def mutate(r: RandomSource, pg: ProcessedGrammar, i: Node) -> Node:
     new_tree = mutate_inner(r, pg, deepcopy(i))
-    relabeled_new_tree = relabel_nodes(new_tree)
+    relabeled_new_tree = relabel_nodes_of_trees(new_tree)
     return relabeled_new_tree
 
 
@@ -123,9 +123,9 @@ def tree_crossover(
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns two trees that are created by crossing over [p1] and [p2]. The first tree returned has [p1] as the base, and the second tree has [p2] as a base.
     '''
     new_tree1 = tree_crossover_inner(r, pg, deepcopy(p1), deepcopy(p2))
-    relabeled_new_tree1 = relabel_nodes(new_tree1)
+    relabeled_new_tree1 = relabel_nodes_of_trees(new_tree1)
     new_tree2 = tree_crossover_inner(r, pg, deepcopy(p2), deepcopy(p1))
-    relabeled_new_tree2 = relabel_nodes(new_tree2)
+    relabeled_new_tree2 = relabel_nodes_of_trees(new_tree2)
     return relabeled_new_tree1,relabeled_new_tree2
 
 def tree_crossover_single_tree(
@@ -135,25 +135,28 @@ def tree_crossover_single_tree(
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns one tree that is created by crossing over [p1] and [p2]. The tree returned has [p1] as the base.
     '''
     new_tree = tree_crossover_inner(r, pg, deepcopy(p1), deepcopy(p2))
-    relabeled_new_tree = relabel_nodes(new_tree)
+    relabeled_new_tree = relabel_nodes_of_trees(new_tree)
     return relabeled_new_tree
 
-def relabel_nodes(i: Node, depth: int = 1):
+def relabel_nodes_of_trees(i: Node, depth: int = 1):
     # print("Node: {}, nodes: {}, distance_to_term: {}, depth: {}.".format(i,i.nodes,i.distance_to_term,i.depth))
-    i.depth = depth
-    nodess = [0]
-    distance_to_terms = [0]
-    if hasattr(i, "__annotations__"):
-        for field in i.__annotations__:
-            child = getattr(i, field)
-            if type(child) not in [int,str]:
-                _, nodes, distance_to_term = relabel_nodes(child,depth + 1)
-                nodess.append(nodes)
-                distance_to_terms.append(distance_to_term)
-    i.nodes = sum(nodess) + 1
-    i.distance_to_term = max(distance_to_terms) + 1
+    def relabel_nodes(i: Node, depth: int = 1):
+        i.depth = depth
+        nodess = [0]
+        distance_to_terms = [0]
+        if hasattr(i, "__annotations__"):
+            for field in i.__annotations__:
+                child = getattr(i, field)
+                if type(child) not in [int,str]:
+                    _, nodes, distance_to_term = relabel_nodes(child,depth + 1)
+                    nodess.append(nodes)
+                    distance_to_terms.append(distance_to_term)
+        i.nodes = sum(nodess) + 1
+        i.distance_to_term = max(distance_to_terms) + 1
+        return i, i.nodes, i.distance_to_term
     # print("Node: {}, nodes: {}, distance_to_term: {}, depth: {}.".format(i,i.nodes,i.distance_to_term,i.depth))
-    return i, i.nodes, i.distance_to_term
+    relabeled_tree, _, _ = relabel_nodes(i, depth)
+    return relabeled_tree
 
 def preprocess_grammar(g: Grammar) -> ProcessedGrammar:
     choice = set()
