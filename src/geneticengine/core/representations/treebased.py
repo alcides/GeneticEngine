@@ -19,7 +19,7 @@ class ProcessedGrammar(object):
 
 
 def random_individual(
-    r: RandomSource, pg: ProcessedGrammar, max_depth: int = 5, starting_symbol: Any = None, depth: int = 0
+    r: RandomSource, pg: ProcessedGrammar, max_depth: int = 5, starting_symbol: Any = None
 ):
     g = pg.grammar
     if max_depth < 0:
@@ -34,13 +34,13 @@ def random_individual(
         if starting_symbol.__origin__ is list:
             size = r.randint(0, max_depth)
             return [
-                random_individual(r, pg, max_depth, starting_symbol.__args__[0], depth + 1)
+                random_individual(r, pg, max_depth, starting_symbol.__args__[0])
                 for _ in range(size)
             ]
     if hasattr(starting_symbol, "__metadata__"):
         metahandler = starting_symbol.__metadata__[0]
         recursive_generator = lambda: random_individual(
-            r, pg, max_depth, starting_symbol.__args__[0], depth + 1
+            r, pg, max_depth, starting_symbol.__args__[0]
         )
         return metahandler.generate(r, recursive_generator)
     if starting_symbol not in g.productions:
@@ -52,11 +52,9 @@ def random_individual(
     if not valid_productions:
         raise GeneticEngineError("No productions for non-terminal node with type: {}.".format(starting_symbol))
     rule = r.choice(valid_productions)
-    args = [random_individual(r, pg, max_depth - 1, at, depth + 1) for (a, at) in get_arguments(rule)]
+    args = [random_individual(r, pg, max_depth - 1, at) for (a, at) in get_arguments(rule)]
     node = rule(*args)
-    node.depth = depth
-    node.distance_to_term = max([1] + [(n.distance_to_term + 1) for n in args if hasattr(n, "distance_to_term")])
-    node.nodes = 1 + sum([n.nodes for n in args if hasattr(n, "nodes")])
+    node = relabel_nodes_of_trees(node)
     return node
 
 
