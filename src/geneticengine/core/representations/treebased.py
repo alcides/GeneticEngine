@@ -19,10 +19,10 @@ class ProcessedGrammar(object):
 
 
 def random_individual(
-    r: RandomSource, pg: ProcessedGrammar, distance_to_term: int = 5, starting_symbol: Any = None, depth: int = 1
+    r: RandomSource, pg: ProcessedGrammar, max_depth: int = 5, starting_symbol: Any = None, depth: int = 1
 ):
     g = pg.grammar
-    if distance_to_term < 0:
+    if max_depth < 0:
         raise GeneticEngineError("Recursion Depth reached")
 
     if starting_symbol is None:
@@ -32,15 +32,15 @@ def random_individual(
         return r.randint(-(sys.maxsize - 1), sys.maxsize)
     elif hasattr(starting_symbol, "__origin__"):
         if starting_symbol.__origin__ is list:
-            size = r.randint(0, distance_to_term)
+            size = r.randint(0, max_depth)
             return [
-                random_individual(r, pg, distance_to_term, starting_symbol.__args__[0], depth + 1)
+                random_individual(r, pg, max_depth, starting_symbol.__args__[0], depth + 1)
                 for _ in range(size)
             ]
     if hasattr(starting_symbol, "__metadata__"):
         metahandler = starting_symbol.__metadata__[0]
         recursive_generator = lambda: random_individual(
-            r, pg, distance_to_term, starting_symbol.__args__[0], depth + 1
+            r, pg, max_depth, starting_symbol.__args__[0], depth + 1
         )
         return metahandler.generate(r, recursive_generator)
     if starting_symbol not in g.productions:
@@ -48,11 +48,11 @@ def random_individual(
 
     valid_productions = g.productions[starting_symbol]
 
-    valid_productions = [vp for vp in valid_productions if pg.distanceToTerminal[vp] <= distance_to_term]
+    valid_productions = [vp for vp in valid_productions if pg.distanceToTerminal[vp] <= max_depth]
     if not valid_productions:
         raise GeneticEngineError(f"No productions for non-terminal {starting_symbol}")
     rule = r.choice(valid_productions)
-    args = [random_individual(r, pg, distance_to_term - 1, at, depth + 1) for (a, at) in get_arguments(rule)]
+    args = [random_individual(r, pg, max_depth - 1, at, depth + 1) for (a, at) in get_arguments(rule)]
     node = rule(*args)
     node.depth = depth
     node.distance_to_term = max([1] + [(n.distance_to_term + 1) for n in args if hasattr(n, "distance_to_term")])
@@ -80,7 +80,9 @@ def mutate_inner(r: RandomSource, pg: ProcessedGrammar, i: Node) -> Node:
 
 
 def mutate(r: RandomSource, pg: ProcessedGrammar, i: Node) -> Node:
-    return mutate_inner(r, pg, deepcopy(i))
+    new_tree = mutate_inner(r, pg, deepcopy(i))
+    relabeled_new_tree = relabel_nodes(new_tree)
+    return relabeled_new_tree
 
 
 def find_in_tree(ty: type, o: Node):
@@ -120,7 +122,11 @@ def tree_crossover(
     '''
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns two trees that are created by crossing over [p1] and [p2]. The first tree returned has [p1] as the base, and the second tree has [p2] as a base.
     '''
-    return tree_crossover_inner(r, pg, deepcopy(p1), deepcopy(p2)),tree_crossover_inner(r, pg, deepcopy(p2), deepcopy(p1))
+    new_tree1 = tree_crossover_inner(r, pg, deepcopy(p1), deepcopy(p2))
+    relabeled_new_tree1 = relabel_nodes(new_tree1)
+    new_tree2 = tree_crossover_inner(r, pg, deepcopy(p2), deepcopy(p1))
+    relabeled_new_tree2 = relabel_nodes(new_tree2)
+    return relabeled_new_tree1,relabeled_new_tree2
 
 def tree_crossover_single_tree(
     r: RandomSource, pg: ProcessedGrammar, p1: Node, p2: Node
@@ -128,10 +134,12 @@ def tree_crossover_single_tree(
     '''
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns one tree that is created by crossing over [p1] and [p2]. The tree returned has [p1] as the base.
     '''
-    return tree_crossover_inner(r, pg, deepcopy(p1), deepcopy(p2))
+    new_tree = tree_crossover_inner(r, pg, deepcopy(p1), deepcopy(p2))
+    relabeled_new_tree = relabel_nodes(new_tree)
+    return relabeled_new_tree
 
 def relabel_nodes(i: Node, depth: int = 1):
-    print("Node: {}, nodes: {}, distance_to_term: {}, depth: {}.".format(i,i.nodes,i.distance_to_term,i.depth))
+    # print("Node: {}, nodes: {}, distance_to_term: {}, depth: {}.".format(i,i.nodes,i.distance_to_term,i.depth))
     i.depth = depth
     nodess = [0]
     distance_to_terms = [0]
@@ -144,7 +152,7 @@ def relabel_nodes(i: Node, depth: int = 1):
                 distance_to_terms.append(distance_to_term)
     i.nodes = sum(nodess) + 1
     i.distance_to_term = max(distance_to_terms) + 1
-    print("Node: {}, nodes: {}, distance_to_term: {}, depth: {}.".format(i,i.nodes,i.distance_to_term,i.depth))
+    # print("Node: {}, nodes: {}, distance_to_term: {}, depth: {}.".format(i,i.nodes,i.distance_to_term,i.depth))
     return i, i.nodes, i.distance_to_term
 
 def preprocess_grammar(g: Grammar) -> ProcessedGrammar:
