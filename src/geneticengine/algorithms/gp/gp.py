@@ -41,9 +41,9 @@ class GP(object):
         self.random = randomSource
         self.population_size = population_size
         self.elitism = selection.create_elitism(n_elites)
-        self.novelty = selection.create_novelties(self.create_individual)
-        self.mutation = mutation.create_mutation(self.random,self.representation,self.pg)
-        self.cross_over = cross_over.create_cross_over(self.random,self.representation,self.pg)
+        self.novelty = selection.create_novelties(self.create_individual,max_depth = max_depth)
+        self.mutation = mutation.create_mutation(self.random,self.representation,self.pg, max_depth)
+        self.cross_over = cross_over.create_cross_over(self.random,self.representation,self.pg, max_depth)
         self.n_novelties = n_novelties
         self.number_of_generations = number_of_generations
         self.max_init_depth = max_init_depth
@@ -58,10 +58,10 @@ class GP(object):
             self.selection = lambda r, ls, n: [x for x in ls[:n]]
         self.force_individual = force_individual
 
-    def create_individual(self):
+    def create_individual(self, max_depth):
         return Individual(
             genotype=self.representation.create_individual(
-                self.random, self.pg, self.max_init_depth
+                self.random, self.pg, max_depth
             ),
             fitness=None,
         )
@@ -78,7 +78,7 @@ class GP(object):
             return lambda x: -self.evaluate(x)
 
     def evolve(self,verbose=0):
-        population = [self.create_individual() for _ in range(self.population_size)]
+        population = [self.create_individual(self.max_init_depth) for _ in range(self.population_size)]
         if self.force_individual is not None:
             population[0] = Individual(
             genotype=self.force_individual,

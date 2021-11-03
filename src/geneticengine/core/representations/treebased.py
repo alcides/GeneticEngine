@@ -60,11 +60,11 @@ def random_individual(
     return node
 
 
-def mutate_inner(r: RandomSource, pg: ProcessedGrammar, i: Node) -> Node:
+def mutate_inner(r: RandomSource, pg: ProcessedGrammar, i: Node, max_depth: int) -> Node:
     c = r.randint(0, i.nodes - 1)
     if c == 0:
         ty = i.__class__.__bases__[1]
-        replacement = random_individual(r, pg, i.distance_to_term, ty)
+        replacement = random_individual(r, pg, max_depth - i.depth, ty)
         return replacement
     else:
         for field in i.__annotations__:
@@ -72,15 +72,15 @@ def mutate_inner(r: RandomSource, pg: ProcessedGrammar, i: Node) -> Node:
             if hasattr(child, "nodes"):
                 count = getattr(i, field).nodes
                 if c <= count:
-                    setattr(i, field, mutate_inner(r, pg, getattr(i, field)))
+                    setattr(i, field, mutate_inner(r, pg, getattr(i, field), max_depth))
                     return i
                 else:
                     c -= count
         return i
 
 
-def mutate(r: RandomSource, pg: ProcessedGrammar, i: Node) -> Node:
-    new_tree = mutate_inner(r, pg, deepcopy(i))
+def mutate(r: RandomSource, pg: ProcessedGrammar, i: Node, max_depth: int) -> Node:
+    new_tree = mutate_inner(r, pg, deepcopy(i), max_depth)
     relabeled_new_tree = relabel_nodes_of_trees(new_tree)
     return relabeled_new_tree
 
@@ -95,14 +95,14 @@ def find_in_tree(ty: type, o: Node):
 
 
 def tree_crossover_inner(
-    r: RandomSource, pg: ProcessedGrammar, i: Node, o: Node
+    r: RandomSource, pg: ProcessedGrammar, i: Node, o: Node, max_depth: int
 ) -> Node:
     c = r.randint(0, i.nodes - 1)
     if c == 0:
         ty = i.__class__.__bases__[1]
         replacement = r.choice(list(find_in_tree(ty, o)))
         if replacement is None:
-            replacement = random_individual(r, pg, i.distance_to_term, ty) 
+            replacement = random_individual(r, pg, max_depth - i.depth, ty) 
         return replacement
     else:
         for field in i.__annotations__:
@@ -110,31 +110,31 @@ def tree_crossover_inner(
             if hasattr(child, "nodes"):
                 count = getattr(i, field).nodes
                 if c <= count:
-                    setattr(i, field, tree_crossover_inner(r, pg, getattr(i, field), o))
+                    setattr(i, field, tree_crossover_inner(r, pg, getattr(i, field), o, max_depth))
                     return i
                 else:
                     c -= count
         return i
 
 def tree_crossover(
-    r: RandomSource, pg: ProcessedGrammar, p1: Node, p2: Node
+    r: RandomSource, pg: ProcessedGrammar, p1: Node, p2: Node, max_depth: int
 ) -> Tuple[Node, Node]:
     '''
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns two trees that are created by crossing over [p1] and [p2]. The first tree returned has [p1] as the base, and the second tree has [p2] as a base.
     '''
-    new_tree1 = tree_crossover_inner(r, pg, deepcopy(p1), deepcopy(p2))
+    new_tree1 = tree_crossover_inner(r, pg, deepcopy(p1), deepcopy(p2), max_depth)
     relabeled_new_tree1 = relabel_nodes_of_trees(new_tree1)
-    new_tree2 = tree_crossover_inner(r, pg, deepcopy(p2), deepcopy(p1))
+    new_tree2 = tree_crossover_inner(r, pg, deepcopy(p2), deepcopy(p1), max_depth)
     relabeled_new_tree2 = relabel_nodes_of_trees(new_tree2)
     return relabeled_new_tree1,relabeled_new_tree2
 
 def tree_crossover_single_tree(
-    r: RandomSource, pg: ProcessedGrammar, p1: Node, p2: Node
+    r: RandomSource, pg: ProcessedGrammar, p1: Node, p2: Node, max_depth: int
 ) -> Node:
     '''
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns one tree that is created by crossing over [p1] and [p2]. The tree returned has [p1] as the base.
     '''
-    new_tree = tree_crossover_inner(r, pg, deepcopy(p1), deepcopy(p2))
+    new_tree = tree_crossover_inner(r, pg, deepcopy(p1), deepcopy(p2), max_depth)
     relabeled_new_tree = relabel_nodes_of_trees(new_tree)
     return relabeled_new_tree
 
