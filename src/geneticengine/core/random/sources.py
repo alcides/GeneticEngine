@@ -13,3 +13,6 @@ class RandomSource(object):
 
     def randint(self, min, max):
         return self.random.randint(min, max)
+
+    def random_float(self, min, max):
+        return self.random.random() * (max - min) + min
