@@ -70,9 +70,9 @@ def mutate_inner(r: RandomSource, pg: ProcessedGrammar, i: Node, max_depth: int)
         for field in i.__annotations__:
             child = getattr(i, field)
             if hasattr(child, "nodes"):
-                count = getattr(i, field).nodes
+                count = child.nodes
                 if c <= count:
-                    setattr(i, field, mutate_inner(r, pg, getattr(i, field), max_depth))
+                    setattr(i, field, mutate_inner(r, pg, child, max_depth))
                     return i
                 else:
                     c -= count
