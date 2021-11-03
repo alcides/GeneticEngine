@@ -96,7 +96,7 @@ def find_in_tree(ty: type, o: Node):
 
 def tree_crossover_inner(
     r: RandomSource, pg: ProcessedGrammar, i: Node, o: Node
-) -> Tuple[Node, Node]:
+) -> Node:
     c = r.randint(0, i.nodes - 1)
     if c == 0:
         ty = i.__class__.__bases__[1]
@@ -130,7 +130,7 @@ def tree_crossover(
 
 def tree_crossover_single_tree(
     r: RandomSource, pg: ProcessedGrammar, p1: Node, p2: Node
-) -> Tuple[Node, Node]:
+) -> Node:
     '''
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns one tree that is created by crossing over [p1] and [p2]. The tree returned has [p1] as the base.
     '''
