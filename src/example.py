@@ -1,19 +1,21 @@
 from dataclasses import dataclass
 from random import random
+from typing import Annotated
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.grammars.sgp import Plus, Literal, Number, Mul, SafeDiv, Var
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.tree import Node
 from geneticengine.core.representations.treebased import treebased_representation
+from geneticengine.metahandlers.vars import VarRange
 
 
 @dataclass
-class Zero(Node, Number):
+class Zero(Number):
     def evaluate(self, **kwargs):
         return 0
 
 
+Var.__annotations__["name"] = Annotated[str, VarRange("x")]
 g = extract_grammar([Plus, Mul, SafeDiv, Literal, Var, Zero], Number)
 print("Grammar:")
 print(repr(g))
@@ -24,13 +26,13 @@ def fit(p):
     for _ in range(100):
         n = random() * 100
         m = random() * 100
-        goal = target(n, m, 0)
-        got = p.evaluate(x=n, y=0, z=0)
+        goal = target(n)
+        got = p.evaluate(x=n)
         error += (goal - got) ** 2
     return error
 
 
-def target(x, y, z):
+def target(x):
     return x ** 2
 
 
@@ -41,8 +43,12 @@ alg = GP(
     g,
     treebased_representation,
     fit,
-    number_of_generations=100,
+    population_size=7,
+    max_init_depth=4,
+    number_of_generations=10,
     minimize=True,
+    n_elites=2,
+    n_novelties=0,
 )
-(b, bf) = alg.evolve()
+(b, bf) = alg.evolve(verbose=0)
 print(bf, b)

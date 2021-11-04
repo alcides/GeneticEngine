@@ -2,12 +2,13 @@ from random import Random
 from typing import Protocol, TypeVar, ForwardRef, Tuple, get_args
 
 from geneticengine.core.random.sources import RandomSource
+from geneticengine.metahandlers.base import MetaHandlerGenerator
 
 min = TypeVar("min", covariant=True)
 max = TypeVar("max", covariant=True)
 
 
-class IntRange(object):
+class IntRange(MetaHandlerGenerator):
     def __init__(self, min, max):
         self.min = min
         self.max = max

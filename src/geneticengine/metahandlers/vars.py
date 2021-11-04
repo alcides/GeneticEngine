@@ -1,9 +1,10 @@
 from typing import Generic, Protocol, TypeVar, ForwardRef, Tuple, get_args
 
 from geneticengine.core.random.sources import RandomSource
+from geneticengine.metahandlers.base import MetaHandlerGenerator
 
 
-class VarRange(object):
+class VarRange(MetaHandlerGenerator):
     def __init__(self, options):
         self.options = options
 
