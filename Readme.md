@@ -1,12 +1,12 @@
 Genetic Engine
 ==============
 
-An hybrid between strongly-typed (STGP) and grammar-guided genetic programming (GGGP).
+A hybrid between strongly-typed (STGP) and grammar-guided genetic programming (GGGP).
 
 About Genetic Engine
 --------------------
 
-Genetic Engine is a framework for using Genetic Programming in different contexts. Genetic Engine allows the user to define the tree in terms of Classes and Inheritance, as they would in a regular programming environment, and our framework takes care of generating individuals, mutating them and crossing them over. The user also defines a fitness function that takes a tree and returns a fitness score. This often requires to write (or reuse) a tree interpreter, as it is custom in these types of approaches.
+Genetic Engine is a framework for using Genetic Programming in different contexts. Genetic Engine allows the user to define trees in terms of Classes and Inheritance, as they would in a regular programming environment. Our framework takes care of generating individuals, mutating them and crossing them over. The user also defines a fitness function that takes a tree and returns a fitness score. This often requires to write (or reuse) a tree interpreter, as it is custom in these types of approaches.
 
 The main different between STGP and GGGP is that the restrictions on what trees are valid are done via types, while in GGGP they are expressed using a grammar. Genetic Engine extracts the grammar from the types and their relationship, allowing to use any technique from GGGP (such as Grammatical Evolution) in STGP.
 
@@ -39,7 +39,7 @@ Let us address each step in order.
 
 Consider the example of Vectorial GP in [A Vectorial Approach to Genetic Programming](https://www.researchgate.net/publication/332309668_A_Vectorial_Approach_to_Genetic_Programming), in which values can be of type Element or type Vectorial. 
 
-We will use the following dataset, in which the first two coluns are scalars, the following two are vectorial, and the last one if the target value for this regression problem.
+We will use the following dataset, in which the first two columns are scalars, the following two are vectorial, and the last one is the target value. We will apply regression to the data set.
 
 ```python
 dataset = [
@@ -65,7 +65,7 @@ The following snippets are taken from `src/vectorialgp_example.py`, where the fu
 
 ### Step 1. Object-Oriented Representation
 
-Thus, we can create our class-based representation. We start by our generic types. These classes have no information, they are just used to reprent the type of data.
+Thus, we can create our class-based representation. We start by our generic types. These classes have no information, they are just used to represent the type of data.
 
 ```python
 class Scalar:
@@ -224,7 +224,7 @@ def compile(p):
 This version pattern matches on the type of the node and recursively computes the value for the tree, always taking into consideration the dataset line being processed. Note that we are using numpy functions where needed.
 
 
-Finally, run with a larger population for a longer time, and you will see the best fitness decrease over time:
+Finally, run with a larger population for a longer time, you will see the best fitness decrease over time:
 
 ```python
 alg = GP(
