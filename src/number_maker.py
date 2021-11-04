@@ -5,14 +5,14 @@ from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.treebased import treebased_representation
 from geneticengine.core.tree import Node
 from geneticengine.metahandlers.lists import ListSizeBetween
-from geneticengine.algorithms.gp import GP
+from geneticengine.algorithms.gp.gp import GP
 
 
-class Expr(Protocol):
+class Expr:
     pass
 
 
-class One(Node, Expr):
+class One(Expr):
     def evaluate(self, **kwargs):
         return 1
 
@@ -24,9 +24,9 @@ class One(Node, Expr):
 
 
 @dataclass
-class Add(Node, Expr):
-    left: Node
-    right: Node
+class Add(Expr):
+    left: Expr
+    right: Expr
 
     def evaluate(self, **kwargs):
         return self.left.evaluate() + self.right.evaluate()
@@ -37,10 +37,11 @@ class Add(Node, Expr):
     def __str__(self) -> str:
         return "(" + str(self.left) + " + " + str(self.right) + ")"
 
+
 @dataclass
-class Sub(Node, Expr):
-    left: Node
-    right: Node
+class Sub(Expr):
+    left: Expr
+    right: Expr
 
     def evaluate(self, **kwargs):
         return self.left.evaluate() - self.right.evaluate()
@@ -51,10 +52,11 @@ class Sub(Node, Expr):
     def __str__(self) -> str:
         return "(" + str(self.left) + " - " + str(self.right) + ")"
 
+
 @dataclass
-class Mul(Node, Expr):
-    left: Node
-    right: Node
+class Mul(Expr):
+    left: Expr
+    right: Expr
 
     def evaluate(self, **kwargs):
         return self.left.evaluate() * self.right.evaluate()
@@ -72,12 +74,12 @@ if __name__ == "__main__":
     alg = GP(
         g,
         treebased_representation,
-        lambda p: (abs(target - p.evaluate()) - 1/p.size()),
+        lambda p: (abs(target - p.evaluate()) - 1 / p.size()),
         minimize=True,
         max_depth=8,
         number_of_generations=50,
         population_size=1000,
-        novelty=50,
+        n_novelties=50,
     )
     (b, bf) = alg.evolve()
     print(bf, b)

@@ -1,9 +1,8 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Annotated, List, Protocol, Tuple
+from typing import Annotated, List, Tuple
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.treebased import treebased_representation
-from geneticengine.core.tree import Node
 from geneticengine.metahandlers.lists import ListSizeBetween
 from geneticengine.algorithms.gp.gp import GP
 
@@ -42,40 +41,33 @@ map = """.###............................
 ................................"""
 
 
-class Action(Protocol):
+class Action:
     pass
 
 
 @dataclass
-class ActionBlock(Node, Action):
+class ActionBlock(Action):
     actions: Annotated[List[Action], ListSizeBetween(2, 3)]
-
-    def __init__(self,actions):
-        self.actions = actions
 
 
 @dataclass
-class IfFood(Node, Action):
+class IfFood(Action):
     yes_food: Action
     no_food: Action
 
-    def __init__(self,yes_food,no_food):
-        self.yes_food = yes_food
-        self.no_food = no_food
-
 
 @dataclass
-class Move(Node, Action):
+class Move(Action):
     pass
 
 
 @dataclass
-class Right(Node, Action):
+class Right(Action):
     pass
 
 
 @dataclass
-class Left(Node, Action):
+class Left(Action):
     pass
 
 
@@ -127,8 +119,10 @@ def simulate(a: Action, map_str: str) -> int:
         Direction.EAST,
     )  # row, col, direction
     while next_instructions:
-        current_instruction = next_instructions.pop(0) # Default is -1
-        if isinstance(current_instruction, ActionBlock): # ActionBlock contains list of action lists.
+        current_instruction = next_instructions.pop(0)  # Default is -1
+        if isinstance(
+            current_instruction, ActionBlock
+        ):  # ActionBlock contains list of action lists.
             for action in reversed(current_instruction.actions):
                 next_instructions = action + next_instructions
         elif isinstance(current_instruction, IfFood):
@@ -164,7 +158,7 @@ if __name__ == "__main__":
         treebased_representation,
         lambda p: simulate(p, map),
         minimize=False,
-        max_depth=10,
+        max_depth=6,
         number_of_generations=50,
         population_size=1500,
         n_novelties=50,
