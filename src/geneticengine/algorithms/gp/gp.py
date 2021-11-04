@@ -1,13 +1,9 @@
 from typing import Any, Callable, Generic, List, Optional, Protocol, Tuple, TypeVar
 from copy import deepcopy
-from geneticengine.core.tree import Node
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.base import Representation
-from geneticengine.core.representations.treebased import (
-    ProcessedGrammar,
-    treebased_representation,
-)
+from geneticengine.core.representations.treebased import treebased_representation
 from geneticengine.algorithms.gp.Individual import Individual
 import geneticengine.algorithms.gp.generation_steps.selection as selection
 import geneticengine.algorithms.gp.generation_steps.mutation as mutation
@@ -19,12 +15,14 @@ class GP(object):
         self,
         g: Grammar,
         representation: Representation,
-        evaluation_function: Callable[[Node], float],
+        evaluation_function: Callable[[Any], float],
+        randomSource: RandomSource = RandomSource(123),
         population_size: int = 200,
         n_elites: int = 5,  # Shouldn't this be a percentage of population size?
         n_novelties: int = 10,
         number_of_generations: int = 100,
         max_depth: int = 15,
+        max_init_depth: int = 15,
         selection_method: Tuple[str, int] = ("tournament", 5),
         # -----
         # As given in A Field Guide to GP, p.17, by Poli and Mcphee
@@ -36,22 +34,24 @@ class GP(object):
         seed: int = 123,
     ):
         # Add check to input numbers (n_elitism, n_novelties, population_size)
-        self.pg: ProcessedGrammar = representation.preprocess_grammar(g)
+        self.grammar: Grammar = g
         self.representation = representation
         self.evaluation_function = evaluation_function
-        self.random = RandomSource(seed)
+        self.random = randomSource
         self.population_size = population_size
         self.elitism = selection.create_elitism(n_elites)
-        self.novelty = selection.create_novelties(self.create_individual)
+        self.novelty = selection.create_novelties(
+            self.create_individual, max_depth=max_depth
+        )
         self.mutation = mutation.create_mutation(
-            self.random, self.representation, self.pg
+            self.random, self.representation, self.grammar, max_depth
         )
         self.cross_over = cross_over.create_cross_over(
-            self.random, self.representation, self.pg
+            self.random, self.representation, self.grammar, max_depth
         )
         self.n_novelties = n_novelties
         self.number_of_generations = number_of_generations
-        self.max_depth = max_depth
+        self.max_init_depth = max_init_depth
         self.probability_mutation = probability_mutation
         self.probability_crossover = probability_crossover
         self.minimize = minimize
@@ -63,10 +63,10 @@ class GP(object):
             self.selection = lambda r, ls, n: [x for x in ls[:n]]
         self.force_individual = force_individual
 
-    def create_individual(self):
+    def create_individual(self, max_depth):
         return Individual(
             genotype=self.representation.create_individual(
-                self.random, self.pg, self.max_depth
+                self.random, self.grammar, max_depth
             ),
             fitness=None,
         )
@@ -82,8 +82,11 @@ class GP(object):
         else:
             return lambda x: -self.evaluate(x)
 
-    def evolve(self):
-        population = [self.create_individual() for _ in range(self.population_size)]
+    def evolve(self, verbose=0):
+        population = [
+            self.create_individual(self.max_init_depth)
+            for _ in range(self.population_size)
+        ]
         if self.force_individual is not None:
             population[0] = Individual(
                 genotype=self.force_individual,
@@ -109,15 +112,21 @@ class GP(object):
 
             population = npop
             population = sorted(population, key=self.keyfitness())
-            # self.printFitnesses(population, "G:" + str(gen))
+            largest_depth = max(
+                list(map(lambda x: x.genotype.distance_to_term, population))
+            )
+            if verbose == 1:
+                self.printFitnesses(population, "G:" + str(gen))
+                print("Best population:{}.".format(population[0]))
             print(
                 "BEST at",
-                gen,
+                gen + 1,
                 "/",
                 self.number_of_generations,
                 "is",
                 round(self.evaluate(population[0]), 2),
-                # population[0]
+                "- Max depth is:",
+                largest_depth,
             )
         return (population[0], self.evaluate(population[0]))
 

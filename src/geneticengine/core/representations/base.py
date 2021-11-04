@@ -9,6 +9,5 @@ t = TypeVar("t")
 @dataclass
 class Representation(Generic[t]):
     create_individual: Callable[[RandomSource, Grammar, int], t]
-    mutate_individual: Callable[[RandomSource, Grammar, t], t]
-    crossover_individuals: Callable[[RandomSource, Grammar, t, t], Tuple[t, t]]
-    preprocess_grammar: Callable[[Grammar], Any] 
+    mutate_individual: Callable[[RandomSource, Grammar, t, int], t]
+    crossover_individuals: Callable[[RandomSource, Grammar, t, t, int], Tuple[t, t]]

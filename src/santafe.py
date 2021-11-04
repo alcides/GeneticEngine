@@ -110,7 +110,7 @@ def food_in_front(pos: Tuple[int, int, Direction], map: List[List[Position]]) ->
 
 
 def simulate(a: Action, map_str: str) -> int:
-    next_instructions = [a]
+    next_instructions: List[Action] = [a]
     food_consumed = 0
     map = map_from_string(map_str)
     current_pos: Tuple[int, int, Direction] = (
@@ -124,7 +124,7 @@ def simulate(a: Action, map_str: str) -> int:
             current_instruction, ActionBlock
         ):  # ActionBlock contains list of action lists.
             for action in reversed(current_instruction.actions):
-                next_instructions = action + next_instructions
+                next_instructions = [action] + next_instructions
         elif isinstance(current_instruction, IfFood):
             if food_in_front(current_pos, map):
                 next_instructions.insert(0, current_instruction.yes_food)

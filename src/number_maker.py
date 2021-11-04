@@ -3,20 +3,18 @@ from enum import Enum
 from typing import List, Protocol, Tuple
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.treebased import treebased_representation
-from geneticengine.core.tree import Node
+from geneticengine.core.tree import PrettyPrintable
 from geneticengine.metahandlers.lists import ListSizeBetween
 from geneticengine.algorithms.gp.gp import GP
 
 
-class Expr:
-    pass
+class Expr(PrettyPrintable):
+    def evaluate(self, **kwargs) -> float:
+        return 0
 
 
 class One(Expr):
-    def evaluate(self, **kwargs):
-        return 1
-
-    def size(self):
+    def evaluate(self, **kwargs) -> float:
         return 1
 
     def __str__(self) -> str:
@@ -31,9 +29,6 @@ class Add(Expr):
     def evaluate(self, **kwargs):
         return self.left.evaluate() + self.right.evaluate()
 
-    def size(self):
-        return self.left.size() + self.right.size() + 1
-
     def __str__(self) -> str:
         return "(" + str(self.left) + " + " + str(self.right) + ")"
 
@@ -46,9 +41,6 @@ class Sub(Expr):
     def evaluate(self, **kwargs):
         return self.left.evaluate() - self.right.evaluate()
 
-    def size(self):
-        return self.left.size() + self.right.size() + 1
-
     def __str__(self) -> str:
         return "(" + str(self.left) + " - " + str(self.right) + ")"
 
@@ -58,11 +50,8 @@ class Mul(Expr):
     left: Expr
     right: Expr
 
-    def evaluate(self, **kwargs):
+    def evaluate(self, **kwargs) -> float:
         return self.left.evaluate() * self.right.evaluate()
-
-    def size(self):
-        return self.left.size() + self.right.size() + 1
 
     def __str__(self) -> str:
         return "(" + str(self.left) + " * " + str(self.right) + ")"
@@ -78,8 +67,8 @@ if __name__ == "__main__":
         minimize=True,
         max_depth=8,
         number_of_generations=50,
-        population_size=1000,
-        n_novelties=50,
+        population_size=100,
+        n_novelties=5,
     )
     (b, bf) = alg.evolve()
     print(bf, b)
