@@ -74,7 +74,7 @@ def is_metahandler(ty: type) -> bool:
     Returns if type is a metahandler.
     AnnotatedType[int, IntRange(3,10)] is an example of a Metahandler.
 
-    Verification is done using the __metadata__, which is given by Genetic Engine.
+    Verification is done using the __metadata__, which is the first argument of Annotated
     """
     return hasattr(ty, "__metadata__")
 
@@ -89,10 +89,10 @@ def apply_metahandler(
 
     As an example, AnnotatedType[int, IntRange(3,10)] will use the IntRange.generate(r, recursive_generator)
 
-    The generator is stored in the "__metadata__" special slot by Genetic Engine, thus not a Python magic method.
+    The generator is the annotation on the type ("__metadata__").
     """
     metahandler = ty.__metadata__[0]
-    base_type = ty.__args__[0]
+    base_type = get_generic_parameter(ty)
     return metahandler.generate(r, lambda: rec(base_type))
 
 
@@ -116,31 +116,31 @@ def random_node(
         return random_float(r)
     elif is_generic_list(starting_symbol):
         return random_list(r, recursive_generator, depth, starting_symbol)
-    if is_metahandler(starting_symbol):
+    elif is_metahandler(starting_symbol):
         return apply_metahandler(r, recursive_generator, starting_symbol)
-    if starting_symbol not in g.productions:
-        raise GeneticEngineError(f"Symbol {starting_symbol} not in grammar rules.")
+    else:
+        if starting_symbol not in g.productions:
+            raise GeneticEngineError(f"Symbol {starting_symbol} not in grammar rules.")
 
-    compatible_productions = g.productions[starting_symbol]
-    print(compatible_productions, "comp")
-    print([g.distanceToTerminal[vp] for vp in compatible_productions], depth)
-    valid_productions = [
-        vp for vp in compatible_productions if g.distanceToTerminal[vp] <= depth
-    ]
-    if not valid_productions:
-        raise GeneticEngineError(
-            "No productions for non-terminal node with type: {}.".format(
-                starting_symbol
+        compatible_productions = g.productions[starting_symbol]
+        valid_productions = [
+            vp for vp in compatible_productions if g.distanceToTerminal[vp] <= depth
+        ]
+        if not valid_productions:
+            raise GeneticEngineError(
+                "No productions for non-terminal node with type: {}.".format(
+                    starting_symbol
+                )
             )
-        )
-    rule = r.choice(valid_productions)
-    args = [recursive_generator(at) for (a, at) in get_arguments(rule)]
-    node = rule(*args)
-    node = relabel_nodes_of_trees(node)
-    return node
+        rule = r.choice(valid_productions)
+        args = [recursive_generator(at) for (a, at) in get_arguments(rule)]
+        node = rule(*args)
+        node = relabel_nodes_of_trees(node)
+        return node
 
 
 def random_individual(r: RandomSource, g: Grammar, max_depth: int = 5) -> TreeNode:
+    assert max_depth >= g.distanceToTerminal[g.starting_symbol]
     ind = random_node(r, g, max_depth, g.starting_symbol)
     assert isinstance(ind, TreeNode)
     return ind
@@ -251,7 +251,7 @@ def relabel_nodes_of_trees(i: TreeNode, max_depth: int = 1) -> TreeNode:
     def relabel_nodes(i: TreeNode, depth: int = 1) -> Tuple[int, int]:
         if is_terminal(type(i)):
             return (0, 0)
-        if isinstance(i, list):
+        elif isinstance(i, list):
             children = i
         else:
             children = [getattr(i, field) for field in get_property_names(i)]

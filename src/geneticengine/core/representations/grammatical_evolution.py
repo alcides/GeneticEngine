@@ -26,5 +26,4 @@ ge_representation = Representation(
     create_individual=random_individual,
     mutate_individual=mutate,
     crossover_individuals=tree_crossover,
-    preprocess_grammar=preprocess_grammar,
 )

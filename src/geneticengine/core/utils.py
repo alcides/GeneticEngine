@@ -9,7 +9,7 @@ def get_arguments(n) -> List[Tuple[str, type]]:
         return []
 
 
-def isNonTerminal(bty):
+def isNonTerminal(bty) -> bool:
     if hasattr(bty, "__bases__"):
         for ty in bty.__bases__:
             if hasattr(ty, "_is_protocol"):
