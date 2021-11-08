@@ -9,7 +9,6 @@ from geneticengine.core.tree import TreeNode
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.lists import ListSizeBetween
 from geneticengine.algorithms.gp.gp import GP
-from number_maker import Mul
 
 
 class Statment:
