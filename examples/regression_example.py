@@ -1,7 +1,6 @@
 from typing import Annotated
 
 import numpy as np
-import pandas as pd
 from sklearn.datasets import load_diabetes
 from sklearn.metrics import mean_squared_error
 
