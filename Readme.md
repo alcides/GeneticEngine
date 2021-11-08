@@ -55,15 +55,33 @@ At the root of our expression, we are looking for an element (because we are doi
 
 ### Step 0 Instalation
 
-You can install the dependencies from the requirements.txt file.
+You can install the dependencies from the requirements.txt file:
 
 ```
 python -m pip install -r requirements.txt
 ```
 
-The following snippets are taken from `src/vectorialgp_example.py`, where the full running code, with imports, is available.
+Furthermore, you must install the genetic engine as package:
+
+```
+python -m pip install src\.
+```
+
+Instead of the above, you can also run the ready-made python script:
+
+```
+python run.py -installation
+```
+
+Running the following allows you to run all the examples in the examples folder:
+
+```
+python run.py -examples
+```
 
 ### Step 1. Object-Oriented Representation
+
+The following snippets are taken from `examples/vectorialgp_example.py`, where the full running code, with imports, is available.
 
 Thus, we can create our class-based representation. We start by our generic types. These classes have no information, they are just used to represent the type of data.
 
