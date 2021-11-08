@@ -7,7 +7,6 @@ from geneticengine.grammars.sgp import Plus, Literal, Number, Mul, SafeDiv, Var
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.treebased import treebased_representation
 from geneticengine.metahandlers.vars import VarRange
-from geneticengine import algorithms
 
 
 # @dataclass
