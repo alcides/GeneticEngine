@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Any, Callable
 
 import numpy as np
 import pandas as pd
@@ -13,7 +13,7 @@ from geneticengine.core.representations.treebased import treebased_representatio
 from geneticengine.metahandlers.vars import VarRange
 
 # Load Dataset
-bunch = load_diabetes()
+bunch: Any = load_diabetes()
 
 # Prepare Grammar
 Var.__annotations__["name"] = Annotated[str, VarRange(bunch.feature_names)]
@@ -33,7 +33,7 @@ for i, n in enumerate(bunch.feature_names):
     feature_indices[n] = i
 
 
-def evaluate(n: Number):
+def evaluate(n: Number) -> Callable[[Any], float]:
     if isinstance(n, Plus):
         return lambda line: evaluate(n.left)(line) + evaluate(n.right)(line)
     elif isinstance(n, Mul):
@@ -44,6 +44,8 @@ def evaluate(n: Number):
         return lambda _: n.val
     elif isinstance(n, Var):
         return lambda line: line[feature_indices[n.name]]
+    else:
+        return lambda line: 0
 
 
 def fitness_function(n):
