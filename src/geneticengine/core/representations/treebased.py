@@ -117,7 +117,8 @@ def random_node(
     elif is_generic_list(starting_symbol):
         return random_list(r, recursive_generator, depth, starting_symbol)
     elif is_metahandler(starting_symbol):
-        return apply_metahandler(r, recursive_generator, starting_symbol)
+        node = apply_metahandler(r, recursive_generator, starting_symbol)
+        return relabel_nodes_of_trees(node)
     else:
         if starting_symbol not in g.productions:
             raise GeneticEngineError(f"Symbol {starting_symbol} not in grammar rules.")
@@ -147,25 +148,28 @@ def random_individual(r: RandomSource, g: Grammar, max_depth: int = 5) -> TreeNo
 
 
 def mutate_inner(r: RandomSource, g: Grammar, i: TreeNode, max_depth: int) -> TreeNode:
-    c = r.randint(0, i.nodes - 1)
-    if c == 0:
-        ty = i.__class__.__bases__[0]
-        try:
-            replacement = random_node(r, g, max_depth - i.depth + 1, ty)
-            return replacement
-        except:
+    if i.nodes > 0:
+        c = r.randint(0, i.nodes - 1)
+        if c == 0:
+            ty = i.__class__.__bases__[0]
+            try:
+                replacement = random_node(r, g, max_depth - i.depth + 1, ty)
+                return replacement
+            except:
+                return i
+        else:
+            for field in i.__annotations__:
+                child = getattr(i, field)
+                if hasattr(child, "nodes"):
+                    count = child.nodes
+                    if c <= count:
+                        setattr(i, field, mutate_inner(r, g, child, max_depth))
+                        return i
+                    else:
+                        c -= count
             return i
     else:
-        for field in i.__annotations__:
-            child = getattr(i, field)
-            if hasattr(child, "nodes"):
-                count = child.nodes
-                if c <= count:
-                    setattr(i, field, mutate_inner(r, g, child, max_depth))
-                    return i
-                else:
-                    c -= count
-        return i
+        return 1
 
 
 def mutate(r: RandomSource, g: Grammar, i: TreeNode, max_depth: int) -> Any:
@@ -186,31 +190,36 @@ def find_in_tree(ty: type, o: TreeNode, max_depth: int):
 def tree_crossover_inner(
     r: RandomSource, g: Grammar, i: TreeNode, o: TreeNode, max_depth: int
 ) -> Any:
-    c = r.randint(0, i.nodes - 1)
-    if c == 0:
-        ty = i.__class__.__bases__[0]
-        replacement = None
-        options = list(find_in_tree(ty, o, max_depth - i.depth + 1))
-        if options:
-            replacement = r.choice(options)
-        if replacement is None:
-            replacement = random_node(r, g, max_depth - i.depth + 1, ty)
-        return replacement
-
-    else:
-        for field in i.__annotations__:
-            child = getattr(i, field)
-            if hasattr(child, "nodes"):
-                count = getattr(i, field).nodes
-                if c <= count:
-                    setattr(
-                        i,
-                        field,
-                        tree_crossover_inner(r, g, getattr(i, field), o, max_depth),
-                    )
+    if i.nodes > 0:
+        c = r.randint(0, i.nodes - 1)
+        if c == 0:
+            ty = i.__class__.__bases__[0]
+            replacement = None
+            options = list(find_in_tree(ty, o, max_depth - i.depth + 1))
+            if options:
+                replacement = r.choice(options)
+            if replacement is None:
+                try:
+                    replacement = random_node(r, g, max_depth - i.depth + 1, ty)
+                except:
                     return i
-                else:
-                    c -= count
+            return replacement
+        else:
+            for field in i.__annotations__:
+                child = getattr(i, field)
+                if hasattr(child, "nodes"):
+                    count = getattr(i, field).nodes
+                    if c <= count:
+                        setattr(
+                            i,
+                            field,
+                            tree_crossover_inner(r, g, getattr(i, field), o, max_depth),
+                        )
+                        return i
+                    else:
+                        c -= count
+            return i
+    else:
         return i
 
 
@@ -267,7 +276,10 @@ def relabel_nodes_of_trees(i: TreeNode, max_depth: int = 1) -> TreeNode:
                 i.nodes = number_of_nodes
             return number_of_nodes, distance_to_term
         else:
-            return (0, 0)
+            i.depth = depth
+            i.distance_to_term = 1
+            i.nodes = 0
+            return (0, 1)
 
     # print("Node: {}, nodes: {}, distance_to_term: {}, depth: {}.".format(i,i.nodes,i.distance_to_term,i.depth))
     relabel_nodes(i, max_depth)

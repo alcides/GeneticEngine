@@ -57,13 +57,20 @@ class Mul(Expr):
         return "(" + str(self.left) + " * " + str(self.right) + ")"
 
 
+target = 64
+
+
+def fitness_function(p: Expr) -> float:
+    print(p, type(p))
+    return abs(target - p.evaluate())
+
+
 if __name__ == "__main__":
     g = extract_grammar([One, Add, Sub, Mul], Expr)
-    target = 64
     alg = GP(
         g,
         treebased_representation,
-        lambda p: (abs(target - p.evaluate()) - 1 / p.size()),
+        fitness_function,
         minimize=True,
         max_depth=8,
         number_of_generations=50,
