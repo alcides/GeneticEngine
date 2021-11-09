@@ -44,8 +44,8 @@ class VectorialVar(Vectorial):
 
 @dataclass
 class Add(Scalar):
-    right: Scalar
     left: Scalar
+    right: Scalar
 
 
 @dataclass
