@@ -248,27 +248,24 @@ def relabel_nodes_of_trees(
     # print("Node: {}, nodes: {}, distance_to_term: {}, depth: {}.".format(i,i.nodes,i.distance_to_term,i.depth))
     def relabel_nodes(i: TreeNode, depth: int = 1) -> Tuple[int, int]:
         if is_terminal(type(i), non_terminals):
-            return (0, 0)
+            if type(i) in non_terminals:
+                i.depth = depth
+                i.distance_to_term = 1
+                i.nodes = 0
+            return (0, 1)
         elif isinstance(i, list):
             children = i
         else:
             children = [getattr(i, field) for field in get_property_names(i)]
-        if children:
-            properties_of_children = [
-                relabel_nodes(child, depth + 1) for child in children
-            ]
-            number_of_nodes = 1 + sum([prop[0] for prop in properties_of_children])
-            distance_to_term = 1 + max([prop[1] for prop in properties_of_children])
-            if not isinstance(i, list):
-                i.depth = depth
-                i.distance_to_term = distance_to_term
-                i.nodes = number_of_nodes
-            return number_of_nodes, distance_to_term
-        else:
+        assert children
+        properties_of_children = [relabel_nodes(child, depth + 1) for child in children]
+        number_of_nodes = 1 + sum([prop[0] for prop in properties_of_children])
+        distance_to_term = 1 + max([prop[1] for prop in properties_of_children])
+        if not isinstance(i, list):
             i.depth = depth
-            i.distance_to_term = 1
-            i.nodes = 0
-            return (0, 1)
+            i.distance_to_term = distance_to_term
+            i.nodes = number_of_nodes
+        return number_of_nodes, distance_to_term
 
     # print("Node: {}, nodes: {}, distance_to_term: {}, depth: {}.".format(i,i.nodes,i.distance_to_term,i.depth))
     relabel_nodes(i, max_depth)
