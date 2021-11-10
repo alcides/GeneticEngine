@@ -84,12 +84,15 @@ python run.py -examples
 The following snippets are taken from `examples/vectorialgp_example.py`, where the full running code, with imports, is available.
 
 Thus, we can create our class-based representation. We start by our generic types. These classes have no information, they are just used to represent the type of data.
+They must inherit from Abstract Base Class (ABC), which make these classes as abstract and not instantiable, unlike their child classes. 
 
 ```python
-class Scalar:
+from abc import ABC
+
+class Scalar(ABC):
     pass
 
-class Vectorial:
+class Vectorial(ABC):
     pass
 
 ```

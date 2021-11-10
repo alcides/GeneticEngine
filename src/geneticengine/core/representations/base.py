@@ -3,11 +3,13 @@ from dataclasses import dataclass
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.grammar import Grammar
 
-t = TypeVar("t")
+g = TypeVar("g")
+p = TypeVar("p")
 
 
 @dataclass
-class Representation(Generic[t]):
-    create_individual: Callable[[RandomSource, Grammar, int], t]
-    mutate_individual: Callable[[RandomSource, Grammar, t, int], t]
-    crossover_individuals: Callable[[RandomSource, Grammar, t, t, int], Tuple[t, t]]
+class Representation(Generic[g, p]):
+    create_individual: Callable[[RandomSource, Grammar, int], g]
+    mutate_individual: Callable[[RandomSource, Grammar, g, int], g]
+    crossover_individuals: Callable[[RandomSource, Grammar, g, g, int], Tuple[g, g]]
+    genotype_to_phenotype: Callable[[g], p]

@@ -22,7 +22,6 @@ class GP(object):
         n_novelties: int = 10,
         number_of_generations: int = 100,
         max_depth: int = 15,
-        max_init_depth: int = 15,
         selection_method: Tuple[str, int] = ("tournament", 5),
         # -----
         # As given in A Field Guide to GP, p.17, by Poli and Mcphee
@@ -51,7 +50,6 @@ class GP(object):
         )
         self.n_novelties = n_novelties
         self.number_of_generations = number_of_generations
-        self.max_init_depth = max_init_depth
         self.probability_mutation = probability_mutation
         self.probability_crossover = probability_crossover
         self.minimize = minimize
@@ -83,8 +81,9 @@ class GP(object):
             return lambda x: -self.evaluate(x)
 
     def evolve(self, verbose=0):
+        # TODO: This is not ramped half and half
         population = [
-            self.create_individual(self.max_init_depth)
+            self.create_individual(self.grammar.get_min_tree_depth())
             for _ in range(self.population_size)
         ]
         if self.force_individual is not None:

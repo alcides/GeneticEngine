@@ -1,3 +1,4 @@
+from abc import ABC
 from geneticengine.core.tree import TreeNode
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.vars import VarRange
@@ -7,7 +8,7 @@ from typing import Annotated
 from dataclasses import dataclass
 
 
-class Number:
+class Number(ABC):
     def evaluate(self, **kwargs) -> float:
         return 0.0
 
