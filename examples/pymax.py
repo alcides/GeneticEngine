@@ -103,6 +103,6 @@ if __name__ == "__main__":
         number_of_generations=3,
         minimize=False,
     )
-    (b, bf) = alg.evolve(verbose=0)
-    print(b)
+    (b, bf, bp) = alg.evolve(verbose=0)
+    print(bp, b)
     print("With fitness: {}".format(bf))

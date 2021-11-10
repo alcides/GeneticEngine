@@ -137,5 +137,5 @@ alg = GP(
     population_size=100,
     number_of_generations=100,
 )
-(b, bf) = alg.evolve()
-print(bf, b)
+(b, bf, bp) = alg.evolve(verbose=0)
+print(bf, bp, b)

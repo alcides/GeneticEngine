@@ -62,5 +62,5 @@ alg = GP(
     fitness_function,
     minimize=True,
 )
-(b, bf) = alg.evolve()
-print(bf, b)
+(b, bf, bp) = alg.evolve(verbose=0)
+print(bf, bp, b)
