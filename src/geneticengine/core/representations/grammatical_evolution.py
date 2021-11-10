@@ -5,10 +5,6 @@ from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.base import Representation
 
 
-class Individual(Protocol):
-    pass
-
-
 def random_individual(
     r: RandomSource, g: Grammar, depth: int = 5, starting_symbol: Any = None
 ):
@@ -24,6 +20,7 @@ def mutate(r: RandomSource, g: Grammar, ind: List[int]) -> List[int]:
 
 ge_representation = Representation(
     create_individual=random_individual,
-    mutate_individual=mutate,
-    crossover_individuals=tree_crossover,
+    mutate_individual=lambda x, y, z, m: z,  # todo
+    crossover_individuals=lambda x, y, a, b, m: (a, b),  # todo
+    genotype_to_phenotype=lambda x: x,
 )

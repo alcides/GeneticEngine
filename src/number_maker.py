@@ -1,6 +1,5 @@
+from abc import ABC
 from dataclasses import dataclass
-from enum import Enum
-from typing import List, Protocol, Tuple
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.treebased import treebased_representation
 from geneticengine.core.tree import PrettyPrintable
@@ -8,7 +7,7 @@ from geneticengine.metahandlers.lists import ListSizeBetween
 from geneticengine.algorithms.gp.gp import GP
 
 
-class Expr(PrettyPrintable):
+class Expr(ABC, PrettyPrintable):
     def evaluate(self, **kwargs) -> float:
         return 0
 
@@ -61,7 +60,6 @@ target = 64
 
 
 def fitness_function(p: Expr) -> float:
-    print(p, type(p))
     return abs(target - p.evaluate())
 
 

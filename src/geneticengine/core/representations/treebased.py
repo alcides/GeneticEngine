@@ -1,35 +1,27 @@
-from dataclasses import dataclass
-from random import Random
 import sys
 from copy import deepcopy
 
 from typing import (
-    Annotated,
     Any,
     Callable,
-    Dict,
-    Generic,
-    Protocol,
     Type,
     TypeVar,
     Tuple,
     List,
-    _AnnotatedAlias,
-    _GenericAlias,
     Union,
-    cast,
 )
 
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.representations.base import Representation
 from geneticengine.core.tree import TreeNode
-from geneticengine.core.utils import get_arguments
+from geneticengine.core.utils import (
+    get_arguments,
+    is_generic_list,
+    get_generic_parameter,
+    is_terminal,
+)
 from geneticengine.exceptions import GeneticEngineError
-
-
-# This type alias allows to represent anything that can be in the tree
-Node = Union[TreeNode, int, float, List[Any]]
 
 
 def random_int(r: RandomSource) -> int:
@@ -38,24 +30,6 @@ def random_int(r: RandomSource) -> int:
 
 def random_float(r: RandomSource) -> float:
     return r.random_float(-100, 100)
-
-
-def is_generic_list(ty: Type[Any]):
-    """ Returns whether a type is List[T] for any T """
-    return hasattr(ty, "__origin__") and ty.__origin__ is list
-
-
-def get_generic_parameter(ty: Type[Any]) -> type:
-    """ When given List[T], this function returns T"""
-    return ty.__args__[0]
-
-
-def is_terminal(ty) -> bool:
-    return (
-        ty in [int, float, str]
-        or is_generic_list(ty)
-        and is_terminal(get_generic_parameter(ty))
-    )
 
 
 T = TypeVar("T")
@@ -107,6 +81,12 @@ def random_node(
     """
     if depth < 0:
         raise GeneticEngineError("Recursion Depth reached")
+    if depth < g.get_distance_to_terminal(starting_symbol):
+        raise GeneticEngineError(
+            "There will be no depth sufficient for symbol {} in this grammar (provided: {}, required: {}).".format(
+                starting_symbol, depth, g.get_distance_to_terminal(starting_symbol)
+            )
+        )
 
     recursive_generator = lambda t: random_node(r, g, depth - 1, t)
 
@@ -118,7 +98,7 @@ def random_node(
         return random_list(r, recursive_generator, depth, starting_symbol)
     elif is_metahandler(starting_symbol):
         node = apply_metahandler(r, recursive_generator, starting_symbol)
-        return relabel_nodes_of_trees(node)
+        return relabel_nodes_of_trees(node, g.non_terminals())
     else:
         if starting_symbol not in g.productions:
             raise GeneticEngineError(f"Symbol {starting_symbol} not in grammar rules.")
@@ -129,19 +109,26 @@ def random_node(
         ]
         if not valid_productions:
             raise GeneticEngineError(
-                "No productions for non-terminal node with type: {}.".format(
-                    starting_symbol
+                "No productions for non-terminal node with type: {} in depth {} (minimum required: {}).".format(
+                    starting_symbol,
+                    depth,
+                    str(
+                        [
+                            (vp, g.distanceToTerminal[vp])
+                            for vp in compatible_productions
+                        ]
+                    ),
                 )
             )
         rule = r.choice(valid_productions)
         args = [recursive_generator(at) for (a, at) in get_arguments(rule)]
         node = rule(*args)
-        node = relabel_nodes_of_trees(node)
+        node = relabel_nodes_of_trees(node, g.non_terminals())
         return node
 
 
 def random_individual(r: RandomSource, g: Grammar, max_depth: int = 5) -> TreeNode:
-    assert max_depth >= g.distanceToTerminal[g.starting_symbol]
+    assert max_depth >= g.get_min_tree_depth()
     ind = random_node(r, g, max_depth, g.starting_symbol)
     assert isinstance(ind, TreeNode)
     return ind
@@ -169,12 +156,12 @@ def mutate_inner(r: RandomSource, g: Grammar, i: TreeNode, max_depth: int) -> Tr
                         c -= count
             return i
     else:
-        return 1
+        return i
 
 
 def mutate(r: RandomSource, g: Grammar, i: TreeNode, max_depth: int) -> Any:
     new_tree = mutate_inner(r, g, deepcopy(i), max_depth)
-    relabeled_new_tree = relabel_nodes_of_trees(new_tree)
+    relabeled_new_tree = relabel_nodes_of_trees(new_tree, g.non_terminals())
     return relabeled_new_tree
 
 
@@ -230,9 +217,9 @@ def tree_crossover(
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns two trees that are created by crossing over [p1] and [p2]. The first tree returned has [p1] as the base, and the second tree has [p2] as a base.
     """
     new_tree1 = tree_crossover_inner(r, g, deepcopy(p1), deepcopy(p2), max_depth)
-    relabeled_new_tree1 = relabel_nodes_of_trees(new_tree1)
+    relabeled_new_tree1 = relabel_nodes_of_trees(new_tree1, g.non_terminals())
     new_tree2 = tree_crossover_inner(r, g, deepcopy(p2), deepcopy(p1), max_depth)
-    relabeled_new_tree2 = relabel_nodes_of_trees(new_tree2)
+    relabeled_new_tree2 = relabel_nodes_of_trees(new_tree2, g.non_terminals())
     return relabeled_new_tree1, relabeled_new_tree2
 
 
@@ -243,7 +230,7 @@ def tree_crossover_single_tree(
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns one tree that is created by crossing over [p1] and [p2]. The tree returned has [p1] as the base.
     """
     new_tree = tree_crossover_inner(r, g, deepcopy(p1), deepcopy(p2), max_depth)
-    relabeled_new_tree = relabel_nodes_of_trees(new_tree)
+    relabeled_new_tree = relabel_nodes_of_trees(new_tree, g.non_terminals())
     return relabeled_new_tree
 
 
@@ -254,11 +241,13 @@ def get_property_names(obj: TreeNode) -> List[Any]:
         return []
 
 
-def relabel_nodes_of_trees(i: TreeNode, max_depth: int = 1) -> TreeNode:
+def relabel_nodes_of_trees(
+    i: TreeNode, non_terminals: list[type], max_depth: int = 1
+) -> TreeNode:
     """ Recomputes all the nodes, depth and distance_to_term in the tree """
     # print("Node: {}, nodes: {}, distance_to_term: {}, depth: {}.".format(i,i.nodes,i.distance_to_term,i.depth))
     def relabel_nodes(i: TreeNode, depth: int = 1) -> Tuple[int, int]:
-        if is_terminal(type(i)):
+        if is_terminal(type(i), non_terminals):
             return (0, 0)
         elif isinstance(i, list):
             children = i
@@ -290,4 +279,5 @@ treebased_representation = Representation(
     create_individual=random_individual,
     mutate_individual=mutate,
     crossover_individuals=tree_crossover,
+    genotype_to_phenotype=lambda x: x,
 )

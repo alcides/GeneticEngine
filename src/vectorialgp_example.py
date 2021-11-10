@@ -1,5 +1,6 @@
+from abc import ABC
 from dataclasses import dataclass
-from typing import Annotated, Protocol
+from typing import Annotated
 
 import numpy as np
 from sklearn.metrics import mean_squared_error
@@ -19,11 +20,11 @@ dataset = [
 ]
 
 
-class Scalar:
+class Scalar(ABC):
     pass
 
 
-class Vectorial:
+class Vectorial(ABC):
     pass
 
 
@@ -31,15 +32,24 @@ class Vectorial:
 class Value(Scalar):
     value: Annotated[float, FloatRange(-10, 10)]
 
+    def __str__(self):
+        return str(self.value)
+
 
 @dataclass
 class ScalarVar(Scalar):
     index: Annotated[int, IntRange(0, 1)]
 
+    def __str__(self):
+        return "line[{}]".format(self.index)
+
 
 @dataclass
 class VectorialVar(Vectorial):
     index: Annotated[int, IntRange(2, 3)]
+
+    def __str__(self):
+        return "line[{}]".format(self.index)
 
 
 @dataclass
@@ -47,15 +57,24 @@ class Add(Scalar):
     left: Scalar
     right: Scalar
 
+    def __str__(self):
+        return "({} + {})".format(self.left, self.right)
+
 
 @dataclass
 class Mean(Scalar):
     arr: Vectorial
 
+    def __str__(self):
+        return "np.mean({})".format(self.arr)
+
 
 @dataclass
 class CumulativeSum(Vectorial):
     arr: Vectorial
+
+    def __str__(self):
+        return "np.cumsum({})".format(self.arr)
 
 
 g = extract_grammar([Value, ScalarVar, VectorialVar, Add, Mean, CumulativeSum], Scalar)

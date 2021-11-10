@@ -1,46 +1,50 @@
 from typing import (
-    Annotated,
     Any,
-    Callable,
     Dict,
-    Generic,
-    Protocol,
-    Type,
-    TypeVar,
-    Tuple,
     List,
-    _AnnotatedAlias,
-    _GenericAlias,
-    Union,
-    cast,
 )
 
-from geneticengine.core.utils import get_arguments
+from geneticengine.core.utils import (
+    get_arguments,
+    get_generic_parameter,
+    is_abstract,
+    is_annotated,
+    is_generic_list,
+    is_terminal,
+)
 
 
 class Grammar(object):
     starting_symbol: type
     productions: Dict[type, List[type]]
     distanceToTerminal: Dict[Any, int]
+    nodes: list[type]
 
-    def __init__(self, starting_symbol) -> None:
+    def __init__(self, starting_symbol, nodes) -> None:
         self.productions: Dict[type, List[type]] = {}
         self.starting_symbol = starting_symbol
         self.distanceToTerminal = {int: 1, str: 1, float: 1}
+        self.nodes = nodes
+
+    def non_terminals(self) -> list[type]:
+        return self.nodes
 
     def register(self, nonterminal: type, nodetype: type):
         if nonterminal not in self.productions:
             self.productions[nonterminal] = []
         self.productions[nonterminal].append(nodetype)
 
-    def extract(self, ty: type, nodes: List[type]):
+    def extract(self, ty: type):
         if ty in self.productions.keys():
             return
-        for n in nodes:
-            if ty in n.mro():
-                self.register(ty, n)
-                for (arg, argt) in get_arguments(n):
-                    self.extract(argt, nodes)
+        elif is_generic_list(ty) or is_annotated(ty):
+            self.extract(get_generic_parameter(ty))
+        else:
+            for n in self.nodes:
+                if ty in n.mro():
+                    self.register(ty, n)
+                    for (arg, argt) in get_arguments(n):
+                        self.extract(argt)
 
     def __repr__(self):
         def wrap(n):
@@ -66,52 +70,57 @@ class Grammar(object):
             f"Grammar<Starting={self.starting_symbol.__name__},Productions=[{prods}]>"
         )
 
+    def get_all_symbols(self) -> tuple[set[type], set[type], set[type]]:
+        """ All symbols in the current grammar, including terminals """
+        keys = set((k for k in self.productions.keys()))
+        sequence = set((v for vv in self.productions.values() for v in vv))
+        return (keys, sequence, sequence.union(keys))
+
+    def get_distance_to_terminal(self, ty: type) -> int:
+        """ Returns the current distance to terminal of a given type """
+        if is_generic_list(ty) or is_annotated(ty):
+            ta = get_generic_parameter(ty)
+            return 1 + self.get_distance_to_terminal(ta)
+        return self.distanceToTerminal[ty]
+
+    def get_min_tree_depth(self):
+        """ Returns the minimum depth a full tree can have """
+        return self.distanceToTerminal[self.starting_symbol]
+
     def preprocess(self):
-        choice = set()
-        for k in self.productions.keys():
-            choice.add(k)
-        sequence = set()
-        for vv in self.productions.values():
-            for v in vv:
-                if v not in choice:
-                    sequence.add(v)
-        all_sym = sequence.union(choice)
+        """ Computes distanceToTerminal via a fixpoint algorithm. """
+        (keys, _, all_sym) = self.get_all_symbols()
         for s in all_sym:
             self.distanceToTerminal[s] = 1000000
         changed = True
+
         while changed:
             changed = False
             for sym in all_sym:
                 old_val = self.distanceToTerminal[sym]
                 val = old_val
-                if sym in choice:
-                    for prod in self.productions[sym]:
-                        val = min(val, self.distanceToTerminal[prod])
+
+                if is_abstract(sym):
+                    if sym in self.productions:
+                        for prod in self.productions[sym]:
+                            val = min(val, self.distanceToTerminal[prod])
                 else:
-                    if hasattr(sym, "__annotations__"):
-                        var = sym.__annotations__.values()
-                        if isinstance(list(var)[0], _AnnotatedAlias):
-                            t = list(var)[0].__origin__
-                        else:
-                            t = var.__iter__().__next__()
-                        if isinstance(t, _GenericAlias):
-                            t = t.__args__[0]
-                        val = self.distanceToTerminal[t]
-                        for prod in var:
-                            if isinstance(prod, _AnnotatedAlias):
-                                prod = prod.__origin__
-                            if isinstance(prod, _GenericAlias):
-                                prod = prod.__args__[0]
-                            val = max(val, self.distanceToTerminal[prod] + 1)
-                    else:
+                    if is_terminal(sym, self.non_terminals()):
                         val = 1
-                if val != old_val:
+                    else:
+                        args = get_arguments(sym)
+                        assert args
+                        val = 1 + max(
+                            [self.get_distance_to_terminal(argt) for (_, argt) in args]
+                        )
+
+                if val < old_val:
                     changed = True
                     self.distanceToTerminal[sym] = val
 
 
 def extract_grammar(nodes, starting_symbol):
-    g = Grammar(starting_symbol)
-    g.extract(starting_symbol, nodes)
+    g = Grammar(starting_symbol, nodes)
+    g.extract(starting_symbol)
     g.preprocess()
     return g

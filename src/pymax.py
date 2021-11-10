@@ -1,6 +1,7 @@
+from abc import ABC
 from dataclasses import dataclass
 from textwrap import indent
-from typing import Annotated, List, NamedTuple
+from typing import Annotated, List, NamedTuple, Protocol
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.treebased import treebased_representation
 from geneticengine.metahandlers.ints import IntRange
@@ -8,16 +9,17 @@ from geneticengine.metahandlers.lists import ListSizeBetween
 from geneticengine.algorithms.gp.gp import GP
 
 
-class Statement:
+class Statement(ABC):
     def evaluate(self, x: float) -> float:
         return x
 
 
-class Expr:
+class Expr(ABC):
     def evaluate(self, x: float) -> float:
         return 0.0
 
 
+@dataclass
 class Code(Statement):
     stmts: List[Statement]
 
@@ -27,7 +29,7 @@ class Code(Statement):
         return x
 
     def __str__(self):
-        "\n".join([str(stmt) for stmt in self.stmts])
+        return "\n".join([str(stmt) for stmt in self.stmts])
 
 
 @dataclass
@@ -102,13 +104,14 @@ def fit(indiv: Code):
 fitness_function = lambda x: fit(x)
 
 if __name__ == "__main__":
-    g = extract_grammar([XPlusConst, XTimesConst, XAssign, ForLoop, Code, Const], Code)
+    g = extract_grammar(
+        [XPlusConst, XTimesConst, XAssign, ForLoop, Code, Const, VarX], Code
+    )
     alg = GP(
         g,
         treebased_representation,
         fitness_function,
         max_depth=10,
-        max_init_depth=7,
         population_size=40,
         number_of_generations=3,
         minimize=False,

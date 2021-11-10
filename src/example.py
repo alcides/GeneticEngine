@@ -44,7 +44,6 @@ alg = GP(
     treebased_representation,
     fit,
     population_size=7,
-    max_init_depth=4,
     number_of_generations=10,
     minimize=True,
     n_elites=2,
