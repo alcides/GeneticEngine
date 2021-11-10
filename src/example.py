@@ -5,7 +5,9 @@ from typing import Annotated
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.grammars.sgp import Plus, Literal, Number, Mul, SafeDiv, Var
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.treebased import treebased_representation
+from geneticengine.core.representations.grammatical_evolution import (
+    ge_representation,
+)
 from geneticengine.metahandlers.vars import VarRange
 
 
@@ -41,7 +43,7 @@ def target(x):
 
 alg = GP(
     g,
-    treebased_representation,
+    ge_representation,
     fit,
     population_size=7,
     number_of_generations=10,
