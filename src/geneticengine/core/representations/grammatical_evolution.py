@@ -42,8 +42,8 @@ class ListWrapper(Source):
     index: int = 0
 
     def randint(self, min, max) -> int:
-        v = self.list[self.index]
         self.index = self.index + 1 % len(self.list)
+        v = self.list[self.index]
         return v % (max - min + 1) + min
 
     def random_float(self, min, max) -> float:
