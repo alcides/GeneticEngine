@@ -51,5 +51,5 @@ alg = GP(
     n_elites=2,
     n_novelties=0,
 )
-(b, bf) = alg.evolve(verbose=0)
-print(bf, b)
+(b, bf, bp) = alg.evolve(verbose=0)
+print(bf, bp, b)

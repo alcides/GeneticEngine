@@ -125,7 +125,7 @@ class GP(object):
                 "is",
                 round(self.evaluate(population[0]), 2),
             )
-        return (population[0], self.evaluate(population[0]))
+        return (population[0], self.evaluate(population[0]), self.representation.genotype_to_phenotype(self.grammar,population[0].genotype))
 
     def printFitnesses(self, pop, prefix):
         print(prefix)
