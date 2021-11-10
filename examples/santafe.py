@@ -164,5 +164,5 @@ if __name__ == "__main__":
         population_size=1500,
         n_novelties=50,
     )
-    (b, bf) = alg.evolve()
-    print(bf, b)
+    (b, bf, bp) = alg.evolve(verbose=0)
+    print(bf, bp, b)

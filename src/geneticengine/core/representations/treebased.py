@@ -11,7 +11,7 @@ from typing import (
     Union,
 )
 
-from geneticengine.core.random.sources import RandomSource
+from geneticengine.core.random.sources import RandomSource, Source
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.representations.base import Representation
 from geneticengine.core.tree import TreeNode
@@ -24,11 +24,11 @@ from geneticengine.core.utils import (
 from geneticengine.exceptions import GeneticEngineError
 
 
-def random_int(r: RandomSource) -> int:
+def random_int(r: Source) -> int:
     return r.randint(-(sys.maxsize - 1), sys.maxsize)
 
 
-def random_float(r: RandomSource) -> float:
+def random_float(r: Source) -> float:
     return r.random_float(-100, 100)
 
 
@@ -36,7 +36,7 @@ T = TypeVar("T")
 
 
 def random_list(
-    r: RandomSource, rec: Callable[[Type[Any]], Any], depth: int, ty: Type[List[T]]
+    r: Source, rec: Callable[[Type[Any]], Any], depth: int, ty: Type[List[T]]
 ) -> List[T]:
     inner_type = get_generic_parameter(ty)
     size = r.randint(0, depth)
@@ -54,7 +54,7 @@ def is_metahandler(ty: type) -> bool:
 
 
 def apply_metahandler(
-    r: RandomSource,
+    r: Source,
     rec: Callable[[Type[Any]], Any],
     ty: Type[Any],
 ) -> Any:
@@ -71,7 +71,7 @@ def apply_metahandler(
 
 
 def random_node(
-    r: RandomSource,
+    r: Source,
     g: Grammar,
     depth: int = 5,
     starting_symbol: Type[Any] = int,
@@ -127,14 +127,14 @@ def random_node(
         return node
 
 
-def random_individual(r: RandomSource, g: Grammar, max_depth: int = 5) -> TreeNode:
+def random_individual(r: Source, g: Grammar, max_depth: int = 5) -> TreeNode:
     assert max_depth >= g.get_min_tree_depth()
     ind = random_node(r, g, max_depth, g.starting_symbol)
     assert isinstance(ind, TreeNode)
     return ind
 
 
-def mutate_inner(r: RandomSource, g: Grammar, i: TreeNode, max_depth: int) -> TreeNode:
+def mutate_inner(r: Source, g: Grammar, i: TreeNode, max_depth: int) -> TreeNode:
     if i.nodes > 0:
         c = r.randint(0, i.nodes - 1)
         if c == 0:
@@ -159,7 +159,7 @@ def mutate_inner(r: RandomSource, g: Grammar, i: TreeNode, max_depth: int) -> Tr
         return i
 
 
-def mutate(r: RandomSource, g: Grammar, i: TreeNode, max_depth: int) -> Any:
+def mutate(r: Source, g: Grammar, i: TreeNode, max_depth: int) -> Any:
     new_tree = mutate_inner(r, g, deepcopy(i), max_depth)
     relabeled_new_tree = relabel_nodes_of_trees(new_tree, g.non_terminals())
     return relabeled_new_tree
@@ -175,7 +175,7 @@ def find_in_tree(ty: type, o: TreeNode, max_depth: int):
 
 
 def tree_crossover_inner(
-    r: RandomSource, g: Grammar, i: TreeNode, o: TreeNode, max_depth: int
+    r: Source, g: Grammar, i: TreeNode, o: TreeNode, max_depth: int
 ) -> Any:
     if i.nodes > 0:
         c = r.randint(0, i.nodes - 1)
@@ -211,7 +211,7 @@ def tree_crossover_inner(
 
 
 def tree_crossover(
-    r: RandomSource, g: Grammar, p1: TreeNode, p2: TreeNode, max_depth: int
+    r: Source, g: Grammar, p1: TreeNode, p2: TreeNode, max_depth: int
 ) -> Tuple[TreeNode, TreeNode]:
     """
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns two trees that are created by crossing over [p1] and [p2]. The first tree returned has [p1] as the base, and the second tree has [p2] as a base.
@@ -224,7 +224,7 @@ def tree_crossover(
 
 
 def tree_crossover_single_tree(
-    r: RandomSource, g: Grammar, p1: TreeNode, p2: TreeNode, max_depth: int
+    r: Source, g: Grammar, p1: TreeNode, p2: TreeNode, max_depth: int
 ) -> TreeNode:
     """
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns one tree that is created by crossing over [p1] and [p2]. The tree returned has [p1] as the base.
@@ -276,5 +276,5 @@ treebased_representation = Representation(
     create_individual=random_individual,
     mutate_individual=mutate,
     crossover_individuals=tree_crossover,
-    genotype_to_phenotype=lambda x: x,
+    genotype_to_phenotype=lambda g, x: x,
 )

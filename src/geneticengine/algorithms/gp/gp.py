@@ -71,7 +71,10 @@ class GP(object):
 
     def evaluate(self, individual: Individual) -> float:
         if individual.fitness is None:
-            individual.fitness = self.evaluation_function(individual.genotype)
+            phenotype = self.representation.genotype_to_phenotype(
+                self.grammar, individual.genotype
+            )
+            individual.fitness = self.evaluation_function(phenotype)
         return individual.fitness
 
     def keyfitness(self):
@@ -111,9 +114,6 @@ class GP(object):
 
             population = npop
             population = sorted(population, key=self.keyfitness())
-            largest_depth = max(
-                list(map(lambda x: x.genotype.distance_to_term, population))
-            )
             if verbose == 1:
                 self.printFitnesses(population, "G:" + str(gen))
                 print("Best population:{}.".format(population[0]))
@@ -124,10 +124,8 @@ class GP(object):
                 self.number_of_generations,
                 "is",
                 round(self.evaluate(population[0]), 2),
-                "- Max depth is:",
-                largest_depth,
             )
-        return (population[0], self.evaluate(population[0]))
+        return (population[0], self.evaluate(population[0]), self.representation.genotype_to_phenotype(self.grammar,population[0].genotype))
 
     def printFitnesses(self, pop, prefix):
         print(prefix)
