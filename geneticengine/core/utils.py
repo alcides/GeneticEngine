@@ -19,12 +19,12 @@ def is_generic_list(ty: Type[Any]):
 
 
 def get_generic_parameters(ty: Type[Any]) -> list[type]:
-    """ When given Dict[T, R], this function returns [T, R]"""
+    """ Annotated[T, <annotations>] or List[T], this function returns Dict[T,]"""
     return ty.__args__
 
 
 def get_generic_parameter(ty: Type[Any]) -> type:
-    """ When given List[T], this function returns T"""
+    """ When given Annotated[T, <annotations>] or List[T], this function returns T """
     return get_generic_parameters(ty)[0]
 
 
