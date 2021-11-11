@@ -87,6 +87,11 @@ class Grammar(object):
         """ Returns the minimum depth a full tree can have """
         return self.distanceToTerminal[self.starting_symbol]
 
+    def get_max_node_depth(self):
+        """ Returns the maximum minimum depth a node can have"""
+        dist = lambda x: self.distanceToTerminal[x]
+        return max(list(map(dist,self.nodes)))
+
     def preprocess(self):
         """ Computes distanceToTerminal via a fixpoint algorithm. """
         (keys, _, all_sym) = self.get_all_symbols()

@@ -67,6 +67,8 @@ def apply_metahandler(
     """
     metahandler = ty.__metadata__[0]
     base_type = get_generic_parameter(ty)
+    if is_generic_list(base_type):
+        base_type = get_generic_parameter(base_type)
     return metahandler.generate(r, lambda: rec(base_type))
 
 
@@ -95,7 +97,7 @@ def random_node(
     elif starting_symbol is float:
         return random_float(r)
     elif is_generic_list(starting_symbol):
-        return random_list(r, recursive_generator, depth, starting_symbol)
+        return random_list(r, recursive_generator, depth - 1, starting_symbol)
     elif is_metahandler(starting_symbol):
         node = apply_metahandler(r, recursive_generator, starting_symbol)
         return relabel_nodes_of_trees(node, g.non_terminals())
