@@ -95,7 +95,7 @@ def random_node(
     elif starting_symbol is float:
         return random_float(r)
     elif is_generic_list(starting_symbol):
-        return random_list(r, recursive_generator, depth, starting_symbol)
+        return random_list(r, recursive_generator, depth - 1, starting_symbol)
     elif is_metahandler(starting_symbol):
         node = apply_metahandler(r, recursive_generator, starting_symbol)
         return relabel_nodes_of_trees(node, g.non_terminals())
