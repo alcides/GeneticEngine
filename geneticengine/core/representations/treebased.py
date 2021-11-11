@@ -66,7 +66,7 @@ def apply_metahandler(
     The generator is the annotation on the type ("__metadata__").
     """
     metahandler = ty.__metadata__[0]
-    base_type = get_generic_parameter(ty)
+    base_type = get_generic_parameter(ty.__args__[0])
     return metahandler.generate(r, lambda: rec(base_type))
 
 
