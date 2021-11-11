@@ -5,20 +5,13 @@ from typing import Annotated
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.grammars.sgp import Plus, Literal, Number, Mul, SafeDiv, Var
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.grammatical_evolution import (
-    ge_representation,
-)
+from geneticengine.core.representations.treebased import treebased_representation
 from geneticengine.metahandlers.vars import VarRange
 
 
-@dataclass
-class Zero(Number):
-    def evaluate(self, **kwargs):
-        return 0
-
 
 Var.__annotations__["name"] = Annotated[str, VarRange("x")]
-g = extract_grammar([Plus, Mul, SafeDiv, Literal, Var, Zero], Number)
+g = extract_grammar([Plus, Mul, SafeDiv, Literal, Var], Number)
 print("Grammar:")
 print(repr(g))
 
@@ -43,9 +36,11 @@ def target(x):
 
 alg = GP(
     g,
-    ge_representation,
+    treebased_representation,
     fit,
-    population_size=7,
+    population_size=70,
+    max_depth=5,
+    max_init_depth=5,
     number_of_generations=10,
     minimize=True,
     n_elites=2,

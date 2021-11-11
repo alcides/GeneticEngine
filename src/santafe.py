@@ -159,10 +159,11 @@ if __name__ == "__main__":
         treebased_representation,
         lambda p: simulate(p, map),
         minimize=False,
-        max_depth=6,
+        max_depth=40,
         number_of_generations=50,
-        population_size=1500,
-        n_novelties=50,
+        population_size=150,
+        n_novelties=10,
+        n_elites=10,
     )
     (b, bf, bp) = alg.evolve(verbose=0)
     print(bf, bp, b)
