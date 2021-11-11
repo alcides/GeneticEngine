@@ -86,7 +86,7 @@ class GP(object):
     def evolve(self, verbose=0):
         # TODO: This is not ramped half and half
         population = [
-            self.create_individual(self.grammar.get_min_tree_depth())
+            self.create_individual(self.grammar.get_max_node_depth())
             for _ in range(self.population_size)
         ]
         if self.force_individual is not None:
