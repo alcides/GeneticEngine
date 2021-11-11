@@ -16,7 +16,7 @@ class GP(object):
         g: Grammar,
         representation: Representation,
         evaluation_function: Callable[[Any], float],
-        randomSource: RandomSource = RandomSource(123),
+        randomSource: RandomSource = RandomSource,
         population_size: int = 200,
         n_elites: int = 5,  # Shouldn't this be a percentage of population size?
         n_novelties: int = 10,
@@ -36,7 +36,7 @@ class GP(object):
         self.grammar: Grammar = g
         self.representation = representation
         self.evaluation_function = evaluation_function
-        self.random = randomSource
+        self.random = randomSource(seed)
         self.population_size = population_size
         self.elitism = selection.create_elitism(n_elites)
         self.novelty = selection.create_novelties(
