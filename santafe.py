@@ -154,6 +154,7 @@ def simulate(a: Action, map_str: str) -> int:
 
 if __name__ == "__main__":
     g = extract_grammar([ActionBlock, IfFood, Move, Right, Left], Action)
+    print(f"Grammar: {repr(g)}")
     alg = GP(
         g,
         treebased_representation,
