@@ -113,7 +113,7 @@ if __name__ == "__main__":
         fitness_function,
         max_depth=10,
         population_size=40,
-        number_of_generations=3,
+        number_of_generations=5,
         minimize=False,
     )
     (b, bf, bp) = alg.evolve(verbose=0)

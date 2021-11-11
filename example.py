@@ -38,13 +38,12 @@ alg = GP(
     g,
     treebased_representation,
     fit,
-    population_size=70,
+    population_size=150,
     max_depth=5,
-    max_init_depth=5,
     number_of_generations=10,
     minimize=True,
-    n_elites=2,
-    n_novelties=0,
+    n_elites=10,
+    n_novelties=10,
 )
 (b, bf, bp) = alg.evolve(verbose=0)
 print(bf, bp, b)
