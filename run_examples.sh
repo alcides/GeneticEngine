@@ -1,7 +1,7 @@
 #!/bin/bash
-python example.py
-python pymax.py
-python vectorialgp_example.py
-python regression_example.py
-python santafe.py
+python examples/example.py
+python examples/pymax.py
+python examples/vectorialgp_example.py
+python examples/regression_example.py
+python examples/santafe.py
 $SHELL
