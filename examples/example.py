@@ -1,3 +1,7 @@
+import sys
+# Necessary to allow geneticengine import
+sys.path.insert(1, r'C:\\Users\\leoni\\Desktop\\Master\\Scriptie\\GeneticEngine')
+
 from dataclasses import dataclass
 from random import random
 from typing import Annotated
