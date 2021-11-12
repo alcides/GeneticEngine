@@ -39,7 +39,7 @@ def create_hill_climbing_mutation(
                 fitness=None,
             )
         new_individuals = [creation_new_individual() for _ in range(n_candidates)]
-        best_individual = min(new_individuals, key=fitness_function)
+        best_individual = min((new_individuals + [individual]), key=fitness_function)
         return best_individual
 
     return hill_climbing_mutation
