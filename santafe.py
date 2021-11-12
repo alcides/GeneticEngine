@@ -6,6 +6,7 @@ from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.treebased import treebased_representation
 from geneticengine.metahandlers.lists import ListSizeBetween
 from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.hill_climbing import HC
 
 
 map = """.###............................
@@ -155,7 +156,7 @@ def simulate(a: Action, map_str: str) -> int:
 if __name__ == "__main__":
     g = extract_grammar([ActionBlock, IfFood, Move, Right, Left], Action)
     print(f"Grammar: {repr(g)}")
-    alg = GP(
+    alg_gp = GP(
         g,
         treebased_representation,
         lambda p: simulate(p, map),
@@ -166,5 +167,22 @@ if __name__ == "__main__":
         n_novelties=10,
         n_elites=10,
     )
-    (b, bf, bp) = alg.evolve(verbose=0)
-    print(bf, bp, b)
+    (b_gp, bf_gp, bp_gp) = alg_gp.evolve(verbose=0)
+    
+    
+    alg_hc = HC(
+        g,
+        treebased_representation,
+        lambda p: simulate(p, map),
+        minimize=False,
+        max_depth=40,
+        number_of_generations=50,
+        population_size=150,
+    )
+    (b_hc, bf_hc, bp_hc) = alg_hc.evolve(verbose=0)
+
+    print("\n======\nHC\n======\n")
+    print(bf_hc, bp_hc, b_hc)
+
+    print("\n======\nGP\n======\n")
+    print(bf_gp, bp_gp, b_gp)
