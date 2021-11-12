@@ -1,7 +1,3 @@
-import sys
-# Necessary to allow geneticengine import
-sys.path.insert(1, r'C:\\Users\\leoni\\Desktop\\Master\\Scriptie\\GeneticEngine')
-
 from typing import Annotated, Any, Callable
 
 import numpy as np
