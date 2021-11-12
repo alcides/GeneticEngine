@@ -42,9 +42,13 @@ class GP(object):
         self.novelty = selection.create_novelties(
             self.create_individual, max_depth=max_depth
         )
-        self.mutation = mutation.create_mutation(
-            self.random, self.representation, self.grammar, max_depth
+        self.minimize = minimize
+        self.mutation = mutation.create_hill_climbing_mutation(
+            self.random, self.representation, self.grammar, max_depth, self.keyfitness(), 5
         )
+        # self.mutation = mutation.create_mutation(
+        #     self.random, self.representation, self.grammar, max_depth
+        # )
         self.cross_over = cross_over.create_cross_over(
             self.random, self.representation, self.grammar, max_depth
         )
@@ -52,7 +56,6 @@ class GP(object):
         self.number_of_generations = number_of_generations
         self.probability_mutation = probability_mutation
         self.probability_crossover = probability_crossover
-        self.minimize = minimize
         if selection_method[0] == "tournament":
             self.selection = selection.create_tournament(
                 selection_method[1], self.minimize
