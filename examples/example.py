@@ -9,8 +9,6 @@ from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.treebased import treebased_representation
 from geneticengine.metahandlers.vars import VarRange
 
-
-
 Var.__annotations__["name"] = Annotated[str, VarRange("x")]
 g = extract_grammar([Plus, Mul, SafeDiv, Literal, Var], Number)
 print("Grammar:")
