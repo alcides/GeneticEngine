@@ -28,6 +28,7 @@ class GP(object):
         probability_mutation: float = 0.01,
         probability_crossover: float = 0.9,
         # -----
+        hill_climbing: bool = False,
         minimize: bool = False,
         force_individual: Any = None,
         seed: int = 123,
@@ -43,12 +44,14 @@ class GP(object):
             self.create_individual, max_depth=max_depth
         )
         self.minimize = minimize
-        self.mutation = mutation.create_hill_climbing_mutation(
-            self.random, self.representation, self.grammar, max_depth, self.keyfitness(), 5
-        )
-        # self.mutation = mutation.create_mutation(
-        #     self.random, self.representation, self.grammar, max_depth
-        # )
+        if hill_climbing:
+            self.mutation = mutation.create_hill_climbing_mutation(
+                self.random, self.representation, self.grammar, max_depth, self.keyfitness(), 5
+            )
+        else:
+            self.mutation = mutation.create_mutation(
+                self.random, self.representation, self.grammar, max_depth
+            )
         self.cross_over = cross_over.create_cross_over(
             self.random, self.representation, self.grammar, max_depth
         )
