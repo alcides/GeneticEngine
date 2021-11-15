@@ -1,7 +1,3 @@
-import sys
-# Necessary to allow geneticengine import
-sys.path.insert(1, r'C:\\Users\\leoni\\Desktop\\Master\\Scriptie\\GeneticEngine')
-
 from dataclasses import dataclass
 from random import random
 from typing import Annotated
@@ -12,8 +8,6 @@ from geneticengine.grammars.sgp import Plus, Literal, Number, Mul, SafeDiv, Var
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.treebased import treebased_representation
 from geneticengine.metahandlers.vars import VarRange
-
-
 
 Var.__annotations__["name"] = Annotated[str, VarRange("x")]
 g = extract_grammar([Plus, Mul, SafeDiv, Literal, Var], Number)
