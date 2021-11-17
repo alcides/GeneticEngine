@@ -1,7 +1,7 @@
 import os
 import ast
-
-
+import sys
+sys.path.insert(1, 'C:\\Users\\leoni\\Desktop\\Master\\Scriptie\\GeneticEngine')
 
 CWD = os.path.dirname(os.path.realpath(__file__))
 FILE_NAME = "Number IO"
