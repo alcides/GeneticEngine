@@ -124,9 +124,9 @@ if __name__ == "__main__":
         treebased_representation,
         fitness_function,
         max_depth=10,
-        population_size=40,
+        population_size=100,
         number_of_generations=100,
-        minimize=False,
+        minimize=True,
     )
     print("Started running...")
     (b, bf, bp) = alg.evolve(verbose=0)
