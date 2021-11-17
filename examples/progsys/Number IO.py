@@ -1,7 +1,5 @@
 from typing import Annotated, Any, Callable
 import sys
-sys.path.insert(1, 'C:\\Users\\leoni\\Desktop\\Master\\Scriptie\\GeneticEngine')
-
 from utils import get_data, import_embedded
 
 from geneticengine.core.grammar import extract_grammar

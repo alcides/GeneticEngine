@@ -2,7 +2,6 @@
 # Helper Code
 # *****************************************************************************
 import math
-import ast
 
 def div(nom, denom):
   if denom <= 0.00001:
