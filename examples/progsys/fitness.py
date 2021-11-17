@@ -1,46 +1,38 @@
 import os
+import ast
 
 
 
-
-INSERTCODE = "<insertCodeHere>"
 CWD = os.path.dirname(os.path.realpath(__file__))
+FILE_NAME = "Number IO"
+DATA_FILE_TRAIN = "C:\\Users\\leoni\\Desktop\\Master\\Scriptie\\GeneticEngine\\examples\\progsys\\data\\{}\\Train.txt".format(FILE_NAME)
+DATA_FILE_TEST = "C:\\Users\\leoni\\Desktop\\Master\\Scriptie\\GeneticEngine\\examples\\progsys\\data\\{}\\Test.txt".format(FILE_NAME)
 
-bla = "print(1 + 1)"
+def bla():
+    return "print(1 + 1)\nprint(2.5 * 2)"
+
+def get_data(data_file_train,data_file_test):
+    with open(data_file_train, 'r') as train_file, \
+            open(data_file_test, 'r') as test_file:
+        train_data = train_file.read()
+        test_data = test_file.read()
+
+    t = train_data.split('\n')
+
+    inval = t[0].strip('inval = ')
+    outval = t[1].strip('outval = ')
+    inval = ast.literal_eval(inval)
+    outval = ast.literal_eval(outval)
+    return inval,outval
 
 
-# ====================
-# -- Grammar
-# ====================
+inval,outval = get_data(DATA_FILE_TRAIN,DATA_FILE_TEST)
+imported = __import__(FILE_NAME + "-Embed")
+
+evolved_function = lambda x,y: x+y
+
+fitness, error, cases = imported.fitness(inval,outval,evolved_function)
+print(fitness)
+print(all(cases))
 
 
-
-
-# ====================
-# -- Combining
-# ====================
-
-def embed_code_in_container(container_footer: str,container_header: str, code: str, indent=""):
-    return ()
-    
-
-def get_container_code(container_file: str):
-    with open(os.path.join(CWD, container_file), 'r') as container:
-            container_code = container.read()
-    embedding_location = container_code.index(INSERTCODE)
-    container_header, container_footer = "", ""
-    if embedding_location > 0:
-        container_footer = container_code[:embedding_location]
-        container_header = container_code[embedding_location + len(INSERTCODE):]
-    else:
-        container_header = container_code[len(INSERTCODE):]
-
-    return container_footer,container_header
-
-container_footer,container_header = get_container_code("Compare String Lengths-Embed.txt")
-
-print(container_footer)
-
-print("\n----------------\n----------------\n----------------")
-
-print(container_header)
