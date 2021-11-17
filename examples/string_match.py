@@ -14,8 +14,8 @@ Auxiliary lists of letters
 '''
 lower_vowel = ['a', 'e', 'i', 'o', 'u']
 upper_vowel = ['A', 'E', 'I', 'O', 'U']
-lower_consonant = re.sub('a|e|i|o|u', string.ascii_lowercase)
-upper_consonant = re.sub('A|E|I|O|U', string.ascii_uppercase)
+lower_consonant = list(re.sub('a|e|i|o|u', '', string.ascii_lowercase))
+upper_consonant = list(re.sub('A|E|I|O|U', '', string.ascii_uppercase))
 
 
 # string :: letter | letter string
@@ -37,7 +37,7 @@ class LetterString(String):
     string: String
 
     def __str__(self):
-        return self.letter + self.string
+        return str(self.letter) + str(self.string)
 
 
 # char ::= " " | ! | ? | , | .
@@ -99,7 +99,7 @@ class UpperConsonant(Consonant):
 
 def fit(individual: String):
     guess = str(individual)
-    target = 'LEONZINHO'
+    target = 'OLA'
     fitness = max(len(target), len(guess))
     # Loops as long as the shorter of two strings
     for (t_p, g_p) in zip(target, guess):
@@ -116,8 +116,8 @@ fitness_function = lambda x: fit(x)
 
 if __name__ == "__main__":
     g = extract_grammar([
-        String, Letter, Char, Vowel, LowerVowel, UpperVowel, Consonant,
-        LowerConsonant, UpperConsonant
+        LetterString, Char, LowerVowel, UpperVowel, LowerConsonant,
+        UpperConsonant
     ], String)
     alg = GP(
         g,
@@ -125,9 +125,14 @@ if __name__ == "__main__":
         fitness_function,
         max_depth=10,
         population_size=40,
-        number_of_generations=5,
+        number_of_generations=100,
         minimize=False,
     )
+    print("Started running...")
     (b, bf, bp) = alg.evolve(verbose=0)
-    print(bp, b)
+    print(bp)
+    print(b)
+    print("---")
+    print(str(bp))
+    print(str(b))
     print("With fitness: {}".format(bf))
