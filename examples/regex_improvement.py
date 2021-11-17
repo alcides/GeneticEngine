@@ -1,3 +1,4 @@
+import string
 from abc import ABC
 from dataclasses import dataclass
 from textwrap import indent
@@ -8,6 +9,14 @@ from geneticengine.core.grammar import extract_grammar
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.representations.treebased import treebased_representation
 
+# Auxiliary "attributes"
+an_char = list(string.digits) + list(string.ascii_letters)
+s_char = [
+    "!", "#", "$", "%", "&", "(", ")", "*", "+", ",", "-", ".", "/", ":", ";",
+    "<", "=", ">", "?", "@", "[", "\\", "]", "^", "_", "`", "{", "}", "~", "|",
+    '\"', "'", " "
+]
+
 
 # re ::= elementary-re re | elementary-re
 @dataclass
@@ -15,10 +24,27 @@ class RE(ABC):
     pass
 
 
-# elementary-re ::= [RE] | (RE) | set | range | modifier | char | \w | \d | {match_times} | lookarounds
+# elementary-re ::= set | range | modifier | char | {match_times} | lookarounds
 @dataclass
 class ElementaryRE(RE):
     pass
+
+
+# elementary-re ::= [RE] | (RE)
+class ElementaryREParens(RE):
+    option: Annotated[str, VarRange(['[{}]', '({})'])]
+    regex: RE
+
+    def __str__(self):
+        return self.option.format(str(self.regex))
+
+
+# elementary-re ::= \w | \d
+class ElementaryREWD(RE):
+    option: Annotated[str, VarRange(['\w', '\d'])]
+
+    def __str__(self):
+        return self.option
 
 
 # Elementary-RE RE
@@ -27,7 +53,8 @@ class ElementaryRERE(RE):
     elementary_regex: ElementaryRE
     regex: RE
 
-    pass
+    def __str__(self):
+        return f'{str(self.elementary_regex)}{self.regex}'
 
 
 # modifier ::= ^RE | RE. | RE* | RE+ | RE++ | RE? | RE?+ |  RE "|" RE
@@ -88,3 +115,33 @@ class LookaroundComposition(Lookaround):
 
     def __str__(self):
         return f'{self.regex1}{{{self.regex2},{self.regex3}}}+'
+
+
+# set ::= char | char set
+@dataclass
+class Set(ElementaryRE):
+    pass
+
+
+# char ::= s_char | an_char | an_char | an_char
+@dataclass
+class Char(Set):
+    character: Annotated[str, VarRange(s_char + an_char * 3)]
+
+    def __str__(self):
+        return self.character
+
+
+# char ::= char set
+@dataclass
+class SetChar(Set):
+    character: Char
+    _set: Set
+
+    def __str__(self):
+        return f'{self.char}{self._set}'
+
+
+@dataclass
+class Range(ElementaryRE):
+    pass
