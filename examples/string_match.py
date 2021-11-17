@@ -1,15 +1,14 @@
-import re 
+import re
 import string
-from abc import ABC 
-from dataclasses import dataclass 
-from textwrap import indent 
+from abc import ABC
+from dataclasses import dataclass
+from textwrap import indent
 from typing import Annotated
 
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.representations.treebased import treebased_representation
-
 '''
 Auxiliary lists of letters
 '''
@@ -19,21 +18,33 @@ lower_consonant = re.sub('a|e|i|o|u', string.ascii_lowercase)
 upper_consonant = re.sub('A|E|I|O|U', string.ascii_uppercase)
 
 
-@dataclass 
+# string :: letter | letter string
+@dataclass
 class String(ABC):
-    pass 
+    pass
+
 
 # letter ::= char | vowel | consonant
-@dataclass 
+@dataclass
 class Letter(String):
     pass
 
 
+# letter string
+@dataclass
+class LetterString(String):
+    letter: Letter
+    string: String
+
+    def __str__(self):
+        return self.letter + self.string
+
+
 # char ::= " " | ! | ? | , | .
-@dataclass 
+@dataclass
 class Char(Letter):
-    value : Annotated[str, VarRange([" ", "!", "?", ",", "."])] 
-    
+    value: Annotated[str, VarRange([" ", "!", "?", ",", "."])]
+
     def __str__(self):
         return self.value
 
@@ -41,21 +52,23 @@ class Char(Letter):
 # vowel ::= lower_vowl | upper_vowel
 # lower_vowel = a | e | i | o | u
 # upper_vowel = A | E | I | O | U
-@dataclass 
+@dataclass
 class Vowel(Letter):
     pass
 
-@dataclass 
+
+@dataclass
 class LowerVowel(Vowel):
-    value : Annotated[str, VarRange(lower_vowel)]
-    
+    value: Annotated[str, VarRange(lower_vowel)]
+
     def __str__(self):
         return self.value
 
-@dataclass 
+
+@dataclass
 class UpperVowel(Vowel):
-    value : Annotated[str, VarRange(upper_vowel)]
-    
+    value: Annotated[str, VarRange(upper_vowel)]
+
     def __str__(self):
         return self.value
 
@@ -63,21 +76,23 @@ class UpperVowel(Vowel):
 # consonant ::= lower_consonant | upper_consonant
 # lower_consonant ::= b | c | d | f | g | h | j | k | l | ...
 # upper_consonant ::= B | C | D | F | G | H | J | K | L | ...
-@dataclass 
+@dataclass
 class Consonant(Letter):
     pass
 
-@dataclass 
+
+@dataclass
 class LowerConsonant(Consonant):
-    value : Annotated[str, VarRange(lower_consonant)] 
-    
+    value: Annotated[str, VarRange(lower_consonant)]
+
     def __str__(self):
         return self.value
 
-@dataclass 
+
+@dataclass
 class UpperConsonant(Consonant):
-    value : Annotated[str, VarRange(upper_consonant)]
-    
+    value: Annotated[str, VarRange(upper_consonant)]
+
     def __str__(self):
         return self.value
 
@@ -96,12 +111,14 @@ def fit(individual: String):
             fitness -= 1 / (1 + (abs(ord(t_p) - ord(g_p))))
     return fitness
 
+
 fitness_function = lambda x: fit(x)
 
 if __name__ == "__main__":
-    g = extract_grammar(
-        [String, Letter, Char, Vowel, LowerVowel, UpperVowel, Consonant, LowerConsonant, UpperConsonant], String
-    )
+    g = extract_grammar([
+        String, Letter, Char, Vowel, LowerVowel, UpperVowel, Consonant,
+        LowerConsonant, UpperConsonant
+    ], String)
     alg = GP(
         g,
         treebased_representation,
