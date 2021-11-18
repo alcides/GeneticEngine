@@ -1,5 +1,5 @@
 #!/bin/bash
-PYTHONPATH=$PYTHONPATH:.
+export PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}."
 
 PYTHON_BINARY=python3
 
@@ -17,4 +17,5 @@ run_example examples/pymax.py
 run_example examples/vectorialgp_example.py
 run_example examples/regression_example.py
 run_example examples/santafe.py
+run_example examples/progsys/Number_IO.py
 
