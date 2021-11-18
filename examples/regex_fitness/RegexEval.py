@@ -4,7 +4,7 @@ from multiprocessing import Process, Queue
 
 import examples.regex_fitness.testing.RegexTestGenerator as TestGen
 from examples.regex_fitness.testing.RegexTimer import time_regex_test_case
-from stats.stats import stats
+#from stats.stats import stats
 
 # Author: Brendan Cody-Kenny - codykenny at gmail
 
@@ -98,10 +98,7 @@ class RegexEval(object):
             # fitness function as the representation.individual.Individual
             # class has not yet been instantiated.
 
-            RegexEval.seed_regex = 1  # TODO: this should be a random number
-
-            RegexEval.test_cases = TestGen.generate_test_suite(
-                RegexEval.seed_regex.phenotype)
+            RegexEval.test_cases = TestGen.generate_test_suite(str(ind))
 
             if len(RegexEval.test_cases) == 0:
                 s = "fitness.regex.RegexEval.RegexEval\n" \
@@ -131,7 +128,7 @@ class RegexEval(object):
             self.prunner.join()
 
             # Count individual as a runtime error.
-            stats['runtime_error'] += 1
+            #stats['runtime_error'] += 1
 
             return self.default_fitness
 

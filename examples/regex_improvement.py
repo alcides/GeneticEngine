@@ -10,7 +10,7 @@ from geneticengine.core.representations.treebased import treebased_representatio
 # Extracted from PonyGE
 def fit(individual: RE):
     regexeval: RegexEval = RegexEval()
-    return regexeval(individual)
+    return regexeval.evaluate(individual)
 
 
 fitness_function = lambda x: fit(x)
@@ -47,6 +47,6 @@ if __name__ == "__main__":
         minimize=True,
     )
     print("Started running...")
-    (b, bf, bp) = alg.evolve(verbose=0)
+    (b, bf, bp) = alg.evolve(verbose=1)
     print(f"Best individual: {b}")
     print(f"With fitness: {bf}")

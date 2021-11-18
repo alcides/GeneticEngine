@@ -31,6 +31,7 @@ class ElementaryRE(RE):
 
 
 # elementary-re ::= [RE] | (RE)
+@dataclass
 class ElementaryREParens(RE):
     option: Annotated[str, VarRange(['[{}]', '({})'])]
     regex: RE
@@ -40,6 +41,7 @@ class ElementaryREParens(RE):
 
 
 # elementary-re ::= \w | \d
+@dataclass
 class ElementaryREWD(RE):
     option: Annotated[str, VarRange(['\w', '\d'])]
 

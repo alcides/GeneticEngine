@@ -1,8 +1,8 @@
 # Class extracted from PonyGE
 import re
 
-from fitness.regex.testing.RegexTest import RegexTest
-from fitness.regex.testing.RegexTimer import time_regex_test_case
+from examples.regex_fitness.testing.RegexTest import RegexTest
+from examples.regex_fitness.testing.RegexTimer import time_regex_test_case
 
 
 def generate_equivalence_test_suite_replacement(a_match, compiled_regex):
