@@ -16,7 +16,7 @@ class GP(object):
         g: Grammar,
         representation: Representation,
         evaluation_function: Callable[[Any], float],
-        randomSource: RandomSource = RandomSource,
+        randomSource: Callable[[int], RandomSource] = RandomSource,
         population_size: int = 200,
         n_elites: int = 5,  # Shouldn't this be a percentage of population size?
         n_novelties: int = 10,
@@ -91,10 +91,7 @@ class GP(object):
 
     def evolve(self, verbose=0):
         # TODO: This is not ramped half and half
-        population = [
-            self.create_individual(self.grammar.get_max_node_depth())
-            for _ in range(self.population_size)
-        ]
+        population = self.init_population()
         if self.force_individual is not None:
             population[0] = Individual(
                 genotype=self.force_individual,
@@ -132,6 +129,12 @@ class GP(object):
                 round(self.evaluate(population[0]), 2),
             )
         return (population[0], self.evaluate(population[0]), self.representation.genotype_to_phenotype(self.grammar,population[0].genotype))
+
+    def init_population(self):
+        return [
+            self.create_individual(self.grammar.get_max_node_depth())
+            for _ in range(self.population_size)
+        ]
 
     def printFitnesses(self, pop, prefix):
         print(prefix)
