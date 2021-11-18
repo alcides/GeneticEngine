@@ -8,7 +8,7 @@ from geneticengine.metahandlers.vars import VarRange
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.representations.treebased import treebased_representation
 
-FILE_NAME = "Number IO"
+FILE_NAME = "Number_IO"
 DATA_FILE_TRAIN = "C:\\Users\\leoni\\Desktop\\Master\\Scriptie\\GeneticEngine\\examples\\progsys\\data\\{}\\Train.txt".format(FILE_NAME)
 DATA_FILE_TEST = "C:\\Users\\leoni\\Desktop\\Master\\Scriptie\\GeneticEngine\\examples\\progsys\\data\\{}\\Test.txt".format(FILE_NAME)
 
