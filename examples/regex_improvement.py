@@ -2,7 +2,7 @@ import string
 from abc import ABC
 from dataclasses import dataclass
 from textwrap import indent
-from typing import Annotated
+from typing import Annotated, Match
 
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.core.grammar import extract_grammar
@@ -142,6 +142,81 @@ class SetChar(Set):
         return f'{self.char}{self._set}'
 
 
+# range ::=  an_char - an_char | an_char - an_char | A-Z | a-z | 0-9
 @dataclass
 class Range(ElementaryRE):
     pass
+
+
+@dataclass
+class RangeAnChar1(Range):
+    character1: Annotated[str, VarRange(an_char)]
+    character2: Annotated[str, VarRange(an_char)]
+
+    def __str__(self):
+        return f'{self.character1}-{self.character2}'
+
+
+@dataclass
+class RangeAnChar2(Range):
+    character1: Annotated[str, VarRange(an_char)]
+    character2: Annotated[str, VarRange(an_char)]
+
+    def __str__(self):
+        return f'{self.character1}-{self.character2}'
+
+
+@dataclass
+class RangeLimits(Range):
+    option: Annotated[str, VarRange(['A-Z', 'a-z', '0-9'])]
+
+    def __str__(self):
+        return self.option
+
+
+# match_times ::= recur_digit | recur_digit , | recur_digit , recur_digit
+@dataclass
+class MatchTimes(ElementaryRE):
+    pass
+
+
+@dataclass
+class RecurDigit(MatchTimes):
+    pass
+
+
+@dataclass
+class RecurDigitSingle(RecurDigit):
+    digit: Annotated[str, VarRange(list(string.digits))]
+
+    def __str__(self):
+        return str(self.digit)
+
+
+@dataclass
+class RecurDigitMultiple(RecurDigit):
+    digit: Annotated[str, VarRange(list(string.digits))]
+    recur_digit: RecurDigit
+
+    def __str__(self):
+        return f'{self.digit}{self.recur_digit}'
+
+
+# match_times ::= recur_digit | recur_digit ,
+@dataclass
+class MatchTimesSingleRecur(MatchTimes):
+    recur_digit: RecurDigit
+    option: Annotated[str, VarRange(['', ','])]
+
+    def __str__(self):
+        return f'{self.recur_digit}{self.option}'
+
+
+# match_times ::= recur_digit ,  recur_digit
+@dataclass
+class MatchTimesDoubleRecur(MatchTimes):
+    recur_digit1: RecurDigit
+    recur_digit2: RecurDigit
+
+    def __str__(self):
+        return f'{self.recur_digit1},{self.recur_digit2}'
