@@ -1,222 +1,52 @@
-import string
-from abc import ABC
-from dataclasses import dataclass
-from textwrap import indent
-from typing import Annotated, Match
+from geneticengine.grammars.regex import *
 
-from geneticengine.metahandlers.vars import VarRange
-from geneticengine.core.grammar import extract_grammar
+from examples.regex_fitness.RegexEval import *
+
 from geneticengine.algorithms.gp.gp import GP
+from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.treebased import treebased_representation
 
-# Auxiliary "attributes"
-an_char = list(string.digits) + list(string.ascii_letters)
-s_char = [
-    "!", "#", "$", "%", "&", "(", ")", "*", "+", ",", "-", ".", "/", ":", ";",
-    "<", "=", ">", "?", "@", "[", "\\", "]", "^", "_", "`", "{", "}", "~", "|",
-    '\"', "'", " "
-]
 
-
-# re ::= elementary-re re | elementary-re
-@dataclass
-class RE(ABC):
-    pass
-
-
-# elementary-re ::= set | range | modifier | char | {match_times} | lookarounds
-@dataclass
-class ElementaryRE(RE):
-    pass
-
-
-# elementary-re ::= [RE] | (RE)
-class ElementaryREParens(RE):
-    option: Annotated[str, VarRange(['[{}]', '({})'])]
-    regex: RE
-
-    def __str__(self):
-        return self.option.format(str(self.regex))
-
-
-# elementary-re ::= \w | \d
-class ElementaryREWD(RE):
-    option: Annotated[str, VarRange(['\w', '\d'])]
-
-    def __str__(self):
-        return self.option
-
-
-# Elementary-RE RE
-@dataclass
-class ElementaryRERE(RE):
-    elementary_regex: ElementaryRE
-    regex: RE
-
-    def __str__(self):
-        return f'{str(self.elementary_regex)}{self.regex}'
-
-
-# modifier ::= ^RE | RE. | RE* | RE+ | RE++ | RE? | RE?+ |  RE "|" RE
-@dataclass
-class Modifier(ElementaryRE):
-    pass
-
-
-# modifierSingle ::= ^RE | RE. | RE* | RE+ | RE++ | RE? | RE?+
-@dataclass
-class ModifierSingle(Modifier):
-    modifier: Annotated[str, VarRange(['^', '.', '*', '+', '++', '?', '?+'])]
-    regex: RE
-
-    def __str__(self):
-        result = str(self.regex)
-
-        if self.modifier == '^':
-            result = f'^{result}'
-        else:
-            result = f'{result}{self.modifier}'
-
-        return result
-
-
-# modifierOr ::= RE "|" RE
-@dataclass
-class ModifierOr(Modifier):
-    regex1: RE
-    regex2: RE
-
-    def __str__(self):
-        return f'{self.regex1}|{self.regex2}'
-
-
-# lookarounds ::= (?<=RE) | (?<!RE) | (?=RE) | (?!RE) | (?:RE) | RE {RE,RE}+
-@dataclass
-class Lookaround(ElementaryRE):
-    pass
-
-
-# lookaroundSingle ::= (?<=RE) | (?<!RE) | (?=RE) | (?!RE) | (?:RE)
-@dataclass
-class LookaroundSingle(Lookaround):
-    lookaround: Annotated[str, VarRange(['?<=', '?<!', '?=', '?!', '?:'])]
-    regex: RE
-
-    def __str__(self):
-        return f'({self.lookaround}{self.regex})'
-
-
-# lookaroundComposition ::= RE {RE,RE}+
-@dataclass
-class LookaroundComposition(Lookaround):
-    regex1: RE
-    regex2: RE
-    regex3: RE
-
-    def __str__(self):
-        return f'{self.regex1}{{{self.regex2},{self.regex3}}}+'
-
-
-# set ::= char | char set
-@dataclass
-class Set(ElementaryRE):
-    pass
-
-
-# char ::= s_char | an_char | an_char | an_char
-@dataclass
-class Char(Set):
-    character: Annotated[str, VarRange(s_char + an_char * 3)]
-
-    def __str__(self):
-        return self.character
-
-
-# char ::= char set
-@dataclass
-class SetChar(Set):
-    character: Char
-    _set: Set
-
-    def __str__(self):
-        return f'{self.char}{self._set}'
-
-
-# range ::=  an_char - an_char | an_char - an_char | A-Z | a-z | 0-9
-@dataclass
-class Range(ElementaryRE):
-    pass
-
-
-@dataclass
-class RangeAnChar1(Range):
-    character1: Annotated[str, VarRange(an_char)]
-    character2: Annotated[str, VarRange(an_char)]
-
-    def __str__(self):
-        return f'{self.character1}-{self.character2}'
-
-
-@dataclass
-class RangeAnChar2(Range):
-    character1: Annotated[str, VarRange(an_char)]
-    character2: Annotated[str, VarRange(an_char)]
-
-    def __str__(self):
-        return f'{self.character1}-{self.character2}'
-
-
-@dataclass
-class RangeLimits(Range):
-    option: Annotated[str, VarRange(['A-Z', 'a-z', '0-9'])]
-
-    def __str__(self):
-        return self.option
-
-
-# match_times ::= recur_digit | recur_digit , | recur_digit , recur_digit
-@dataclass
-class MatchTimes(ElementaryRE):
-    pass
-
-
-@dataclass
-class RecurDigit(MatchTimes):
-    pass
-
-
-@dataclass
-class RecurDigitSingle(RecurDigit):
-    digit: Annotated[str, VarRange(list(string.digits))]
-
-    def __str__(self):
-        return str(self.digit)
-
-
-@dataclass
-class RecurDigitMultiple(RecurDigit):
-    digit: Annotated[str, VarRange(list(string.digits))]
-    recur_digit: RecurDigit
-
-    def __str__(self):
-        return f'{self.digit}{self.recur_digit}'
-
-
-# match_times ::= recur_digit | recur_digit ,
-@dataclass
-class MatchTimesSingleRecur(MatchTimes):
-    recur_digit: RecurDigit
-    option: Annotated[str, VarRange(['', ','])]
-
-    def __str__(self):
-        return f'{self.recur_digit}{self.option}'
-
-
-# match_times ::= recur_digit ,  recur_digit
-@dataclass
-class MatchTimesDoubleRecur(MatchTimes):
-    recur_digit1: RecurDigit
-    recur_digit2: RecurDigit
-
-    def __str__(self):
-        return f'{self.recur_digit1},{self.recur_digit2}'
+# Extracted from PonyGE
+def fit(individual: RE):
+    regexeval: RegexEval = RegexEval()
+    return regexeval(individual)
+
+
+fitness_function = lambda x: fit(x)
+
+if __name__ == "__main__":
+    g = extract_grammar([
+        ElementaryREParens,
+        ElementaryREWD,
+        ElementaryRERE,
+        ModifierSingle,
+        ModifierOr,
+        LookaroundSingle,
+        LookaroundComposition,
+        Char,
+        Set,
+        RangeAnChar1,
+        RangeAnChar2,
+        RangeLimits,
+        RecurDigitSingle,
+        RecurDigitMultiple,
+        MatchTimesSingleRecur,
+        MatchTimesDoubleRecur,
+    ], RE)
+    alg = GP(
+        g,
+        treebased_representation,
+        fitness_function,
+        max_depth=100,
+        population_size=1000,
+        n_elites=100,
+        number_of_generations=100,
+        probability_crossover=0.5,
+        selection_method=("tournament", 2),
+        minimize=True,
+    )
+    print("Started running...")
+    (b, bf, bp) = alg.evolve(verbose=0)
+    print(f"Best individual: {b}")
+    print(f"With fitness: {bf}")

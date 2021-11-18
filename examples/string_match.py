@@ -4,6 +4,7 @@ from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.treebased import treebased_representation
 
 
+# Extracted from PonyGE
 def fit(individual: String):
     guess = str(individual)
     target = 'Hello world!'
