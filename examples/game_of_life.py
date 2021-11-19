@@ -4,6 +4,8 @@ from typing import Annotated, Any, Callable, Tuple
 import numpy as np
 from numpy.lib.arraysetops import isin
 
+from sklearn.tree import DecisionTreeClassifier
+
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.treebased import treebased_representation
 from geneticengine.metahandlers.ints import IntRange
@@ -29,11 +31,7 @@ def generate_dataset(n: int) -> Tuple[Any, Any]:
     return (m, r)
 
 
-def learn_predictor():
-    (Xtrain, ytrain) = generate_dataset(1000)
-    (Xtest, ytest) = generate_dataset(1000)
-
-    from sklearn.tree import DecisionTreeClassifier
+def learn_predictor(Xtrain, ytrain, Xtest, ytest):
 
     clf = DecisionTreeClassifier(random_state=0)
     clf.fit(Xtrain.reshape(1000, 9), ytrain)
@@ -82,10 +80,7 @@ def compile(b: B) -> Callable[[Any], int]:
         return lambda x: x[b.i, b.j]
 
 
-def learn_predictor_gn():
-    (Xtrain, ytrain) = generate_dataset(1000)
-    (Xtest, ytest) = generate_dataset(1000)
-
+def learn_predictor_gn(Xtrain, ytrain, Xtest, ytest):
     def accuracy_f(x, y):
         return (x == y).mean()
 
@@ -116,5 +111,7 @@ def learn_predictor_gn():
 
 
 if __name__ == "__main__":
-    learn_predictor()
-    learn_predictor_gn()
+    (Xtrain, ytrain) = generate_dataset(1000)
+    (Xtest, ytest) = generate_dataset(1000)
+    learn_predictor(Xtrain, ytrain, Xtest, ytest)
+    learn_predictor_gn(Xtrain, ytrain, Xtest, ytest)
