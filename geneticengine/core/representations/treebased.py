@@ -11,6 +11,7 @@ from typing import (
     Union,
 )
 
+from geneticengine.core.decorators import is_builtin
 from geneticengine.core.random.sources import RandomSource, Source
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.representations.base import Representation
@@ -100,33 +101,38 @@ def random_node(
         return random_list(r, recursive_generator, depth - 1, starting_symbol)
     elif is_metahandler(starting_symbol):
         node = apply_metahandler(r, recursive_generator, starting_symbol)
-        return relabel_nodes_of_trees(node, g.non_terminals())
+        return relabel_nodes_of_trees(node, g.non_terminals)
     else:
-        if starting_symbol not in g.productions:
+        if starting_symbol not in g.all_nodes:
             raise GeneticEngineError(f"Symbol {starting_symbol} not in grammar rules.")
 
-        compatible_productions = g.productions[starting_symbol]
-        valid_productions = [
-            vp for vp in compatible_productions if g.distanceToTerminal[vp] <= depth
-        ]
-        if not valid_productions:
-            raise GeneticEngineError(
-                "No productions for non-terminal node with type: {} in depth {} (minimum required: {}).".format(
-                    starting_symbol,
-                    depth,
-                    str(
-                        [
-                            (vp, g.distanceToTerminal[vp])
-                            for vp in compatible_productions
-                        ]
-                    ),
+        if starting_symbol in g.alternatives:  # Alternatives
+            compatible_productions = g.alternatives[starting_symbol]
+            valid_productions = [
+                vp for vp in compatible_productions if g.distanceToTerminal[vp] <= depth
+            ]
+            if not valid_productions:
+                raise GeneticEngineError(
+                    "No productions for non-terminal node with type: {} in depth {} (minimum required: {}).".format(
+                        starting_symbol,
+                        depth,
+                        str(
+                            [
+                                (vp, g.distanceToTerminal[vp])
+                                for vp in compatible_productions
+                            ]
+                        ),
+                    )
                 )
-            )
-        rule = r.choice(valid_productions)
-        args = [recursive_generator(at) for (a, at) in get_arguments(rule)]
-        node = rule(*args)
-        node = relabel_nodes_of_trees(node, g.non_terminals())
-        return node
+            rule = r.choice(valid_productions)
+            return random_node(r, g, depth, rule)
+        else:  # Normal production
+            args = [
+                recursive_generator(at) for (a, at) in get_arguments(starting_symbol)
+            ]
+            node = starting_symbol(*args)
+            node = relabel_nodes_of_trees(node, g.non_terminals)
+            return node
 
 
 def random_individual(r: Source, g: Grammar, max_depth: int = 5) -> TreeNode:
@@ -163,7 +169,7 @@ def mutate_inner(r: Source, g: Grammar, i: TreeNode, max_depth: int) -> TreeNode
 
 def mutate(r: Source, g: Grammar, i: TreeNode, max_depth: int) -> Any:
     new_tree = mutate_inner(r, g, deepcopy(i), max_depth)
-    relabeled_new_tree = relabel_nodes_of_trees(new_tree, g.non_terminals())
+    relabeled_new_tree = relabel_nodes_of_trees(new_tree, g.non_terminals)
     return relabeled_new_tree
 
 
@@ -219,9 +225,9 @@ def tree_crossover(
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns two trees that are created by crossing over [p1] and [p2]. The first tree returned has [p1] as the base, and the second tree has [p2] as a base.
     """
     new_tree1 = tree_crossover_inner(r, g, deepcopy(p1), deepcopy(p2), max_depth)
-    relabeled_new_tree1 = relabel_nodes_of_trees(new_tree1, g.non_terminals())
+    relabeled_new_tree1 = relabel_nodes_of_trees(new_tree1, g.non_terminals)
     new_tree2 = tree_crossover_inner(r, g, deepcopy(p2), deepcopy(p1), max_depth)
-    relabeled_new_tree2 = relabel_nodes_of_trees(new_tree2, g.non_terminals())
+    relabeled_new_tree2 = relabel_nodes_of_trees(new_tree2, g.non_terminals)
     return relabeled_new_tree1, relabeled_new_tree2
 
 
@@ -232,7 +238,7 @@ def tree_crossover_single_tree(
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns one tree that is created by crossing over [p1] and [p2]. The tree returned has [p1] as the base.
     """
     new_tree = tree_crossover_inner(r, g, deepcopy(p1), deepcopy(p2), max_depth)
-    relabeled_new_tree = relabel_nodes_of_trees(new_tree, g.non_terminals())
+    relabeled_new_tree = relabel_nodes_of_trees(new_tree, g.non_terminals)
     return relabeled_new_tree
 
 
@@ -246,11 +252,11 @@ def get_property_names(obj: TreeNode) -> List[Any]:
 def relabel_nodes_of_trees(
     i: TreeNode, non_terminals: list[type], max_depth: int = 1
 ) -> TreeNode:
-    """ Recomputes all the nodes, depth and distance_to_term in the tree """
+    """Recomputes all the nodes, depth and distance_to_term in the tree"""
     # print("Node: {}, nodes: {}, distance_to_term: {}, depth: {}.".format(i,i.nodes,i.distance_to_term,i.depth))
     def relabel_nodes(i: TreeNode, depth: int = 1) -> Tuple[int, int]:
         if is_terminal(type(i), non_terminals):
-            if type(i) in non_terminals:
+            if not is_builtin(type(i)):
                 i.depth = depth
                 i.distance_to_term = 1
                 i.nodes = 0
