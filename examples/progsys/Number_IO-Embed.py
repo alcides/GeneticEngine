@@ -114,8 +114,3 @@ def fitness(inval,outval,evolved_function):
 
   return sum(error), error, cases
 
-
-# import sys
-# quality = sys.maxsize
-# caseQuality, cases = fitness()
-# quality = sum(caseQuality)
