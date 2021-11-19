@@ -1,9 +1,11 @@
 import sys
 from copy import deepcopy
+from itertools import accumulate
 
 from typing import (
     Any,
     Callable,
+    Set,
     Type,
     TypeVar,
     Tuple,
@@ -11,7 +13,7 @@ from typing import (
     Union,
 )
 
-from geneticengine.core.decorators import is_builtin
+from geneticengine.core.decorators import get_gengy, is_builtin
 from geneticengine.core.random.sources import RandomSource, Source
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.representations.base import Representation
@@ -124,7 +126,11 @@ def random_node(
                         ),
                     )
                 )
-            rule = r.choice(valid_productions)
+            if any(["weight" in get_gengy(p) for p in valid_productions]):
+                weights = [get_gengy(p).get("weight", 1.0) for p in valid_productions]
+                rule = r.choice_weighted(valid_productions, weights)
+            else:
+                rule = r.choice(valid_productions)
             return random_node(r, g, depth, rule)
         else:  # Normal production
             args = [
@@ -136,10 +142,12 @@ def random_node(
 
 
 def random_individual(r: Source, g: Grammar, max_depth: int = 5) -> TreeNode:
-    try: 
+    try:
         assert max_depth >= g.get_min_tree_depth()
     except:
-        raise GeneticEngineError(f"Cannot use complete grammar for individual creation. Max depth ({max_depth}) is smaller than grammars minimal tree depth ({g.get_min_tree_depth()}).")
+        raise GeneticEngineError(
+            f"Cannot use complete grammar for individual creation. Max depth ({max_depth}) is smaller than grammars minimal tree depth ({g.get_min_tree_depth()})."
+        )
     ind = random_node(r, g, max_depth, g.starting_symbol)
     assert isinstance(ind, TreeNode)
     return ind
@@ -253,7 +261,7 @@ def get_property_names(obj: TreeNode) -> List[Any]:
 
 
 def relabel_nodes_of_trees(
-    i: TreeNode, non_terminals: list[type], max_depth: int = 1
+    i: TreeNode, non_terminals: Set[type], max_depth: int = 1
 ) -> TreeNode:
     """Recomputes all the nodes, depth and distance_to_term in the tree"""
     # print("Node: {}, nodes: {}, distance_to_term: {}, depth: {}.".format(i,i.nodes,i.distance_to_term,i.depth))
