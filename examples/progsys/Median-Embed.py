@@ -83,31 +83,30 @@ def saveSplit(curString, separator):
 # *****************************************************************************
 
 #  evolved function
-def evolve(in0, in1, in2):
+def evolve(i, evolved_function):
+  res0 = evolved_function(i)
   # stop.value is a boolean flag which should be used to check if the EA wants the program to stop.value
-  <insertCodeHere>
+  # <insertCodeHere>
   return res0
 
 
-def fitnessTrainingCase(i, o):
-  eval = evolve(i[0], i[1], i[2])
+def fitnessTrainingCase(i, o, evolved_function):
+  eval = evolve(i, evolved_function)
 
-  return [0 if eval == o[0] else 1]
+  return [abs(eval - o[0])]
 
 
 #  function to evaluate fitness
-def fitness():
+def fitness(inval,outval,evolved_function):
+  
+  
   error = []
   cases = []
   for (i, o) in zip(inval, outval):
-    values = fitnessTrainingCase(i, o)
+    values = fitnessTrainingCase(i, o, evolved_function)
     error.extend(values)
     cases.append(all(v < 0.000000001 for v in values))
 
-  return error, cases
+  return sum(error), error, cases
 
 
-import sys
-quality = sys.maxsize
-caseQuality, cases = fitness()
-quality = sum(caseQuality)
