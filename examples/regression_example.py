@@ -61,6 +61,7 @@ alg = GP(
     treebased_representation,
     fitness_function,
     minimize=True,
+    number_of_generations=10,
 )
 (b, bf, bp) = alg.evolve(verbose=0)
 print(bf, bp, b)
