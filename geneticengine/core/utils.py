@@ -1,3 +1,5 @@
+import logging
+import sys
 from abc import ABC
 from typing import (
     Any,
@@ -6,6 +8,8 @@ from typing import (
     Tuple,
     List,
 )
+
+from geneticengine.core.decorators import get_gengy
 
 
 def is_annotated(ty: Type[Any]):
@@ -48,7 +52,7 @@ def get_arguments(n) -> List[Tuple[str, type]]:
 
 def is_abstract(t: type) -> bool:
     """Returns whether a class is a Protocol or AbstractBaseClass"""
-    return t.mro()[1] in [ABC, Protocol]  # TODO: Protocol not working
+    return t.mro()[1] in [ABC, Protocol] or get_gengy(t).get("abstract", False)
 
 
 def is_terminal(t: type, l: list[type]) -> bool:
