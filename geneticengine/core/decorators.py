@@ -1,5 +1,3 @@
-
-
 def abstract(clazz):
     get_gengy(clazz)["abstract"] = True
     return clazz
@@ -15,5 +13,5 @@ def is_builtin(t):
 def get_gengy(t: type) -> dict:
     dic = t.__dict__
     if "__gengy__" not in dic and not is_builtin(t):
-        t.__gengy__ = {}
+        setattr(t, "__gengy__", {})
     return dic.get("__gengy__", {})
