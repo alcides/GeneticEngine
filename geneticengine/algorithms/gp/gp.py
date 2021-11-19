@@ -40,13 +40,19 @@ class GP(object):
         self.random = randomSource(seed)
         self.population_size = population_size
         self.elitism = selection.create_elitism(n_elites)
+        self.max_depth = max_depth
         self.novelty = selection.create_novelties(
             self.create_individual, max_depth=max_depth
         )
         self.minimize = minimize
         if hill_climbing:
             self.mutation = mutation.create_hill_climbing_mutation(
-                self.random, self.representation, self.grammar, max_depth, self.keyfitness(), 5
+                self.random,
+                self.representation,
+                self.grammar,
+                max_depth,
+                self.keyfitness(),
+                5,
             )
         else:
             self.mutation = mutation.create_mutation(
@@ -128,12 +134,17 @@ class GP(object):
                 "is",
                 round(self.evaluate(population[0]), 2),
             )
-        return (population[0], self.evaluate(population[0]), self.representation.genotype_to_phenotype(self.grammar,population[0].genotype))
+        return (
+            population[0],
+            self.evaluate(population[0]),
+            self.representation.genotype_to_phenotype(
+                self.grammar, population[0].genotype
+            ),
+        )
 
     def init_population(self):
         return [
-            self.create_individual(self.grammar.get_max_node_depth())
-            for _ in range(self.population_size)
+            self.create_individual(self.max_depth) for _ in range(self.population_size)
         ]
 
     def printFitnesses(self, pop, prefix):

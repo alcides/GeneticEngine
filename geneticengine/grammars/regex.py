@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from textwrap import indent
 from typing import Annotated, Match
 
+from geneticengine.core.decorators import abstract
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.algorithms.gp.gp import GP
@@ -12,9 +13,39 @@ from geneticengine.core.representations.treebased import treebased_representatio
 # Auxiliary "attributes"
 an_char = list(string.digits) + list(string.ascii_letters)
 s_char = [
-    "!", "#", "$", "%", "&", "(", ")", "*", "+", ",", "-", ".", "/", ":", ";",
-    "<", "=", ">", "?", "@", "[", "\\", "]", "^", "_", "`", "{", "}", "~", "|",
-    '\"', "'", " "
+    "!",
+    "#",
+    "$",
+    "%",
+    "&",
+    "(",
+    ")",
+    "*",
+    "+",
+    ",",
+    "-",
+    ".",
+    "/",
+    ":",
+    ";",
+    "<",
+    "=",
+    ">",
+    "?",
+    "@",
+    "[",
+    "\\",
+    "]",
+    "^",
+    "_",
+    "`",
+    "{",
+    "}",
+    "~",
+    "|",
+    '"',
+    "'",
+    " ",
 ]
 
 
@@ -25,6 +56,7 @@ class RE(ABC):
 
 
 # elementary-re ::= set | range | modifier | char | {match_times} | lookarounds
+@abstract
 @dataclass
 class ElementaryRE(RE):
     pass
@@ -33,7 +65,7 @@ class ElementaryRE(RE):
 # elementary-re ::= [RE] | (RE)
 @dataclass
 class ElementaryREParens(RE):
-    option: Annotated[str, VarRange(['[{}]', '({})'])]
+    option: Annotated[str, VarRange(["[{}]", "({})"])]
     regex: RE
 
     def __str__(self):
@@ -43,7 +75,7 @@ class ElementaryREParens(RE):
 # elementary-re ::= \w | \d
 @dataclass
 class ElementaryREWD(RE):
-    option: Annotated[str, VarRange(['\w', '\d'])]
+    option: Annotated[str, VarRange(["\w", "\d"])]
 
     def __str__(self):
         return self.option
@@ -56,11 +88,12 @@ class ElementaryRERE(RE):
     regex: RE
 
     def __str__(self):
-        return f'{str(self.elementary_regex)}{self.regex}'
+        return f"{str(self.elementary_regex)}{self.regex}"
 
 
 # modifier ::= ^RE | RE. | RE* | RE+ | RE++ | RE? | RE?+ |  RE "|" RE
 @dataclass
+@abstract
 class Modifier(ElementaryRE):
     pass
 
@@ -68,16 +101,16 @@ class Modifier(ElementaryRE):
 # modifierSingle ::= ^RE | RE. | RE* | RE+ | RE++ | RE? | RE?+
 @dataclass
 class ModifierSingle(Modifier):
-    modifier: Annotated[str, VarRange(['^', '.', '*', '+', '++', '?', '?+'])]
+    modifier: Annotated[str, VarRange(["^", ".", "*", "+", "++", "?", "?+"])]
     regex: RE
 
     def __str__(self):
         result = str(self.regex)
 
-        if self.modifier == '^':
-            result = f'^{result}'
+        if self.modifier == "^":
+            result = f"^{result}"
         else:
-            result = f'{result}{self.modifier}'
+            result = f"{result}{self.modifier}"
 
         return result
 
@@ -89,10 +122,11 @@ class ModifierOr(Modifier):
     regex2: RE
 
     def __str__(self):
-        return f'{self.regex1}|{self.regex2}'
+        return f"{self.regex1}|{self.regex2}"
 
 
 # lookarounds ::= (?<=RE) | (?<!RE) | (?=RE) | (?!RE) | (?:RE) | RE {RE,RE}+
+@abstract
 @dataclass
 class Lookaround(ElementaryRE):
     pass
@@ -101,11 +135,11 @@ class Lookaround(ElementaryRE):
 # lookaroundSingle ::= (?<=RE) | (?<!RE) | (?=RE) | (?!RE) | (?:RE)
 @dataclass
 class LookaroundSingle(Lookaround):
-    lookaround: Annotated[str, VarRange(['?<=', '?<!', '?=', '?!', '?:'])]
+    lookaround: Annotated[str, VarRange(["?<=", "?<!", "?=", "?!", "?:"])]
     regex: RE
 
     def __str__(self):
-        return f'({self.lookaround}{self.regex})'
+        return f"({self.lookaround}{self.regex})"
 
 
 # lookaroundComposition ::= RE {RE,RE}+
@@ -116,10 +150,11 @@ class LookaroundComposition(Lookaround):
     regex3: RE
 
     def __str__(self):
-        return f'{self.regex1}{{{self.regex2},{self.regex3}}}+'
+        return f"{self.regex1}{{{self.regex2},{self.regex3}}}+"
 
 
 # set ::= char | char set
+@abstract
 @dataclass
 class Set(ElementaryRE):
     pass
@@ -141,10 +176,11 @@ class SetChar(Set):
     _set: Set
 
     def __str__(self):
-        return f'{self.char}{self._set}'
+        return f"{self.char}{self._set}"
 
 
 # range ::=  an_char - an_char | an_char - an_char | A-Z | a-z | 0-9
+@abstract
 @dataclass
 class Range(ElementaryRE):
     pass
@@ -156,7 +192,7 @@ class RangeAnChar1(Range):
     character2: Annotated[str, VarRange(an_char)]
 
     def __str__(self):
-        return f'{self.character1}-{self.character2}'
+        return f"{self.character1}-{self.character2}"
 
 
 @dataclass
@@ -165,23 +201,25 @@ class RangeAnChar2(Range):
     character2: Annotated[str, VarRange(an_char)]
 
     def __str__(self):
-        return f'{self.character1}-{self.character2}'
+        return f"{self.character1}-{self.character2}"
 
 
 @dataclass
 class RangeLimits(Range):
-    option: Annotated[str, VarRange(['A-Z', 'a-z', '0-9'])]
+    option: Annotated[str, VarRange(["A-Z", "a-z", "0-9"])]
 
     def __str__(self):
         return self.option
 
 
 # match_times ::= recur_digit | recur_digit , | recur_digit , recur_digit
+@abstract
 @dataclass
 class MatchTimes(ElementaryRE):
     pass
 
 
+@abstract
 @dataclass
 class RecurDigit(MatchTimes):
     pass
@@ -201,17 +239,17 @@ class RecurDigitMultiple(RecurDigit):
     recur_digit: RecurDigit
 
     def __str__(self):
-        return f'{self.digit}{self.recur_digit}'
+        return f"{self.digit}{self.recur_digit}"
 
 
 # match_times ::= recur_digit | recur_digit ,
 @dataclass
 class MatchTimesSingleRecur(MatchTimes):
     recur_digit: RecurDigit
-    option: Annotated[str, VarRange(['', ','])]
+    option: Annotated[str, VarRange(["", ","])]
 
     def __str__(self):
-        return f'{self.recur_digit}{self.option}'
+        return f"{self.recur_digit}{self.option}"
 
 
 # match_times ::= recur_digit ,  recur_digit
@@ -221,4 +259,4 @@ class MatchTimesDoubleRecur(MatchTimes):
     recur_digit2: RecurDigit
 
     def __str__(self):
-        return f'{self.recur_digit1},{self.recur_digit2}'
+        return f"{self.recur_digit1},{self.recur_digit2}"
