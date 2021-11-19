@@ -29,8 +29,6 @@ if __name__ == "__main__":
         treebased_representation,
         fitness_function,
         max_depth=17,
-        population_size=500,
-        number_of_generations=500,
         probability_crossover=0.75,
         selection_method=("tournament", 2),
         minimize=True,
