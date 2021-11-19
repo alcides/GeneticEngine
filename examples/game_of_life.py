@@ -41,72 +41,30 @@ def learn_predictor(Xtrain, ytrain, Xtest, ytest):
     print("Decision Tree Test Accuracy:", accuracy)
 
 
-class B(ABC):
-    pass
-
-
-@dataclass
-class And(B):
-    l: B
-    r: B
-
-
-@dataclass
-class Or(B):
-    l: B
-    r: B
-
-
-@dataclass
-class Not(B):
-    v: B
-
-
-@dataclass
-class Matrix(B):
-    i: Annotated[int, IntRange(-1, 2)]
-    j: Annotated[int, IntRange(-1, 2)]
-
-
-def compile(b: B) -> Callable[[Any], int]:
-    if isinstance(b, And):
-        return lambda m: compile(b.l)(m) and compile(b.r)(m)
-    elif isinstance(b, Or):
-        return lambda m: compile(b.l)(m) or compile(b.r)(m)
-    elif isinstance(b, Not):
-        return lambda m: 1 - compile(b.v)(m)
-    else:
-        assert isinstance(b, Matrix)
-        return lambda x: x[b.i, b.j]
-
-
 def learn_predictor_gn(Xtrain, ytrain, Xtest, ytest):
-    def accuracy_f(x, y):
-        return (x == y).mean()
 
-    def fitness_function(b: B):
-        fake_game_of_life_rule = compile(b)
-        ypred = np.fromiter((fake_game_of_life_rule(xi) for xi in Xtrain), Xtrain.dtype)
-        return accuracy_f(ypred, ytrain)
+    # TODO: Pedro, implementar um classificador com:
 
-    g = extract_grammar([And, Or, Not, Matrix], B)
-    alg = GP(
-        g,
-        treebased_representation,
-        fitness_function,
-        max_depth=10,
-        population_size=50,
-        number_of_generations=100,
-        minimize=False,
-    )
-    (b, bf, bp) = alg.evolve(verbose=False)
-    print(bp, b)
-    print("Genetic Engine Train Accuracy: {}".format(bf))
+    """
+    We are building a rule that returns a binary expression.
+    A binary expression can have one of the following shapes:
 
-    assert isinstance(bp, B)
-    fake_game_of_life_rule = compile(bp)
-    ypred = np.fromiter((fake_game_of_life_rule(xi) for xi in Xtrain), Xtrain.dtype)
-    accuracy = (ypred == ytest).mean()
+    b1 and b2 (where bn is another binary expression)
+    b1 or b2
+    not b1
+    matrix[i, j] (where i and j are integers between -1 and 1, inclusive)
+
+    Each binary expression should be evaluated for each instance of the dataset.
+
+    You can use the Xtrain and ytrain to evolve a GeneticProgramming algorithm,
+    and you will use the best individual of a population of 50 after 100 generations
+    to predict the test set.
+
+    """
+
+    train_accuracy = 0
+    print("Genetic Engine Train Accuracy: {}", train_accuracy)
+    accuracy = 0
     print("GeneticEngine Test Accuracy:", accuracy)
 
 
