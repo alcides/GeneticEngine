@@ -1,7 +1,5 @@
-from autologging import traced
 
 
-@traced
 def abstract(clazz):
     get_gengy(clazz)["abstract"] = True
     return clazz
