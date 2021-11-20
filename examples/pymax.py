@@ -3,19 +3,11 @@ from textwrap import indent
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.treebased import treebased_representation
 from geneticengine.algorithms.gp.gp import GP
-from geneticengine.grammars.control_flow import Statement, Code, ForLoop
-from geneticengine.grammars.conditions import Expr
+from geneticengine.grammars.coding.control_flow import Code, ForLoop
+from geneticengine.grammars.coding.conditions import Expr
+from geneticengine.grammars.coding.expressions import XAssign
 
 
-@dataclass
-class XAssign(Statement):
-    value: Expr
-
-    def evaluate(self, x: float = 1.0) -> float:
-        return self.value.evaluate(x)
-
-    def __str__(self):
-        return "x = {}".format(self.value)
 
 class VarX(Expr):
     def evaluate(self, x=0):

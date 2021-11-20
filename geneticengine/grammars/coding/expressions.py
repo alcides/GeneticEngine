@@ -67,3 +67,14 @@ class Var(Expr):
 
     def __str__(self) -> str:
         return self.name
+    
+@dataclass
+class XAssign(Statement):
+    value: Expr
+
+    def evaluate(self, x: float = 1.0) -> float:
+        return self.value.evaluate(x)
+
+    def __str__(self):
+        return "x = {}".format(self.value)
+    
