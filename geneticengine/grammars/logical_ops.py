@@ -2,7 +2,7 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated, List
 from geneticengine.metahandlers.ints import IntRange
-from geneticengine.grammars.conditions import Condition
+from geneticengine.grammars.coding.conditions import Condition
 
 
 
