@@ -136,8 +136,8 @@ class Var(Expr):
 class XAssign(Statement):
     value: Expr
 
-    def evaluate(self, **kwargs) -> float:
-        return self.value.evaluate(**kwargs)
+    def evaluate(self, x: float = 1) -> float:
+        return self.value.evaluate(x)
     
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
         return lambda line: self.value.evaluate_lines(**kwargs)(line)

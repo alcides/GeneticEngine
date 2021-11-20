@@ -11,9 +11,9 @@ from geneticengine.metahandlers.ints import IntRange
 class Code(Statement):
     stmts: List[Statement]
 
-    def evaluate(self, **kwargs) -> float:
+    def evaluate(self, x: float = 1) -> float:
         for stmt in self.stmts:
-            x = stmt.evaluate(**kwargs)
+            x = stmt.evaluate(x)
         return x
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
@@ -32,9 +32,9 @@ class ForLoop(Statement):
     iterationRange: Annotated[int, IntRange(1, 6)]
     loopedCode: Statement
 
-    def evaluate(self, **kwargs) -> float:
+    def evaluate(self, x: float = 1) -> float:
         for _ in range(self.iterationRange):
-            x = self.loopedCode.evaluate(**kwargs)
+            x = self.loopedCode.evaluate(x)
         return x
     
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:

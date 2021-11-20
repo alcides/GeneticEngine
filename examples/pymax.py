@@ -1,11 +1,15 @@
+from abc import ABC
 from dataclasses import dataclass
 from textwrap import indent
+from typing import Annotated, List, NamedTuple, Protocol
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.treebased import treebased_representation
+from geneticengine.metahandlers.ints import IntRange
 from geneticengine.algorithms.gp.gp import GP
-from geneticengine.grammars.coding.control_flow import Code, ForLoop
-from geneticengine.grammars.coding.conditions import Expr
+from geneticengine.grammars.coding.control_flow import ForLoop, Code
 from geneticengine.grammars.coding.expressions import XAssign
+from geneticengine.grammars.coding.classes import Expr, Statement
+
 
 
 
@@ -46,9 +50,8 @@ class XTimesConst(Expr):
     def __str__(self) -> str:
         return "x * {}".format(self.right)
 
-
 def fit(indiv: Code):
-    return indiv.evaluate(0.0)
+    return indiv.evaluate()
 
 
 fitness_function = lambda x: fit(x)
