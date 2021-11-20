@@ -145,9 +145,9 @@ def random_individual(r: Source, g: Grammar, max_depth: int = 5) -> TreeNode:
     try:
         assert max_depth >= g.get_min_tree_depth()
     except:
-        raise GeneticEngineError(
-            f"Cannot use complete grammar for individual creation. Max depth ({max_depth}) is smaller than grammars minimal tree depth ({g.get_min_tree_depth()})."
-        )
+        if g.get_min_tree_depth() == 1000000:
+            raise GeneticEngineError(f"Grammar's minimal tree depth is {g.get_min_tree_depth()}, which is the default tree depth. It's highly like that there are nodes of your grammar than cannot reach any terminal.")
+        raise GeneticEngineError(f"Cannot use complete grammar for individual creation. Max depth ({max_depth}) is smaller than grammar's minimal tree depth ({g.get_min_tree_depth()}).")
     ind = random_node(r, g, max_depth, g.starting_symbol)
     assert isinstance(ind, TreeNode)
     return ind
