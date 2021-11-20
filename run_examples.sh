@@ -20,5 +20,7 @@ run_example examples/vectorialgp_example.py
 run_example examples/regression_example.py
 run_example examples/santafe.py
 run_example examples/string_match.py
+
 run_example examples/progsys/Number_IO.py
+run_example examples/progsys/Median.py
 
