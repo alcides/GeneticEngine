@@ -31,11 +31,7 @@ print("Grammar: {}.".format(repr(g)))
 
 def fitness_function(n: Statement):
     fitness, error, cases = imported.fitness(inval,outval,n.evaluate_lines())
-    # print(cases)
     return fitness
-
-# import IPython as ip
-# ip.embed()
 
 alg = GP(
     g,
