@@ -15,37 +15,18 @@ DATA_FILE_TEST = "./examples/progsys/data/{}/Test.txt".format(FILE_NAME)
 inval,outval = get_data(DATA_FILE_TRAIN,DATA_FILE_TEST)
 imported = import_embedded(FILE_NAME)
 
-Var.__annotations__["name"] = Annotated[str, VarRange(["in0", "in1"])]
-g = extract_grammar([Plus, Mul, SafeDiv, Literal, Var], Number)
-print("Grammar: {}.".format(repr(g)))
-
-def safediv(x, y):
-    if y == 0:
-        return 0.00001
-    else:
-        return x / y
-
 variables = {}
 for i, n in enumerate(["in0", "in1"]):
     variables[n] = i
 
-def evaluate(n: Number) -> Callable[[Any], float]:
-    if isinstance(n, Plus):
-        return lambda line: evaluate(n.left)(line) + evaluate(n.right)(line)
-    elif isinstance(n, Mul):
-        return lambda line: evaluate(n.left)(line) * evaluate(n.right)(line)
-    elif isinstance(n, SafeDiv):
-        return lambda line: safediv(evaluate(n.left)(line), evaluate(n.right)(line))
-    elif isinstance(n, Literal):
-        return lambda _: n.val
-    elif isinstance(n, Var):
-        return lambda line: line[variables[n.name]]
-    else:
-        return lambda line: 0
+Var.__annotations__["name"] = Annotated[str, VarRange(["in0", "in1"])]
+Var.feature_indices = variables
+g = extract_grammar([Plus, Mul, SafeDiv, Literal, Var], Number)
+print("Grammar: {}.".format(repr(g)))
 
 
-def fitness_function(n):
-    fitness, error, cases = imported.fitness(inval,outval,evaluate(n))
+def fitness_function(n: Number):
+    fitness, error, cases = imported.fitness(inval,outval,n.evaluate_lines())
     return fitness
 
 
