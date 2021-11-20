@@ -11,6 +11,19 @@ import geneticengine.algorithms.gp.generation_steps.cross_over as cross_over
 
 
 class GP(object):
+    grammar: Grammar
+    representation: Representation
+    evaluation_function: Callable[[Any], float]
+    random: RandomSource
+    population_size: int
+    elitism: Callable[
+        [List[Individual], Callable[[Individual], float]], List[Individual]
+    ]
+    max_depth: int
+    novelty: Callable[[int], List[Individual]]
+    minimize: bool
+    final_population: List[Individual]
+
     def __init__(
         self,
         g: Grammar,
@@ -34,7 +47,7 @@ class GP(object):
         seed: int = 123,
     ):
         # Add check to input numbers (n_elitism, n_novelties, population_size)
-        self.grammar: Grammar = g
+        self.grammar = g
         self.representation = representation
         self.evaluation_function = evaluation_function
         self.random = randomSource(seed)
@@ -134,6 +147,7 @@ class GP(object):
                 "is",
                 round(self.evaluate(population[0]), 2),
             )
+        self.final_population = population
         return (
             population[0],
             self.evaluate(population[0]),

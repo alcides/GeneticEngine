@@ -4,6 +4,7 @@ from abc import ABC
 from typing import (
     Any,
     Protocol,
+    Set,
     Type,
     Tuple,
     List,
@@ -55,7 +56,7 @@ def is_abstract(t: type) -> bool:
     return t.mro()[1] in [ABC, Protocol] or get_gengy(t).get("abstract", False)
 
 
-def is_terminal(t: type, l: list[type]) -> bool:
+def is_terminal(t: type, l: Set[type]) -> bool:
     """Returns whether a node is a terminal or not, based on the list of non terminals in the grammar"""
     if is_annotated(t):
         return all([is_terminal(inner, l) for inner in get_generic_parameters(t)])
