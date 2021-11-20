@@ -34,7 +34,7 @@ class ForLoop(Statement):
 
     def evaluate(self, **kwargs) -> float:
         for _ in range(self.iterationRange):
-            x = self.loopedCode.evaluate_lines(**kwargs)
+            x = self.loopedCode.evaluate(**kwargs)
         return x
     
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
