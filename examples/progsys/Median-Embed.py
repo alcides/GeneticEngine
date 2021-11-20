@@ -92,7 +92,6 @@ def evolve(i, evolved_function):
 
 def fitnessTrainingCase(i, o, evolved_function):
   eval = evolve(i, evolved_function)
-
   return [abs(eval - o[0])]
 
 
