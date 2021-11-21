@@ -50,6 +50,29 @@ class ForLoop(Statement):
         )
 
 
+@dataclass
+class While(Statement):
+    cond: Condition
+    loopedCode: Statement
+
+    def evaluate(self, x: float = 1) -> float:
+        for _ in range(self.cond.evaluate(x)):
+            x = self.loopedCode.evaluate(x)
+        return x
+    
+    def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
+        def ev(line): 
+            while (self.cond.evaluate_lines(**kwargs)(line)):
+                x = self.loopedCode.evaluate_lines(**kwargs)(line)
+            return x
+        return lambda line: ev(line)
+
+    def __str__(self):
+        return "while {}:\n{}".format(
+            self.cond, indent(str(self.loopedCode), "\t")
+        )
+
+
 
 @dataclass
 class IfThen(Statement):
@@ -71,7 +94,7 @@ class IfThen(Statement):
         return lambda line: ev(line)
 
     def __str__(self):
-        return "if ({}):\n{}".format(
+        return "if {}:\n{}".format(
             self.cond, indent(str(self.then), "\t")
         )
 
@@ -98,7 +121,7 @@ class IfThenElse(Statement):
         return lambda line: ev(line)
 
     def __str__(self):
-        return "if ({}):\n{}\nelse:\n{}".format(
+        return "if {}:\n{}\nelse:\n{}".format(
             self.cond, indent(str(self.then), "\t"), indent(str(self.elze), "\t")
         )
 
