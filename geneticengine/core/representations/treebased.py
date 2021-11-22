@@ -116,8 +116,7 @@ def PI_Grow(
     finalizerqueue = []
 
     while prodqueue:
-        r.shuffle(prodqueue)
-        next_type, next_finalizer, depth = prodqueue.pop()
+        next_type, next_finalizer, depth = r.pop_random(prodqueue)
         expand_node(
             r,
             g,
