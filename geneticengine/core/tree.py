@@ -1,7 +1,8 @@
-from typing import Protocol, List
+from typing import Protocol, List, runtime_checkable
 from geneticengine.core.utils import get_arguments
 
 
+@runtime_checkable
 class TreeNode(Protocol):
     depth: int
     distance_to_term: int
