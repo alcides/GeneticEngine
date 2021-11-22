@@ -43,8 +43,7 @@ alg = GP(
     g,
     treebased_representation,
     fitness_function,
-    max_depth=17,
-    population_size=500,
+    number_of_generations=10,
     minimize=True,
 )
 (b, bf, bp) = alg.evolve(verbose=0)
