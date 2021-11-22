@@ -23,6 +23,7 @@ from geneticengine.core.utils import (
     is_generic_list,
     get_generic_parameter,
     is_terminal,
+    build_finalizers,
 )
 from geneticengine.exceptions import GeneticEngineError
 
@@ -38,12 +39,12 @@ def random_float(r: Source) -> float:
 T = TypeVar("T")
 
 
-def random_list(
-    r: Source, rec: Callable[[Type[Any]], Any], depth: int, ty: Type[List[T]]
-) -> List[T]:
+def random_list(r: Source, receiver, new_symbol, depth: int, ty: Type[List[T]]):
     inner_type = get_generic_parameter(ty)
-    size = r.randint(0, depth)
-    return [rec(inner_type) for _ in range(size)]
+    size = r.randint(0, depth - 1)
+    fins = build_finalizers(lambda *x: receiver(x), size)
+    for fin in fins:
+        new_symbol(inner_type, fin, depth - 1)
 
 
 def is_metahandler(ty: type) -> bool:
@@ -58,7 +59,9 @@ def is_metahandler(ty: type) -> bool:
 
 def apply_metahandler(
     r: Source,
-    rec: Callable[[Type[Any]], Any],
+    receiver,
+    new_symbol,
+    depth: int,
     ty: Type[Any],
 ) -> Any:
     """
@@ -72,14 +75,75 @@ def apply_metahandler(
     base_type = get_generic_parameter(ty)
     if is_generic_list(base_type):
         base_type = get_generic_parameter(base_type)
-    return metahandler.generate(r, lambda: rec(base_type))
+    return metahandler.generate(r, receiver, new_symbol, depth, base_type)
 
 
-def random_node(
+def PI_Grow(
     r: Source,
     g: Grammar,
-    depth: int = 5,
+    depth: int,
     starting_symbol: Type[Any] = int,
+):
+    state = {}
+
+    def final_finalize(x):
+        state["final"] = x
+
+    prodqueue = [(starting_symbol, final_finalize, depth)]
+
+    def handle_symbol(symb, fin, depth):
+        prodqueue.append((symb, fin, depth))
+
+    def filter_choices(possible_choices: List[type], depth):
+        valid_productions = [
+            vp for vp in possible_choices if g.distanceToTerminal[vp] <= depth
+        ]
+        if all(
+            [
+                prod not in g.recursive_prods for prod in finalizerqueue
+            ]  # Are we the last recursive symbol?
+        ) and any(
+            [
+                prod in g.recursive_prods for prod in valid_productions
+            ]  # Are there any  recursive symbols in our expansion?
+        ):
+            valid_productions = [
+                vp for vp in valid_productions if vp in g.recursive_prods
+            ]  # If so, then only expand into recursive symbols
+
+        return valid_productions
+
+    finalizerqueue = []
+
+    while prodqueue:
+        r.shuffle(prodqueue)
+        next_type, next_finalizer, depth = prodqueue.pop()
+        expand_node(
+            r,
+            g,
+            handle_symbol,
+            filter_choices,
+            next_finalizer,
+            depth,
+            next_type,
+        )
+
+    n = state["final"]
+    relabel_nodes_of_trees(n, g.non_terminals)
+    return n
+
+
+random_node = PI_Grow
+
+
+def expand_node(
+    r: Source,
+    g: Grammar,
+    new_symbol,
+    filter_choices,
+    receiver,
+    depth,
+    starting_symbol,
 ) -> Any:
     """
     Creates a random node of a given type (starting_symbol)
@@ -93,26 +157,25 @@ def random_node(
             )
         )
 
-    recursive_generator = lambda t: random_node(r, g, depth - 1, t)
-
     if starting_symbol is int:
-        return random_int(r)
+        receiver(random_int(r))
+        return
     elif starting_symbol is float:
-        return random_float(r)
+        receiver(random_float(r))
+        return
     elif is_generic_list(starting_symbol):
-        return random_list(r, recursive_generator, depth - 1, starting_symbol)
+        random_list(r, receiver, new_symbol, depth, starting_symbol)
+        return
     elif is_metahandler(starting_symbol):
-        node = apply_metahandler(r, recursive_generator, starting_symbol)
-        return relabel_nodes_of_trees(node, g.non_terminals)
+        apply_metahandler(r, receiver, new_symbol, depth, starting_symbol)
+        return
     else:
         if starting_symbol not in g.all_nodes:
             raise GeneticEngineError(f"Symbol {starting_symbol} not in grammar rules.")
 
         if starting_symbol in g.alternatives:  # Alternatives
             compatible_productions = g.alternatives[starting_symbol]
-            valid_productions = [
-                vp for vp in compatible_productions if g.distanceToTerminal[vp] <= depth
-            ]
+            valid_productions = filter_choices(compatible_productions, depth)
             if not valid_productions:
                 raise GeneticEngineError(
                     "No productions for non-terminal node with type: {} in depth {} (minimum required: {}).".format(
@@ -131,14 +194,12 @@ def random_node(
                 rule = r.choice_weighted(valid_productions, weights)
             else:
                 rule = r.choice(valid_productions)
-            return random_node(r, g, depth, rule)
+            new_symbol(rule, receiver, depth)
         else:  # Normal production
-            args = [
-                recursive_generator(at) for (a, at) in get_arguments(starting_symbol)
-            ]
-            node = starting_symbol(*args)
-            node = relabel_nodes_of_trees(node, g.non_terminals)
-            return node
+            args = get_arguments(starting_symbol)
+            fins = build_finalizers(lambda *x: receiver(starting_symbol(*x)), len(args))
+            for i, (argn, argt) in enumerate(args):
+                new_symbol(argt, fins[i], depth - 1)
 
 
 def random_individual(r: Source, g: Grammar, max_depth: int = 5) -> TreeNode:
@@ -146,8 +207,12 @@ def random_individual(r: Source, g: Grammar, max_depth: int = 5) -> TreeNode:
         assert max_depth >= g.get_min_tree_depth()
     except:
         if g.get_min_tree_depth() == 1000000:
-            raise GeneticEngineError(f"Grammar's minimal tree depth is {g.get_min_tree_depth()}, which is the default tree depth. It's highly like that there are nodes of your grammar than cannot reach any terminal.")
-        raise GeneticEngineError(f"Cannot use complete grammar for individual creation. Max depth ({max_depth}) is smaller than grammar's minimal tree depth ({g.get_min_tree_depth()}).")
+            raise GeneticEngineError(
+                f"Grammar's minimal tree depth is {g.get_min_tree_depth()}, which is the default tree depth. It's highly like that there are nodes of your grammar than cannot reach any terminal."
+            )
+        raise GeneticEngineError(
+            f"Cannot use complete grammar for individual creation. Max depth ({max_depth}) is smaller than grammar's minimal tree depth ({g.get_min_tree_depth()})."
+        )
     ind = random_node(r, g, max_depth, g.starting_symbol)
     assert isinstance(ind, TreeNode)
     return ind

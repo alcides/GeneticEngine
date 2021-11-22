@@ -8,8 +8,8 @@ class VarRange(MetaHandlerGenerator):
     def __init__(self, options):
         self.options = options
 
-    def generate(self, r: RandomSource, v):
-        return r.choice(self.options)
+    def generate(self, r: RandomSource, receiver, new_symbol, depth, base_type):
+        receiver(r.choice(self.options))
 
     def __repr__(self):
         return str(self.options)
