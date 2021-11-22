@@ -89,7 +89,7 @@ class IfThen(Statement):
             if self.cond.evaluate_lines(**kwargs)(line):
                 x = self.then.evaluate_lines(**kwargs)(line)
             else:
-                x = 0
+                x = 0 # Is this correctly done?
             return x
         return lambda line: ev(line)
 
