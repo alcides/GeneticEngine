@@ -4,6 +4,7 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
 
+from geneticengine.core.decorators import abstract
 from geneticengine.metahandlers.vars import VarRange
 '''
 Auxiliary lists of letters
@@ -21,6 +22,7 @@ class String(ABC):
 
 
 # letter ::= char | vowel | consonant
+@abstract
 @dataclass
 class Letter(String):
     pass
