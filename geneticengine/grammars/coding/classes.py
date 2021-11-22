@@ -2,6 +2,8 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated, Any, Callable
 
+from geneticengine.core.decorators import abstract
+
     
 class Statement(ABC):
     def evaluate(self, **kwargs) -> float:
@@ -18,13 +20,13 @@ class Expr(ABC):
         return lambda _: 0.0
 
     
-class Condition(ABC):
-    def evaluate(self, **kwargs) -> bool:
-        return False
+@abstract
+class Number(Expr):
+    pass
 
-    def evaluate_lines(self, **kwargs) -> Callable[[Any], bool]:
-        return lambda _: False
-
+@abstract
+class Condition(Expr):
+    pass
 
 @dataclass
 class XAssign(Statement):

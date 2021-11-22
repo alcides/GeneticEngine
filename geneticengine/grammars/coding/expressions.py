@@ -2,14 +2,10 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated, Callable, Any
 from geneticengine.exceptions import GeneticEngineError
-from geneticengine.grammars.coding.classes import Expr, Statement
-from geneticengine.core.decorators import abstract
+from geneticengine.grammars.coding.classes import Expr, Statement, Number
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metahandlers.ints import IntRange
 
-@abstract
-class Number(Expr):
-    pass
 
 @dataclass
 class Max(Number):

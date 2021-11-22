@@ -2,7 +2,7 @@ from typing import Annotated, Any, Callable
 from utils import get_data, import_embedded
 
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.grammars.coding.classes import Statement, XAssign 
+from geneticengine.grammars.coding.classes import Number, Statement, XAssign 
 from geneticengine.grammars.coding.expressions import Max, Min, Abs, Plus, Literal, Mul, SafeDiv, Var
 from geneticengine.grammars.coding.control_flow import IfThen, IfThenElse, While
 from geneticengine.grammars.coding.conditions import Equals, NotEquals, GreaterOrEqualThan, GreaterThan, LessOrEqualThan, LessThan, Is, IsNot
@@ -23,6 +23,7 @@ variables = {}
 for i, n in enumerate(vars):
     variables[n] = i
 
+XAssign.__annotations__["value"] = Number
 Var.__annotations__["name"] = Annotated[str, VarRange(vars)]
 Var.feature_indices = variables
 g = extract_grammar([
