@@ -23,4 +23,6 @@ run_example examples/string_match.py
 
 run_example examples/progsys/Number_IO.py
 run_example examples/progsys/Median.py
+run_example examples/progsys/Smallest.py
+run_example examples/progsys/Sum_of_Squares.py
 
