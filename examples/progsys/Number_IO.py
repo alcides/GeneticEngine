@@ -2,7 +2,7 @@ from typing import Annotated, Any, Callable
 from utils import get_data, import_embedded
 
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.grammars.coding.expressions import Plus, Literal, Number, Mul, SafeDiv, Var
+from geneticengine.grammars.coding.numbers import Plus, Literal, Number, Mul, SafeDiv, Var
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.representations.treebased import treebased_representation
