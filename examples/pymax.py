@@ -5,58 +5,10 @@ from typing import Annotated, List, NamedTuple, Protocol
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.treebased import treebased_representation
 from geneticengine.metahandlers.ints import IntRange
-from geneticengine.metahandlers.lists import ListSizeBetween
 from geneticengine.algorithms.gp.gp import GP
-
-
-class Statement(ABC):
-    def evaluate(self, x: float) -> float:
-        return x
-
-
-class Expr(ABC):
-    def evaluate(self, x: float) -> float:
-        return 0.0
-
-
-@dataclass
-class Code(Statement):
-    stmts: List[Statement]
-
-    def evaluate(self, x: float = 1.0) -> float:
-        for stmt in self.stmts:
-            x = stmt.evaluate(x)
-        return x
-
-    def __str__(self):
-        return "\n".join([str(stmt) for stmt in self.stmts])
-
-
-@dataclass
-class XAssign(Statement):
-    value: Expr
-
-    def evaluate(self, x: float = 1.0) -> float:
-        return self.value.evaluate(x)
-
-    def __str__(self):
-        return "x = {}".format(self.value)
-
-
-@dataclass
-class ForLoop(Statement):
-    iterationRange: Annotated[int, IntRange(1, 6)]
-    loopedCode: Statement
-
-    def evaluate(self, x: float = 1.0) -> float:
-        for _ in range(self.iterationRange):
-            x = self.loopedCode.evaluate(x)
-        return x
-
-    def __str__(self):
-        return "for i in range({}):\n{}".format(
-            self.iterationRange, indent(str(self.loopedCode), "\t")
-        )
+from geneticengine.grammars.coding.control_flow import ForLoop, Code
+from geneticengine.grammars.coding.expressions import XAssign
+from geneticengine.grammars.coding.classes import Expr, Statement
 
 
 class VarX(Expr):
@@ -98,22 +50,21 @@ class XTimesConst(Expr):
 
 
 def fit(indiv: Code):
-    return indiv.evaluate(0.0)
+    return indiv.evaluate()
 
 
 fitness_function = lambda x: fit(x)
 
 if __name__ == "__main__":
     g = extract_grammar(
-        [XPlusConst, XTimesConst, XAssign, ForLoop, Code, Const, VarX], Code
-    )
+        [XPlusConst, XTimesConst, XAssign, ForLoop, Code, Const, VarX], Code)
     alg = GP(
         g,
         treebased_representation,
         fitness_function,
         max_depth=10,
         population_size=40,
-        number_of_generations=5,
+        number_of_generations=15,
         minimize=False,
     )
     (b, bf, bp) = alg.evolve(verbose=0)

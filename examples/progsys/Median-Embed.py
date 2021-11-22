@@ -1,7 +1,8 @@
+import math
+
 # *****************************************************************************
 # Helper Code
 # *****************************************************************************
-import math
 
 
 def div(nom, denom):
@@ -83,12 +84,6 @@ def saveSplit(curString, separator):
     return curString.split(separator)
 
 
-def saveRange(start, end):
-    if end > start and abs(start - end) > 10000:
-        return range(start, start + 10000)
-    return range(start, end)
-
-
 # *****************************************************************************
 
 
@@ -102,7 +97,6 @@ def evolve(i, evolved_function):
 
 def fitnessTrainingCase(i, o, evolved_function):
     eval = evolve(i, evolved_function)
-
     return [abs(eval - o[0])]
 
 
