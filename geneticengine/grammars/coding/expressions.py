@@ -3,15 +3,18 @@ from dataclasses import dataclass
 from typing import Annotated, Callable, Any
 from geneticengine.exceptions import GeneticEngineError
 from geneticengine.grammars.coding.classes import Expr, Statement
+from geneticengine.core.decorators import abstract
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metahandlers.ints import IntRange
 
-
+@abstract
+class Number(Expr):
+    pass
 
 @dataclass
-class Max(Expr):
-    left: Expr
-    right: Expr
+class Max(Number):
+    left: Number
+    right: Number
 
     def evaluate(self, **kwargs):
         return max(self.left.evaluate(**kwargs),self.right.evaluate(**kwargs))
@@ -23,9 +26,9 @@ class Max(Expr):
         return f"max({self.left},{self.right})"
 
 @dataclass
-class Min(Expr):
-    left: Expr
-    right: Expr
+class Min(Number):
+    left: Number
+    right: Number
 
     def evaluate(self, **kwargs):
         return min(self.left.evaluate(**kwargs),self.right.evaluate(**kwargs))
@@ -37,8 +40,8 @@ class Min(Expr):
         return f"min({self.left},{self.right})"
 
 @dataclass
-class Abs(Expr):
-    value: Expr
+class Abs(Number):
+    value: Number
 
     def evaluate(self, **kwargs):
         return abs(self.value.evaluate(**kwargs))
@@ -50,9 +53,9 @@ class Abs(Expr):
         return f"abs({self.value})"
 
 @dataclass
-class Plus(Expr):
-    left: Expr
-    right: Expr
+class Plus(Number):
+    left: Number
+    right: Number
 
     def evaluate(self, **kwargs):
         return self.left.evaluate(**kwargs) + self.right.evaluate(**kwargs)
@@ -65,9 +68,9 @@ class Plus(Expr):
 
 
 @dataclass
-class Mul(Expr):
-    left: Expr
-    right: Expr
+class Mul(Number):
+    left: Number
+    right: Number
 
     def evaluate(self, **kwargs):
         return self.left.evaluate(**kwargs) * self.right.evaluate(**kwargs)
@@ -80,9 +83,9 @@ class Mul(Expr):
 
 
 @dataclass
-class SafeDiv(Expr):
-    left: Expr
-    right: Expr
+class SafeDiv(Number):
+    left: Number
+    right: Number
 
     def keep_safe(self, d2):
         if d2 == 0:
@@ -104,7 +107,7 @@ class SafeDiv(Expr):
 
 
 @dataclass
-class Literal(Expr):
+class Literal(Number):
     val: Annotated[int, IntRange(0,9)]
 
     def evaluate(self, **kwargs):
@@ -118,7 +121,7 @@ class Literal(Expr):
 
 
 @dataclass
-class Var(Expr):
+class Var(Number):
     name: Annotated[str, VarRange(["x", "y", "z"])]
 
     def evaluate(self, **kwargs):
@@ -132,18 +135,6 @@ class Var(Expr):
     def __str__(self) -> str:
         return self.name
     
-@dataclass
-class XAssign(Statement):
-    value: Expr
-
-    def evaluate(self, x: float = 1) -> float:
-        return self.value.evaluate(x)
-    
-    def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
-        return lambda line: self.value.evaluate_lines(**kwargs)(line)
-
-    def __str__(self):
-        return "x = {}".format(self.value)
     
 
-all_operators = [Max,Min,Abs,Plus,Mul,SafeDiv,Literal,Var,XAssign]
+all_operators = [Max,Min,Abs,Plus,Mul,SafeDiv,Literal,Var]

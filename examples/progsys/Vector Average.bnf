@@ -1,0 +1,26 @@
+<predefined> ::= 'i0 = int(); i1 = int(); i2 = int()'
+'f0 = float(); f1 = float(); f2 = float()'
+'lf0 = []; lf1 = []; lf2 = []'
+'res0 = float()'
+<code>
+<code> ::= <code><statement>'\n'|<statement>'\n'
+<statement> ::= <simple_stmt>|<for>
+<simple_stmt> ::= <call>|<assign>
+<call> ::= <list_float_var>'.insert('<int>','<float>')'|'deleteListItem('<list_float>', '<int>')'|'setListIndexTo('<list_float>', '<int>', '<float>')'|<list_float_var>'.append('<float>')'
+<assign> ::= <int_assign>|<float_assign>|<list_float_var>' = '<list_float>
+<for> ::= 'loopBreak% = 0\nfor forCounter% in '<list_float>':{:\n'<code>'\nif loopBreak% > loopBreakConst or stop.value:{:\nbreak\n:}loopBreak% += 1\n:}'|'loopBreak% = 0\nfor '<float_var>' in '<list_float>':{:\n'<code>'\nif loopBreak% > loopBreakConst or stop.value:{:\nbreak\n:}loopBreak% += 1\n:}'
+<number> ::= <number><num>|<num>
+<num> ::= '0'|'1'|'2'|'3'|'4'|'5'|'6'|'7'|'8'|'9'
+<int_var> ::= 'i0'|'i1'|'i2'
+<int_assign> ::= <int_var>' = '<int>|<int_var>' '<arith_ops>'= '<int>
+<int> ::= <int_var>|'int('<number>'.0)'|<arith_prefix><int>|'( '<int>' '<arith_ops>' '<int>' )'|<int_arith_ops_protected>'('<int>','<int>')'|'min('<int>', '<int>')'|'max('<int>', '<int>')'|'abs('<int>')'|'int(math.ceil('<float>'))'|'int(math.floor('<float>'))'|'int(round('<float>'))'|'int('<float>')'|'len('<list_float>')'
+<arith_ops> ::= '+'|'-'|'*'
+<int_arith_ops_protected> ::= 'divInt'|'mod'
+<arith_prefix> ::= '+'|'-'
+<float> ::= <int>|<float_var>|<number>'.'<number>|<arith_prefix><float>|'( '<float>' '<arith_ops>' '<float>' )'|'( '<int>' '<arith_ops>' '<float>' )'|'( '<float>' '<arith_ops>' '<int>' )'|<float_arith_ops_protected>'('<float>','<float>')'|<float_arith_ops_protected>'('<int>','<float>')'|<float_arith_ops_protected>'('<float>','<int>')'|'math.ceil('<float>')'|'math.floor('<float>')'|'round('<float>')'|'min('<float>', '<float>')'|'min('<int>', '<float>')'|'min('<float>', '<int>')'|'max('<float>', '<float>')'|'max('<int>', '<float>')'|'max('<float>', '<int>')'|'abs('<float>')'|'getIndexFloatList('<list_float>', '<int>')'
+<float_var> ::= 'f0'|'f1'|'f2'|'res0'
+<float_assign> ::= <float_var>' = '<float>|<float_var>' '<arith_ops>'= '<float>
+<float_arith_ops_protected> ::= 'div'|'divInt'|'mod'
+<list_float_var> ::= 'lf0'|'lf1'|'lf2'|'in0'
+<list_float> ::= <list_float_var>|<list_float_slice>
+<list_float_slice> ::= <list_float>'['<int>':'<int>']'|<list_float>'[:'<int>']'|<list_float>'['<int>':]'

@@ -1,4 +1,5 @@
 from abc import ABC
+from dataclasses import dataclass
 from typing import Annotated, Any, Callable
 
     
@@ -24,3 +25,16 @@ class Condition(ABC):
     def evaluate_lines(self, **kwargs) -> Callable[[Any], bool]:
         return lambda _: False
 
+
+@dataclass
+class XAssign(Statement):
+    value: Expr
+
+    def evaluate(self, x: float = 1) -> float:
+        return self.value.evaluate(x)
+    
+    def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
+        return lambda line: self.value.evaluate_lines(**kwargs)(line)
+
+    def __str__(self):
+        return "x = {}".format(self.value)

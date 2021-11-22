@@ -1,10 +1,9 @@
 from typing import Annotated, Any, Callable
-import sys
 from utils import get_data, import_embedded
 
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.grammars.coding.classes import Statement 
-from geneticengine.grammars.coding.expressions import Max, Min, Abs, Plus, Literal, Mul, SafeDiv, Var, XAssign
+from geneticengine.grammars.coding.classes import Statement, XAssign
+from geneticengine.grammars.coding.expressions import Max, Min, Abs, Plus, Literal, Mul, SafeDiv, Var
 from geneticengine.grammars.coding.control_flow import IfThen, IfThenElse, While
 from geneticengine.grammars.coding.conditions import Equals, NotEquals, GreaterOrEqualThan, GreaterThan, LessOrEqualThan, LessThan, Is, IsNot
 from geneticengine.grammars.coding.logical_ops import And, Or

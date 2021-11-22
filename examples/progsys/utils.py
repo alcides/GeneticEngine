@@ -20,7 +20,7 @@ def get_data(data_file_train,data_file_test):
 
 
 def import_embedded(FILE_NAME):
-    imported = __import__(FILE_NAME + "-Embed")
+    imported = __import__(f"embed.{FILE_NAME}")
     return imported
 
 
