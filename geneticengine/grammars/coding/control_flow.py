@@ -52,6 +52,7 @@ class ForLoop(Statement):
 
 @dataclass
 class While(Statement):
+    # Shouldn't be used! We don't have a stopping criteria, usage will always result in infinite loops
     cond: Condition
     loopedCode: Statement
 
