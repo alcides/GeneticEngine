@@ -11,8 +11,6 @@ from geneticengine.grammars.coding.expressions import XAssign
 from geneticengine.grammars.coding.classes import Expr, Statement
 
 
-
-
 class VarX(Expr):
     def evaluate(self, x=0):
         return x
@@ -50,16 +48,20 @@ class XTimesConst(Expr):
     def __str__(self) -> str:
         return "x * {}".format(self.right)
 
+
 def fit(indiv: Code):
     return indiv.evaluate()
 
 
 fitness_function = lambda x: fit(x)
 
-if __name__ == "__main__":
-    g = extract_grammar(
-        [XPlusConst, XTimesConst, XAssign, ForLoop, Code, Const, VarX], Code
-    )
+
+def preprocess():
+    return extract_grammar(
+        [XPlusConst, XTimesConst, XAssign, ForLoop, Code, Const, VarX], Code)
+
+
+def evolve(g, seed):
     alg = GP(
         g,
         treebased_representation,
@@ -68,7 +70,14 @@ if __name__ == "__main__":
         population_size=40,
         number_of_generations=15,
         minimize=False,
+        seed=seed,
     )
     (b, bf, bp) = alg.evolve(verbose=0)
-    print(bp, b)
-    print("With fitness: {}".format(bf))
+    return b, bf
+
+
+if __name__ == "__main__":
+    g = preprocess()
+    bf, b = evolve(g, 0)
+    print(b)
+    print(f"With fitness: {bf}")
