@@ -105,7 +105,7 @@ class SafeDiv(Expr):
 
 @dataclass
 class Literal(Expr):
-    val: Annotated[int, IntRange(-10, 11)]
+    val: Annotated[int, IntRange(0,9)]
 
     def evaluate(self, **kwargs):
         return self.val

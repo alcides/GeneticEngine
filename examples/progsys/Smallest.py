@@ -30,7 +30,7 @@ g = extract_grammar([
     Plus, Literal, Mul, SafeDiv, Max, Min, Abs, 
     And, Or, Var, Equals, NotEquals, GreaterOrEqualThan, GreaterThan, LessOrEqualThan, LessThan, Is, IsNot, 
     XAssign, 
-    IfThen, IfThenElse, While
+    IfThen, IfThenElse#, While
     ], Statement)
 print("Grammar: {}.".format(repr(g)))
 
@@ -43,7 +43,7 @@ alg = GP(
     g,
     treebased_representation,
     fitness_function,
-    number_of_generations=10,
+    number_of_generations=100,
     minimize=True,
 )
 (b, bf, bp) = alg.evolve(verbose=0)
