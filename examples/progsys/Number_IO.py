@@ -15,11 +15,12 @@ DATA_FILE_TEST = "./examples/progsys/data/{}/Test.txt".format(FILE_NAME)
 inval,outval = get_data(DATA_FILE_TRAIN,DATA_FILE_TEST)
 imported = import_embedded(FILE_NAME)
 
+vars = ["in0", "in1"]
 variables = {}
-for i, n in enumerate(["in0", "in1"]):
+for i, n in enumerate(vars):
     variables[n] = i
 
-Var.__annotations__["name"] = Annotated[str, VarRange(["in0", "in1"])]
+Var.__annotations__["name"] = Annotated[str, VarRange(vars)]
 Var.feature_indices = variables
 g = extract_grammar([Plus, Mul, SafeDiv, Literal, Var], Number)
 print("Grammar: {}.".format(repr(g)))
