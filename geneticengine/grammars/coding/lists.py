@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from typing import Annotated, Callable, Any, List
 from geneticengine.exceptions import GeneticEngineError
 from geneticengine.grammars.coding.classes import Expr, Statement, NumberList, Number
+import geneticengine.grammars.coding.numbers as numbers
+from geneticengine.metahandlers.lists import ListSizeBetween
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metahandlers.ints import IntRange
 
@@ -63,13 +65,13 @@ class Combine(NumberList):
 
 @dataclass
 class Literal(NumberList):
-    list: List[Number]
+    list: Annotated[List[Number], ListSizeBetween(2,3)]
 
     def evaluate(self, **kwargs):
         return [ v.evaluate(**kwargs) for v in self.list ]
     
     def evaluate_lines(self, **kwargs):
-        return lambda line: [ v.evaluate(**kwargs)(line) for v in self.list ]
+        return lambda line: [ v.evaluate_lines(**kwargs)(line) for v in self.list ]
     
     def __str__(self) -> str:
         return str(self.list)
@@ -82,14 +84,14 @@ class GetElement(Number):
 
     def evaluate(self, **kwargs):
         list_length = Length(self.list).evaluate(**kwargs)
-        return self.list.evaluate(**kwargs)[self.element.evaluate(**kwargs) % list_length]
+        return self.list.evaluate(**kwargs)[round(self.element.evaluate(**kwargs)) % list_length]
     
     def evaluate_lines(self, **kwargs):
         list_length = lambda line: Length(self.list).evaluate_lines(**kwargs)(line)
-        return lambda line: self.list.evaluate_lines(**kwargs)(line)[self.element.evaluate_lines(**kwargs)(line) % list_length(line)]
+        return lambda line: self.list.evaluate_lines(**kwargs)(line)[round(self.element.evaluate_lines(**kwargs)(line)) % list_length(line)]
     
     def __str__(self) -> str:
-        return str(self.val)
+        return f"{self.list}[{self.element}]"
     
     
 @dataclass
@@ -108,6 +110,6 @@ class Var(NumberList):
         return self.name
     
 
-import geneticengine.grammars.coding.numbers as numbers
-import IPython as ip
-ip.embed()
+# import geneticengine.grammars.coding.numbers as numbers
+# import IPython as ip
+# ip.embed()
