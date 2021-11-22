@@ -29,7 +29,7 @@ class Condition(Expr):
     pass
 
 @abstract
-class List(Expr):
+class NumberList(Expr):
     pass
 
 @dataclass
