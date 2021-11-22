@@ -28,6 +28,10 @@ class Number(Expr):
 class Condition(Expr):
     pass
 
+@abstract
+class List(Expr):
+    pass
+
 @dataclass
 class XAssign(Statement):
     value: Expr
