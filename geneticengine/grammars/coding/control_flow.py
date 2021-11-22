@@ -79,18 +79,18 @@ class IfThen(Statement):
     cond: Condition
     then: Statement
 
-    def evaluate(self, **kwargs) -> float:
-        z = 0
-        if self.cond.evaluate(**kwargs):
-            z = self.then.evaluate(**kwargs)
-        return z
+    def evaluate(self, x: float = 1) -> float:
+        if self.cond.evaluate(x):
+            x = self.then.evaluate(x)
+        return x
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
         def ev(line): 
-            z = 0
             if self.cond.evaluate_lines(**kwargs)(line):
-                z = self.then.evaluate_lines(**kwargs)(line)
-            return z
+                x = self.then.evaluate_lines(**kwargs)(line)
+            else:
+                x = 0
+            return x
         return lambda line: ev(line)
 
     def __str__(self):
@@ -104,12 +104,12 @@ class IfThenElse(Statement):
     then: Statement
     elze: Statement
 
-    def evaluate(self, **kwargs) -> float:
-        if self.cond.evaluate(**kwargs):
-            z = self.then.evaluate(**kwargs)
+    def evaluate(self, x: float = 1) -> float:
+        if self.cond.evaluate(x):
+            x = self.then.evaluate(x)
         else:
-            z = self.elze.evaluate(**kwargs)
-        return z
+            x = self.elze.evaluate(x)
+        return x
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
         def ev(line): 
