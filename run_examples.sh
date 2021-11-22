@@ -18,4 +18,4 @@ run_example examples/vectorialgp_example.py
 run_example examples/regression_example.py
 run_example examples/santafe.py
 run_example examples/progsys/Number_IO.py
-
+run_example examples/game_of_life.py

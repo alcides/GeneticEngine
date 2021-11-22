@@ -3,8 +3,10 @@ from dataclasses import dataclass
 from typing import Annotated, Any, Callable, Tuple
 import numpy as np
 from numpy.lib.arraysetops import isin
-
+from scipy.sparse import data
+from sklearn.metrics import accuracy_score
 from sklearn.tree import DecisionTreeClassifier
+import matplotlib.pyplot as plt
 
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.treebased import treebased_representation
@@ -33,43 +35,92 @@ def generate_dataset(n: int) -> Tuple[Any, Any]:
 
 def learn_predictor(Xtrain, ytrain, Xtest, ytest):
 
-    clf = DecisionTreeClassifier(random_state=0)
+    clf = DecisionTreeClassifier(random_state=0, max_depth=5)
     clf.fit(Xtrain.reshape(1000, 9), ytrain)
     ypred = clf.predict(Xtest.reshape(1000, 9))
     accuracy = (ypred == ytest).mean()
-
     print("Decision Tree Test Accuracy:", accuracy)
+
+
+class Expr(ABC):
+    pass
+
+@dataclass
+class And(Expr):
+    e1: Expr
+    e2: Expr
+
+    def __str__(self) -> str:
+        return f"({self.e1} and {self.e2})"
+
+@dataclass
+class Or(Expr):
+    e1: Expr
+    e2: Expr
+
+    def __str__(self) -> str:
+        return f"({self.e1} or {self.e2})"
+
+@dataclass
+class Not(Expr):
+    e1: Expr
+
+    def __str__(self) -> str:
+        return f"(not {self.e1})"
+
+@dataclass
+class Matrix(Expr):
+    row: Annotated[int, IntRange(-1, 1)]
+    column: Annotated[int, IntRange(-1, 1)]
+
+    def __str__(self) -> str:
+        return f"(X[{self.row}, {self.column}])"
+
+def evaluate(e: Expr) -> Callable[[Any], float]:
+
+    if isinstance(e, And):
+        return lambda line: evaluate(e.e1)(line) and evaluate(e.e2)(line)
+    elif isinstance(e, Or):
+        return lambda line: evaluate(e.e1)(line) or evaluate(e.e2)(line)
+    elif isinstance(e, Not):
+        return lambda line: not evaluate(e.e1)(line)
+    elif isinstance(e, Matrix):
+        return lambda line: line[e.row, e.column]
+    else:
+        raise NotImplementedError(str(e))
+
+
+def fitness_function(i: Expr):
+    _clf = evaluate(i)
+    ypred = [_clf(line) for line in np.rollaxis(Xtrain, 0)]
+    return accuracy_score(ytrain, ypred)
 
 
 def learn_predictor_gn(Xtrain, ytrain, Xtest, ytest):
 
-    # TODO: Pedro, implementar um classificador com:
+    g = extract_grammar([And, Or, Not, Matrix], Expr)
+    print(f"Grammar: {repr(g)}")
 
-    """
-    We are building a rule that returns a binary expression.
-    A binary expression can have one of the following shapes:
+    alg = GP(
+        g,
+        treebased_representation,
+        evaluation_function=fitness_function, 
+        number_of_generations=50)
 
-    b1 and b2 (where bn is another binary expression)
-    b1 or b2
-    not b1
-    matrix[i, j] (where i and j are integers between -1 and 1, inclusive)
+    (b, bf, bp) = alg.evolve(verbose=0)
 
-    Each binary expression should be evaluated for each instance of the dataset.
-
-    You can use the Xtrain and ytrain to evolve a GeneticProgramming algorithm,
-    and you will use the best individual of a population of 50 after 100 generations
-    to predict the test set.
-
-    """
-
-    train_accuracy = 0
-    print("Genetic Engine Train Accuracy: {}", train_accuracy)
-    accuracy = 0
-    print("GeneticEngine Test Accuracy:", accuracy)
+    print("Best individual:", bp)
+    print("Genetic Engine Train Accuracy:", bf)
+    
+    _clf = evaluate(bp)
+    ypred = [_clf(line) for line in np.rollaxis(Xtest, 0)]
+    print("GeneticEngine Test Accuracy:", accuracy_score(ytest, ypred))
 
 
 if __name__ == "__main__":
+
     (Xtrain, ytrain) = generate_dataset(1000)
     (Xtest, ytest) = generate_dataset(1000)
+ 
     learn_predictor(Xtrain, ytrain, Xtest, ytest)
     learn_predictor_gn(Xtrain, ytrain, Xtest, ytest)
