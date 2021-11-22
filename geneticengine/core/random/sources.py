@@ -29,6 +29,12 @@ class Source(ABC):
             if rand_value < acc:
                 return choice
 
+    def shuffle(self, l: List[Any]):
+        for i in reversed(range(1, len(l))):
+            j = self.randint(0, i)
+            l[i], l[j] = l[j], l[i]
+        return l
+
 
 class RandomSource(Source):
     def __init__(self, seed: int = 0):
