@@ -79,7 +79,6 @@ def saveSplit(curString, separator):
     return []
   return curString.split(separator)
 
-
 def saveRange(start, end):
   if end > start and abs(start - end) > 10000:
     return range(start, start + 10000)
@@ -113,4 +112,3 @@ def fitness(inval,outval,evolved_function):
     cases.append(all(v < 0.000000001 for v in values))
 
   return sum(error), error, cases
-

@@ -14,44 +14,22 @@ from geneticengine.metahandlers.vars import VarRange
 # Load Dataset
 bunch: Any = load_diabetes()
 
-# Prepare Grammar
-Var.__annotations__["name"] = Annotated[str, VarRange(bunch.feature_names)]
-g = extract_grammar([Plus, Mul, SafeDiv, Literal, Var], Number)
-print("Grammar: {}.".format(repr(g)))
-
-
-def safediv(x, y):
-    if y == 0:
-        return 0.00001
-    else:
-        return x / y
-
-
 feature_indices = {}
 for i, n in enumerate(bunch.feature_names):
     feature_indices[n] = i
 
-
-def evaluate(n: Number) -> Callable[[Any], float]:
-    if isinstance(n, Plus):
-        return lambda line: evaluate(n.left)(line) + evaluate(n.right)(line)
-    elif isinstance(n, Mul):
-        return lambda line: evaluate(n.left)(line) * evaluate(n.right)(line)
-    elif isinstance(n, SafeDiv):
-        return lambda line: safediv(evaluate(n.left)(line), evaluate(n.right)(line))
-    elif isinstance(n, Literal):
-        return lambda _: n.val
-    elif isinstance(n, Var):
-        return lambda line: line[feature_indices[n.name]]
-    else:
-        return lambda line: 0
+# Prepare Grammar
+Var.__annotations__["name"] = Annotated[str, VarRange(bunch.feature_names)]
+Var.feature_indices = feature_indices
+g = extract_grammar([Plus, Mul,  Literal, Var], Number)
+print("Grammar: {}.".format(repr(g)))
 
 
-def fitness_function(n):
+def fitness_function(n: Number):
     X = bunch.data
     y = bunch.target
 
-    f = evaluate(n)
+    f = n.evaluate_lines()
     y_pred = np.apply_along_axis(f, 1, X)
     return mean_squared_error(y, y_pred)
 

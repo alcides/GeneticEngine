@@ -1,7 +1,8 @@
+import math
+
 # *****************************************************************************
 # Helper Code
 # *****************************************************************************
-import math
 
 def div(nom, denom):
   if denom <= 0.00001:
@@ -79,12 +80,6 @@ def saveSplit(curString, separator):
     return []
   return curString.split(separator)
 
-
-def saveRange(start, end):
-  if end > start and abs(start - end) > 10000:
-    return range(start, start + 10000)
-  return range(start, end)
-
 # *****************************************************************************
 
 #  evolved function
@@ -97,7 +92,6 @@ def evolve(i, evolved_function):
 
 def fitnessTrainingCase(i, o, evolved_function):
   eval = evolve(i, evolved_function)
-
   return [abs(eval - o[0])]
 
 
@@ -107,10 +101,11 @@ def fitness(inval,outval,evolved_function):
   
   error = []
   cases = []
-  for (i, o) in zip(inval,outval):
+  for (i, o) in zip(inval, outval):
     values = fitnessTrainingCase(i, o, evolved_function)
     error.extend(values)
     cases.append(all(v < 0.000000001 for v in values))
 
   return sum(error), error, cases
+
 
