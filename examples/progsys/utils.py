@@ -1,5 +1,6 @@
 import os
 import ast
+import importlib as il
 
 
 
@@ -20,8 +21,7 @@ def get_data(data_file_train,data_file_test):
 
 
 def import_embedded(FILE_NAME):
-    imported = __import__(f"embed.{FILE_NAME}")
+    imported = il.import_module(f"embed.{FILE_NAME}")
     return imported
-
 
 
