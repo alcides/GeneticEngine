@@ -125,7 +125,7 @@ class Var(Number):
     
     def evaluate_lines(self, **kwargs):
         if not hasattr(self,"feature_indices"):
-            raise GeneticEngineError("To use geneticengine.grammars.coding.expressions.Var.evaluate_lines, one must specify a Var.feature_indices dictionary.")
+            raise GeneticEngineError("To use geneticengine.grammars.coding.numbers.Var.evaluate_lines, one must specify a Var.feature_indices dictionary.")
         return lambda line: line[self.feature_indices[self.name]]
 
     def __str__(self) -> str:
