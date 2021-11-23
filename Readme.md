@@ -24,6 +24,9 @@ GeneticEngine has been developed at [LASIGE](https://www.lasige.pt), [University
 
 * [Alcides Fonseca](http://alcidesfonseca.com)
 * [Leon Ingelse](https://leoningel.github.io)
+* [Guilherme Espada](https://www.lasige.di.fc.ul.pt/user/732)
+* [Paulo Santos](https://pcanelas.com/)
+* [Pedro Barbosa](https://www.lasige.di.fc.ul.pt/user/661)
 
 
 
