@@ -5,8 +5,9 @@ from sklearn.datasets import load_diabetes
 from sklearn.metrics import mean_squared_error
 
 from geneticengine.algorithms.gp.gp import GP
-from geneticengine.grammars.math import Sqrt, Sin, Tanh, Exp, Log
+from geneticengine.grammars.math import SafeSqrt, Sin, Tanh, Exp, SafeLog
 from geneticengine.grammars.sgp import Plus, Literal, Number, Mul, SafeDiv, Var
+from geneticengine.grammars.math import SafeLog, SafeSqrt, Sin, Tanh, Exp
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.treebased import treebased_representation
 from geneticengine.metahandlers.vars import VarRange
@@ -25,7 +26,7 @@ Var.feature_indices = feature_indices
 
 def preprocess():
     return extract_grammar(
-        [Plus, Mul, Literal, Var, Sqrt, Sin, Tanh, Exp, Log], Number)
+        [Plus, Mul, Literal, Var, SafeSqrt, Sin, Tanh, Exp, SafeLog], Number)
 
 
 def evolve(g, seed):
@@ -46,7 +47,7 @@ def fitness_function(n: Number):
 
     f = n.evaluate_lines()
     y_pred = np.apply_along_axis(f, 1, X)
-    return mean_squared_error(y, y_pred)
+    return mean_squared_error(y, y_pred, squared=False)
 
 
 if __name__ == '__main__':
