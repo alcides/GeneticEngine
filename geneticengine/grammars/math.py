@@ -8,6 +8,7 @@ from typing import Annotated
 from dataclasses import dataclass
 
 import numpy as np
+from math import isnan
 
 from geneticengine.grammars.sgp import Number
 
@@ -26,7 +27,7 @@ class SafeSqrt(Number):
         return lambda line: np.sqrt(self.keep_safe(self.number.evaluate_lines(**kwargs)(line)))
 
     def __str__(self) -> str:
-        return f"np.sqrt{self.number}"
+        return f"np.sqrt({self.number})"
 
 
 @dataclass
@@ -60,12 +61,18 @@ class Tanh(Number):
 @dataclass
 class Exp(Number):
     number: Number
+    
+    def keep_safe(self, x):
+        if isnan(x):
+            x = 0
+        x = max(min(10000,x),0)
+        return x
 
     def evaluate(self, **kwargs):
         return np.exp(self.number.evaluate(**kwargs))
     
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
-        return lambda line: np.exp(self.number.evaluate_lines(**kwargs)(line))
+        return lambda line: np.exp(self.keep_safe(self.number.evaluate_lines(**kwargs)(line)))
 
     def __str__(self) -> str:
         return f"np.exp({self.number})"
