@@ -1,14 +1,9 @@
-from abc import ABC
 from dataclasses import dataclass
-from textwrap import indent
-from typing import Annotated, List, NamedTuple, Protocol
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.treebased import treebased_representation
-from geneticengine.metahandlers.ints import IntRange
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.grammars.coding.control_flow import ForLoop, Code
-from geneticengine.grammars.coding.expressions import XAssign
-from geneticengine.grammars.coding.classes import Expr, Statement
+from geneticengine.grammars.coding.classes import Expr, Statement, XAssign
 
 
 class VarX(Expr):
@@ -55,9 +50,14 @@ def fit(indiv: Code):
 
 fitness_function = lambda x: fit(x)
 
-if __name__ == "__main__":
-    g = extract_grammar(
-        [XPlusConst, XTimesConst, XAssign, ForLoop, Code, Const, VarX], Code)
+
+def preprocess():
+    return extract_grammar(
+        [XPlusConst, XTimesConst, XAssign, ForLoop, Code, Const, VarX], Code
+    )
+
+
+def evolve(g, seed):
     alg = GP(
         g,
         treebased_representation,
@@ -66,7 +66,14 @@ if __name__ == "__main__":
         population_size=40,
         number_of_generations=15,
         minimize=False,
+        seed=seed,
     )
     (b, bf, bp) = alg.evolve(verbose=0)
-    print(bp, b)
-    print("With fitness: {}".format(bf))
+    return b, bf
+
+
+if __name__ == "__main__":
+    g = preprocess()
+    bf, b = evolve(g, 0)
+    print(b)
+    print(f"With fitness: {bf}")

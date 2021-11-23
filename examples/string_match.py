@@ -22,8 +22,13 @@ def fit(individual: String):
 
 fitness_function = lambda x: fit(x)
 
-if __name__ == "__main__":
+
+def preprocess():
     g = extract_grammar([LetterString, Char, Vowel, Consonant], String)
+    return g
+
+
+def evolve(g, seed):
     alg = GP(
         g,
         treebased_representation,
@@ -32,8 +37,12 @@ if __name__ == "__main__":
         probability_crossover=0.75,
         selection_method=("tournament", 2),
         minimize=True,
+        seed=seed,
     )
-    print("Started running...")
     (b, bf, bp) = alg.evolve(verbose=0)
-    print(f"Best individual: {b}")
-    print(f"With fitness: {bf}")
+    return b, bf
+
+
+if __name__ == "__main__":
+    g = preprocess()
+    evolve(g, 1)
