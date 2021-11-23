@@ -64,7 +64,7 @@ You can install the dependencies from the requirements.txt file.
 python -m pip install -r requirements.txt
 ```
 
-The following snippets are taken from `src/vectorialgp_example.py`, where the full running code, with imports, is available.
+The following snippets are taken from `exmaples/vectorialgp_example.py`, where the full running code, with imports, is available.
 
 ### Step 1. Object-Oriented Representation
 
@@ -155,7 +155,7 @@ Scalar -> ScalarVar([0...2])
 Scalar -> Add(Scalar, Scalar)
 Scalar -> Mean(Vectorial)
 Vectorial -> VectorialVar([2...4])
-Vectorial -> CumulativeSum(Vectoral)
+Vectorial -> CumulativeSum(Vectorial)
 ```
 
 which is a typical grammar in GGGP.
