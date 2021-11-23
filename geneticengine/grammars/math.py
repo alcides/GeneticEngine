@@ -1,4 +1,5 @@
 from abc import ABC
+from typing import Callable, Any
 from geneticengine.core.tree import TreeNode
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.vars import VarRange
@@ -12,11 +13,17 @@ from geneticengine.grammars.sgp import Number
 
 
 @dataclass
-class Sqrt(Number):
+class SafeSqrt(Number):
     number: Number
 
+    def keep_safe(self, x):
+        return abs(x)
+
     def evaluate(self, **kwargs):
-        return np.sqrt(self.number.evaluate(**kwargs))
+        return np.sqrt(self.keep_safe(self.number.evaluate(**kwargs)))
+    
+    def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
+        return lambda line: np.sqrt(self.keep_safe(self.number.evaluate_lines(**kwargs)(line)))
 
     def __str__(self) -> str:
         return f"np.sqrt{self.number}"
@@ -28,6 +35,9 @@ class Sin(Number):
 
     def evaluate(self, **kwargs):
         return np.sin(self.number.evaluate(**kwargs))
+    
+    def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
+        return lambda line: np.sin(self.number.evaluate_lines(**kwargs)(line))
 
     def __str__(self) -> str:
         return f"np.sin({self.number})"
@@ -39,6 +49,9 @@ class Tanh(Number):
 
     def evaluate(self, **kwargs):
         return np.tanh(self.number.evaluate(**kwargs))
+    
+    def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
+        return lambda line: np.tanh(self.number.evaluate_lines(**kwargs)(line))
 
     def __str__(self) -> str:
         return f"np.tanh({self.number})"
@@ -50,17 +63,26 @@ class Exp(Number):
 
     def evaluate(self, **kwargs):
         return np.exp(self.number.evaluate(**kwargs))
+    
+    def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
+        return lambda line: np.exp(self.number.evaluate_lines(**kwargs)(line))
 
     def __str__(self) -> str:
         return f"np.exp({self.number})"
 
 
 @dataclass
-class Log(Number):
+class SafeLog(Number):
     number: Number
+    
+    def keep_safe(self, x):
+        return 1 + abs(x)
 
     def evaluate(self, **kwargs):
-        return np.log(self.number.evaluate(**kwargs))
+        return np.log(self.keep_safe(self.number.evaluate(**kwargs)))
+    
+    def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
+        return lambda line: np.log(self.keep_safe(self.number.evaluate_lines(**kwargs)(line)))
 
     def __str__(self) -> str:
         return f"np.log({self.number})"
