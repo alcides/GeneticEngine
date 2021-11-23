@@ -13,8 +13,8 @@ class IntRange(MetaHandlerGenerator):
         self.min = min
         self.max = max
 
-    def generate(self, r: RandomSource, receiver, new_symbol, depth, base_type):
-        receiver(r.randint(self.min, self.max))
+    def generate(self, r: RandomSource, v):
+        return r.randint(self.min, self.max)
 
     def __repr__(self):
         return f"[{self.min}...{self.max}]"

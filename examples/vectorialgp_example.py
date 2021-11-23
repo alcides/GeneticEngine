@@ -77,10 +77,6 @@ class CumulativeSum(Vectorial):
         return "np.cumsum({})".format(self.arr)
 
 
-g = extract_grammar([Value, ScalarVar, VectorialVar, Add, Mean, CumulativeSum], Scalar)
-print("Grammar: {}.".format(repr(g)))
-
-
 def compile(p):
     if isinstance(p, Value):
         return lambda line: p.value
@@ -128,14 +124,25 @@ def fitness_function_alternative(n: Scalar):
     return r
 
 
-alg = GP(
-    g,
-    treebased_representation,
-    fitness_function_alternative,
-    minimize=True,
-    seed=0,
-    population_size=100,
-    number_of_generations=100,
-)
-(b, bf, bp) = alg.evolve(verbose=0)
-print(bf, bp, b)
+def preprocess():
+    return extract_grammar(
+        [Value, ScalarVar, VectorialVar, Add, Mean, CumulativeSum], Scalar)
+
+
+def evolve(g, seed):
+    alg = GP(
+        g,
+        treebased_representation,
+        fitness_function_alternative,
+        minimize=True,
+        seed=seed,
+        population_size=100,
+        number_of_generations=100,
+    )
+    (b, bf, bp) = alg.evolve(verbose=0)
+    return b, bf
+
+
+if __name__ == '__main__':
+    g = preprocess()
+    evolve(g, 0)

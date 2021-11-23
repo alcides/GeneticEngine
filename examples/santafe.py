@@ -8,7 +8,6 @@ from geneticengine.metahandlers.lists import ListSizeBetween
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.hill_climbing import HC
 
-
 map = """.###............................
 ...#............................
 ...#.....................###....
@@ -86,15 +85,12 @@ class Position(Enum):
 
 
 def map_from_string(map_str: str) -> List[List[Position]]:
-    return [
-        [pos == "#" and Position.FOOD or Position.EMPTY for pos in line]
-        for line in map_str.split("\n")
-    ]
+    return [[pos == "#" and Position.FOOD or Position.EMPTY for pos in line]
+            for line in map_str.split("\n")]
 
 
-def next_pos(
-    pos: Tuple[int, int, Direction], map: List[List[Position]]
-) -> Tuple[int, int]:
+def next_pos(pos: Tuple[int, int, Direction],
+             map: List[List[Position]]) -> Tuple[int, int]:
     masks = {
         Direction.EAST: (0, 1),
         Direction.SOUTH: (1, 0),
@@ -106,7 +102,8 @@ def next_pos(
     return (row, col)
 
 
-def food_in_front(pos: Tuple[int, int, Direction], map: List[List[Position]]) -> bool:
+def food_in_front(pos: Tuple[int, int, Direction],
+                  map: List[List[Position]]) -> bool:
     (row, col) = next_pos(pos, map)
     return map[row][col] == Position.FOOD
 
@@ -123,8 +120,8 @@ def simulate(a: Action, map_str: str) -> int:
     while next_instructions:
         current_instruction = next_instructions.pop(0)  # Default is -1
         if isinstance(
-            current_instruction, ActionBlock
-        ):  # ActionBlock contains list of action lists.
+                current_instruction,
+                ActionBlock):  # ActionBlock contains list of action lists.
             for action in reversed(current_instruction.actions):
                 next_instructions = [action] + next_instructions
         elif isinstance(current_instruction, IfFood):
@@ -153,8 +150,29 @@ def simulate(a: Action, map_str: str) -> int:
     return food_consumed
 
 
+def preprocess():
+    return extract_grammar([ActionBlock, IfFood, Move, Right, Left], Action)
+
+
+def evolve(g, seed):
+    alg_gp = GP(
+        g,
+        treebased_representation,
+        lambda p: simulate(p, map),
+        minimize=False,
+        max_depth=40,
+        number_of_generations=50,
+        population_size=150,
+        n_novelties=10,
+        seed=seed,
+        n_elites=10,
+    )
+    (b_gp, bf_gp, bp_gp) = alg_gp.evolve(verbose=0)
+    return b_gp, bf_gp
+
+
 if __name__ == "__main__":
-    g = extract_grammar([ActionBlock, IfFood, Move, Right, Left], Action)
+    g = preprocess()
     print(f"Grammar: {repr(g)}")
     alg_gp = GP(
         g,
@@ -168,8 +186,7 @@ if __name__ == "__main__":
         n_elites=10,
     )
     (b_gp, bf_gp, bp_gp) = alg_gp.evolve(verbose=0)
-    
-    
+
     alg_hc = HC(
         g,
         treebased_representation,

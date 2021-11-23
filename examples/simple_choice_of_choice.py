@@ -41,7 +41,7 @@ if __name__ == "__main__":
         g,
         treebased_representation,
         lambda x: 0,
-        max_depth=5,
+        max_depth=100,
         population_size=1000,
         n_elites=100,
         number_of_generations=100,

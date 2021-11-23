@@ -20,11 +20,9 @@ def get_data(data_file_train,data_file_test,test=False):
     outval = t[1].strip('outval = ')
     inval = ast.literal_eval(inval)
     outval = ast.literal_eval(outval)
-    return inval,outval
+    return inval, outval
 
 
 def import_embedded(FILE_NAME):
     imported = il.import_module(f"embed.{FILE_NAME}")
     return imported
-
-

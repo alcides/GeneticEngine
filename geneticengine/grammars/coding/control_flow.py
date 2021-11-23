@@ -6,7 +6,6 @@ from geneticengine.grammars.coding.classes import Condition, Statement
 from geneticengine.metahandlers.ints import IntRange
 
 
-
 @dataclass
 class Code(Statement):
     stmts: List[Statement]
@@ -17,10 +16,11 @@ class Code(Statement):
         return x
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
-        def ev(line): 
+        def ev(line):
             for stmt in self.stmts:
                 x = stmt.evaluate_lines(**kwargs)(line)
             return x
+
         return lambda line: ev(line)
 
     def __str__(self):
@@ -36,18 +36,18 @@ class ForLoop(Statement):
         for _ in range(self.iterationRange):
             x = self.loopedCode.evaluate(x)
         return x
-    
+
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
-        def ev(line): 
+        def ev(line):
             for _ in range(self.iterationRange):
                 x = self.loopedCode.evaluate_lines(**kwargs)(line)
             return x
+
         return lambda line: ev(line)
 
     def __str__(self):
         return "for i in range({}):\n{}".format(
-            self.iterationRange, indent(str(self.loopedCode), "\t")
-        )
+            self.iterationRange, indent(str(self.loopedCode), "\t"))
 
 
 @dataclass
@@ -60,19 +60,18 @@ class While(Statement):
         for _ in range(self.cond.evaluate(x)):
             x = self.loopedCode.evaluate(x)
         return x
-    
+
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
-        def ev(line): 
+        def ev(line):
             while (self.cond.evaluate_lines(**kwargs)(line)):
                 x = self.loopedCode.evaluate_lines(**kwargs)(line)
             return x
+
         return lambda line: ev(line)
 
     def __str__(self):
-        return "while {}:\n{}".format(
-            self.cond, indent(str(self.loopedCode), "\t")
-        )
-
+        return "while {}:\n{}".format(self.cond,
+                                      indent(str(self.loopedCode), "\t"))
 
 
 @dataclass
@@ -86,18 +85,18 @@ class IfThen(Statement):
         return x
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
-        def ev(line): 
+        def ev(line):
             if self.cond.evaluate_lines(**kwargs)(line):
                 x = self.then.evaluate_lines(**kwargs)(line)
             else:
-                x = 0 # Is this correctly done?
+                x = 0  # Is this correctly done?
             return x
+
         return lambda line: ev(line)
 
     def __str__(self):
-        return "if {}:\n{}".format(
-            self.cond, indent(str(self.then), "\t")
-        )
+        return "if {}:\n{}".format(self.cond, indent(str(self.then), "\t"))
+
 
 @dataclass
 class IfThenElse(Statement):
@@ -113,17 +112,16 @@ class IfThenElse(Statement):
         return x
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
-        def ev(line): 
+        def ev(line):
             if self.cond.evaluate_lines(**kwargs)(line):
                 z = self.then.evaluate_lines(**kwargs)(line)
             else:
                 z = self.elze.evaluate_lines(**kwargs)(line)
             return z
+
         return lambda line: ev(line)
 
     def __str__(self):
-        return "if {}:\n{}\nelse:\n{}".format(
-            self.cond, indent(str(self.then), "\t"), indent(str(self.elze), "\t")
-        )
-
-
+        return "if {}:\n{}\nelse:\n{}".format(self.cond,
+                                              indent(str(self.then), "\t"),
+                                              indent(str(self.elze), "\t"))

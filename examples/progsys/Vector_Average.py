@@ -3,8 +3,8 @@ from utils import get_data, import_embedded
 
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.grammars.coding.classes import Number, Statement, XAssign
-import geneticengine.grammars.coding.numbers as numbers # Max, Min, Abs, Plus, Literal, Mul, SafeDiv, Var
-import geneticengine.grammars.coding.lists as lists # Max, Min, Abs, Plus, Literal, Mul, SafeDiv, Var
+import geneticengine.grammars.coding.numbers as numbers  # Max, Min, Abs, Plus, Literal, Mul, SafeDiv, Var
+import geneticengine.grammars.coding.lists as lists  # Max, Min, Abs, Plus, Literal, Mul, SafeDiv, Var
 from geneticengine.grammars.coding.control_flow import IfThen, IfThenElse, While
 from geneticengine.grammars.coding.conditions import Equals, NotEquals, GreaterOrEqualThan, GreaterThan, LessOrEqualThan, LessThan, Is, IsNot
 from geneticengine.grammars.coding.logical_ops import And, Or
@@ -16,7 +16,7 @@ FILE_NAME = "Vector_Average"
 DATA_FILE_TRAIN = "./examples/progsys/data/{}/Train.txt".format(FILE_NAME)
 DATA_FILE_TEST = "./examples/progsys/data/{}/Test.txt".format(FILE_NAME)
 
-inval,outval = get_data(DATA_FILE_TRAIN,DATA_FILE_TEST)
+inval, outval = get_data(DATA_FILE_TRAIN, DATA_FILE_TEST)
 imported = import_embedded(FILE_NAME)
 
 vars = ["in0"]
@@ -27,19 +27,44 @@ for i, n in enumerate(vars):
 XAssign.__annotations__["value"] = Number
 lists.Var.__annotations__["name"] = Annotated[str, VarRange(vars)]
 lists.Var.feature_indices = variables
-g = extract_grammar([
-    numbers.Plus, numbers.Literal, numbers.Mul, numbers.SafeDiv, numbers.Max, numbers.Min, numbers.Abs, 
-    lists.Length, lists.Literal, lists.Combine, lists.GetElement, lists.Max, lists.Min, 
-    And, Or, lists.Var, Equals, NotEquals, GreaterOrEqualThan, GreaterThan, LessOrEqualThan, LessThan, Is, IsNot, 
-    XAssign, 
-    IfThen, IfThenElse#, While
-    ], Statement)
+g = extract_grammar(
+    [
+        numbers.Plus,
+        numbers.Literal,
+        numbers.Mul,
+        numbers.SafeDiv,
+        numbers.Max,
+        numbers.Min,
+        numbers.Abs,
+        lists.Length,
+        lists.Literal,
+        lists.Combine,
+        lists.GetElement,
+        lists.Max,
+        lists.Min,
+        And,
+        Or,
+        lists.Var,
+        Equals,
+        NotEquals,
+        GreaterOrEqualThan,
+        GreaterThan,
+        LessOrEqualThan,
+        LessThan,
+        Is,
+        IsNot,
+        XAssign,
+        IfThen,
+        IfThenElse  #, While
+    ],
+    Statement)
 print("Grammar: {}.".format(repr(g)))
 
 
 def fitness_function(n: Statement):
-    fitness, error, cases = imported.fitness(inval,outval,n.evaluate_lines())
+    fitness, error, cases = imported.fitness(inval, outval, n.evaluate_lines())
     return fitness
+
 
 alg = GP(
     g,
@@ -51,4 +76,3 @@ alg = GP(
 )
 (b, bf, bp) = alg.evolve(verbose=0)
 print(bf, bp, b)
-
