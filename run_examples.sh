@@ -25,4 +25,4 @@ run_example examples/progsys/Number_IO.py # Works in PonyGE
 run_example examples/progsys/Median.py # Works in PonyGE: PonyGE gives very bad results
 run_example examples/progsys/Smallest.py # Works in PonyGE: PonyGE gives very bad results
 run_example examples/progsys/Sum_of_Squares.py # Works in PonyGE: PonyGE gives very bad results
-
+run_example examples/game_of_life.py
