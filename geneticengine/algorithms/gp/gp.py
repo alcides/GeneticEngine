@@ -61,7 +61,7 @@ class GP(object):
         self.novelty = selection.create_novelties(self.create_individual,
                                                   max_depth=max_depth)
         self.minimize = minimize
-        self.timer_stop_criteria = False
+        self.timer_stop_criteria = timer_stop_criteria
         if hill_climbing:
             self.mutation = mutation.create_hill_climbing_mutation(
                 self.random,
@@ -148,14 +148,23 @@ class GP(object):
             if verbose == 1:
                 self.printFitnesses(population, "G:" + str(gen))
                 print("Best population:{}.".format(population[0]))
-            print(
-                "BEST at",
-                gen + 1,
-                "/",
-                self.number_of_generations,
-                "is",
-                round(self.evaluate(population[0]), 4),
-            )
+            if not self.timer_stop_criteria:
+                print(
+                    "BEST at",
+                    gen + 1,
+                    "/",
+                    self.number_of_generations,
+                    "is",
+                    round(self.evaluate(population[0]), 4),
+                )
+            else:
+                print(
+                    "BEST at",
+                    gen + 1,
+                    "is",
+                    round(self.evaluate(population[0]), 4),
+                )
+
             gen += 1
         self.final_population = population
         return (
