@@ -105,7 +105,7 @@ def learn_predictor_gn(Xtrain, ytrain, Xtest, ytest):
         g,
         treebased_representation,
         evaluation_function=fitness_function, 
-        number_of_generations=50)
+        number_of_generations=5)
 
     (b, bf, bp) = alg.evolve(verbose=0)
 
@@ -121,6 +121,18 @@ if __name__ == "__main__":
 
     (Xtrain, ytrain) = generate_dataset(1000)
     (Xtest, ytest) = generate_dataset(1000)
- 
-    learn_predictor(Xtrain, ytrain, Xtest, ytest)
+    
+    # # Generate dataset for PonyGE2
+    # # Train
+    # _x = Xtrain.reshape(1000, 9)
+    # _y = ytrain.reshape(1000, 1)
+    # np.savetxt("Train.csv", np.concatenate([_x, _y], axis=1), fmt='%i', delimiter=",")
+
+    # # Test
+    # _x = Xtest.reshape(1000, 9)
+    # _y = ytest.reshape(1000, 1)
+    # np.savetxt("Test.csv", np.concatenate([_x, _y], axis=1), fmt='%i', delimiter=",")
+    
+    #learn_predictor(Xtrain, ytrain, Xtest, ytest)
     learn_predictor_gn(Xtrain, ytrain, Xtest, ytest)
+
