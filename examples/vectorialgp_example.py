@@ -126,11 +126,10 @@ def fitness_function_alternative(n: Scalar):
 
 def preprocess():
     return extract_grammar(
-        [Value, ScalarVar, VectorialVar, Add, Mean, CumulativeSum], Scalar
-    )
+        [Value, ScalarVar, VectorialVar, Add, Mean, CumulativeSum], Scalar)
 
 
-def evolve(g, seed):
+def evolve(g, seed, mode):
     alg = GP(
         g,
         treebased_representation,
@@ -139,6 +138,7 @@ def evolve(g, seed):
         seed=seed,
         population_size=100,
         number_of_generations=100,
+        timer_stop_criteria=mode,
     )
     (b, bf, bp) = alg.evolve(verbose=0)
     return b, bf
@@ -146,4 +146,4 @@ def evolve(g, seed):
 
 if __name__ == "__main__":
     g = preprocess()
-    evolve(g, 0)
+    evolve(g, 0, False)

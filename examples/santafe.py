@@ -154,7 +154,7 @@ def preprocess():
     return extract_grammar([ActionBlock, IfFood, Move, Right, Left], Action)
 
 
-def evolve(g, seed):
+def evolve(g, seed, mode):
     alg_gp = GP(
         g,
         treebased_representation,
@@ -166,6 +166,7 @@ def evolve(g, seed):
         n_novelties=10,
         seed=seed,
         n_elites=10,
+        timer_stop_criteria=mode,
     )
     (b_gp, bf_gp, bp_gp) = alg_gp.evolve(verbose=0)
     return b_gp, bf_gp

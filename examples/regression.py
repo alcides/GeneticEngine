@@ -12,28 +12,28 @@ from geneticengine.core.representations.treebased import treebased_representatio
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics.metrics import rmse
 
-
 FILE_NAME = "Vladislavleva4"
 DATA_FILE_TRAIN = "./examples/data/{}/Train.txt".format(FILE_NAME)
 DATA_FILE_TEST = "./examples/data/{}/Test.txt".format(FILE_NAME)
 
-bunch = pd.read_csv(DATA_FILE_TRAIN,delimiter='\t')
+bunch = pd.read_csv(DATA_FILE_TRAIN, delimiter='\t')
 target = bunch.response
-data = bunch.drop(["response"],axis=1)
+data = bunch.drop(["response"], axis=1)
 
 feature_names = list(data.columns.values)
 feature_indices = {}
 for i, n in enumerate(feature_names):
     feature_indices[n] = i
 
-
 # Prepare Grammar
 Var.__annotations__["name"] = Annotated[str, VarRange(feature_names)]
 Var.feature_indices = feature_indices
 
+
 def preprocess():
     return extract_grammar(
-        [Plus, Mul, SafeDiv, Literal, Var, SafeSqrt, Exp, Sin, Tanh, SafeLog], Number)
+        [Plus, Mul, SafeDiv, Literal, Var, SafeSqrt, Exp, Sin, Tanh, SafeLog],
+        Number)
 
 
 def fitness_function(n: Number):
@@ -44,13 +44,14 @@ def fitness_function(n: Number):
     y_pred = np.apply_along_axis(f, 1, X)
     return rmse(y_pred, y)
 
-def evolve(g, seed):
+
+def evolve(g, seed, mode):
     alg = GP(
         g,
         treebased_representation,
         fitness_function,
         minimize=False,
-        selection_method=("tournament",2),
+        selection_method=("tournament", 2),
         max_depth=17,
         population_size=500,
         # max_init_depth=10,
@@ -59,12 +60,14 @@ def evolve(g, seed):
         probability_crossover=0.75,
         n_elites=5,
         seed=seed,
+        timer_stop_criteria=mode,
     )
     (b, bf, bp) = alg.evolve(verbose=0)
     return b, bf
 
+
 if __name__ == '__main__':
     g = preprocess()
     print("Grammar: {}.".format(repr(g)))
-    b, bf = evolve(g, 0)
+    b, bf = evolve(g, 0, False)
     print(b, bf)
