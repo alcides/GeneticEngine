@@ -195,14 +195,15 @@ Non-surprisingly, you can see that the best fitness in each generation was also 
 Writing a proper fitness functions is often a challenge in GP. Because we have a tabular dataset, we just have to apply the program to the input data, and return the prediction error:
 
 ```python
-def compile(p):
-    return lambda line: 0
+def compile(p, line):
+    pass # Not implemented yet
 
-def fitness_function(n):
-    regressor = compile(n)
+def fitness_function(n: Scalar):
+    regressor = lambda l: compile(n, l)
     y_pred = [regressor(line) for line in dataset]
     y = [line[-1] for line in dataset]
-    return mean_squared_error(y, y_pred)
+    r = mean_squared_error(y, y_pred)
+    return r
 ```
 
 Starting by the fitness_function, it takes a program that it will compile into a regressor. That regression will take a line of the dataset and predict the value (we are now predicting 0 for each instance). We will compute the mean squared error (from `sklearn.metrics`) between the prediction of each line and the real value in the last column.
@@ -212,17 +213,17 @@ If we run again, we will now get a constant fitness value of 3.5, which makes se
 Now let us write a proper `compile` function:
 
 ```python
-def compile(p):
+def compile(p, line):
     if isinstance(p, Value):
-        return lambda line: p.value
+        return p.value
     elif isinstance(p, ScalarVar) or isinstance(p, VectorialVar):
-        return lambda line: line[p.index]
+        return line[p.index]
     elif isinstance(p, Add):
-        return lambda line: compile(p.left)(line) + compile(p.right)(line)
+        return compile(p.left, line) + compile(p.right, line)
     elif isinstance(p, Mean):
-        return lambda line: np.mean(compile(p.arr)(line))
+        return np.mean(compile(p.arr, line))
     elif isinstance(p, CumulativeSum):
-        return lambda line: np.cumsum(compile(p.arr)(line))
+        return np.cumsum(compile(p.arr, line))
     else:
         raise NotImplementedError(str(p))
 ```

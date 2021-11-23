@@ -77,23 +77,23 @@ class CumulativeSum(Vectorial):
         return "np.cumsum({})".format(self.arr)
 
 
-def compile(p):
+def compile(p, line):
     if isinstance(p, Value):
-        return lambda line: p.value
+        return p.value
     elif isinstance(p, ScalarVar) or isinstance(p, VectorialVar):
-        return lambda line: line[p.index]
+        return line[p.index]
     elif isinstance(p, Add):
-        return lambda line: compile(p.left)(line) + compile(p.right)(line)
+        return compile(p.left, line) + compile(p.right, line)
     elif isinstance(p, Mean):
-        return lambda line: np.mean(compile(p.arr)(line))
+        return np.mean(compile(p.arr, line))
     elif isinstance(p, CumulativeSum):
-        return lambda line: np.cumsum(compile(p.arr)(line))
+        return np.cumsum(compile(p.arr, line))
     else:
         raise NotImplementedError(str(p))
 
 
 def fitness_function(n: Scalar):
-    regressor = compile(n)
+    regressor = lambda l: compile(n, l)
     y_pred = [regressor(line) for line in dataset]
     y = [line[-1] for line in dataset]
     r = mean_squared_error(y, y_pred)
@@ -126,14 +126,15 @@ def fitness_function_alternative(n: Scalar):
 
 def preprocess():
     return extract_grammar(
-        [Value, ScalarVar, VectorialVar, Add, Mean, CumulativeSum], Scalar)
+        [Value, ScalarVar, VectorialVar, Add, Mean, CumulativeSum], Scalar
+    )
 
 
 def evolve(g, seed):
     alg = GP(
         g,
         treebased_representation,
-        fitness_function_alternative,
+        fitness_function,
         minimize=True,
         seed=seed,
         population_size=100,
@@ -143,6 +144,6 @@ def evolve(g, seed):
     return b, bf
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     g = preprocess()
     evolve(g, 0)
