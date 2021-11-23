@@ -3,13 +3,18 @@ import ast
 import importlib as il
 
 
-def get_data(data_file_train, data_file_test):
+
+
+def get_data(data_file_train,data_file_test,test=False):
     with open(data_file_train, 'r') as train_file, \
             open(data_file_test, 'r') as test_file:
         train_data = train_file.read()
         test_data = test_file.read()
 
-    t = train_data.split('\n')
+    if test:
+        t = test_data.split('\n')
+    else:
+        t = train_data.split('\n')
 
     inval = t[0].strip('inval = ')
     outval = t[1].strip('outval = ')

@@ -143,7 +143,7 @@ class GP(object):
                 "/",
                 self.number_of_generations,
                 "is",
-                round(self.evaluate(population[0]), 2),
+                round(self.evaluate(population[0]), 4),
             )
         self.final_population = population
         return (
@@ -162,5 +162,5 @@ class GP(object):
     def printFitnesses(self, pop, prefix):
         print(prefix)
         for x in pop:
-            print(round(self.evaluate(x), 0), str(x))
+            print(round(self.evaluate(x), 2), str(x))
         print("---")
