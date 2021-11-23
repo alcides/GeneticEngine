@@ -62,17 +62,11 @@ class Tanh(Number):
 class Exp(Number):
     number: Number
     
-    def keep_safe(self, x):
-        if isnan(x):
-            x = 0
-        x = max(min(10000,x),0)
-        return x
-
     def evaluate(self, **kwargs):
         return np.exp(self.number.evaluate(**kwargs))
     
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
-        return lambda line: np.exp(self.keep_safe(self.number.evaluate_lines(**kwargs)(line)))
+        return lambda line: np.exp(self.number.evaluate_lines(**kwargs)(line))
 
     def __str__(self) -> str:
         return f"np.exp({self.number})"
