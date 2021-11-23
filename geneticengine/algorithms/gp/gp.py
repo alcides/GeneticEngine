@@ -1,4 +1,5 @@
 from typing import Any, Callable, Generic, List, Optional, Protocol, Tuple, TypeVar
+import time
 from copy import deepcopy
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
@@ -24,26 +25,30 @@ class GP(object):
     final_population: List[Individual]
 
     def __init__(
-        self,
-        g: Grammar,
-        representation: Representation,
-        evaluation_function: Callable[[Any], float],
-        randomSource: Callable[[int], RandomSource] = RandomSource,
-        population_size: int = 200,
-        n_elites: int = 5,  # Shouldn't this be a percentage of population size?
-        n_novelties: int = 10,
-        number_of_generations: int = 100,
-        max_depth: int = 15,
-        selection_method: Tuple[str, int] = ("tournament", 5),
-        # -----
-        # As given in A Field Guide to GP, p.17, by Poli and Mcphee
-        probability_mutation: float = 0.01,
-        probability_crossover: float = 0.9,
-        # -----
-        hill_climbing: bool = False,
-        minimize: bool = False,
-        force_individual: Any = None,
-        seed: int = 123,
+            self,
+            g: Grammar,
+            representation: Representation,
+            evaluation_function: Callable[[Any], float],
+            randomSource: Callable[[int], RandomSource] = RandomSource,
+            population_size: int = 200,
+            n_elites:
+        int = 5,  # Shouldn't this be a percentage of population size?
+            n_novelties: int = 10,
+            number_of_generations: int = 100,
+            max_depth: int = 15,
+            selection_method: Tuple[str, int] = ("tournament", 5),
+            # -----
+            # As given in A Field Guide to GP, p.17, by Poli and Mcphee
+            probability_mutation: float = 0.01,
+            probability_crossover: float = 0.9,
+            # -----
+            hill_climbing: bool = False,
+            minimize: bool = False,
+            force_individual: Any = None,
+            seed: int = 123,
+            # -----
+            timer_stop_criteria:
+        bool = False,  # TODO: This should later be generic
     ):
         # Add check to input numbers (n_elitism, n_novelties, population_size)
         self.grammar = g
@@ -56,6 +61,7 @@ class GP(object):
         self.novelty = selection.create_novelties(self.create_individual,
                                                   max_depth=max_depth)
         self.minimize = minimize
+        self.timer_stop_criteria = False
         if hill_climbing:
             self.mutation = mutation.create_hill_climbing_mutation(
                 self.random,
@@ -113,7 +119,12 @@ class GP(object):
             )
         population = sorted(population, key=self.keyfitness())
 
-        for gen in range(self.number_of_generations):
+        gen = 0
+        start = time.time()
+
+        while (not self.timer_stop_criteria
+               and gen < self.number_of_generations) or (
+                   self.timer_stop_criteria and (time.time() - start) < 60):
             npop = self.novelty(self.n_novelties)
             npop.extend(self.elitism(population, self.keyfitness()))
             spotsLeft = self.population_size - len(npop)
@@ -145,6 +156,7 @@ class GP(object):
                 "is",
                 round(self.evaluate(population[0]), 4),
             )
+            gen += 1
         self.final_population = population
         return (
             population[0],
