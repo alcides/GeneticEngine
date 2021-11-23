@@ -3,9 +3,27 @@ from utils import get_data, import_embedded
 
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.grammars.coding.classes import Number, Statement, XAssign
-from geneticengine.grammars.coding.numbers import Max, Min, Abs, Plus, Literal, Mul, SafeDiv, Var
+from geneticengine.grammars.coding.numbers import (
+    Max,
+    Min,
+    Abs,
+    Plus,
+    Literal,
+    Mul,
+    SafeDiv,
+    Var,
+)
 from geneticengine.grammars.coding.control_flow import IfThen, IfThenElse, While
-from geneticengine.grammars.coding.conditions import Equals, NotEquals, GreaterOrEqualThan, GreaterThan, LessOrEqualThan, LessThan, Is, IsNot
+from geneticengine.grammars.coding.conditions import (
+    Equals,
+    NotEquals,
+    GreaterOrEqualThan,
+    GreaterThan,
+    LessOrEqualThan,
+    LessThan,
+    Is,
+    IsNot,
+)
 from geneticengine.grammars.coding.logical_ops import And, Or
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.algorithms.gp.gp import GP
@@ -56,9 +74,10 @@ def preprocess():
             IsNot,
             XAssign,
             IfThen,
-            IfThenElse  #, While
+            IfThenElse,  # , While
         ],
-        Statement)
+        Statement,
+    )
 
 
 def evolve(g, seed):
@@ -74,7 +93,7 @@ def evolve(g, seed):
     return b, bf
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     g = preprocess()
     b, bf = evolve(g, 0)
     print(g)

@@ -61,9 +61,9 @@ def evolve(g, seed):
         g,
         treebased_representation,
         fitness_function,
-        max_depth=10,
-        population_size=40,
-        number_of_generations=15,
+        max_depth=17,
+        population_size=500,
+        number_of_generations=50,
         minimize=False,
         seed=seed,
     )

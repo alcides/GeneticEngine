@@ -13,13 +13,16 @@ class Max(Number):
     right: Number
 
     def evaluate(self, **kwargs):
-        return max(self.left.evaluate(**kwargs),self.right.evaluate(**kwargs))
-    
+        return max(self.left.evaluate(**kwargs), self.right.evaluate(**kwargs))
+
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
-        return lambda line: max(self.left.evaluate_lines(**kwargs)(line),self.right.evaluate_lines(**kwargs)(line))
+        return lambda line: max(
+            self.left.evaluate_lines(**kwargs)(line),
+            self.right.evaluate_lines(**kwargs)(line))
 
     def __str__(self) -> str:
         return f"max({self.left},{self.right})"
+
 
 @dataclass
 class Min(Number):
@@ -27,13 +30,16 @@ class Min(Number):
     right: Number
 
     def evaluate(self, **kwargs):
-        return min(self.left.evaluate(**kwargs),self.right.evaluate(**kwargs))
-    
+        return min(self.left.evaluate(**kwargs), self.right.evaluate(**kwargs))
+
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
-        return lambda line: min(self.left.evaluate_lines(**kwargs)(line),self.right.evaluate_lines(**kwargs)(line))
+        return lambda line: min(
+            self.left.evaluate_lines(**kwargs)(line),
+            self.right.evaluate_lines(**kwargs)(line))
 
     def __str__(self) -> str:
         return f"min({self.left},{self.right})"
+
 
 @dataclass
 class Abs(Number):
@@ -41,12 +47,13 @@ class Abs(Number):
 
     def evaluate(self, **kwargs):
         return abs(self.value.evaluate(**kwargs))
-    
+
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
         return lambda line: abs(self.value.evaluate_lines(**kwargs)(line))
 
     def __str__(self) -> str:
         return f"abs({self.value})"
+
 
 @dataclass
 class Plus(Number):
@@ -55,9 +62,10 @@ class Plus(Number):
 
     def evaluate(self, **kwargs):
         return self.left.evaluate(**kwargs) + self.right.evaluate(**kwargs)
-    
+
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
-        return lambda line: self.left.evaluate_lines(**kwargs)(line) + self.right.evaluate_lines(**kwargs)(line)
+        return lambda line: self.left.evaluate_lines(**kwargs)(
+            line) + self.right.evaluate_lines(**kwargs)(line)
 
     def __str__(self) -> str:
         return f"({self.left} + {self.right})"
@@ -70,9 +78,10 @@ class Mul(Number):
 
     def evaluate(self, **kwargs):
         return self.left.evaluate(**kwargs) * self.right.evaluate(**kwargs)
-    
+
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
-        return lambda line: self.left.evaluate_lines(**kwargs)(line) * self.right.evaluate_lines(**kwargs)(line)
+        return lambda line: self.left.evaluate_lines(**kwargs)(
+            line) * self.right.evaluate_lines(**kwargs)(line)
 
     def __str__(self) -> str:
         return f"({self.left} * {self.right})"
@@ -92,10 +101,11 @@ class SafeDiv(Number):
         d1 = self.left.evaluate(**kwargs)
         d2 = self.right.evaluate(**kwargs)
         return d1 / self.keep_safe(d2)
-    
+
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
         d1 = lambda line: self.left.evaluate_lines(**kwargs)(line)
-        d2 = lambda line: self.keep_safe(self.right.evaluate_lines(**kwargs)(line))
+        d2 = lambda line: self.keep_safe(
+            self.right.evaluate_lines(**kwargs)(line))
         return lambda line: d1(line) / d2(line)
 
     def __str__(self) -> str:
@@ -103,12 +113,17 @@ class SafeDiv(Number):
 
 
 @dataclass
+<<<<<<< HEAD:geneticengine/grammars/coding/expressions.py
+class Literal(Expr):
+    val: Annotated[int, IntRange(0, 9)]
+=======
 class Literal(Number):
     val: Annotated[int, IntRange(0,9)]
+>>>>>>> main:geneticengine/grammars/coding/numbers.py
 
     def evaluate(self, **kwargs):
         return self.val
-    
+
     def evaluate_lines(self, **kwargs):
         return lambda _: self.val
 
@@ -122,15 +137,42 @@ class Var(Number):
 
     def evaluate(self, **kwargs):
         return kwargs[self.name]
-    
+
     def evaluate_lines(self, **kwargs):
+<<<<<<< HEAD:geneticengine/grammars/coding/expressions.py
+        if not hasattr(self, "feature_indices"):
+            raise GeneticEngineError(
+                "To use geneticengine.grammars.coding.expressions.Var.evaluate_lines, one must specify a Var.feature_indices dictionary."
+            )
+=======
         if not hasattr(self,"feature_indices"):
             raise GeneticEngineError("To use geneticengine.grammars.coding.numbers.Var.evaluate_lines, one must specify a Var.feature_indices dictionary.")
+>>>>>>> main:geneticengine/grammars/coding/numbers.py
         return lambda line: line[self.feature_indices[self.name]]
 
     def __str__(self) -> str:
         return self.name
+<<<<<<< HEAD:geneticengine/grammars/coding/expressions.py
+
+
+@dataclass
+class XAssign(Statement):
+    value: Expr
+
+    def evaluate(self, x: float = 1) -> float:
+        return self.value.evaluate(x)
+
+    def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
+        return lambda line: self.value.evaluate_lines(**kwargs)(line)
+
+    def __str__(self):
+        return "x = {}".format(self.value)
+
+
+all_operators = [Max, Min, Abs, Plus, Mul, SafeDiv, Literal, Var, XAssign]
+=======
     
     
 
 all_operators = [Max,Min,Abs,Plus,Mul,SafeDiv,Literal,Var]
+>>>>>>> main:geneticengine/grammars/coding/numbers.py

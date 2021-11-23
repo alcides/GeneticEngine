@@ -16,9 +16,8 @@ class GP(object):
     evaluation_function: Callable[[Any], float]
     random: RandomSource
     population_size: int
-    elitism: Callable[
-        [List[Individual], Callable[[Individual], float]], List[Individual]
-    ]
+    elitism: Callable[[List[Individual], Callable[[Individual], float]],
+                      List[Individual]]
     max_depth: int
     novelty: Callable[[int], List[Individual]]
     minimize: bool
@@ -54,9 +53,8 @@ class GP(object):
         self.population_size = population_size
         self.elitism = selection.create_elitism(n_elites)
         self.max_depth = max_depth
-        self.novelty = selection.create_novelties(
-            self.create_individual, max_depth=max_depth
-        )
+        self.novelty = selection.create_novelties(self.create_individual,
+                                                  max_depth=max_depth)
         self.minimize = minimize
         if hill_climbing:
             self.mutation = mutation.create_hill_climbing_mutation(
@@ -68,20 +66,19 @@ class GP(object):
                 5,
             )
         else:
-            self.mutation = mutation.create_mutation(
-                self.random, self.representation, self.grammar, max_depth
-            )
-        self.cross_over = cross_over.create_cross_over(
-            self.random, self.representation, self.grammar, max_depth
-        )
+            self.mutation = mutation.create_mutation(self.random,
+                                                     self.representation,
+                                                     self.grammar, max_depth)
+        self.cross_over = cross_over.create_cross_over(self.random,
+                                                       self.representation,
+                                                       self.grammar, max_depth)
         self.n_novelties = n_novelties
         self.number_of_generations = number_of_generations
         self.probability_mutation = probability_mutation
         self.probability_crossover = probability_crossover
         if selection_method[0] == "tournament":
             self.selection = selection.create_tournament(
-                selection_method[1], self.minimize
-            )
+                selection_method[1], self.minimize)
         else:
             self.selection = lambda r, ls, n: [x for x in ls[:n]]
         self.force_individual = force_individual
@@ -89,16 +86,14 @@ class GP(object):
     def create_individual(self, max_depth):
         return Individual(
             genotype=self.representation.create_individual(
-                self.random, self.grammar, max_depth
-            ),
+                self.random, self.grammar, max_depth),
             fitness=None,
         )
 
     def evaluate(self, individual: Individual) -> float:
         if individual.fitness is None:
             phenotype = self.representation.genotype_to_phenotype(
-                self.grammar, individual.genotype
-            )
+                self.grammar, individual.genotype)
             individual.fitness = self.evaluation_function(phenotype)
         return individual.fitness
 
@@ -125,11 +120,14 @@ class GP(object):
             for _ in range(spotsLeft // 2):
                 candidates = self.selection(self.random, population, 2)
                 (p1, p2) = candidates[0], candidates[1]
-                if self.random.randint(0, 100) < self.probability_crossover * 100:
+                if self.random.randint(0,
+                                       100) < self.probability_crossover * 100:
                     (p1, p2) = self.cross_over(p1, p2)
-                if self.random.randint(0, 100) < self.probability_mutation * 100:
+                if self.random.randint(0,
+                                       100) < self.probability_mutation * 100:
                     p1 = self.mutation(p1)
-                if self.random.randint(0, 100) < self.probability_mutation * 100:
+                if self.random.randint(0,
+                                       100) < self.probability_mutation * 100:
                     p2 = self.mutation(p2)
                 npop.append(p1)
                 npop.append(p2)
@@ -145,24 +143,24 @@ class GP(object):
                 "/",
                 self.number_of_generations,
                 "is",
-                round(self.evaluate(population[0]), 2),
+                round(self.evaluate(population[0]), 4),
             )
         self.final_population = population
         return (
             population[0],
             self.evaluate(population[0]),
-            self.representation.genotype_to_phenotype(
-                self.grammar, population[0].genotype
-            ),
+            self.representation.genotype_to_phenotype(self.grammar,
+                                                      population[0].genotype),
         )
 
     def init_population(self):
         return [
-            self.create_individual(self.max_depth) for _ in range(self.population_size)
+            self.create_individual(self.max_depth)
+            for _ in range(self.population_size)
         ]
 
     def printFitnesses(self, pop, prefix):
         print(prefix)
         for x in pop:
-            print(round(self.evaluate(x), 0), str(x))
+            print(round(self.evaluate(x), 2), str(x))
         print("---")

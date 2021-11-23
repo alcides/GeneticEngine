@@ -39,8 +39,13 @@ class NotEquals(Condition):
 
 @dataclass
 class GreaterThan(Condition):
+<<<<<<< HEAD
+    left: Expr
+    right: Expr
+=======
     left: Number
     right: Number
+>>>>>>> main
 
     def evaluate(self, **kwargs) -> bool:
         return self.left.evaluate(**kwargs) > self.right.evaluate(**kwargs)
@@ -55,8 +60,13 @@ class GreaterThan(Condition):
 
 @dataclass
 class GreaterOrEqualThan(Condition):
+<<<<<<< HEAD
+    left: Expr
+    right: Expr
+=======
     left: Number
     right: Number
+>>>>>>> main
 
     def evaluate(self, **kwargs) -> bool:
         return self.left.evaluate(**kwargs) >= self.right.evaluate(**kwargs)
@@ -71,8 +81,13 @@ class GreaterOrEqualThan(Condition):
 
 @dataclass
 class LessThan(Condition):
+<<<<<<< HEAD
+    left: Expr
+    right: Expr
+=======
     left: Number
     right: Number
+>>>>>>> main
 
     def evaluate(self, **kwargs) -> bool:
         return self.left.evaluate(**kwargs) < self.right.evaluate(**kwargs)
@@ -87,8 +102,13 @@ class LessThan(Condition):
 
 @dataclass
 class LessOrEqualThan(Condition):
+<<<<<<< HEAD
+    left: Expr
+    right: Expr
+=======
     left: Number
     right: Number
+>>>>>>> main
 
     def evaluate(self, **kwargs) -> bool:
         return self.left.evaluate(**kwargs) <= self.right.evaluate(**kwargs)
@@ -103,8 +123,13 @@ class LessOrEqualThan(Condition):
 
 @dataclass
 class Is(Condition):
+<<<<<<< HEAD
+    left: Expr
+    right: Expr
+=======
     left: Number
     right: Number
+>>>>>>> main
 
     def evaluate(self, **kwargs) -> bool:
         return self.left.evaluate(**kwargs) is self.right.evaluate(**kwargs)
@@ -119,8 +144,13 @@ class Is(Condition):
 
 @dataclass
 class IsNot(Condition):
+<<<<<<< HEAD
+    left: Expr
+    right: Expr
+=======
     left: Number
     right: Number
+>>>>>>> main
 
     def evaluate(self, **kwargs) -> bool:
         return self.left.evaluate(**kwargs) is not self.right.evaluate(

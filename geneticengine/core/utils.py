@@ -59,7 +59,8 @@ def is_abstract(t: type) -> bool:
 def is_terminal(t: type, l: Set[type]) -> bool:
     """Returns whether a node is a terminal or not, based on the list of non terminals in the grammar"""
     if is_annotated(t):
-        return all([is_terminal(inner, l) for inner in get_generic_parameters(t)])
+        return all(
+            [is_terminal(inner, l) for inner in get_generic_parameters(t)])
     if not get_arguments(t):
         return True
     return t not in l
