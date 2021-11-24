@@ -113,13 +113,8 @@ class SafeDiv(Number):
 
 
 @dataclass
-<<<<<<< HEAD:geneticengine/grammars/coding/expressions.py
 class Literal(Expr):
     val: Annotated[int, IntRange(0, 9)]
-=======
-class Literal(Number):
-    val: Annotated[int, IntRange(0,9)]
->>>>>>> main:geneticengine/grammars/coding/numbers.py
 
     def evaluate(self, **kwargs):
         return self.val
@@ -139,20 +134,14 @@ class Var(Number):
         return kwargs[self.name]
 
     def evaluate_lines(self, **kwargs):
-<<<<<<< HEAD:geneticengine/grammars/coding/expressions.py
         if not hasattr(self, "feature_indices"):
             raise GeneticEngineError(
                 "To use geneticengine.grammars.coding.expressions.Var.evaluate_lines, one must specify a Var.feature_indices dictionary."
             )
-=======
-        if not hasattr(self,"feature_indices"):
-            raise GeneticEngineError("To use geneticengine.grammars.coding.numbers.Var.evaluate_lines, one must specify a Var.feature_indices dictionary.")
->>>>>>> main:geneticengine/grammars/coding/numbers.py
         return lambda line: line[self.feature_indices[self.name]]
 
     def __str__(self) -> str:
         return self.name
-<<<<<<< HEAD:geneticengine/grammars/coding/expressions.py
 
 
 @dataclass
@@ -170,9 +159,3 @@ class XAssign(Statement):
 
 
 all_operators = [Max, Min, Abs, Plus, Mul, SafeDiv, Literal, Var, XAssign]
-=======
-    
-    
-
-all_operators = [Max,Min,Abs,Plus,Mul,SafeDiv,Literal,Var]
->>>>>>> main:geneticengine/grammars/coding/numbers.py
