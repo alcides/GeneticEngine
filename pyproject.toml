@@ -1,6 +1,19 @@
-[build-system]
-requires = [
-    "setuptools>=42",
-    "wheel"
+[project]
+name = "GeneticEngine"
+version = "0.0.7"
+description = "Genetic Programming with Types and Grammars"
+authors = [
+    "Alcides Fonseca <me@alcidesfonseca.com>"
 ]
-build-backend = "setuptools.build_meta"
+license = "MIT"
+readme = "README.md"
+python = "^3.9"
+homepage = "https://github.com/alcides/GeneticEngine/"
+repository = "https://github.com/alcides/GeneticEngine/"
+documentation = "https://github.com/alcides/GeneticEngine/"
+
+[build-system]
+build-backend = 'setuptools.build_meta'
+requires = [
+    'setuptools >= 43.0.0',
+]
