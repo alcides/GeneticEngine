@@ -28,7 +28,7 @@ def preprocess():
     return g
 
 
-def evolve(g, seed):
+def evolve(g, seed, mode):
     alg = GP(
         g,
         treebased_representation,
@@ -38,6 +38,7 @@ def evolve(g, seed):
         selection_method=("tournament", 2),
         minimize=True,
         seed=seed,
+        timer_stop_criteria=mode,
     )
     (b, bf, bp) = alg.evolve(verbose=0)
     return b, bf
@@ -45,4 +46,4 @@ def evolve(g, seed):
 
 if __name__ == "__main__":
     g = preprocess()
-    evolve(g, 1)
+    evolve(g, 1, True)

@@ -1,5 +1,5 @@
 from typing import Annotated, Any, Callable
-from utils import get_data, import_embedded
+from examples.progsys.utils import get_data, import_embedded
 
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.grammars.coding.numbers import (
@@ -39,7 +39,7 @@ def preprocess():
     return extract_grammar([Plus, Mul, SafeDiv, Literal, Var], Number)
 
 
-def evolve(g, seed):
+def evolve(g, seed, mode):
     alg = GP(
         g,
         treebased_representation,
@@ -47,6 +47,7 @@ def evolve(g, seed):
         number_of_generations=10,
         minimize=True,
         seed=seed,
+        timer_stop_criteria=mode,
     )
     (b, bf, bp) = alg.evolve(verbose=0)
     return b, bf

@@ -56,7 +56,7 @@ def preprocess():
         [XPlusConst, XTimesConst, XAssign, ForLoop, Code, Const, VarX], Code)
 
 
-def evolve(g, seed):
+def evolve(g, seed, mode):
     alg = GP(
         g,
         treebased_representation,
@@ -66,6 +66,7 @@ def evolve(g, seed):
         number_of_generations=50,
         minimize=False,
         seed=seed,
+        timer_stop_criteria=mode,
     )
     (b, bf, bp) = alg.evolve(verbose=0)
     return b, bf
@@ -73,6 +74,6 @@ def evolve(g, seed):
 
 if __name__ == "__main__":
     g = preprocess()
-    bf, b = evolve(g, 0)
+    bf, b = evolve(g, 0, False)
     print(b)
     print(f"With fitness: {bf}")

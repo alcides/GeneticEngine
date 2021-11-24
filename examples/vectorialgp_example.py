@@ -3134,7 +3134,7 @@ def preprocess():
     )
 
 
-def evolve(g, seed):
+def evolve(g, seed, mode):
     alg = GP(
         g,
         treebased_representation,
@@ -3144,6 +3144,7 @@ def evolve(g, seed):
         population_size=100,
         number_of_generations=100,
         max_depth=20,
+        timer_stop_criteria=mode,
     )
     (b, bf, bp) = alg.evolve(verbose=0)
     return b, bf
@@ -3151,4 +3152,4 @@ def evolve(g, seed):
 
 if __name__ == "__main__":
     g = preprocess()
-    evolve(g, 0)
+    evolve(g, 0, False)

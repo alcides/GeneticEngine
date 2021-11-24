@@ -15,8 +15,9 @@ def fit(individual: RE):
 
 fitness_function = lambda x: fit(x)
 
-if __name__ == "__main__":
-    g = extract_grammar([
+
+def preprocess():
+    return extract_grammar([
         ElementaryREParens,
         ElementaryREWD,
         ElementaryRERE,
@@ -34,6 +35,9 @@ if __name__ == "__main__":
         MatchTimesSingleRecur,
         MatchTimesDoubleRecur,
     ], RE)
+
+
+def evolve(g, seed, mode):
     alg = GP(
         g,
         treebased_representation,
@@ -45,8 +49,14 @@ if __name__ == "__main__":
         probability_crossover=0.5,
         selection_method=("tournament", 2),
         minimize=True,
+        seed=seed,
+        timer_stop_criteria=mode,
     )
-    print("Started running...")
     (b, bf, bp) = alg.evolve(verbose=1)
+
+
+if __name__ == "__main__":
+    g = preprocess()
+    b, bf = evolve(g, 0, False)
     print(f"Best individual: {b}")
     print(f"With fitness: {bf}")
