@@ -115,7 +115,7 @@ def PI_Grow(
         return valid_productions
 
     while prodqueue:
-        print(nRecs[0])
+        # print(nRecs[0])
         next_type, next_finalizer, depth = r.pop_random(prodqueue)
         if next_type in g.recursive_prods:
             nRecs[0] -= 1
