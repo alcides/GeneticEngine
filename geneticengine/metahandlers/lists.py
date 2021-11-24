@@ -16,7 +16,7 @@ class ListSizeBetween(MetaHandlerGenerator):
 
     def generate(self, r: RandomSource, receiver, new_symbol, depth, base_type):
         size = r.randint(self.min, self.max)
-        fins = build_finalizers(lambda *x: receiver(x), size)
+        fins = build_finalizers(lambda *x: list(receiver(x)), size)
         for i in range(size):
             new_symbol(base_type, fins[i], depth - 1)
 
