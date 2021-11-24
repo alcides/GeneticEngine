@@ -80,14 +80,18 @@ def preprocess():
     )
 
 
-def evolve(g, seed):
+def evolve(g, seed, mode):
     alg = GP(
         g,
         treebased_representation,
         fitness_function,
-        number_of_generations=10,
+        number_of_generations=50,
         minimize=True,
         seed=seed,
+        max_depth=17,
+        population_size=500,
+        probability_crossover=0.9,
+        timer_stop_criteria=mode,
     )
     (b, bf, bp) = alg.evolve(verbose=0)
     return b, bf

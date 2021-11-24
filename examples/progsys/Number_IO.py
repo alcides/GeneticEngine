@@ -44,9 +44,12 @@ def evolve(g, seed, mode):
         g,
         treebased_representation,
         fitness_function,
-        number_of_generations=10,
+        number_of_generations=50,
         minimize=True,
         seed=seed,
+        max_depth=17,
+        population_size=500,
+        probability_crossover=0.9,
         timer_stop_criteria=mode,
     )
     (b, bf, bp) = alg.evolve(verbose=0)
@@ -56,5 +59,5 @@ def evolve(g, seed, mode):
 if __name__ == "__main__":
     g = preprocess()
     print("Grammar: {}.".format(repr(g)))
-    b, bf = evolve(g, 0)
+    b, bf = evolve(g, 0, False)
     print(b, bf)
