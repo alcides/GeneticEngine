@@ -1,13 +1,9 @@
+import os
 from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated, Any, Callable, Tuple
 import numpy as np
-from numpy.lib.arraysetops import isin
-from scipy.sparse import data
-from sklearn.metrics import accuracy_score
-from sklearn.tree import DecisionTreeClassifier
-import matplotlib.pyplot as plt
-
+from sklearn.metrics import f1_score
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.treebased import treebased_representation
 from geneticengine.metahandlers.ints import IntRange
@@ -15,7 +11,9 @@ from geneticengine.algorithms.gp.gp import GP
 
 
 def game_of_life_rule(m):
-    """Given a 3x3 matriz, outputs the correct result of Game of Life."""
+    """
+    Given a 3x3 matriz, outputs the correct result of Game of Life.
+    """
     cell = m[1, 1]
     neighbours = np.sum(m) - cell
     if cell and neighbours in [2, 3]:
@@ -27,23 +25,18 @@ def game_of_life_rule(m):
 
 
 def generate_dataset(n: int) -> Tuple[Any, Any]:
-    """Generates a pair of Nx3x3 matrices of input boards, and the next value for the middle position of each board."""
+    """
+    Generates a pair of Nx3x3 matrices of input boards,
+    and the next value for the middle position of each board.
+    """
     m = np.random.randint(0, 2, n * 9).reshape(n, 3, 3)
     r = np.fromiter((game_of_life_rule(xi) for xi in m), m.dtype)
     return (m, r)
 
 
-def learn_predictor(Xtrain, ytrain, Xtest, ytest):
-
-    clf = DecisionTreeClassifier(random_state=0, max_depth=5)
-    clf.fit(Xtrain.reshape(1000, 9), ytrain)
-    ypred = clf.predict(Xtest.reshape(1000, 9))
-    accuracy = (ypred == ytest).mean()
-    print("Decision Tree Test Accuracy:", accuracy)
-
-
 class Expr(ABC):
     pass
+
 
 @dataclass
 class And(Expr):
@@ -53,6 +46,7 @@ class And(Expr):
     def __str__(self) -> str:
         return f"({self.e1} and {self.e2})"
 
+
 @dataclass
 class Or(Expr):
     e1: Expr
@@ -61,12 +55,14 @@ class Or(Expr):
     def __str__(self) -> str:
         return f"({self.e1} or {self.e2})"
 
+
 @dataclass
 class Not(Expr):
     e1: Expr
 
     def __str__(self) -> str:
         return f"(not {self.e1})"
+
 
 @dataclass
 class Matrix(Expr):
@@ -75,6 +71,7 @@ class Matrix(Expr):
 
     def __str__(self) -> str:
         return f"(X[{self.row}, {self.column}])"
+
 
 def evaluate(e: Expr) -> Callable[[Any], float]:
 
@@ -93,35 +90,55 @@ def evaluate(e: Expr) -> Callable[[Any], float]:
 def fitness_function(i: Expr):
     _clf = evaluate(i)
     ypred = [_clf(line) for line in np.rollaxis(Xtrain, 0)]
-    return accuracy_score(ytrain, ypred)
+    return f1_score(ytrain, ypred)
 
 
-def learn_predictor_gn(Xtrain, ytrain, Xtest, ytest):
+def preprocess():
+    return extract_grammar([And, Or, Not, Matrix], Expr)
 
-    g = extract_grammar([And, Or, Not, Matrix], Expr)
-    print(f"Grammar: {repr(g)}")
-
+def evolve(g, seed, mode):
     alg = GP(
         g,
         treebased_representation,
-        evaluation_function=fitness_function, 
-        number_of_generations=5)
-
+        fitness_function,
+        max_depth=17,
+        probability_crossover=0.75,
+        selection_method=("tournament", 2),
+        minimize=False,
+        seed=seed,
+        timer_stop_criteria=mode,
+    )
     (b, bf, bp) = alg.evolve(verbose=0)
 
     print("Best individual:", bp)
-    print("Genetic Engine Train Accuracy:", bf)
+    print("Genetic Engine Train F1 score:", bf)
     
     _clf = evaluate(bp)
     ypred = [_clf(line) for line in np.rollaxis(Xtest, 0)]
-    print("GeneticEngine Test Accuracy:", accuracy_score(ytest, ypred))
+    print("GeneticEngine Test F1 score:", f1_score(ytest, ypred))
 
+    return b, bf
 
 if __name__ == "__main__":
+    import os
+    dataset_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../datasets/GameOfLife/")
 
-    (Xtrain, ytrain) = generate_dataset(1000)
-    (Xtest, ytest) = generate_dataset(1000)
-    
+    # Check if dataset already exists
+    if os.path.isfile(os.path.join(dataset_dir, "Train.npy")):
+
+        Xtrain = np.load(os.path.join(dataset_dir, "Train_X.npy"))
+        Ytrain = np.load(os.path.join(dataset_dir, "Train_y.npy"))
+        Xtest = np.load(os.path.join(dataset_dir, "Test_X.npy"))
+        Ytest = np.load(os.path.join(dataset_dir, "Test_y.npy"))
+
+    else:
+        Xtrain, ytrain = generate_dataset(1000)
+        Xtest, ytest = generate_dataset(1000)
+        np.save(os.path.join(dataset_dir, "Train_X.npy"), Xtrain)
+        np.save(os.path.join(dataset_dir, "Train_Y.npy"), ytrain)
+        np.save(os.path.join(dataset_dir, "Test_X.npy"), Xtest)
+        np.save(os.path.join(dataset_dir, "Test_y.npy"), ytest)
+
     # # Generate dataset for PonyGE2
     # # Train
     # _x = Xtrain.reshape(1000, 9)
@@ -133,6 +150,7 @@ if __name__ == "__main__":
     # _y = ytest.reshape(1000, 1)
     # np.savetxt("Test.csv", np.concatenate([_x, _y], axis=1), fmt='%i', delimiter=",")
     
-    #learn_predictor(Xtrain, ytrain, Xtest, ytest)
-    learn_predictor_gn(Xtrain, ytrain, Xtest, ytest)
+    g = preprocess()
+    evolve(g, 1, True)
+
 
