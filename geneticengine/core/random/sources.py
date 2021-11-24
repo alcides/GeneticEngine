@@ -2,7 +2,9 @@ from abc import ABC
 import random
 from itertools import accumulate
 
-from typing import List, Any, Protocol
+from typing import List, Any, TypeVar
+
+T = TypeVar("T")
 
 
 class Source(ABC):
@@ -15,12 +17,12 @@ class Source(ABC):
     def random_float(self, min: float, max: float) -> float:
         ...
 
-    def choice(self, choices: List[Any]) -> Any:
+    def choice(self, choices: List[T]) -> T:
         assert choices
         i = self.randint(0, len(choices) - 1)
         return choices[i]
 
-    def choice_weighted(self, choices: List[Any], weights: List[float]) -> Any:
+    def choice_weighted(self, choices: List[T], weights: List[float]) -> T:
         acc_weights = list(accumulate(weights))
         total = acc_weights[-1] + 0.0
         rand_value: float = self.random_float(0, total)
@@ -28,6 +30,24 @@ class Source(ABC):
         for (choice, acc) in zip(choices, acc_weights):
             if rand_value < acc:
                 return choice
+
+    def shuffle(self, l: List[T]):
+        for i in reversed(range(1, len(l))):
+            j = self.randint(0, i)
+            l[i], l[j] = l[j], l[i]
+        return l
+
+    def pop_random(self, l: List[T]) -> T:
+        item = l.pop()
+        total_len = len(l)
+
+        i = self.randint(0, total_len)
+        if i == total_len:
+            return item
+
+        l[i], item = item, l[i]
+
+        return item
 
 
 class RandomSource(Source):

@@ -23,6 +23,7 @@ from geneticengine.core.utils import (
     is_generic_list,
     get_generic_parameter,
     is_terminal,
+    build_finalizers,
 )
 from geneticengine.exceptions import GeneticEngineError
 
@@ -38,11 +39,12 @@ def random_float(r: Source) -> float:
 T = TypeVar("T")
 
 
-def random_list(r: Source, rec: Callable[[Type[Any]], Any], depth: int,
-                ty: Type[List[T]]) -> List[T]:
+def random_list(r: Source, receiver, new_symbol, depth: int, ty: Type[List[T]]):
     inner_type = get_generic_parameter(ty)
-    size = r.randint(0, depth)
-    return [rec(inner_type) for _ in range(size)]
+    size = r.randint(0, depth - 1)
+    fins = build_finalizers(lambda *x: receiver(x), size)
+    for fin in fins:
+        new_symbol(inner_type, fin, depth - 1)
 
 
 def is_metahandler(ty: type) -> bool:
@@ -57,7 +59,9 @@ def is_metahandler(ty: type) -> bool:
 
 def apply_metahandler(
     r: Source,
-    rec: Callable[[Type[Any]], Any],
+    receiver,
+    new_symbol,
+    depth: int,
     ty: Type[Any],
 ) -> Any:
     """
@@ -71,14 +75,76 @@ def apply_metahandler(
     base_type = get_generic_parameter(ty)
     if is_generic_list(base_type):
         base_type = get_generic_parameter(base_type)
-    return metahandler.generate(r, lambda: rec(base_type))
+    return metahandler.generate(r, receiver, new_symbol, depth, base_type)
 
 
-def random_node(
+def PI_Grow(
     r: Source,
     g: Grammar,
-    depth: int = 5,
+    depth: int,
     starting_symbol: Type[Any] = int,
+):
+    state = {}
+
+    def final_finalize(x):
+        state["final"] = x
+
+    prodqueue = []
+    nRecs = [0]
+
+    def handle_symbol(symb, fin, depth):
+        prodqueue.append((symb, fin, depth))
+        if symb in g.recursive_prods:
+            nRecs[0] += 1
+
+    handle_symbol(starting_symbol, final_finalize, depth)
+
+    def filter_choices(possible_choices: List[type], depth):
+        valid_productions = [
+            vp for vp in possible_choices if g.distanceToTerminal[vp] <= depth
+        ]
+        if (nRecs == 0) and any(  # Are we the last recursive symbol?
+            [
+                prod in g.recursive_prods for prod in valid_productions
+            ]  # Are there any  recursive symbols in our expansion?
+        ):
+            valid_productions = [
+                vp for vp in valid_productions if vp in g.recursive_prods
+            ]  # If so, then only expand into recursive symbols
+
+        return valid_productions
+
+    while prodqueue:
+        # print(nRecs[0])
+        next_type, next_finalizer, depth = r.pop_random(prodqueue)
+        if next_type in g.recursive_prods:
+            nRecs[0] -= 1
+        expand_node(
+            r,
+            g,
+            handle_symbol,
+            filter_choices,
+            next_finalizer,
+            depth,
+            next_type,
+        )
+
+    n = state["final"]
+    relabel_nodes_of_trees(n, g.non_terminals)
+    return n
+
+
+random_node = PI_Grow
+
+
+def expand_node(
+    r: Source,
+    g: Grammar,
+    new_symbol,
+    filter_choices,
+    receiver,
+    depth,
+    starting_symbol,
 ) -> Any:
     """
     Creates a random node of a given type (starting_symbol)
@@ -87,57 +153,54 @@ def random_node(
         raise GeneticEngineError("Recursion Depth reached")
     if depth < g.get_distance_to_terminal(starting_symbol):
         raise GeneticEngineError(
-            "There will be no depth sufficient for symbol {} in this grammar (provided: {}, required: {})."
-            .format(starting_symbol, depth,
-                    g.get_distance_to_terminal(starting_symbol)))
-
-    recursive_generator = lambda t: random_node(r, g, depth - 1, t)
+            "There will be no depth sufficient for symbol {} in this grammar (provided: {}, required: {}).".format(
+                starting_symbol, depth, g.get_distance_to_terminal(starting_symbol)
+            )
+        )
 
     if starting_symbol is int:
-        return random_int(r)
+        receiver(random_int(r))
+        return
     elif starting_symbol is float:
-        return random_float(r)
+        receiver(random_float(r))
+        return
     elif is_generic_list(starting_symbol):
-        return random_list(r, recursive_generator, depth - 1, starting_symbol)
+        random_list(r, receiver, new_symbol, depth, starting_symbol)
+        return
     elif is_metahandler(starting_symbol):
-        node = apply_metahandler(r, recursive_generator, starting_symbol)
-        return relabel_nodes_of_trees(node, g.non_terminals)
+        apply_metahandler(r, receiver, new_symbol, depth, starting_symbol)
+        return
     else:
         if starting_symbol not in g.all_nodes:
-            raise GeneticEngineError(
-                f"Symbol {starting_symbol} not in grammar rules.")
+            raise GeneticEngineError(f"Symbol {starting_symbol} not in grammar rules.")
 
         if starting_symbol in g.alternatives:  # Alternatives
             compatible_productions = g.alternatives[starting_symbol]
-            valid_productions = [
-                vp for vp in compatible_productions
-                if g.distanceToTerminal[vp] <= depth
-            ]
+            valid_productions = filter_choices(compatible_productions, depth)
             if not valid_productions:
                 raise GeneticEngineError(
-                    "No productions for non-terminal node with type: {} in depth {} (minimum required: {})."
-                    .format(
+                    "No productions for non-terminal node with type: {} in depth {} (minimum required: {}).".format(
                         starting_symbol,
                         depth,
-                        str([(vp, g.distanceToTerminal[vp])
-                             for vp in compatible_productions]),
-                    ))
+                        str(
+                            [
+                                (vp, g.distanceToTerminal[vp])
+                                for vp in compatible_productions
+                            ]
+                        ),
+                    )
+                )
             if any(["weight" in get_gengy(p) for p in valid_productions]):
-                weights = [
-                    get_gengy(p).get("weight", 1.0) for p in valid_productions
-                ]
+                weights = [get_gengy(p).get("weight", 1.0) for p in valid_productions]
                 rule = r.choice_weighted(valid_productions, weights)
             else:
                 rule = r.choice(valid_productions)
-            return random_node(r, g, depth, rule)
+            new_symbol(rule, receiver, depth)
         else:  # Normal production
-            args = [
-                recursive_generator(at)
-                for (a, at) in get_arguments(starting_symbol)
-            ]
-            node = starting_symbol(*args)
-            node = relabel_nodes_of_trees(node, g.non_terminals)
-            return node
+            args = get_arguments(starting_symbol)
+            fins = build_finalizers(lambda *x: receiver(starting_symbol(*x)), len(args))
+            for i, (argn, argt) in enumerate(args):
+                new_symbol(argt, fins[i], depth - 1)
 
 
 def random_individual(r: Source, g: Grammar, max_depth: int = 5) -> TreeNode:
@@ -156,8 +219,7 @@ def random_individual(r: Source, g: Grammar, max_depth: int = 5) -> TreeNode:
     return ind
 
 
-def mutate_inner(r: Source, g: Grammar, i: TreeNode,
-                 max_depth: int) -> TreeNode:
+def mutate_inner(r: Source, g: Grammar, i: TreeNode, max_depth: int) -> TreeNode:
     if i.nodes > 0:
         c = r.randint(0, i.nodes - 1)
         if c == 0:
@@ -197,8 +259,9 @@ def find_in_tree(ty: type, o: TreeNode, max_depth: int):
             yield from find_in_tree(ty, child, max_depth)
 
 
-def tree_crossover_inner(r: Source, g: Grammar, i: TreeNode, o: TreeNode,
-                         max_depth: int) -> Any:
+def tree_crossover_inner(
+    r: Source, g: Grammar, i: TreeNode, o: TreeNode, max_depth: int
+) -> Any:
     if i.nodes > 0:
         c = r.randint(0, i.nodes - 1)
         if c == 0:
@@ -209,8 +272,7 @@ def tree_crossover_inner(r: Source, g: Grammar, i: TreeNode, o: TreeNode,
                 replacement = r.choice(options)
             if replacement is None:
                 try:
-                    replacement = random_node(r, g, max_depth - i.depth + 1,
-                                              ty)
+                    replacement = random_node(r, g, max_depth - i.depth + 1, ty)
                 except:
                     return i
             return replacement
@@ -223,8 +285,7 @@ def tree_crossover_inner(r: Source, g: Grammar, i: TreeNode, o: TreeNode,
                         setattr(
                             i,
                             field,
-                            tree_crossover_inner(r, g, getattr(i, field), o,
-                                                 max_depth),
+                            tree_crossover_inner(r, g, getattr(i, field), o, max_depth),
                         )
                         return i
                     else:
@@ -234,27 +295,26 @@ def tree_crossover_inner(r: Source, g: Grammar, i: TreeNode, o: TreeNode,
         return i
 
 
-def tree_crossover(r: Source, g: Grammar, p1: TreeNode, p2: TreeNode,
-                   max_depth: int) -> Tuple[TreeNode, TreeNode]:
+def tree_crossover(
+    r: Source, g: Grammar, p1: TreeNode, p2: TreeNode, max_depth: int
+) -> Tuple[TreeNode, TreeNode]:
     """
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns two trees that are created by crossing over [p1] and [p2]. The first tree returned has [p1] as the base, and the second tree has [p2] as a base.
     """
-    new_tree1 = tree_crossover_inner(r, g, deepcopy(p1), deepcopy(p2),
-                                     max_depth)
+    new_tree1 = tree_crossover_inner(r, g, deepcopy(p1), deepcopy(p2), max_depth)
     relabeled_new_tree1 = relabel_nodes_of_trees(new_tree1, g.non_terminals)
-    new_tree2 = tree_crossover_inner(r, g, deepcopy(p2), deepcopy(p1),
-                                     max_depth)
+    new_tree2 = tree_crossover_inner(r, g, deepcopy(p2), deepcopy(p1), max_depth)
     relabeled_new_tree2 = relabel_nodes_of_trees(new_tree2, g.non_terminals)
     return relabeled_new_tree1, relabeled_new_tree2
 
 
-def tree_crossover_single_tree(r: Source, g: Grammar, p1: TreeNode,
-                               p2: TreeNode, max_depth: int) -> TreeNode:
+def tree_crossover_single_tree(
+    r: Source, g: Grammar, p1: TreeNode, p2: TreeNode, max_depth: int
+) -> TreeNode:
     """
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns one tree that is created by crossing over [p1] and [p2]. The tree returned has [p1] as the base.
     """
-    new_tree = tree_crossover_inner(r, g, deepcopy(p1), deepcopy(p2),
-                                    max_depth)
+    new_tree = tree_crossover_inner(r, g, deepcopy(p1), deepcopy(p2), max_depth)
     relabeled_new_tree = relabel_nodes_of_trees(new_tree, g.non_terminals)
     return relabeled_new_tree
 
@@ -266,9 +326,9 @@ def get_property_names(obj: TreeNode) -> List[Any]:
         return []
 
 
-def relabel_nodes_of_trees(i: TreeNode,
-                           non_terminals: Set[type],
-                           max_depth: int = 1) -> TreeNode:
+def relabel_nodes_of_trees(
+    i: TreeNode, non_terminals: Set[type], max_depth: int = 1
+) -> TreeNode:
     """Recomputes all the nodes, depth and distance_to_term in the tree"""
 
     # print("Node: {}, nodes: {}, distance_to_term: {}, depth: {}.".format(i,i.nodes,i.distance_to_term,i.depth))
@@ -284,12 +344,9 @@ def relabel_nodes_of_trees(i: TreeNode,
         else:
             children = [getattr(i, field) for field in get_property_names(i)]
         assert children
-        properties_of_children = [
-            relabel_nodes(child, depth + 1) for child in children
-        ]
+        properties_of_children = [relabel_nodes(child, depth + 1) for child in children]
         number_of_nodes = 1 + sum([prop[0] for prop in properties_of_children])
-        distance_to_term = 1 + max(
-            [prop[1] for prop in properties_of_children])
+        distance_to_term = 1 + max([prop[1] for prop in properties_of_children])
         if not isinstance(i, list):
             i.depth = depth
             i.distance_to_term = distance_to_term
