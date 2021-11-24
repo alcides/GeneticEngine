@@ -53,7 +53,8 @@ fitness_function = lambda x: fit(x)
 
 def preprocess():
     return extract_grammar(
-        [XPlusConst, XTimesConst, XAssign, ForLoop, Code, Const, VarX], Code)
+        [XPlusConst, XTimesConst, XAssign, ForLoop, Code, Const, VarX], Code
+    )
 
 
 def evolve(g, seed, mode):
@@ -61,8 +62,8 @@ def evolve(g, seed, mode):
         g,
         treebased_representation,
         fitness_function,
-        max_depth=17,
-        population_size=500,
+        max_depth=10,
+        population_size=5,
         number_of_generations=50,
         minimize=False,
         seed=seed,
