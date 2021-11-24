@@ -50,7 +50,7 @@ def evolve(g, seed, mode):
         g,
         treebased_representation,
         fitness_function,
-        minimize=False,
+        minimize=True,
         selection_method=("tournament", 2),
         max_depth=17,
         population_size=500,
