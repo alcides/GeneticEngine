@@ -2,7 +2,7 @@ from typing import Annotated, Any, Callable
 
 import numpy as np
 import pandas as pd
-# from sklearn.metrics import f1_score
+from math import isinf
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.grammars.sgp import Plus, Literal, Number, Mul, SafeDiv, Var
@@ -44,7 +44,10 @@ def fitness_function(n: Number):
 
     f = n.evaluate_lines()
     y_pred = np.apply_along_axis(f, 1, X)
-    return f1_score(y_pred, y)
+    fitness = f1_score(y_pred, y)
+    if isinf(fitness):
+        fitness = -100000000
+    return fitness
 
 
 def evolve(g, seed, mode):
