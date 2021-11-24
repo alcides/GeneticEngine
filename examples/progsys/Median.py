@@ -1,5 +1,5 @@
 from typing import Annotated, Any, Callable
-from utils import get_data, import_embedded
+from examples.progsys.utils import get_data, import_embedded
 
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.grammars.coding.classes import Number, Statement, XAssign

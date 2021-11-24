@@ -13,8 +13,8 @@ from geneticengine.algorithms.gp.gp import GP
 dataset_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../datasets/GameOfLife/")
 
 DATASET_NAME = "GameOfLife"
-DATA_FILE_TRAIN = "GeneticEngine/examples/data/{}/Train.csv".format(DATASET_NAME)
-DATA_FILE_TEST = "GeneticEngine/examples/data/{}/Test.csv".format(DATASET_NAME)
+DATA_FILE_TRAIN = "examples/data/{}/Train.csv".format(DATASET_NAME)
+DATA_FILE_TEST = "examples/data/{}/Test.csv".format(DATASET_NAME)
 
 train = np.genfromtxt(DATA_FILE_TRAIN, skip_header=1, delimiter=",")
 Xtrain = train[:, :-1]
