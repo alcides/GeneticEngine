@@ -64,8 +64,7 @@ def is_abstract(t: type) -> bool:
 def is_terminal(t: type, l: Set[type]) -> bool:
     """Returns whether a node is a terminal or not, based on the list of non terminals in the grammar"""
     if is_annotated(t):
-        return all(
-            [is_terminal(inner, l) for inner in get_generic_parameters(t)])
+        return all([is_terminal(inner, l) for inner in get_generic_parameters(t)])
     if not get_arguments(t):
         return True
     return t not in l
@@ -80,20 +79,22 @@ def build_finalizers(final_callback, n_args) -> List[Callable[[any], None]]:
     """
     uninit = object()
     rets = [uninit] * n_args
-    to_arrive = set()
+    to_arrive = [n_args]
 
     finalizers = []
 
     for i in range(n_args):
-        to_arrive.add(i)
 
         def fin(x, i=i):
-            rets[i] = x
+            if rets[i] is uninit:
+                rets[i] = x
 
-            to_arrive.remove(i)
-            if not to_arrive:
-                # we recieved all params, finish construction
-                final_callback(*rets)
+                to_arrive[0] -= 1
+                if to_arrive[0] == 0:
+                    # we recieved all params, finish construction
+                    final_callback(*rets)
+            else:
+                raise Exception("Received duplicate param on finalizer! i=%d" % i)
 
         finalizers.append(fin)
 
