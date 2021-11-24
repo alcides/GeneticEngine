@@ -27,38 +27,40 @@ for i, n in enumerate(vars):
 XAssign.__annotations__["value"] = Number
 lists.Var.__annotations__["name"] = Annotated[str, VarRange(vars)]
 lists.Var.feature_indices = variables
-g = extract_grammar(
-    [
-        numbers.Plus,
-        numbers.Literal,
-        numbers.Mul,
-        numbers.SafeDiv,
-        numbers.Max,
-        numbers.Min,
-        numbers.Abs,
-        lists.Length,
-        lists.Literal,
-        lists.Combine,
-        lists.GetElement,
-        lists.Max,
-        lists.Min,
-        And,
-        Or,
-        lists.Var,
-        Equals,
-        NotEquals,
-        GreaterOrEqualThan,
-        GreaterThan,
-        LessOrEqualThan,
-        LessThan,
-        Is,
-        IsNot,
-        XAssign,
-        IfThen,
-        IfThenElse  #, While
-    ],
-    Statement)
-print("Grammar: {}.".format(repr(g)))
+
+
+def preprocess():
+    return extract_grammar(
+        [
+            numbers.Plus,
+            numbers.Literal,
+            numbers.Mul,
+            numbers.SafeDiv,
+            numbers.Max,
+            numbers.Min,
+            numbers.Abs,
+            lists.Length,
+            lists.Literal,
+            lists.Combine,
+            lists.GetElement,
+            lists.Max,
+            lists.Min,
+            And,
+            Or,
+            lists.Var,
+            Equals,
+            NotEquals,
+            GreaterOrEqualThan,
+            GreaterThan,
+            LessOrEqualThan,
+            LessThan,
+            Is,
+            IsNot,
+            XAssign,
+            IfThen,
+            IfThenElse  #, While
+        ],
+        Statement)
 
 
 def fitness_function(n: Statement):
@@ -66,13 +68,18 @@ def fitness_function(n: Statement):
     return fitness
 
 
-alg = GP(
-    g,
-    treebased_representation,
-    fitness_function,
-    number_of_generations=100,
-    population_size=100,
-    minimize=True,
-)
-(b, bf, bp) = alg.evolve(verbose=0)
-print(bf, bp, b)
+def evolve(g, seed, mode):
+    alg = GP(
+        g,
+        treebased_representation,
+        fitness_function,
+        number_of_generations=50,
+        minimize=True,
+        seed=seed,
+        max_depth=17,
+        population_size=500,
+        probability_crossover=0.9,
+        timer_stop_criteria=mode,
+    )
+    (b, bf, bp) = alg.evolve(verbose=0)
+    return b, bf
