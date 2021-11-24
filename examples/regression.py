@@ -12,9 +12,9 @@ from geneticengine.core.representations.treebased import treebased_representatio
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics.metrics import rmse
 
-FILE_NAME = "Vladislavleva4"
-DATA_FILE_TRAIN = "./examples/data/{}/Train.txt".format(FILE_NAME)
-DATA_FILE_TEST = "./examples/data/{}/Test.txt".format(FILE_NAME)
+DATASET_NAME = "Vladislavleva4"
+DATA_FILE_TRAIN = "GeneticEngine/examples/data/{}/Train.txt".format(DATASET_NAME)
+DATA_FILE_TEST = "GeneticEngine/examples/data/{}/Test.txt".format(DATASET_NAME)
 
 bunch = pd.read_csv(DATA_FILE_TRAIN, delimiter='\t')
 target = bunch.response

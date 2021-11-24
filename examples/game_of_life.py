@@ -10,6 +10,23 @@ from geneticengine.metahandlers.ints import IntRange
 from geneticengine.algorithms.gp.gp import GP
 
 
+dataset_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../datasets/GameOfLife/")
+
+DATASET_NAME = "GameOfLife"
+DATA_FILE_TRAIN = "GeneticEngine/examples/data/{}/Train.csv".format(DATASET_NAME)
+DATA_FILE_TEST = "GeneticEngine/examples/data/{}/Test.csv".format(DATASET_NAME)
+
+train = np.genfromtxt(DATA_FILE_TRAIN, skip_header=1, delimiter=",")
+Xtrain = train[:, :-1]
+Xtrain = Xtrain.reshape(train.shape[0], 3, 3)
+ytrain =train[:, -1] 
+
+test = np.genfromtxt(DATA_FILE_TEST, skip_header=1, delimiter=",")
+Xtest = test[:, :-1]
+Xtest = Xtest.reshape(test.shape[0], 3, 3)
+ytest = test[:, -1] 
+
+
 def game_of_life_rule(m):
     """
     Given a 3x3 matriz, outputs the correct result of Game of Life.
@@ -101,8 +118,11 @@ def evolve(g, seed, mode):
         g,
         treebased_representation,
         fitness_function,
-        max_depth=17,
+        number_of_generations=50,
+        population_size=100,
+        max_depth=15,
         probability_crossover=0.75,
+        probability_mutation=0.01,
         selection_method=("tournament", 2),
         minimize=False,
         seed=seed,
@@ -120,27 +140,11 @@ def evolve(g, seed, mode):
     return b, bf
 
 if __name__ == "__main__":
-    import os
-    dataset_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../datasets/GameOfLife/")
-
-    # Check if dataset already exists
-    if os.path.isfile(os.path.join(dataset_dir, "Train.npy")):
-
-        Xtrain = np.load(os.path.join(dataset_dir, "Train_X.npy"))
-        Ytrain = np.load(os.path.join(dataset_dir, "Train_y.npy"))
-        Xtest = np.load(os.path.join(dataset_dir, "Test_X.npy"))
-        Ytest = np.load(os.path.join(dataset_dir, "Test_y.npy"))
-
-    else:
-        Xtrain, ytrain = generate_dataset(1000)
-        Xtest, ytest = generate_dataset(1000)
-        np.save(os.path.join(dataset_dir, "Train_X.npy"), Xtrain)
-        np.save(os.path.join(dataset_dir, "Train_Y.npy"), ytrain)
-        np.save(os.path.join(dataset_dir, "Test_X.npy"), Xtest)
-        np.save(os.path.join(dataset_dir, "Test_y.npy"), ytest)
-
-    # # Generate dataset for PonyGE2
+ 
+    # # # Generate dataset
     # # Train
+    # Xtrain, ytrain = generate_dataset(1000)
+    # Xtest, ytest = generate_dataset(1000)
     # _x = Xtrain.reshape(1000, 9)
     # _y = ytrain.reshape(1000, 1)
     # np.savetxt("Train.csv", np.concatenate([_x, _y], axis=1), fmt='%i', delimiter=",")
@@ -152,5 +156,3 @@ if __name__ == "__main__":
     
     g = preprocess()
     evolve(g, 1, True)
-
-

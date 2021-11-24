@@ -12,9 +12,9 @@ from geneticengine.core.representations.treebased import treebased_representatio
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics.metrics import f1_score
 
-FILE_NAME = "Banknote"
-DATA_FILE_TRAIN = "./examples/data/{}/Train.csv".format(FILE_NAME)
-DATA_FILE_TEST = "./examples/data/{}/Test.csv".format(FILE_NAME)
+DATASET_NAME = "Banknote"
+DATA_FILE_TRAIN = "GeneticEngine/examples/data/{}/Train.csv".format(DATASET_NAME)
+DATA_FILE_TEST = "GeneticEngine/examples/data/{}/Test.csv".format(DATASET_NAME)
 
 bunch = pd.read_csv(DATA_FILE_TRAIN, delimiter=' ')
 # import IPython as ip
