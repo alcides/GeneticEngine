@@ -42,7 +42,7 @@ T = TypeVar("T")
 def random_list(r: Source, receiver, new_symbol, depth: int, ty: Type[List[T]]):
     inner_type = get_generic_parameter(ty)
     size = r.randint(0, depth - 1)
-    fins = build_finalizers(lambda *x: receiver(x), size)
+    fins = build_finalizers(lambda *x: list(receiver(x)), size)
     for fin in fins:
         new_symbol(inner_type, fin, depth - 1)
 
