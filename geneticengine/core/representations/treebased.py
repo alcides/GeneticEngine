@@ -89,20 +89,21 @@ def PI_Grow(
     def final_finalize(x):
         state["final"] = x
 
-    prodqueue = [(starting_symbol, final_finalize, depth)]
+    prodqueue = []
+    nRecs = [0]
 
     def handle_symbol(symb, fin, depth):
         prodqueue.append((symb, fin, depth))
+        if symb in g.recursive_prods:
+            nRecs[0] += 1
+
+    handle_symbol(starting_symbol, final_finalize, depth)
 
     def filter_choices(possible_choices: List[type], depth):
         valid_productions = [
             vp for vp in possible_choices if g.distanceToTerminal[vp] <= depth
         ]
-        if all(
-            [
-                prod not in g.recursive_prods for prod in finalizerqueue
-            ]  # Are we the last recursive symbol?
-        ) and any(
+        if (nRecs == 0) and any(  # Are we the last recursive symbol?
             [
                 prod in g.recursive_prods for prod in valid_productions
             ]  # Are there any  recursive symbols in our expansion?
@@ -113,11 +114,11 @@ def PI_Grow(
 
         return valid_productions
 
-    finalizerqueue = []
-
     while prodqueue:
-        r.shuffle(prodqueue)
-        next_type, next_finalizer, depth = prodqueue.pop()
+        print(nRecs[0])
+        next_type, next_finalizer, depth = r.pop_random(prodqueue)
+        if next_type in g.recursive_prods:
+            nRecs[0] -= 1
         expand_node(
             r,
             g,
