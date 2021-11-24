@@ -8,6 +8,7 @@ from typing import (
     Type,
     Tuple,
     List,
+    Callable,
 )
 
 from geneticengine.core.decorators import get_gengy
@@ -44,6 +45,10 @@ def strip_annotations(ty: Type[Any]) -> type:
 
 
 def get_arguments(n) -> List[Tuple[str, type]]:
+    """
+    :param n: production
+    :return: list((argname, argtype))
+    """
     if hasattr(n, "__annotations__"):
         args = n.__annotations__
         return [(a, args[a]) for a in args]
@@ -64,3 +69,35 @@ def is_terminal(t: type, l: Set[type]) -> bool:
     if not get_arguments(t):
         return True
     return t not in l
+
+
+def build_finalizers(final_callback, n_args) -> List[Callable[[any], None]]:
+    """
+    Builds a set of functions that accumulate the arguments provided
+    :param final_callback:
+    :param n_args:
+    :return:
+    """
+    uninit = object()
+    rets = [uninit] * n_args
+    to_arrive = set()
+
+    finalizers = []
+
+    for i in range(n_args):
+        to_arrive.add(i)
+
+        def fin(x, i=i):
+            rets[i] = x
+
+            to_arrive.remove(i)
+            if not to_arrive:
+                # we recieved all params, finish construction
+                final_callback(*rets)
+
+        finalizers.append(fin)
+
+    if n_args == 0:
+        final_callback()
+
+    return finalizers
