@@ -46,8 +46,13 @@ def fitness_function(n: Number):
     for x in feature_names:
         i = feature_indices[x]
         variables[x] = X[:, i]
-
     y_pred = n.evaluate(**variables)
+
+    if type(y_pred) in [np.float64, int, float]:
+        """If n does not use variables, the output will be scalar."""
+        y_pred = np.full(len(y), y_pred)
+    if y_pred.shape != (len(y),):
+        return -100000000
     fitness = f1_score(y_pred, y)
     if isinf(fitness):
         fitness = -100000000
