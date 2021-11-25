@@ -5,8 +5,8 @@ import pandas as pd
 from math import isinf
 
 from geneticengine.algorithms.gp.gp import GP
-from geneticengine.grammars.sgp import Plus, Literal, Number, Mul, SafeDiv, Var
-from geneticengine.grammars.math import SafeLog, SafeSqrt, Sin, Tanh, Exp
+from geneticengine.grammars.sgp import Plus, Literal, Number, Mul, Var
+from geneticengine.grammars.math import SafeLog, SafeSqrt, Sin, Tanh, Exp, SafeDiv
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.treebased import treebased_representation
 from geneticengine.metahandlers.vars import VarRange
@@ -16,7 +16,7 @@ DATASET_NAME = "Vladislavleva4"
 DATA_FILE_TRAIN = "examples/data/{}/Train.txt".format(DATASET_NAME)
 DATA_FILE_TEST = "examples/data/{}/Test.txt".format(DATASET_NAME)
 
-bunch = pd.read_csv(DATA_FILE_TRAIN, delimiter='\t')
+bunch = pd.read_csv(DATA_FILE_TRAIN, delimiter="\t")
 target = bunch.response
 data = bunch.drop(["response"], axis=1)
 
@@ -32,18 +32,22 @@ Var.feature_indices = feature_indices
 
 def preprocess():
     return extract_grammar(
-        [Plus, Mul, SafeDiv, Literal, Var, SafeSqrt, Exp, Sin, Tanh, SafeLog],
-        Number)
+        [Plus, Mul, SafeDiv, Literal, Var, SafeSqrt, Exp, Sin, Tanh, SafeLog], Number
+    )
 
 
 def fitness_function(n: Number):
     X = data.values
     y = target.values
 
-    f = n.evaluate_lines()
-    y_pred = np.apply_along_axis(f, 1, X)
+    variables = {}
+    for x in feature_names:
+        i = feature_indices[x]
+        variables[x] = X[:, i]
+
+    y_pred = n.evaluate(**variables)
     fitness = rmse(y_pred, y)
-    if isinf(fitness):
+    if isinf(fitness) or np.isnan(fitness):
         fitness = 100000000
     return fitness
 
@@ -69,7 +73,7 @@ def evolve(g, seed, mode):
     return b, bf
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     g = preprocess()
     print("Grammar: {}.".format(repr(g)))
     b, bf = evolve(g, 0, False)

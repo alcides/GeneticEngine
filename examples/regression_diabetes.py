@@ -47,8 +47,12 @@ def fitness_function(n: Number):
     X = bunch.data
     y = bunch.target
 
-    f = n.evaluate_lines()
-    y_pred = np.apply_along_axis(f, 1, X)
+    variables = {}
+    for x in bunch.feature_names:
+        i = feature_indices[x]
+        variables[x] = X[:, i]
+
+    y_pred = n.evaluate(**variables)
     return mean_squared_error(y, y_pred, squared=False)
 
 
