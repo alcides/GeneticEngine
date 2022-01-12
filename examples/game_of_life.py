@@ -10,8 +10,6 @@ from geneticengine.metahandlers.ints import IntRange
 from geneticengine.algorithms.gp.gp import GP
 
 
-dataset_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../datasets/GameOfLife/")
-
 DATASET_NAME = "GameOfLife"
 DATA_FILE_TRAIN = "examples/data/{}/Train.csv".format(DATASET_NAME)
 DATA_FILE_TEST = "examples/data/{}/Test.csv".format(DATASET_NAME)
@@ -118,9 +116,10 @@ def evolve(g, seed, mode):
         g,
         treebased_representation,
         fitness_function,
-        number_of_generations=50,
+        number_of_generations=10,
         population_size=100,
         max_depth=15,
+        favor_less_deep_trees=True,
         probability_crossover=0.75,
         probability_mutation=0.01,
         selection_method=("tournament", 2),
@@ -155,4 +154,4 @@ if __name__ == "__main__":
     # np.savetxt("Test.csv", np.concatenate([_x, _y], axis=1), fmt='%i', delimiter=",")
     
     g = preprocess()
-    evolve(g, 1, True)
+    evolve(g, 1, False)
