@@ -31,11 +31,11 @@ class GP(object):
             evaluation_function: Callable[[Any], float],
             randomSource: Callable[[int], RandomSource] = RandomSource,
             population_size: int = 200,
-            n_elites:
-        int = 5,  # Shouldn't this be a percentage of population size?
+            n_elites: int = 5,  # Shouldn't this be a percentage of population size?
             n_novelties: int = 10,
             number_of_generations: int = 100,
             max_depth: int = 15,
+            favor_less_deep_trees: bool = False, # now based on depth, maybe on number of nodes?
             selection_method: Tuple[str, int] = ("tournament", 5),
             # -----
             # As given in A Field Guide to GP, p.17, by Poli and Mcphee
@@ -58,6 +58,7 @@ class GP(object):
         self.population_size = population_size
         self.elitism = selection.create_elitism(n_elites)
         self.max_depth = max_depth
+        self.favor_less_deep_trees = favor_less_deep_trees
         self.novelty = selection.create_novelties(self.create_individual,
                                                   max_depth=max_depth)
         self.minimize = minimize
@@ -102,12 +103,18 @@ class GP(object):
                 self.grammar, individual.genotype)
             individual.fitness = self.evaluation_function(phenotype)
         return individual.fitness
+    
+    def fitness_correction_for_depth(self, individual: Individual) -> float:
+        if self.favor_less_deep_trees:
+            return individual.genotype.distance_to_term * 10^-25
+        else:
+            return 0
 
     def keyfitness(self):
         if self.minimize:
-            return lambda x: self.evaluate(x)
+            return lambda x: self.evaluate(x) + self.fitness_correction_for_depth(x)
         else:
-            return lambda x: -self.evaluate(x)
+            return lambda x: -self.evaluate(x) - self.fitness_correction_for_depth(x)
 
     def evolve(self, verbose=0):
         # TODO: This is not ramped half and half
