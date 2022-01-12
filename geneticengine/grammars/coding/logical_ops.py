@@ -7,6 +7,8 @@ from geneticengine.grammars.coding.classes import Condition
 
 @dataclass
 class And(Condition):
+    '''attributes left and right'''
+    
     left: Condition
     right: Condition
 
@@ -23,6 +25,9 @@ class And(Condition):
 
 @dataclass
 class Or(Condition):
+    '''attributes left and right'''
+    
+
     left: Condition
     right: Condition
 
@@ -39,6 +44,8 @@ class Or(Condition):
 
 @dataclass
 class Not(Condition):
+    '''attribute cond'''
+
     cond: Condition
 
     def evaluate(self, **kwargs) -> bool:
