@@ -188,6 +188,25 @@ class Future(object):
     get: Callable[[int], Any]
 
 
+def extract_futures(obj: Any) -> List[Future]:
+    futures = []
+    if isinstance(obj, list):
+        for el in obj:
+            if isinstance(el, Future):
+                futures.append(el)
+            else:
+                futures.extend(extract_futures(el))
+    else:
+        for (name, ty) in get_arguments(obj):
+            v = getattr(obj, name)
+            if isinstance(v, Future):
+                futures.append(v)
+            # Do we want a full recursion here? probably not for performance reasons
+            # else:
+            #    futures.extend(extract_futures(v))
+    return futures
+
+
 def PI_Grow(
     r: Source,
     g: Grammar,
@@ -208,10 +227,9 @@ def PI_Grow(
             setattr(future.parent, future.name, obj)
         else:
             obj = future  # only for root
-        for (name, ty) in get_arguments(obj):
-            v = getattr(obj, name)
-            if isinstance(v, Future):
-                prod_queue.append(v)
+
+        prod_queue.extend(extract_futures(obj))
+        print(future, prod_queue)
 
     relabel_nodes_of_trees(root, g.non_terminals)
     return root
