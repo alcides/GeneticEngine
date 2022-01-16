@@ -81,11 +81,13 @@ class SMT(MetaHandlerGenerator):
 
         model = solver.model()
         evaled = model.eval(k, model_completion=True)
-        ##debug
+
         if type(evaled) == z3.z3.BoolRef:
-            bool(evaled)
-        else:
+            evaled = bool(str(evaled))
+        elif type(evaled) == z3.z3.IntNumRef:
             evaled = int(str(evaled))
+        else:
+            evaled = eval(str(evaled))
         return evaled
 
     def __repr__(self):

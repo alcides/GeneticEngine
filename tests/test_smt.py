@@ -22,6 +22,11 @@ class BoolC(Root):
     x: Annotated[bool, SMT("x")]
 
 
+@dataclass
+class FloatC(Root):
+    x: Annotated[float, SMT("x > 0.3")]
+
+
 T = TypeVar("T")
 
 
@@ -42,3 +47,8 @@ class TestMetaHandler(object):
         n = self.skeleton(BoolC)
         assert isinstance(n, BoolC)
         assert n.x == True
+
+    def test_real(self):
+        n = self.skeleton(FloatC)
+        assert isinstance(n, FloatC)
+        assert n.x > 0.3
