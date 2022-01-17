@@ -31,8 +31,8 @@ if __name__ == "__main__":
     g = extract_grammar([A, B, C], R)
     alg = GP(
         g,
-        treebased_representation,
         lambda x: 1,
+        representation=treebased_representation,
         max_depth=10,
         population_size=1000,
         number_of_generations=1,

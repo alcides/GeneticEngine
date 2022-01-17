@@ -10,7 +10,9 @@ from geneticengine.metahandlers.ints import IntRange
 from geneticengine.algorithms.gp.gp import GP
 
 
-dataset_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../datasets/GameOfLife/")
+dataset_dir = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)), "../datasets/GameOfLife/"
+)
 
 DATASET_NAME = "GameOfLife"
 DATA_FILE_TRAIN = "examples/data/{}/Train.csv".format(DATASET_NAME)
@@ -19,12 +21,12 @@ DATA_FILE_TEST = "examples/data/{}/Test.csv".format(DATASET_NAME)
 train = np.genfromtxt(DATA_FILE_TRAIN, skip_header=1, delimiter=",")
 Xtrain = train[:, :-1]
 Xtrain = Xtrain.reshape(train.shape[0], 3, 3)
-ytrain =train[:, -1] 
+ytrain = train[:, -1]
 
 test = np.genfromtxt(DATA_FILE_TEST, skip_header=1, delimiter=",")
 Xtest = test[:, :-1]
 Xtest = Xtest.reshape(test.shape[0], 3, 3)
-ytest = test[:, -1] 
+ytest = test[:, -1]
 
 
 def game_of_life_rule(m):
@@ -113,11 +115,12 @@ def fitness_function(i: Expr):
 def preprocess():
     return extract_grammar([And, Or, Not, Matrix], Expr)
 
+
 def evolve(g, seed, mode):
     alg = GP(
         g,
-        treebased_representation,
         fitness_function,
+        representation=treebased_representation,
         number_of_generations=50,
         population_size=100,
         max_depth=15,
@@ -132,15 +135,16 @@ def evolve(g, seed, mode):
 
     print("Best individual:", bp)
     print("Genetic Engine Train F1 score:", bf)
-    
+
     _clf = evaluate(bp)
     ypred = [_clf(line) for line in np.rollaxis(Xtest, 0)]
     print("GeneticEngine Test F1 score:", f1_score(ytest, ypred))
 
     return b, bf
 
+
 if __name__ == "__main__":
- 
+
     # # # Generate dataset
     # # Train
     # Xtrain, ytrain = generate_dataset(1000)
@@ -153,6 +157,6 @@ if __name__ == "__main__":
     # _x = Xtest.reshape(1000, 9)
     # _y = ytest.reshape(1000, 1)
     # np.savetxt("Test.csv", np.concatenate([_x, _y], axis=1), fmt='%i', delimiter=",")
-    
+
     g = preprocess()
     evolve(g, 1, True)

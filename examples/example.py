@@ -35,8 +35,8 @@ def target(x):
 
 alg_gp = GP(
     g,
-    treebased_representation,
     fit,
+    representation=treebased_representation,
     population_size=150,
     max_depth=5,
     number_of_generations=10,
@@ -49,8 +49,8 @@ alg_gp = GP(
     
 alg_hc = HC(
     g,
-    treebased_representation,
     fit,
+    representation=treebased_representation,
     population_size=150,
     max_depth=5,
     number_of_generations=10,

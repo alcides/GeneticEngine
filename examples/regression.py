@@ -55,8 +55,8 @@ def fitness_function(n: Number):
 def evolve(g, seed, mode):
     alg = GP(
         g,
-        treebased_representation,
         fitness_function,
+        representation=treebased_representation,
         minimize=True,
         selection_method=("tournament", 2),
         max_depth=17,

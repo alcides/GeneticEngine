@@ -172,7 +172,7 @@ This fitness function will give all individuals the same fitness (0), turning th
 Now we can run the Genetic Engine, parameterized with this grammar and this fitness function:
 
 ```python
-alg = GP(g, treebased_representation, fitness_function, minimize=True, seed=122, population_size=10, number_of_generations=5)
+alg = GP(g, fitness_function, treebased_representation, minimize=True, seed=122, population_size=10, number_of_generations=5)
 (b, bf) = alg.evolve()
 print(bf, b)
 ```

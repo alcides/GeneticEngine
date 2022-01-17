@@ -60,8 +60,8 @@ def preprocess():
 def evolve(g, seed, mode):
     alg = GP(
         g,
-        treebased_representation,
         fitness_function,
+        representation=treebased_representation,
         max_depth=17,
         population_size=500,
         number_of_generations=50,

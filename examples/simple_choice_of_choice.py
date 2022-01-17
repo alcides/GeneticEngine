@@ -39,8 +39,8 @@ if __name__ == "__main__":
     )
     alg = GP(
         g,
-        treebased_representation,
         lambda x: 0,
+        representation=treebased_representation,
         max_depth=5,
         population_size=1000,
         n_elites=100,

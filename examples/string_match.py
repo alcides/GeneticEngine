@@ -31,8 +31,8 @@ def preprocess():
 def evolve(g, seed, mode):
     alg = GP(
         g,
-        treebased_representation,
         fitness_function,
+        representation=treebased_representation,
         max_depth=17,
         probability_crossover=0.75,
         selection_method=("tournament", 2),

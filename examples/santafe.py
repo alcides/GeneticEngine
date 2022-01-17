@@ -157,8 +157,8 @@ def preprocess():
 def evolve(g, seed, mode):
     alg_gp = GP(
         g,
-        treebased_representation,
         lambda p: simulate(p, map),
+        representation=treebased_representation,
         minimize=False,
         max_depth=40,
         number_of_generations=50,
@@ -177,8 +177,8 @@ if __name__ == "__main__":
     print(f"Grammar: {repr(g)}")
     alg_gp = GP(
         g,
-        treebased_representation,
         lambda p: simulate(p, map),
+        representation=treebased_representation,
         minimize=False,
         max_depth=40,
         number_of_generations=50,
@@ -190,8 +190,8 @@ if __name__ == "__main__":
 
     alg_hc = HC(
         g,
-        treebased_representation,
         lambda p: simulate(p, map),
+        representation=treebased_representation,
         minimize=False,
         max_depth=40,
         number_of_generations=50,

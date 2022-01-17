@@ -1,7 +1,8 @@
 from typing import Any, Callable, Type
 from geneticengine.core.grammar import Grammar
-from geneticengine.core.random.sources import Source, RandomSource
+from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.api import Representation
+from geneticengine.core.representations.treebased import treebased_representation
 from geneticengine.algorithms.gp.individual import Individual
 import geneticengine.algorithms.gp.generation_steps.mutation as mutation
 
@@ -10,8 +11,8 @@ class HC(object):
     def __init__(
         self,
         g: Grammar,
-        representation: Representation,
         evaluation_function: Callable[[Any], float],
+        representation: Representation = treebased_representation,
         random_source_type: Type = RandomSource,
         population_size: int = 200,
         number_of_generations: int = 100,
