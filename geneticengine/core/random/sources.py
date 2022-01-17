@@ -30,6 +30,7 @@ class Source(ABC):
         for (choice, acc) in zip(choices, acc_weights):
             if rand_value < acc:
                 return choice
+        return choices[0]
 
     def shuffle(self, l: List[T]):
         for i in reversed(range(1, len(l))):

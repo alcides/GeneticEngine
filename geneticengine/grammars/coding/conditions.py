@@ -1,6 +1,6 @@
 from abc import ABC
 from dataclasses import dataclass
-from typing import Annotated, List
+from typing import Annotated, List, Any, Callable
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.grammars.coding.classes import Expr, Condition, Number
 
@@ -13,9 +13,10 @@ class Equals(Condition):
     def evaluate(self, **kwargs) -> bool:
         return self.left.evaluate(**kwargs) == self.right.evaluate(**kwargs)
 
-    def evaluate_lines(self, **kwargs) -> bool:
+    def evaluate_lines(self, **kwargs) -> Callable[[Any], bool]:
         return lambda line: self.left.evaluate_lines(**kwargs)(
-            line) == self.right.evaluate_lines(**kwargs)(line)
+            line
+        ) == self.right.evaluate_lines(**kwargs)(line)
 
     def __str__(self):
         return f"({self.left} == {self.right})"
@@ -29,9 +30,10 @@ class NotEquals(Condition):
     def evaluate(self, **kwargs) -> bool:
         return self.left.evaluate(**kwargs) != self.right.evaluate(**kwargs)
 
-    def evaluate_lines(self, **kwargs) -> bool:
+    def evaluate_lines(self, **kwargs) -> Callable[[Any], bool]:
         return lambda line: self.left.evaluate_lines(**kwargs)(
-            line) != self.right.evaluate_lines(**kwargs)(line)
+            line
+        ) != self.right.evaluate_lines(**kwargs)(line)
 
     def __str__(self):
         return f"({self.left} != {self.right})"
@@ -45,9 +47,10 @@ class GreaterThan(Condition):
     def evaluate(self, **kwargs) -> bool:
         return self.left.evaluate(**kwargs) > self.right.evaluate(**kwargs)
 
-    def evaluate_lines(self, **kwargs) -> bool:
+    def evaluate_lines(self, **kwargs) -> Callable[[Any], bool]:
         return lambda line: self.left.evaluate_lines(**kwargs)(
-            line) > self.right.evaluate_lines(**kwargs)(line)
+            line
+        ) > self.right.evaluate_lines(**kwargs)(line)
 
     def __str__(self):
         return f"({self.left} > {self.right})"
@@ -61,9 +64,10 @@ class GreaterOrEqualThan(Condition):
     def evaluate(self, **kwargs) -> bool:
         return self.left.evaluate(**kwargs) >= self.right.evaluate(**kwargs)
 
-    def evaluate_lines(self, **kwargs) -> bool:
+    def evaluate_lines(self, **kwargs) -> Callable[[Any], bool]:
         return lambda line: self.left.evaluate_lines(**kwargs)(
-            line) >= self.right.evaluate_lines(**kwargs)(line)
+            line
+        ) >= self.right.evaluate_lines(**kwargs)(line)
 
     def __str__(self):
         return f"({self.left} >= {self.right})"
@@ -77,9 +81,10 @@ class LessThan(Condition):
     def evaluate(self, **kwargs) -> bool:
         return self.left.evaluate(**kwargs) < self.right.evaluate(**kwargs)
 
-    def evaluate_lines(self, **kwargs) -> bool:
+    def evaluate_lines(self, **kwargs) -> Callable[[Any], bool]:
         return lambda line: self.left.evaluate_lines(**kwargs)(
-            line) < self.right.evaluate_lines(**kwargs)(line)
+            line
+        ) < self.right.evaluate_lines(**kwargs)(line)
 
     def __str__(self):
         return f"({self.left} < {self.right})"
@@ -93,9 +98,10 @@ class LessOrEqualThan(Condition):
     def evaluate(self, **kwargs) -> bool:
         return self.left.evaluate(**kwargs) <= self.right.evaluate(**kwargs)
 
-    def evaluate_lines(self, **kwargs) -> bool:
+    def evaluate_lines(self, **kwargs) -> Callable[[Any], bool]:
         return lambda line: self.left.evaluate_lines(**kwargs)(
-            line) <= self.right.evaluate_lines(**kwargs)(line)
+            line
+        ) <= self.right.evaluate_lines(**kwargs)(line)
 
     def __str__(self):
         return f"({self.left} <= {self.right})"
@@ -109,9 +115,10 @@ class Is(Condition):
     def evaluate(self, **kwargs) -> bool:
         return self.left.evaluate(**kwargs) is self.right.evaluate(**kwargs)
 
-    def evaluate_lines(self, **kwargs) -> bool:
+    def evaluate_lines(self, **kwargs) -> Callable[[Any], bool]:
         return lambda line: self.left.evaluate_lines(**kwargs)(
-            line) is self.right.evaluate_lines(**kwargs)(line)
+            line
+        ) is self.right.evaluate_lines(**kwargs)(line)
 
     def __str__(self):
         return f"({self.left} is {self.right})"
@@ -123,18 +130,24 @@ class IsNot(Condition):
     right: Expr
 
     def evaluate(self, **kwargs) -> bool:
-        return self.left.evaluate(**kwargs) is not self.right.evaluate(
-            **kwargs)
+        return self.left.evaluate(**kwargs) is not self.right.evaluate(**kwargs)
 
-    def evaluate_lines(self, **kwargs) -> bool:
+    def evaluate_lines(self, **kwargs) -> Callable[[Any], bool]:
         return lambda line: self.left.evaluate_lines(**kwargs)(
-            line) is not self.right.evaluate_lines(**kwargs)(line)
+            line
+        ) is not self.right.evaluate_lines(**kwargs)(line)
 
     def __str__(self):
         return f"({self.left} is not {self.right})"
 
 
 all_operators = [
-    Equals, NotEquals, GreaterOrEqualThan, GreaterThan, LessOrEqualThan,
-    LessThan, Is, IsNot
+    Equals,
+    NotEquals,
+    GreaterOrEqualThan,
+    GreaterThan,
+    LessOrEqualThan,
+    LessThan,
+    Is,
+    IsNot,
 ]
