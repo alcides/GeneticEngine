@@ -43,7 +43,7 @@ for i, n in enumerate(vars):
 
 XAssign.__annotations__["value"] = Number
 Var.__annotations__["name"] = Annotated[str, VarRange(vars)]
-Var.feature_indices = variables
+Var.feature_indices = variables # type: ignore
 g = extract_grammar(
     [
         Plus,
@@ -107,7 +107,7 @@ def preprocess():
     )
 
 
-def evolve(g, seed, mode):
+def evolve(g, seed, mode=False):
     alg = GP(
         g,
         fitness_function,

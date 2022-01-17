@@ -53,7 +53,7 @@ fitness_function = lambda x: fit(x)
 
 def preprocess():
     return extract_grammar(
-        [XPlusConst, XTimesConst, XAssign, ForLoop, Code, Const, VarX], Code
+        [XPlusConst, XTimesConst, XAssign, ForLoop, Code, Const, VarX], ForLoop
     )
 
 
@@ -62,14 +62,14 @@ def evolve(g, seed, mode):
         g,
         fitness_function,
         representation=treebased_representation,
-        max_depth=17,
-        population_size=500,
-        number_of_generations=50,
+        max_depth=3,
+        population_size=1,
+        number_of_generations=1,
         minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
     )
-    (b, bf, bp) = alg.evolve(verbose=0)
+    (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf
 
 

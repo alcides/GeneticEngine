@@ -35,7 +35,7 @@ for i, n in enumerate(vars):
 
 XAssign.__annotations__["value"] = Number
 lists.Var.__annotations__["name"] = Annotated[str, VarRange(vars)]
-lists.Var.feature_indices = variables
+lists.Var.feature_indices = variables  # type: ignore
 
 
 def preprocess():

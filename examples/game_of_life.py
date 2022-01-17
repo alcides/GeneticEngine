@@ -95,13 +95,20 @@ class Matrix(Expr):
 def evaluate(e: Expr) -> Callable[[Any], float]:
 
     if isinstance(e, And):
-        return lambda line: evaluate(e.e1)(line) and evaluate(e.e2)(line)
+        f1 = evaluate(e.e1)
+        f2 = evaluate(e.e2)
+        return lambda line: f1(line) and f2(line)
     elif isinstance(e, Or):
-        return lambda line: evaluate(e.e1)(line) or evaluate(e.e2)(line)
+        f1 = evaluate(e.e1)
+        f2 = evaluate(e.e2)
+        return lambda line: f1(line) or f2(line)
     elif isinstance(e, Not):
-        return lambda line: not evaluate(e.e1)(line)
+        f1 = evaluate(e.e1)
+        return lambda line: not f1(line)
     elif isinstance(e, Matrix):
-        return lambda line: line[e.row, e.column]
+        r = e.row
+        c = e.column
+        return lambda line: line[r, c]
     else:
         raise NotImplementedError(str(e))
 

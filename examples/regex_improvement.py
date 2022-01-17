@@ -1,6 +1,6 @@
 from geneticengine.grammars.regex import *
 
-from examples.regex_fitness.RegexEval import *
+from examples.regex_fitness.RegexEval import RegexEval
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
@@ -17,24 +17,27 @@ fitness_function = lambda x: fit(x)
 
 
 def preprocess():
-    return extract_grammar([
-        ElementaryREParens,
-        ElementaryREWD,
-        ElementaryRERE,
-        ModifierSingle,
-        ModifierOr,
-        LookaroundSingle,
-        LookaroundComposition,
-        Char,
-        Set,
-        RangeAnChar1,
-        RangeAnChar2,
-        RangeLimits,
-        RecurDigitSingle,
-        RecurDigitMultiple,
-        MatchTimesSingleRecur,
-        MatchTimesDoubleRecur,
-    ], RE)
+    return extract_grammar(
+        [
+            ElementaryREParens,
+            ElementaryREWD,
+            ElementaryRERE,
+            ModifierSingle,
+            ModifierOr,
+            LookaroundSingle,
+            LookaroundComposition,
+            Char,
+            Set,
+            RangeAnChar1,
+            RangeAnChar2,
+            RangeLimits,
+            RecurDigitSingle,
+            RecurDigitMultiple,
+            MatchTimesSingleRecur,
+            MatchTimesDoubleRecur,
+        ],
+        RE,
+    )
 
 
 def evolve(g, seed, mode):

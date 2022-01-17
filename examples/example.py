@@ -45,11 +45,11 @@ alg_gp = GP(
     n_novelties=10,
 )
 (b_gp, bf_gp, bp_gp) = alg_gp.evolve(verbose=0)
-    
-    
+
+
 alg_hc = HC(
     g,
-    fit,
+    evaluation_function=fit,
     representation=treebased_representation,
     population_size=150,
     max_depth=5,

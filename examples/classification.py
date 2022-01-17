@@ -6,11 +6,11 @@ from math import isinf
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.grammars.sgp import Plus, Literal, Number, Mul, Var
-from geneticengine.grammars.base_math import SafeLog, SafeSqrt, Sin, Tanh, Exp, SafeDiv
+from geneticengine.grammars.basic_math import SafeLog, SafeSqrt, Sin, Tanh, Exp, SafeDiv
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.treebased import treebased_representation
 from geneticengine.metahandlers.vars import VarRange
-from geneticengine.metrics.metrics import f1_score
+from geneticengine.metrics import f1_score
 
 DATASET_NAME = "Banknote"
 DATA_FILE_TRAIN = "examples/data/{}/Train.csv".format(DATASET_NAME)
@@ -29,7 +29,7 @@ for i, n in enumerate(feature_names):
 
 # Prepare Grammar
 Var.__annotations__["name"] = Annotated[str, VarRange(feature_names)]
-Var.feature_indices = feature_indices
+Var.feature_indices = feature_indices  # type: ignore
 
 
 def preprocess():

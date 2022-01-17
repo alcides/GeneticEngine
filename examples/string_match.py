@@ -8,7 +8,7 @@ from geneticengine.core.representations.treebased import treebased_representatio
 def fit(individual: String):
     guess = str(individual)
     target = "Hello world!"
-    fitness = max(len(target), len(guess))
+    fitness:float = max(len(target), len(guess))
     # Loops as long as the shorter of two strings
     for (t_p, g_p) in zip(target, guess):
         if t_p == g_p:

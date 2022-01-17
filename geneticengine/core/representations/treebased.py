@@ -84,6 +84,7 @@ def apply_metahandler(
     """
     metahandler: MetaHandlerGenerator = ty.__metadata__[0]
     base_type = get_generic_parameter(ty)
+    print("applying metahandler", metahandler, base_type)
     if is_generic_list(base_type):
         base_type = get_generic_parameter(base_type)
     return metahandler.generate(r, g, wrapper, rec, depth, base_type, argn, context)
@@ -226,6 +227,10 @@ def PI_Grow(
         future = prod_queue.pop(index)
         if isinstance(future, Future):
             obj = future.get(future.depth)
+            expected_type = [
+                (n, t) for (n, t) in get_arguments(future.parent) if n == future.name
+            ][0]
+            print("<:", expected_type, obj)
             setattr(future.parent, future.name, obj)
         else:
             obj = future  # only for root
@@ -233,6 +238,7 @@ def PI_Grow(
         prod_queue.extend(extract_futures(obj))
 
     relabel_nodes_of_trees(root, g.non_terminals)
+    assert isinstance(root, starting_symbol)
     return root
 
 

@@ -34,6 +34,7 @@ class ForLoop(Statement):
 
     def evaluate(self, **kwargs) -> float:
         x = kwargs.get("x", 1.0)
+        assert type(self.iterationRange) == int
         for _ in range(self.iterationRange):
             x = self.loopedCode.evaluate(x=x)
         return x

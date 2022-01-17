@@ -5,9 +5,8 @@ from sklearn.datasets import load_diabetes
 from sklearn.metrics import mean_squared_error
 
 from geneticengine.algorithms.gp.gp import GP
-from geneticengine.grammars.base_math import SafeSqrt, Sin, Tanh, Exp, SafeLog
+from geneticengine.grammars.basic_math import SafeSqrt, Sin, Tanh, Exp, SafeLog
 from geneticengine.grammars.sgp import Plus, Literal, Number, Mul, SafeDiv, Var
-from geneticengine.grammars.base_math import SafeLog, SafeSqrt, Sin, Tanh, Exp
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.treebased import treebased_representation
 from geneticengine.metahandlers.vars import VarRange
@@ -21,7 +20,7 @@ for i, n in enumerate(bunch.feature_names):
 
 # Prepare Grammar
 Var.__annotations__["name"] = Annotated[str, VarRange(bunch.feature_names)]
-Var.feature_indices = feature_indices
+Var.feature_indices = feature_indices  # type: ignore
 
 
 def preprocess():

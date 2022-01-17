@@ -27,7 +27,7 @@ for i, n in enumerate(vars):
     variables[n] = i
 
 Var.__annotations__["name"] = Annotated[str, VarRange(vars)]
-Var.feature_indices = variables
+Var.feature_indices = variables # type: ignore
 
 
 def fitness_function(n: Number):
