@@ -1,3 +1,4 @@
+import copy
 from dataclasses import dataclass
 import sys
 from copy import deepcopy
@@ -7,13 +8,13 @@ from typing import (
     Any,
     Callable,
     Dict,
+    Generic,
     NoReturn,
     Set,
     Type,
     TypeVar,
     Tuple,
     List,
-    Union,
 )
 
 from geneticengine.core.decorators import get_gengy, is_builtin
@@ -40,19 +41,25 @@ def random_float(r: Source) -> float:
 
 
 T = TypeVar("T")
+WrapperType = Callable[[int, Type], Any]
+
+
+@dataclass
+class Wrapper(object):
+    depth: int
+    target: Type
 
 
 def random_list(
     r: Source,
     g: Grammar,
-    wrapper: Callable[[Any, str, int, Callable[[int], Any]], Any],
-    rec: Any,
+    rec: WrapperType,
     depth: int,
     ty: Type[List[T]],
 ):
     inner_type = get_generic_parameter(ty)
     size = r.randint(0, depth - 1)
-    return [rec(r, g, wrapper, depth - 1, inner_type) for _ in range(size)]
+    return [rec(depth - 1, inner_type) for _ in range(size)]
 
 
 def is_metahandler(ty: type) -> bool:
@@ -68,8 +75,7 @@ def is_metahandler(ty: type) -> bool:
 def apply_metahandler(
     r: Source,
     g: Grammar,
-    wrapper: Callable[[Any, str, int, Callable[[int], Any]], Any],
-    rec: Callable[[RandomSource, Grammar, Any, Any, int, Any], Any],
+    rec: WrapperType,
     depth: int,
     ty: Type[Any],
     argn: str,
@@ -84,10 +90,9 @@ def apply_metahandler(
     """
     metahandler: MetaHandlerGenerator = ty.__metadata__[0]
     base_type = get_generic_parameter(ty)
-    print("applying metahandler", metahandler, base_type)
     if is_generic_list(base_type):
         base_type = get_generic_parameter(base_type)
-    return metahandler.generate(r, g, wrapper, rec, depth, base_type, argn, context)
+    return metahandler.generate(r, g, rec, depth, base_type, argn, context)
 
 
 def filter_choices(g: Grammar, possible_choices: List[type], depth):
@@ -109,7 +114,6 @@ def filter_choices(g: Grammar, possible_choices: List[type], depth):
 def expand_node(
     r: Source,
     g: Grammar,
-    wrapper: Callable[[Any, str, int, Callable[[int], Any]], Any],
     depth,
     starting_symbol,
     argname: str = "",
@@ -118,6 +122,7 @@ def expand_node(
     """
     Creates a random node of a given type (starting_symbol)
     """
+
     if context is None:
         context = {}
 
@@ -135,10 +140,10 @@ def expand_node(
     elif starting_symbol is float:
         return random_float(r)
     elif is_generic_list(starting_symbol):
-        return random_list(r, g, wrapper, expand_node, depth, starting_symbol)
+        return random_list(r, g, Wrapper, depth, starting_symbol)
     elif is_metahandler(starting_symbol):
         return apply_metahandler(
-            r, g, wrapper, expand_node, depth, starting_symbol, argname, context
+            r, g, Wrapper, depth, starting_symbol, argname, context
         )
     else:
         if starting_symbol not in g.all_nodes:
@@ -165,17 +170,14 @@ def expand_node(
                 rule = r.choice_weighted(valid_productions, weights)
             else:
                 rule = r.choice(valid_productions)
-            return expand_node(r, g, wrapper, depth, rule)
+            return expand_node(r, g, depth, rule)
         else:  # Normal production
             args = get_arguments(starting_symbol)
             obj = starting_symbol(*[None for _ in args])
             context = {argn: argt for (argn, argt) in args}
             for (argn, argt) in args:
-                w = wrapper(
-                    obj,
-                    argn,
-                    depth - 1,
-                    lambda d: expand_node(r, g, wrapper, d, argt, argn, context),
+                w = Future(
+                    parent=obj, name=argn, depth=depth - 1, ty=argt, context=context
                 )
                 setattr(obj, argn, w)
             return obj
@@ -186,9 +188,8 @@ class Future(object):
     parent: Any
     name: str
     depth: int
-    get: Union[
-        Callable[[int], Any], Callable[[int], Any]
-    ]  # This is due to mypy bug 708
+    ty: Type
+    context: Dict[str, Type]
 
 
 def extract_futures(obj: Any) -> List[Future]:
@@ -202,6 +203,9 @@ def extract_futures(obj: Any) -> List[Future]:
     else:
         for (name, ty) in get_arguments(obj):
             v = getattr(obj, name)
+            if isinstance(v, Wrapper):
+                context = {argn: argt for (argn, argt) in get_arguments(obj)}
+                futures.append(Future(obj, name, v.depth, v.target, context))
             if isinstance(v, Future):
                 futures.append(v)
             # Do we want a full recursion here? probably not for performance reasons
@@ -216,21 +220,22 @@ def PI_Grow(
     depth: int,
     starting_symbol: Type[Any] = int,
 ):
-    def wrapper(parent: Any, name: str, depth: int, callback: Callable[[int], Any]):
-        return Future(parent=parent, name=name, depth=depth, get=callback)
 
-    root = expand_node(r, g, wrapper, depth, starting_symbol)
+    root = expand_node(r, g, depth, starting_symbol)
     prod_queue: List[Future] = [root]
 
     while prod_queue:
         index = r.randint(0, len(prod_queue) - 1)
         future = prod_queue.pop(index)
         if isinstance(future, Future):
-            obj = future.get(future.depth)
-            expected_type = [
-                (n, t) for (n, t) in get_arguments(future.parent) if n == future.name
-            ][0]
-            print("<:", expected_type, obj)
+            obj = expand_node(
+                r,
+                g,
+                depth=future.depth,
+                starting_symbol=future.ty,
+                argname=future.name,
+                context=future.context,
+            )
             setattr(future.parent, future.name, obj)
         else:
             obj = future  # only for root

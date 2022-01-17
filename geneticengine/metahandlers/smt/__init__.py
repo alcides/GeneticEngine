@@ -30,7 +30,9 @@ z3types = {int: "int", bool: "bool", float: "real"}
 
 def fix_types(e: dNode, context: Dict[str, Type]):
     if isinstance(e, dVar):
-        e.type = z3types[simplify_type(context[e.name])]
+        name = str(e.name)
+        ty = simplify_type(context[name])
+        e.type = z3types[ty]
     else:
         for p in dir(e):
             a = getattr(e, p)
@@ -47,8 +49,7 @@ class SMT(MetaHandlerGenerator):
         self,
         r: Source,
         g: Grammar,
-        wrapper: Callable[[Any, str, int, Callable[[int], Any]], Any],
-        rec: Any,
+        rec: Callable[[int, Type], Any],
         depth: int,
         base_type,
         argname: str,
