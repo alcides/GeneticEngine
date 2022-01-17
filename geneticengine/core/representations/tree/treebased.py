@@ -1,26 +1,20 @@
-import copy
-from dataclasses import dataclass
 import sys
 from copy import deepcopy
-from itertools import accumulate
 
 from typing import (
     Any,
-    Callable,
     Dict,
-    Generic,
-    NoReturn,
-    Set,
     Type,
     TypeVar,
     Tuple,
     List,
 )
 
-from geneticengine.core.decorators import get_gengy, is_builtin
-from geneticengine.core.random.sources import RandomSource, Source
+from geneticengine.core.decorators import get_gengy
+from geneticengine.core.random.sources import Source
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.representations.api import Representation
+from geneticengine.core.representations.tree.utils import relabel_nodes_of_trees
 from geneticengine.core.representations.tree.wrapper import Wrapper, WrapperType
 from geneticengine.core.representations.tree.position_independent_grow import (
     create_position_independent_grow,
@@ -31,10 +25,9 @@ from geneticengine.core.utils import (
     get_arguments,
     is_generic_list,
     get_generic_parameter,
-    is_terminal,
 )
 from geneticengine.exceptions import GeneticEngineError
-from geneticengine.metahandlers.base import MetaHandlerGenerator
+from geneticengine.metahandlers.base import MetaHandlerGenerator, is_metahandler
 
 
 def random_int(r: Source) -> int:
@@ -58,16 +51,6 @@ def random_list(
     inner_type = get_generic_parameter(ty)
     size = r.randint(0, depth - 1)
     return [rec(depth - 1, inner_type) for _ in range(size)]
-
-
-def is_metahandler(ty: type) -> bool:
-    """
-    Returns if type is a metahandler.
-    AnnotatedType[int, IntRange(3,10)] is an example of a Metahandler.
-
-    Verification is done using the __metadata__, which is the first argument of Annotated
-    """
-    return hasattr(ty, "__metadata__")
 
 
 def apply_metahandler(
@@ -305,46 +288,6 @@ def tree_crossover_single_tree(
     new_tree = tree_crossover_inner(r, g, deepcopy(p1), deepcopy(p2), max_depth)
     relabeled_new_tree = relabel_nodes_of_trees(new_tree, g.non_terminals)
     return relabeled_new_tree
-
-
-def get_property_names(obj: TreeNode) -> List[Any]:
-    if hasattr(obj, "__annotations__"):
-        return [field for field in obj.__annotations__]
-    else:
-        return []
-
-
-def relabel_nodes_of_trees(
-    i: TreeNode, non_terminals: Set[type], max_depth: int = 1
-) -> TreeNode:
-    """Recomputes all the nodes, depth and distance_to_term in the tree"""
-
-    # print("Node: {}, nodes: {}, distance_to_term: {}, depth: {}.".format(i,i.nodes,i.distance_to_term,i.depth))
-    def relabel_nodes(i: TreeNode, depth: int = 1) -> Tuple[int, int]:
-        children: List[Any]
-        if is_terminal(type(i), non_terminals):
-            if not is_builtin(type(i)):
-                i.depth = depth
-                i.distance_to_term = 1
-                i.nodes = 0
-            return (0, 1)
-        elif isinstance(i, list):
-            children = i
-        else:
-            children = [getattr(i, field) for field in get_property_names(i)]
-        assert children
-        properties_of_children = [relabel_nodes(child, depth + 1) for child in children]
-        number_of_nodes = 1 + sum([prop[0] for prop in properties_of_children])
-        distance_to_term = 1 + max([prop[1] for prop in properties_of_children])
-        if not isinstance(i, list):
-            i.depth = depth
-            i.distance_to_term = distance_to_term
-            i.nodes = number_of_nodes
-        return number_of_nodes, distance_to_term
-
-    # print("Node: {}, nodes: {}, distance_to_term: {}, depth: {}.".format(i,i.nodes,i.distance_to_term,i.depth))
-    relabel_nodes(i, max_depth)
-    return i
 
 
 class TreeBasedRepresentation(Representation[TreeNode]):
