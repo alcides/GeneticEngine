@@ -6,7 +6,7 @@ from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.grammars.sgp import Plus, Literal, Number, Mul, SafeDiv, Var
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.metahandlers.vars import VarRange
 
 Var.__annotations__["name"] = Annotated[str, VarRange("x")]

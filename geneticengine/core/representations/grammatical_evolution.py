@@ -4,7 +4,7 @@ from typing import Any, List, Protocol, Tuple
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource, Source
 from geneticengine.core.representations.api import Representation
-from geneticengine.core.representations.treebased import random_node
+from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.core.tree import TreeNode
 
 

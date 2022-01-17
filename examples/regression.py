@@ -8,7 +8,7 @@ from geneticengine.algorithms.gp.gp import GP
 from geneticengine.grammars.sgp import Plus, Literal, Number, Mul, Var
 from geneticengine.grammars.basic_math import SafeLog, SafeSqrt, Sin, Tanh, Exp, SafeDiv
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import rmse
 

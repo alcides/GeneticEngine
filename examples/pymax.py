@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.grammars.coding.control_flow import ForLoop, Code
 from geneticengine.grammars.coding.classes import Expr, Statement, XAssign

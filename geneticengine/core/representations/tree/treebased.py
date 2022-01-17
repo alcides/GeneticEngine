@@ -21,6 +21,11 @@ from geneticengine.core.decorators import get_gengy, is_builtin
 from geneticengine.core.random.sources import RandomSource, Source
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.representations.api import Representation
+from geneticengine.core.representations.tree.wrapper import Wrapper, WrapperType
+from geneticengine.core.representations.tree.position_independent_grow import (
+    create_position_independent_grow,
+)
+
 from geneticengine.core.tree import TreeNode
 from geneticengine.core.utils import (
     get_arguments,
@@ -41,13 +46,6 @@ def random_float(r: Source) -> float:
 
 
 T = TypeVar("T")
-WrapperType = Callable[[int, Type], Any]
-
-
-@dataclass
-class Wrapper(object):
-    depth: int
-    target: Type
 
 
 def random_list(
@@ -114,8 +112,8 @@ def filter_choices(g: Grammar, possible_choices: List[type], depth):
 def expand_node(
     r: Source,
     g: Grammar,
-    depth,
-    starting_symbol,
+    depth: int,
+    starting_symbol: Any,
     argname: str = "",
     context: Dict[str, Type] = None,
 ) -> Any:
@@ -176,78 +174,21 @@ def expand_node(
             obj = starting_symbol(*[None for _ in args])
             context = {argn: argt for (argn, argt) in args}
             for (argn, argt) in args:
-                w = Future(
-                    parent=obj, name=argn, depth=depth - 1, ty=argt, context=context
-                )
+                w = Wrapper(depth - 1, argt)
                 setattr(obj, argn, w)
             return obj
 
 
-@dataclass
-class Future(object):
-    parent: Any
-    name: str
-    depth: int
-    ty: Type
-    context: Dict[str, Type]
-
-
-def extract_futures(obj: Any) -> List[Future]:
-    futures = []
-    if isinstance(obj, list):
-        for el in obj:
-            if isinstance(el, Future):
-                futures.append(el)
-            else:
-                futures.extend(extract_futures(el))
-    else:
-        for (name, ty) in get_arguments(obj):
-            v = getattr(obj, name)
-            if isinstance(v, Wrapper):
-                context = {argn: argt for (argn, argt) in get_arguments(obj)}
-                futures.append(Future(obj, name, v.depth, v.target, context))
-            if isinstance(v, Future):
-                futures.append(v)
-            # Do we want a full recursion here? probably not for performance reasons
-            # else:
-            #    futures.extend(extract_futures(v))
-    return futures
-
-
-def PI_Grow(
+def random_node(
     r: Source,
     g: Grammar,
     depth: int,
     starting_symbol: Type[Any] = int,
 ):
-
-    root = expand_node(r, g, depth, starting_symbol)
-    prod_queue: List[Future] = [root]
-
-    while prod_queue:
-        index = r.randint(0, len(prod_queue) - 1)
-        future = prod_queue.pop(index)
-        if isinstance(future, Future):
-            obj = expand_node(
-                r,
-                g,
-                depth=future.depth,
-                starting_symbol=future.ty,
-                argname=future.name,
-                context=future.context,
-            )
-            setattr(future.parent, future.name, obj)
-        else:
-            obj = future  # only for root
-
-        prod_queue.extend(extract_futures(obj))
-
+    k = create_position_independent_grow(expand_node)
+    root = k(r, g, depth, starting_symbol)
     relabel_nodes_of_trees(root, g.non_terminals)
-    assert isinstance(root, starting_symbol)
     return root
-
-
-random_node = PI_Grow
 
 
 def random_individual(r: Source, g: Grammar, max_depth: int = 5) -> TreeNode:

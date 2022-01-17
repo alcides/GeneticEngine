@@ -12,7 +12,7 @@ from geneticengine.grammars.coding.numbers import (
 )
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.algorithms.gp.gp import GP
-from geneticengine.core.representations.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import treebased_representation
 
 FILE_NAME = "Number_IO"
 DATA_FILE_TRAIN = "./examples/progsys/data/{}/Train.txt".format(FILE_NAME)
@@ -27,7 +27,7 @@ for i, n in enumerate(vars):
     variables[n] = i
 
 Var.__annotations__["name"] = Annotated[str, VarRange(vars)]
-Var.feature_indices = variables # type: ignore
+Var.feature_indices = variables  # type: ignore
 
 
 def fitness_function(n: Number):

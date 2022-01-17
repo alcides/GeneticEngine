@@ -1,14 +1,14 @@
 from geneticengine.grammars.letter import *
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import treebased_representation
 
 
 # Extracted from PonyGE
 def fit(individual: String):
     guess = str(individual)
     target = "Hello world!"
-    fitness:float = max(len(target), len(guess))
+    fitness: float = max(len(target), len(guess))
     # Loops as long as the shorter of two strings
     for (t_p, g_p) in zip(target, guess):
         if t_p == g_p:

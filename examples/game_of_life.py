@@ -5,7 +5,7 @@ from typing import Annotated, Any, Callable, Tuple
 import numpy as np
 from sklearn.metrics import f1_score
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.algorithms.gp.gp import GP
 

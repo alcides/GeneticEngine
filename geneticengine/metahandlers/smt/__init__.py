@@ -16,7 +16,7 @@ from geneticengine.metahandlers.smt.lang import dNode, dVar
 import z3
 import random
 
-from geneticengine.core.representations.treebased import is_metahandler
+from geneticengine.core.representations.tree.treebased import is_metahandler
 
 
 def simplify_type(t: Type) -> Type:

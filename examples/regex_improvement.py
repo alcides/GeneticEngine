@@ -4,7 +4,7 @@ from examples.regex_fitness.RegexEval import RegexEval
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import treebased_representation
 
 
 # Extracted from PonyGE

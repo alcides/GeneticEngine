@@ -1,3 +1,4 @@
+from abc import ABC
 from collections import defaultdict
 from typing import Any, Dict, List, Set, Type, Tuple
 
@@ -50,7 +51,7 @@ class Grammar(object):
         self.all_nodes.add(ty)
 
         parent = ty.mro()[1]
-        if parent != object:
+        if parent not in [object, ABC]:
             self.register_type(parent)
             self.register_alternative(parent, ty)
 

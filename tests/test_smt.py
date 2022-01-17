@@ -4,7 +4,7 @@ from typing import Annotated, List, TypeVar
 
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.grammar import Grammar, extract_grammar
-from geneticengine.core.representations.treebased import random_node
+from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.metahandlers.smt import SMT
 
 

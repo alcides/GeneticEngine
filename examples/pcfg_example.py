@@ -1,7 +1,7 @@
 from abc import ABC
 from typing import Annotated, List, NamedTuple, Protocol
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.lists import ListSizeBetween
 from geneticengine.algorithms.gp.gp import GP

@@ -27,7 +27,7 @@ from geneticengine.grammars.coding.conditions import (
 from geneticengine.grammars.coding.logical_ops import And, Or
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.algorithms.gp.gp import GP
-from geneticengine.core.representations.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import treebased_representation
 
 FILE_NAME = "Median"
 DATA_FILE_TRAIN = "./examples/progsys/data/{}/Train.txt".format(FILE_NAME)
