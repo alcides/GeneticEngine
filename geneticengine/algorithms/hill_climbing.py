@@ -1,7 +1,7 @@
 from typing import Any, Callable
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.base import Representation
+from geneticengine.core.representations.api import Representation
 from geneticengine.algorithms.gp.Individual import Individual
 import geneticengine.algorithms.gp.generation_steps.mutation as mutation
 

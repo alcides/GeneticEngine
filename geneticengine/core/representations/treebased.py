@@ -18,7 +18,7 @@ from typing import (
 from geneticengine.core.decorators import get_gengy, is_builtin
 from geneticengine.core.random.sources import RandomSource, Source
 from geneticengine.core.grammar import Grammar
-from geneticengine.core.representations.base import Representation
+from geneticengine.core.representations.api import Representation
 from geneticengine.core.tree import TreeNode
 from geneticengine.core.utils import (
     get_arguments,
@@ -229,7 +229,6 @@ def PI_Grow(
             obj = future  # only for root
 
         prod_queue.extend(extract_futures(obj))
-        print(future, prod_queue)
 
     relabel_nodes_of_trees(root, g.non_terminals)
     return root

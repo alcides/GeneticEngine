@@ -53,7 +53,8 @@ fitness_function = lambda x: fit(x)
 
 def preprocess():
     return extract_grammar(
-        [XPlusConst, XTimesConst, XAssign, ForLoop, Code, Const, VarX], Code)
+        [XPlusConst, XTimesConst, XAssign, ForLoop, Code, Const, VarX], Code
+    )
 
 
 def evolve(g, seed, mode):

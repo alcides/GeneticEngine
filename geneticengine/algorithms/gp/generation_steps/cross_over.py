@@ -1,7 +1,7 @@
 from typing import Callable, Tuple
 from geneticengine.algorithms.gp.Individual import Individual
 from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.base import Representation
+from geneticengine.core.representations.api import Representation
 from geneticengine.core.representations.treebased import Grammar
 
 
