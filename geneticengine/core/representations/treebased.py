@@ -25,7 +25,6 @@ from geneticengine.core.utils import (
     is_generic_list,
     get_generic_parameter,
     is_terminal,
-    build_finalizers,
 )
 from geneticengine.exceptions import GeneticEngineError
 from geneticengine.metahandlers.base import MetaHandlerGenerator

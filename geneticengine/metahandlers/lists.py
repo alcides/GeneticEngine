@@ -12,7 +12,6 @@ from typing import (
 )
 
 from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.utils import build_finalizers
 from geneticengine.metahandlers.base import MetaHandlerGenerator
 
 from geneticengine.core.grammar import Grammar
