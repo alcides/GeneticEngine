@@ -1,16 +1,12 @@
 from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated, List
-from typing_extensions import get_args
+
 from geneticengine.core.random.sources import RandomSource
-
 from geneticengine.core.grammar import Grammar, extract_grammar
-
 from geneticengine.core.representations.treebased import random_node, Future
-
 from geneticengine.core.utils import get_arguments
 from geneticengine.metahandlers.ints import IntRange
-
 from geneticengine.metahandlers.lists import ListSizeBetween
 
 

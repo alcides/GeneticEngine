@@ -2,11 +2,9 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated, Callable, Any, List
 from geneticengine.exceptions import GeneticEngineError
-from geneticengine.grammars.coding.classes import Expr, Statement, NumberList, Number
-import geneticengine.grammars.coding.numbers as numbers
+from geneticengine.grammars.coding.classes import NumberList, Number
 from geneticengine.metahandlers.lists import ListSizeBetween
 from geneticengine.metahandlers.vars import VarRange
-from geneticengine.metahandlers.ints import IntRange
 
 
 @dataclass

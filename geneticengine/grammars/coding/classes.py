@@ -1,6 +1,6 @@
 from abc import ABC
 from dataclasses import dataclass
-from typing import Annotated, Any, Callable, Generic, List, TypeVar, Union
+from typing import Any, Callable, Generic, List, TypeVar, Union
 
 from geneticengine.core.decorators import abstract
 

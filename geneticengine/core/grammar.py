@@ -1,10 +1,5 @@
 from collections import defaultdict
-from typing import (
-    Any,
-    Dict,
-    List,
-    Set,
-)
+from typing import Any, Dict, List, Set, Type, Tuple
 
 from geneticengine.core.utils import (
     get_arguments,
@@ -24,7 +19,8 @@ class Grammar(object):
     all_nodes: Set[type]
     recursive_prods: Set[type]
     terminals: Set[
-        type]  # todo: both terminals and non_terminals can be obtained by checking if disttoterminal == or!= 0
+        type
+    ]  # todo: both terminals and non_terminals can be obtained by checking if disttoterminal == or!= 0
     non_terminals: Set[type]
 
     def __init__(self, starting_symbol) -> None:
@@ -79,20 +75,22 @@ class Grammar(object):
             return n
 
         def format(x):
-            args = ", ".join(
-                [f"{a}: {wrap(at)}" for (a, at) in get_arguments(x)])
+            args = ", ".join([f"{a}: {wrap(at)}" for (a, at) in get_arguments(x)])
             return f"{x.__name__}({args})"
 
-        prods = ";".join([
-            str(p.__name__) + " -> " +
-            ("|".join([format(p) for p in self.alternatives[p]]))
-            for p in self.alternatives
-        ])
+        prods = ";".join(
+            [
+                str(p.__name__)
+                + " -> "
+                + ("|".join([format(p) for p in self.alternatives[p]]))
+                for p in self.alternatives
+            ]
+        )
         return (
             f"Grammar<Starting={self.starting_symbol.__name__},Productions=[{prods}]>"
         )
 
-    def get_all_symbols(self) -> tuple[set[type], set[type], set[type]]:
+    def get_all_symbols(self) -> Tuple[Set[Type], Set[Type], Set[Type]]:
         """All symbols in the current grammar, including terminals"""
         keys = set((k for k in self.alternatives.keys()))
         sequence = set((v for vv in self.alternatives.values() for v in vv))
@@ -160,13 +158,13 @@ class Grammar(object):
                     else:
                         args = get_arguments(sym)
                         assert args
-                        val = 1 + max([
-                            self.get_distance_to_terminal(argt)
-                            for (_, argt) in args
-                        ])
+                        val = 1 + max(
+                            [self.get_distance_to_terminal(argt) for (_, argt) in args]
+                        )
 
                         changed |= process_reachability(
-                            sym, [argt for (_, argt) in args])
+                            sym, [argt for (_, argt) in args]
+                        )
 
                 if val < old_val:
                     changed = True

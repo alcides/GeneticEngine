@@ -1,14 +1,10 @@
 import string
 from abc import ABC
 from dataclasses import dataclass
-from textwrap import indent
-from typing import Annotated, Match
+from typing import Annotated
 
 from geneticengine.core.decorators import abstract
 from geneticengine.metahandlers.vars import VarRange
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.algorithms.gp.gp import GP
-from geneticengine.core.representations.treebased import treebased_representation
 
 # Auxiliary "attributes"
 an_char = list(string.digits) + list(string.ascii_letters)

@@ -1,17 +1,12 @@
 from typing import (
     Any,
     Callable,
-    Generic,
     List,
     NoReturn,
-    Optional,
-    Protocol,
     Tuple,
-    TypeVar,
     Union,
 )
 import time
-from copy import deepcopy
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.api import Representation
@@ -45,8 +40,8 @@ class GP(object):
     def __init__(
         self,
         g: Grammar,
-        representation: Representation,
         evaluation_function: Callable[[Any], float],
+        representation: Representation = treebased_representation,
         randomSource: Callable[[int], RandomSource] = RandomSource,
         population_size: int = 200,
         n_elites: int = 5,  # Shouldn't this be a percentage of population size?

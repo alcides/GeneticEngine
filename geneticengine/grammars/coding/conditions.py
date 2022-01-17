@@ -1,8 +1,6 @@
-from abc import ABC
 from dataclasses import dataclass
-from typing import Annotated, List, Any, Callable
-from geneticengine.metahandlers.ints import IntRange
-from geneticengine.grammars.coding.classes import Expr, Condition, Number
+from typing import Any, Callable
+from geneticengine.grammars.coding.classes import Expr, Condition
 
 
 @dataclass

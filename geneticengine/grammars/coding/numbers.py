@@ -1,4 +1,3 @@
-from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated, Callable, Any
 from geneticengine.exceptions import GeneticEngineError

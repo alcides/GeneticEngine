@@ -11,9 +11,6 @@ from geneticengine.metahandlers.base import MetaHandlerGenerator
 
 from geneticengine.core.grammar import Grammar
 
-min = TypeVar("min", covariant=True)
-max = TypeVar("max", covariant=True)
-
 
 class ListSizeBetween(MetaHandlerGenerator):
     def __init__(self, min, max):
