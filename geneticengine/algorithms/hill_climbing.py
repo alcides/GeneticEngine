@@ -1,8 +1,8 @@
-from typing import Any, Callable
+from typing import Any, Callable, Type
 from geneticengine.core.grammar import Grammar
-from geneticengine.core.random.sources import RandomSource
+from geneticengine.core.random.sources import Source, RandomSource
 from geneticengine.core.representations.api import Representation
-from geneticengine.algorithms.gp.Individual import Individual
+from geneticengine.algorithms.gp.individual import Individual
 import geneticengine.algorithms.gp.generation_steps.mutation as mutation
 
 
@@ -12,7 +12,7 @@ class HC(object):
         g: Grammar,
         representation: Representation,
         evaluation_function: Callable[[Any], float],
-        randomSource: RandomSource = RandomSource,
+        random_source_type: Type = RandomSource,
         population_size: int = 200,
         number_of_generations: int = 100,
         max_depth: int = 15,
@@ -24,24 +24,29 @@ class HC(object):
         self.grammar: Grammar = g
         self.representation = representation
         self.evaluation_function = evaluation_function
-        self.random = randomSource(seed)
+        self.random = random_source_type(seed)
         self.population_size = population_size
         self.minimize = minimize
         self.mutation = mutation.create_hill_climbing_mutation(
-                self.random, self.representation, self.grammar, max_depth, self.keyfitness(), population_size
-            )
+            self.random,
+            self.representation,
+            self.grammar,
+            max_depth,
+            self.keyfitness(),
+            population_size,
+        )
         self.number_of_generations = number_of_generations
         if force_individual is not None:
             self.population = Individual(
-                genotype = force_individual,
-                fitness = None,
+                genotype=force_individual,
+                fitness=None,
             )
         else:
             self.population = Individual(
-                genotype = self.representation.create_individual(
+                genotype=self.representation.create_individual(
                     self.random, self.grammar, max_depth
                 ),
-                fitness = None,
+                fitness=None,
             )
 
     def evaluate(self, individual: Individual) -> float:
@@ -60,9 +65,9 @@ class HC(object):
 
     def evolve(self, verbose=0):
         population = self.population
-        
+
         for gen in range(self.number_of_generations):
-            
+
             population = self.mutation(population)
             print(
                 "BEST at",
@@ -72,4 +77,10 @@ class HC(object):
                 "is",
                 round(self.evaluate(population), 2),
             )
-        return (population, self.evaluate(population), self.representation.genotype_to_phenotype(self.grammar,population.genotype))
+        return (
+            population,
+            self.evaluate(population),
+            self.representation.genotype_to_phenotype(
+                self.grammar, population.genotype
+            ),
+        )

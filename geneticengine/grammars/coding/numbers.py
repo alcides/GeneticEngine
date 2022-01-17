@@ -18,7 +18,8 @@ class Max(Number):
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
         return lambda line: max(
             self.left.evaluate_lines(**kwargs)(line),
-            self.right.evaluate_lines(**kwargs)(line))
+            self.right.evaluate_lines(**kwargs)(line),
+        )
 
     def __str__(self) -> str:
         return f"max({self.left},{self.right})"
@@ -35,7 +36,8 @@ class Min(Number):
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
         return lambda line: min(
             self.left.evaluate_lines(**kwargs)(line),
-            self.right.evaluate_lines(**kwargs)(line))
+            self.right.evaluate_lines(**kwargs)(line),
+        )
 
     def __str__(self) -> str:
         return f"min({self.left},{self.right})"
@@ -65,7 +67,8 @@ class Plus(Number):
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
         return lambda line: self.left.evaluate_lines(**kwargs)(
-            line) + self.right.evaluate_lines(**kwargs)(line)
+            line
+        ) + self.right.evaluate_lines(**kwargs)(line)
 
     def __str__(self) -> str:
         return f"({self.left} + {self.right})"
@@ -81,7 +84,8 @@ class Mul(Number):
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
         return lambda line: self.left.evaluate_lines(**kwargs)(
-            line) * self.right.evaluate_lines(**kwargs)(line)
+            line
+        ) * self.right.evaluate_lines(**kwargs)(line)
 
     def __str__(self) -> str:
         return f"({self.left} * {self.right})"
@@ -104,8 +108,7 @@ class SafeDiv(Number):
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
         d1 = lambda line: self.left.evaluate_lines(**kwargs)(line)
-        d2 = lambda line: self.keep_safe(
-            self.right.evaluate_lines(**kwargs)(line))
+        d2 = lambda line: self.keep_safe(self.right.evaluate_lines(**kwargs)(line))
         return lambda line: d1(line) / d2(line)
 
     def __str__(self) -> str:
@@ -148,8 +151,10 @@ class Var(Number):
 class XAssign(Statement):
     value: Expr
 
-    def evaluate(self, x: float = 1) -> float:
-        return self.value.evaluate(x)
+    def evaluate(self, **kwargs) -> float:
+        if "x" not in kwargs:
+            kwargs["x"] = 1.0
+        return self.value.evaluate(**kwargs)
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
         return lambda line: self.value.evaluate_lines(**kwargs)(line)

@@ -8,7 +8,6 @@ from typing import (
     Type,
     Tuple,
     List,
-    Callable,
 )
 
 from geneticengine.core.decorators import get_gengy
@@ -24,7 +23,7 @@ def is_generic_list(ty: Type[Any]):
     return hasattr(ty, "__origin__") and ty.__origin__ is list
 
 
-def get_generic_parameters(ty: Type[Any]) -> list[type]:
+def get_generic_parameters(ty: Type[Any]) -> List[type]:
     """Annotated[T, <annotations>] or List[T], this function returns Dict[T,]"""
     return ty.__args__
 

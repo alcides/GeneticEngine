@@ -11,7 +11,7 @@ from typing import (
     get_args,
 )
 
-from geneticengine.core.random.sources import RandomSource
+from geneticengine.core.random.sources import Source
 from geneticengine.metahandlers.base import MetaHandlerGenerator
 
 from geneticengine.core.grammar import Grammar
@@ -50,7 +50,7 @@ class SMT(MetaHandlerGenerator):
 
     def generate(
         self,
-        r: RandomSource,
+        r: Source,
         g: Grammar,
         wrapper: Callable[[Any, str, int, Callable[[int], Any]], Any],
         rec: Any,

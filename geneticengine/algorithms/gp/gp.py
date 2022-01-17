@@ -16,7 +16,7 @@ from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.api import Representation
 from geneticengine.core.representations.treebased import treebased_representation
-from geneticengine.algorithms.gp.Individual import Individual
+from geneticengine.algorithms.gp.individual import Individual
 import geneticengine.algorithms.gp.generation_steps.selection as selection
 import geneticengine.algorithms.gp.generation_steps.mutation as mutation
 import geneticengine.algorithms.gp.generation_steps.cross_over as cross_over

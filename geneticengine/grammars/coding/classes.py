@@ -1,6 +1,6 @@
 from abc import ABC
 from dataclasses import dataclass
-from typing import Annotated, Any, Callable
+from typing import Annotated, Any, Callable, Union
 
 from geneticengine.core.decorators import abstract
 
@@ -14,7 +14,7 @@ class Statement(ABC):
 
 
 class Expr(ABC):
-    def evaluate(self, **kwargs) -> float:
+    def evaluate(self, **kwargs) -> Union[float, bool]:
         return 0.0
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:

@@ -1,5 +1,5 @@
 from typing import Callable
-from geneticengine.algorithms.gp.Individual import Individual
+from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.api import Representation
 from geneticengine.core.grammar import Grammar
@@ -32,12 +32,12 @@ def create_hill_climbing_mutation(
     n_candidates: int = 5,
 ) -> Callable[[Individual], Individual]:
     def hill_climbing_mutation(individual: Individual):
-        creation_new_individual = lambda : Individual(
-                genotype=representation.mutate_individual(
-                    r, g, individual.genotype, max_depth
-                ),
-                fitness=None,
-            )
+        creation_new_individual = lambda: Individual(
+            genotype=representation.mutate_individual(
+                r, g, individual.genotype, max_depth
+            ),
+            fitness=None,
+        )
         new_individuals = [creation_new_individual() for _ in range(n_candidates)]
         best_individual = min((new_individuals + [individual]), key=fitness_function)
         return best_individual

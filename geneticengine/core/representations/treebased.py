@@ -7,6 +7,7 @@ from typing import (
     Any,
     Callable,
     Dict,
+    NoReturn,
     Set,
     Type,
     TypeVar,
@@ -184,7 +185,7 @@ class Future(object):
     parent: Any
     name: str
     depth: int
-    get: Callable[[int], Any]
+    get: Union[Callable[[int], Any], Callable[[int], Any]] # This is due to mypy bug 708
 
 
 def extract_futures(obj: Any) -> List[Future]:
@@ -366,6 +367,7 @@ def relabel_nodes_of_trees(
 
     # print("Node: {}, nodes: {}, distance_to_term: {}, depth: {}.".format(i,i.nodes,i.distance_to_term,i.depth))
     def relabel_nodes(i: TreeNode, depth: int = 1) -> Tuple[int, int]:
+        children: List[Any]
         if is_terminal(type(i), non_terminals):
             if not is_builtin(type(i)):
                 i.depth = depth

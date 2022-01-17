@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Any, Callable, Generic, List, Optional, Protocol, Tuple, TypeVar
 
+
 @dataclass
 class Individual(object):
     genotype: Any
