@@ -1,6 +1,6 @@
 from abc import ABC
 from dataclasses import dataclass
-from typing import Annotated, Any, Callable, Union
+from typing import Annotated, Any, Callable, Generic, List, TypeVar, Union
 
 from geneticengine.core.decorators import abstract
 
@@ -13,26 +13,30 @@ class Statement(ABC):
         return lambda _: 0
 
 
-class Expr(ABC):
-    def evaluate(self, **kwargs) -> Union[float, bool]:
-        return 0.0
-
-    def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
-        return lambda _: 0.0
+t = TypeVar("t")
 
 
 @abstract
-class Number(Expr):
+class Expr(Generic[t]):
+    def evaluate(self, **kwargs) -> t:
+        ...
+
+    def evaluate_lines(self, **kwargs) -> Callable[[Any], t]:
+        ...
+
+
+@abstract
+class Number(Expr[float]):
     pass
 
 
 @abstract
-class Condition(Expr):
+class Condition(Expr[bool]):
     pass
 
 
 @abstract
-class NumberList(Expr):
+class NumberList(Expr[List[float]]):
     pass
 
 

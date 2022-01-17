@@ -185,7 +185,9 @@ class Future(object):
     parent: Any
     name: str
     depth: int
-    get: Union[Callable[[int], Any], Callable[[int], Any]] # This is due to mypy bug 708
+    get: Union[
+        Callable[[int], Any], Callable[[int], Any]
+    ]  # This is due to mypy bug 708
 
 
 def extract_futures(obj: Any) -> List[Future]:
@@ -393,9 +395,22 @@ def relabel_nodes_of_trees(
     return i
 
 
-treebased_representation = Representation(
-    create_individual=random_individual,
-    mutate_individual=mutate,
-    crossover_individuals=tree_crossover,
-    genotype_to_phenotype=lambda g, x: x,
-)
+class TreeBasedRepresentation(Representation[TreeNode]):
+    def create_individual(self, r: Source, g: Grammar, depth: int) -> TreeNode:
+        return random_individual(r, g, depth)
+
+    def mutate_individual(
+        self, r: Source, g: Grammar, ind: TreeNode, depth: int
+    ) -> TreeNode:
+        return mutate(r, g, ind, depth)
+
+    def crossover_individuals(
+        self, r: Source, g: Grammar, i1: TreeNode, i2: TreeNode, int
+    ) -> Tuple[TreeNode, TreeNode]:
+        return tree_crossover(r, g, i1, i2, int)
+
+    def genotype_to_phenotype(self, g: Grammar, genotype: TreeNode) -> TreeNode:
+        return genotype
+
+
+treebased_representation = TreeBasedRepresentation()

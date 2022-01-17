@@ -15,12 +15,12 @@ class Genotype:
 
 
 def random_individual(
-    r: RandomSource, g: Grammar, depth: int = 5, starting_symbol: Any = None
+    r: Source, g: Grammar, depth: int = 5, starting_symbol: Any = None
 ) -> Genotype:
     return Genotype([r.randint(0, 10000) for _ in range(256)], depth)
 
 
-def mutate(r: RandomSource, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
+def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
     rindex = r.randint(0, 255)
     clone = [i for i in ind.dna]
     clone[rindex] = r.randint(0, 10000)
@@ -28,7 +28,7 @@ def mutate(r: RandomSource, g: Grammar, ind: Genotype, max_depth: int) -> Genoty
 
 
 def crossover(
-    r: RandomSource, g: Grammar, p1: Genotype, p2: Genotype, max_depth: int
+    r: Source, g: Grammar, p1: Genotype, p2: Genotype, max_depth: int
 ) -> Tuple[Genotype, Genotype]:
     rindex = r.randint(0, 255)
     c1 = p1.dna[:rindex] + p2.dna[rindex:]
@@ -56,9 +56,22 @@ def create_tree(g: Grammar, ind: Genotype) -> TreeNode:
     return random_node(rand, g, ind.depth, g.starting_symbol)
 
 
-ge_representation = Representation(
-    create_individual=random_individual,
-    mutate_individual=mutate,
-    crossover_individuals=crossover,
-    genotype_to_phenotype=create_tree,
-)
+class GrammaticalEvolutionRepresentation(Representation[Genotype]):
+    def create_individual(self, r: Source, g: Grammar, depth: int) -> Genotype:
+        return random_individual(r, g, depth)
+
+    def mutate_individual(
+        self, r: Source, g: Grammar, ind: Genotype, depth: int
+    ) -> Genotype:
+        return mutate(r, g, ind, depth)
+
+    def crossover_individuals(
+        self, r: Source, g: Grammar, i1: Genotype, i2: Genotype, int
+    ) -> Tuple[Genotype, Genotype]:
+        return crossover(r, g, i1, i2, int)
+
+    def genotype_to_phenotype(self, g: Grammar, genotype: Genotype) -> TreeNode:
+        return create_tree(g, genotype)
+
+
+ge_representation = GrammaticalEvolutionRepresentation()

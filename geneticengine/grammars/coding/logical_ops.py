@@ -50,7 +50,7 @@ class Not(Condition):
     cond: Condition
 
     def evaluate(self, **kwargs) -> bool:
-        return not self.cond(**kwargs)
+        return not self.cond.evaluate(**kwargs)
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], bool]:
         return lambda line: not self.cond.evaluate_lines(**kwargs)(line)

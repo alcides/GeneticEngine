@@ -1,12 +1,12 @@
 from typing import Callable, Tuple
 from geneticengine.algorithms.gp.individual import Individual
-from geneticengine.core.random.sources import RandomSource
+from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
 from geneticengine.core.representations.treebased import Grammar
 
 
 def create_cross_over(
-    r: RandomSource,
+    r: Source,
     representation: Representation,
     g: Grammar,
     max_depth: int,

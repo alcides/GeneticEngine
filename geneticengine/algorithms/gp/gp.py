@@ -33,6 +33,10 @@ class GP(object):
         NoReturn,
         Callable[[List[Individual], Callable[[Individual], float]], List[Individual]],
     ]
+    mutation: Union[
+        NoReturn,
+        Callable[[Individual], Individual],
+    ]
     max_depth: int
     novelty: Union[NoReturn, Callable[[int], List[Individual]]]
     minimize: bool

@@ -1,12 +1,12 @@
 from typing import Callable
 from geneticengine.algorithms.gp.individual import Individual
-from geneticengine.core.random.sources import RandomSource
+from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
 from geneticengine.core.grammar import Grammar
 
 
 def create_mutation(
-    r: RandomSource,
+    r: Source,
     representation: Representation,
     g: Grammar,
     max_depth: int,
@@ -24,7 +24,7 @@ def create_mutation(
 
 
 def create_hill_climbing_mutation(
-    r: RandomSource,
+    r: Source,
     representation: Representation,
     g: Grammar,
     max_depth: int,

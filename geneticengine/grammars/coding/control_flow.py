@@ -10,9 +10,10 @@ from geneticengine.metahandlers.ints import IntRange
 class Code(Statement):
     stmts: List[Statement]
 
-    def evaluate(self, x: float = 1) -> float:
+    def evaluate(self, **kwargs) -> float:
+        x = kwargs.get("x", 1.0)
         for stmt in self.stmts:
-            x = stmt.evaluate(x)
+            x = stmt.evaluate(x=x)
         return x
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
@@ -32,9 +33,10 @@ class ForLoop(Statement):
     iterationRange: Annotated[int, IntRange(1, 6)]
     loopedCode: Statement
 
-    def evaluate(self, x: float = 1) -> float:
+    def evaluate(self, **kwargs) -> float:
+        x = kwargs.get("x", 1.0)
         for _ in range(self.iterationRange):
-            x = self.loopedCode.evaluate(x)
+            x = self.loopedCode.evaluate(x=x)
         return x
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
@@ -47,7 +49,8 @@ class ForLoop(Statement):
 
     def __str__(self):
         return "for i in range({}):\n{}".format(
-            self.iterationRange, indent(str(self.loopedCode), "\t"))
+            self.iterationRange, indent(str(self.loopedCode), "\t")
+        )
 
 
 @dataclass
@@ -56,22 +59,22 @@ class While(Statement):
     cond: Condition
     loopedCode: Statement
 
-    def evaluate(self, x: float = 1) -> float:
-        for _ in range(self.cond.evaluate(x)):
-            x = self.loopedCode.evaluate(x)
+    def evaluate(self, **kwargs) -> float:
+        x = kwargs.get("x", 1.0)
+        for _ in range(self.cond.evaluate(x=x)):
+            x = self.loopedCode.evaluate(x=x)
         return x
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
         def ev(line):
-            while (self.cond.evaluate_lines(**kwargs)(line)):
+            while self.cond.evaluate_lines(**kwargs)(line):
                 x = self.loopedCode.evaluate_lines(**kwargs)(line)
             return x
 
         return lambda line: ev(line)
 
     def __str__(self):
-        return "while {}:\n{}".format(self.cond,
-                                      indent(str(self.loopedCode), "\t"))
+        return "while {}:\n{}".format(self.cond, indent(str(self.loopedCode), "\t"))
 
 
 @dataclass
@@ -79,9 +82,10 @@ class IfThen(Statement):
     cond: Condition
     then: Statement
 
-    def evaluate(self, x: float = 1) -> float:
-        if self.cond.evaluate(x):
-            x = self.then.evaluate(x)
+    def evaluate(self, **kwargs) -> float:
+        x = kwargs.get("x", 1.0)
+        if self.cond.evaluate(x=x):
+            x = self.then.evaluate(x=x)
         return x
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
@@ -104,11 +108,12 @@ class IfThenElse(Statement):
     then: Statement
     elze: Statement
 
-    def evaluate(self, x: float = 1) -> float:
-        if self.cond.evaluate(x):
-            x = self.then.evaluate(x)
+    def evaluate(self, **kwargs) -> float:
+        x = kwargs.get("x", 1.0)
+        if self.cond.evaluate(x=x):
+            x = self.then.evaluate(x=x)
         else:
-            x = self.elze.evaluate(x)
+            x = self.elze.evaluate(x=x)
         return x
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
@@ -122,6 +127,6 @@ class IfThenElse(Statement):
         return lambda line: ev(line)
 
     def __str__(self):
-        return "if {}:\n{}\nelse:\n{}".format(self.cond,
-                                              indent(str(self.then), "\t"),
-                                              indent(str(self.elze), "\t"))
+        return "if {}:\n{}\nelse:\n{}".format(
+            self.cond, indent(str(self.then), "\t"), indent(str(self.elze), "\t")
+        )
