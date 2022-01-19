@@ -5,14 +5,18 @@ from typing import Annotated, Any, Callable, Tuple
 import numpy as np
 from sklearn.metrics import f1_score
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.decorators import abstract
 from geneticengine.core.representations.treebased import treebased_representation
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.algorithms.gp.gp import GP
 
 from geneticengine.grammars.coding.logical_ops import And, Or, Not
-from geneticengine.grammars.coding.conditions import Equals
-from geneticengine.grammars.coding.classes import Condition, Number
+from geneticengine.grammars.coding.conditions import Equals, GreaterThan, LessThan
+from geneticengine.grammars.coding.classes import Expr, Condition, Number
 from geneticengine.grammars.coding.numbers import Literal
+
+MATRIX_ROW_SIZE = 3
+MATRIX_COL_SIZE = 3
 
 
 DATASET_NAME = "GameOfLifeVectorial"
@@ -21,32 +25,80 @@ DATA_FILE_TEST = "examples/data/{}/Test.csv".format(DATASET_NAME)
 
 train = np.genfromtxt(DATA_FILE_TRAIN, skip_header=1, delimiter=",", dtype=bool)
 Xtrain = train[:, :-1]
-Xtrain = Xtrain.reshape(train.shape[0], 3, 3)
+Xtrain = Xtrain.reshape(train.shape[0], MATRIX_ROW_SIZE, MATRIX_COL_SIZE)
 ytrain =train[:, -1] 
 
 test = np.genfromtxt(DATA_FILE_TEST, skip_header=1, delimiter=",", dtype=bool)
 Xtest = test[:, :-1]
-Xtest = Xtest.reshape(test.shape[0], 3, 3)
+Xtest = Xtest.reshape(test.shape[0], MATRIX_ROW_SIZE, MATRIX_COL_SIZE)
 ytest = test[:, -1] 
 
 
 
-class Expr(ABC):
-    pass
-
-
 @dataclass
 class MatrixElement(Condition):
-    row: Annotated[int, IntRange(0, 2)]
-    column: Annotated[int, IntRange(0, 2)]
+    row: Annotated[int, IntRange(0, MATRIX_ROW_SIZE - 1)]
+    column: Annotated[int, IntRange(0, MATRIX_COL_SIZE - 1)]
 
     def __str__(self) -> str:
         return f"(X[{self.row}, {self.column}])"
 
+@abstract
+class Array(ABC):
+    pass
+
+@abstract
+class Matrix(ABC):
+    pass
+
+@dataclass
+class MatrixElementsRow(Array):
+    row: Annotated[int, IntRange(0, MATRIX_ROW_SIZE - 1)]
+    col1: Annotated[int, IntRange(0, MATRIX_COL_SIZE)]
+    col2: Annotated[int, IntRange(0, MATRIX_COL_SIZE)]
+
+    def __str__(self) -> str:
+        return f"X[{self.row}, {self.col1} : {self.col2}]"
+
+@dataclass
+class MatrixElementsCol(Array):
+    row1: Annotated[int, IntRange(0, MATRIX_ROW_SIZE)]
+    row2: Annotated[int, IntRange(0, MATRIX_ROW_SIZE)]
+    col: Annotated[int, IntRange(0, MATRIX_COL_SIZE - 1)]
+
+    def __str__(self) -> str:
+        return f"X[{self.row1} : {self.row2}, {self.col}]"
+
+@dataclass
+class ArraySum(Number):
+    array: Array
+    
+    def __str__(self) -> str:
+        return f"(sum({self.array}))"
+
+@dataclass
+class MatrixElementsCube(Matrix):
+    row1: Annotated[int, IntRange(0, MATRIX_ROW_SIZE)]
+    row2: Annotated[int, IntRange(0, MATRIX_ROW_SIZE)]
+    col1: Annotated[int, IntRange(0, MATRIX_COL_SIZE)]
+    col2: Annotated[int, IntRange(0, MATRIX_COL_SIZE)]
+
+    def __str__(self) -> str:
+        return f"X[{self.row1} : {self.row2}, {self.col1} : {self.col2}]"
+
 @dataclass
 class MatrixSum(Number):
+    matrix: Matrix
+
+    def summing(self,matrix):
+        s = sum(matrix)
+        if type(s) == int:
+            return s
+        else:
+            return sum(s)
+    
     def __str__(self) -> str:
-        return f"(sum(X))"
+        return f"(sum({self.matrix}))"
 
 
 def evaluate(e: Expr) -> Callable[[Any], float]:
@@ -59,10 +111,37 @@ def evaluate(e: Expr) -> Callable[[Any], float]:
         return lambda line: not evaluate(e.cond)(line)
     elif isinstance(e, MatrixElement):
         return lambda line: line[e.row, e.column]
+    elif isinstance(e, MatrixElementsRow):
+        if e.col1 <= e.col2:
+            return lambda line: line[e.row, e.col1 : e.col2]
+        else:
+            return lambda line: line[e.row, e.col2 : e.col1]
+    elif isinstance(e, MatrixElementsCol):
+        if e.row1 <= e.row2:
+            return lambda line: line[e.row1 : e.row2, e.col]
+        else:
+            return lambda line: line[e.row2 : e.row1, e.col]
+    elif isinstance(e, ArraySum):
+        return lambda line: sum(evaluate(e.array)(line))
+    elif isinstance(e, MatrixElementsCube):
+        if e.row1 <= e.row2:
+            if e.col1 <= e.col2:
+                return lambda line: line[e.row1 : e.row2, e.col1 : e.col2]
+            else:
+                return lambda line: line[e.row1 : e.row2, e.col2 : e.col1]
+        else:
+            if e.col1 <= e.col2:
+                return lambda line: line[e.row2 : e.row1, e.col1 : e.col2]
+            else:
+                return lambda line: line[e.row2 : e.row1, e.col2 : e.col1]
     elif isinstance(e, MatrixSum):
-        return lambda line: sum(sum(line))
+        return lambda line: e.summing(evaluate(e.matrix)(line))
     elif isinstance(e, Equals):
         return lambda line: evaluate(e.left)(line) == evaluate(e.right)(line)
+    elif isinstance(e, GreaterThan):
+        return lambda line: evaluate(e.left)(line) > evaluate(e.right)(line)
+    elif isinstance(e, LessThan):
+        return lambda line: evaluate(e.left)(line) < evaluate(e.right)(line)
     elif isinstance(e, Literal):
         return lambda _: e.val
     else:
@@ -76,7 +155,8 @@ def fitness_function(i: Condition):
 
 
 def preprocess():
-    grammar = extract_grammar([And, Or, Not, MatrixElement, MatrixSum, Equals, Literal], Condition)
+    # grammar = extract_grammar([And, Or, Not, MatrixElement, MatrixElementsRow, MatrixElementsCol, ArraySum, MatrixElementsCube, MatrixSum, Equals, GreaterThan, LessThan, Literal], Condition)
+    grammar = extract_grammar([And, Or, Not, MatrixElement, MatrixElementsRow, MatrixElementsCol, ArraySum, Equals, GreaterThan, LessThan, Literal], Condition)
     print(grammar)
     return grammar
 
@@ -95,8 +175,9 @@ def evolve(g, seed, mode):
         minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
+        # force_individual=best_ind
     )
-    (b, bf, bp) = alg.evolve(verbose=0)
+    (b, bf, bp) = alg.evolve(verbose=1)
 
     print("Best individual:", bp)
     print("Genetic Engine Train F1 score:", bf)
@@ -107,9 +188,6 @@ def evolve(g, seed, mode):
 
     return b, bf
 
-ind1 = And(MatrixElement(1,1),Or(Equals(MatrixSum(),Literal(3)),Equals(MatrixSum(),Literal(4))))
-ind2 = And(Not(MatrixElement(1,1)),Equals(MatrixSum(),Literal(3)))
-best_ind = Or(ind1,ind2)
 
 # import IPython as ip
 # ip.embed()
