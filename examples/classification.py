@@ -47,7 +47,8 @@ def fitness_function(n: Number):
         i = feature_indices[x]
         variables[x] = X[:, i]
 
-    y_pred = n.evaluate(**variables)
+    y_pred = X.apply(lambda x: n.evaluate(x, variables))
+    print(y_pred.shape, y.shape)
     fitness = f1_score(y_pred, y)
     if isinf(fitness):
         fitness = -100000000
