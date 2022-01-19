@@ -9,6 +9,8 @@ from geneticengine.core.representations.treebased import treebased_representatio
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.algorithms.gp.gp import GP
 
+from geneticengine.grammars.coding.logical_ops import And, Or, Not
+from geneticengine.grammars.coding.classes import Expr, Condition, Number
 
 DATASET_NAME = "GameOfLife"
 DATA_FILE_TRAIN = "examples/data/{}/Train.csv".format(DATASET_NAME)
@@ -49,40 +51,11 @@ def generate_dataset(n: int) -> Tuple[Any, Any]:
     return (m, r)
 
 
-class Expr(ABC):
-    pass
-
 
 @dataclass
-class And(Expr):
-    e1: Expr
-    e2: Expr
-
-    def __str__(self) -> str:
-        return f"({self.e1} and {self.e2})"
-
-
-@dataclass
-class Or(Expr):
-    e1: Expr
-    e2: Expr
-
-    def __str__(self) -> str:
-        return f"({self.e1} or {self.e2})"
-
-
-@dataclass
-class Not(Expr):
-    e1: Expr
-
-    def __str__(self) -> str:
-        return f"(not {self.e1})"
-
-
-@dataclass
-class Matrix(Expr):
-    row: Annotated[int, IntRange(-1, 1)]
-    column: Annotated[int, IntRange(-1, 1)]
+class MatrixElement(Condition):
+    row: Annotated[int, IntRange(0, 2)]
+    column: Annotated[int, IntRange(0, 2)]
 
     def __str__(self) -> str:
         return f"(X[{self.row}, {self.column}])"
@@ -91,12 +64,12 @@ class Matrix(Expr):
 def evaluate(e: Expr) -> Callable[[Any], float]:
 
     if isinstance(e, And):
-        return lambda line: evaluate(e.e1)(line) and evaluate(e.e2)(line)
+        return lambda line: evaluate(e.left)(line) and evaluate(e.right)(line)
     elif isinstance(e, Or):
-        return lambda line: evaluate(e.e1)(line) or evaluate(e.e2)(line)
+        return lambda line: evaluate(e.left)(line) or evaluate(e.right)(line)
     elif isinstance(e, Not):
-        return lambda line: not evaluate(e.e1)(line)
-    elif isinstance(e, Matrix):
+        return lambda line: not evaluate(e.cond)(line)
+    elif isinstance(e, MatrixElement):
         return lambda line: line[e.row, e.column]
     else:
         raise NotImplementedError(str(e))
@@ -109,14 +82,14 @@ def fitness_function(i: Expr):
 
 
 def preprocess():
-    return extract_grammar([And, Or, Not, Matrix], Expr)
+    return extract_grammar([And, Or, Not, MatrixElement], Expr)
 
 def evolve(g, seed, mode):
     alg = GP(
         g,
         treebased_representation,
         fitness_function,
-        number_of_generations=10,
+        number_of_generations=150,
         population_size=100,
         max_depth=15,
         favor_less_deep_trees=True,
@@ -127,7 +100,7 @@ def evolve(g, seed, mode):
         seed=seed,
         timer_stop_criteria=mode,
     )
-    (b, bf, bp) = alg.evolve(verbose=0)
+    (b, bf, bp) = alg.evolve(verbose=1)
 
     print("Best individual:", bp)
     print("Genetic Engine Train F1 score:", bf)
