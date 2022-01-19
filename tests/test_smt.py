@@ -1,6 +1,6 @@
 from abc import ABC
 from dataclasses import dataclass
-from typing import Annotated, List, TypeVar
+from typing import Annotated, TypeVar
 
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.grammar import Grammar, extract_grammar

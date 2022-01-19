@@ -20,7 +20,7 @@ import geneticengine.algorithms.gp.generation_steps.cross_over as cross_over
 class GP(object):
     # reason for union with noreturn in evaluation function, elitism and elitism: https://stackoverflow.com/questions/51811024/mypy-type-checking-on-callable-thinks-that-member-variable-is-a-method
     grammar: Grammar
-    representation: Representation
+    representation: Representation[Any]
     evaluation_function: Union[NoReturn, Callable[[Any], float]]
     random: RandomSource
     population_size: int
@@ -104,11 +104,12 @@ class GP(object):
             self.selection = lambda r, ls, n: [x for x in ls[:n]]
         self.force_individual = force_individual
 
-    def create_individual(self, max_depth):
+    def create_individual(self, depth: int):
+        genotype = self.representation.create_individual(
+            r=self.random, g=self.grammar, depth=depth
+        )
         return Individual(
-            genotype=self.representation.create_individual(
-                self.random, self.grammar, max_depth
-            ),
+            genotype=genotype,
             fitness=None,
         )
 
@@ -132,7 +133,7 @@ class GP(object):
         else:
             return lambda x: -self.evaluate(x) - self.fitness_correction_for_depth(x)
 
-    def evolve(self, verbose=0):
+    def evolve(self, verbose=0) -> Tuple[Individual, float, Any]:
         # TODO: This is not ramped half and half
         population = self.init_population()
         if self.force_individual is not None:
