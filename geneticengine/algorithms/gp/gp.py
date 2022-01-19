@@ -153,8 +153,8 @@ class GP(object):
             population = npop
             population = sorted(population, key=self.keyfitness())
             if verbose == 1:
-                self.printFitnesses(population, "G:" + str(gen))
-                print("Best population:{}.".format(population[0]))
+                # self.printFitnesses(population, "G:" + str(gen))
+                print("Best individual: {}.".format(population[0]))
             if not self.timer_stop_criteria:
                 print(
                     "BEST at",
