@@ -7,8 +7,8 @@ from geneticengine.grammars.coding.classes import Expr, Condition, Number
 
 @dataclass
 class Equals(Condition):
-    left: Expr
-    right: Expr
+    left: Number
+    right: Number
 
     def evaluate(self, **kwargs) -> bool:
         return self.left.evaluate(**kwargs) == self.right.evaluate(**kwargs)
@@ -23,8 +23,8 @@ class Equals(Condition):
 
 @dataclass
 class NotEquals(Condition):
-    left: Expr
-    right: Expr
+    left: Number
+    right: Number
 
     def evaluate(self, **kwargs) -> bool:
         return self.left.evaluate(**kwargs) != self.right.evaluate(**kwargs)
@@ -39,8 +39,8 @@ class NotEquals(Condition):
 
 @dataclass
 class GreaterThan(Condition):
-    left: Expr
-    right: Expr
+    left: Number
+    right: Number
 
     def evaluate(self, **kwargs) -> bool:
         return self.left.evaluate(**kwargs) > self.right.evaluate(**kwargs)
@@ -55,8 +55,8 @@ class GreaterThan(Condition):
 
 @dataclass
 class GreaterOrEqualThan(Condition):
-    left: Expr
-    right: Expr
+    left: Number
+    right: Number
 
     def evaluate(self, **kwargs) -> bool:
         return self.left.evaluate(**kwargs) >= self.right.evaluate(**kwargs)
@@ -71,8 +71,8 @@ class GreaterOrEqualThan(Condition):
 
 @dataclass
 class LessThan(Condition):
-    left: Expr
-    right: Expr
+    left: Number
+    right: Number
 
     def evaluate(self, **kwargs) -> bool:
         return self.left.evaluate(**kwargs) < self.right.evaluate(**kwargs)
@@ -87,8 +87,8 @@ class LessThan(Condition):
 
 @dataclass
 class LessOrEqualThan(Condition):
-    left: Expr
-    right: Expr
+    left: Number
+    right: Number
 
     def evaluate(self, **kwargs) -> bool:
         return self.left.evaluate(**kwargs) <= self.right.evaluate(**kwargs)
@@ -103,8 +103,8 @@ class LessOrEqualThan(Condition):
 
 @dataclass
 class Is(Condition):
-    left: Expr
-    right: Expr
+    left: Number
+    right: Number
 
     def evaluate(self, **kwargs) -> bool:
         return self.left.evaluate(**kwargs) is self.right.evaluate(**kwargs)
@@ -119,8 +119,8 @@ class Is(Condition):
 
 @dataclass
 class IsNot(Condition):
-    left: Expr
-    right: Expr
+    left: Number
+    right: Number
 
     def evaluate(self, **kwargs) -> bool:
         return self.left.evaluate(**kwargs) is not self.right.evaluate(
