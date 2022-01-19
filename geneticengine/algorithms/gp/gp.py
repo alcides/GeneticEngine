@@ -4,7 +4,7 @@ from copy import deepcopy
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.base import Representation
-from geneticengine.core.representations.treebased import treebased_representation
+from geneticengine.core.representations.treebased import treebased_representation, relabel_nodes_of_trees
 from geneticengine.algorithms.gp.Individual import Individual
 import geneticengine.algorithms.gp.generation_steps.selection as selection
 import geneticengine.algorithms.gp.generation_steps.mutation as mutation
@@ -106,7 +106,7 @@ class GP(object):
     
     def fitness_correction_for_depth(self, individual: Individual) -> float:
         if self.favor_less_deep_trees:
-            return individual.genotype.distance_to_term * 10^-25
+            return individual.genotype.distance_to_term * 10**-25
         else:
             return 0
 
@@ -121,7 +121,7 @@ class GP(object):
         population = self.init_population()
         if self.force_individual is not None:
             population[0] = Individual(
-                genotype=self.force_individual,
+                genotype=relabel_nodes_of_trees(self.force_individual,self.grammar.non_terminals,self.max_depth),
                 fitness=None,
             )
         population = sorted(population, key=self.keyfitness())
