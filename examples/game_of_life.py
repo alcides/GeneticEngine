@@ -107,7 +107,7 @@ def evolve(g, seed, mode):
         minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
-        safe_gen_to_csv=f'GoL_(seed={seed})'
+        safe_gen_to_csv=(f'GoL_(seed={seed})',False),
     )
     (b, bf, bp) = alg.evolve(verbose=1)
 
