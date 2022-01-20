@@ -155,8 +155,8 @@ def fitness_function(i: Condition):
 
 
 def preprocess():
-    grammar = extract_grammar([And, Or, Not, MatrixElement, MatrixElementsRow, MatrixElementsCol, ArraySum, MatrixElementsCube, MatrixSum, Equals, GreaterThan, LessThan, Literal], Condition)
-    # grammar = extract_grammar([And, Or, Not, MatrixElement, MatrixElementsRow, MatrixElementsCol, ArraySum, Equals, GreaterThan, LessThan, Literal], Condition) # Finds solution!!!
+    # grammar = extract_grammar([And, Or, Not, MatrixElement, MatrixElementsRow, MatrixElementsCol, ArraySum, MatrixElementsCube, MatrixSum, Equals, GreaterThan, LessThan, Literal], Condition)
+    grammar = extract_grammar([And, Or, Not, MatrixElement, MatrixElementsRow, MatrixElementsCol, ArraySum, Equals, GreaterThan, LessThan, Literal], Condition) # Finds solution!!!
     print(grammar)
     return grammar
 
