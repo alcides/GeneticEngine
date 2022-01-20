@@ -207,5 +207,6 @@ if __name__ == "__main__":
     # _y = ytest.reshape(1000, 1)
     # np.savetxt("Test.csv", np.concatenate([_x, _y], axis=1), fmt='%i', delimiter=",")
     
-    g = preprocess()
-    evolve(g, 1, False)
+    for i in range(30):
+        g = preprocess()
+        evolve(g, i, False)
