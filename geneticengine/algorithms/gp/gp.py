@@ -71,6 +71,7 @@ class GP(object):
         self.representation = representation
         self.evaluation_function = evaluation_function
         self.random = randomSource(seed)
+        self.seed = seed
         self.population_size = population_size
         self.elitism = selection.create_elitism(n_elites)
         self.max_depth = max_depth
@@ -224,7 +225,7 @@ class GP(object):
         if number_of_the_generation == 1:
             with open(f'./results/{file_name}.csv', 'w', newline='') as outfile:
                 writer = csv.writer(outfile)
-                writer.writerow(["genotype_as_str", "fitness", "depth", "number_of_the_generation", "time_since_the_start_of_the_evolution"])
+                writer.writerow(["genotype_as_str", "fitness", "depth", "number_of_the_generation", "time_since_the_start_of_the_evolution", "seed"])
             
 
         
@@ -233,7 +234,7 @@ class GP(object):
             genotype_as_str = str(ind.genotype)
             fitness = str(ind.fitness)
             depth = ind.genotype.distance_to_term
-            csv_line = [genotype_as_str, fitness, depth, number_of_the_generation, time_since_the_start_of_the_evolution]
+            csv_line = [genotype_as_str, fitness, depth, number_of_the_generation, time_since_the_start_of_the_evolution, self.seed]
             csv_lines.append(csv_line)
         
         with open(f'./results/{file_name}.csv', 'a', newline='') as outfile:
