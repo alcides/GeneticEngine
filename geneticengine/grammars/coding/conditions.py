@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Any, Callable
-from geneticengine.grammars.coding.classes import Expr, Condition
+from geneticengine.grammars.coding.classes import Number, Condition
 
 
 @dataclass

@@ -6,7 +6,7 @@ import numpy as np
 from sklearn.metrics import f1_score
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.decorators import abstract
-from geneticengine.core.representations.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.algorithms.gp.gp import GP
 
@@ -163,9 +163,9 @@ def preprocess():
 def evolve(g, seed, mode):
     alg = GP(
         g,
-        treebased_representation,
         fitness_function,
-        number_of_generations=150,
+        representation=treebased_representation,
+        number_of_generations=50,
         population_size=100,
         max_depth=15,
         favor_less_deep_trees=True,
@@ -175,7 +175,6 @@ def evolve(g, seed, mode):
         minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
-        # force_individual=best_ind
     )
     (b, bf, bp) = alg.evolve(verbose=1)
 
