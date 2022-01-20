@@ -6,11 +6,20 @@ from geneticengine.grammars.coding.classes import Number, Statement, XAssign
 import geneticengine.grammars.coding.numbers as numbers  # Max, Min, Abs, Plus, Literal, Mul, SafeDiv, Var
 import geneticengine.grammars.coding.lists as lists  # Max, Min, Abs, Plus, Literal, Mul, SafeDiv, Var
 from geneticengine.grammars.coding.control_flow import IfThen, IfThenElse, While
-from geneticengine.grammars.coding.conditions import Equals, NotEquals, GreaterOrEqualThan, GreaterThan, LessOrEqualThan, LessThan, Is, IsNot
+from geneticengine.grammars.coding.conditions import (
+    Equals,
+    NotEquals,
+    GreaterOrEqualThan,
+    GreaterThan,
+    LessOrEqualThan,
+    LessThan,
+    Is,
+    IsNot,
+)
 from geneticengine.grammars.coding.logical_ops import And, Or
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.algorithms.gp.gp import GP
-from geneticengine.core.representations.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import treebased_representation
 
 FILE_NAME = "Vector_Average"
 DATA_FILE_TRAIN = "./examples/progsys/data/{}/Train.txt".format(FILE_NAME)
@@ -26,7 +35,7 @@ for i, n in enumerate(vars):
 
 XAssign.__annotations__["value"] = Number
 lists.Var.__annotations__["name"] = Annotated[str, VarRange(vars)]
-lists.Var.feature_indices = variables
+lists.Var.feature_indices = variables  # type: ignore
 
 
 def preprocess():
@@ -58,9 +67,10 @@ def preprocess():
             IsNot,
             XAssign,
             IfThen,
-            IfThenElse  #, While
+            IfThenElse,  # , While
         ],
-        Statement)
+        Statement,
+    )
 
 
 def fitness_function(n: Statement):
@@ -71,8 +81,8 @@ def fitness_function(n: Statement):
 def evolve(g, seed, mode):
     alg = GP(
         g,
-        treebased_representation,
         fitness_function,
+        representation=treebased_representation,
         number_of_generations=50,
         minimize=True,
         seed=seed,

@@ -8,7 +8,7 @@ from sklearn.metrics import mean_squared_error
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.grammatical_evolution import ge_representation
-from geneticengine.core.representations.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.floats import FloatRange
 
@@ -3137,8 +3137,8 @@ def preprocess():
 def evolve(g, seed, mode):
     alg = GP(
         g,
-        treebased_representation,
         fitness_function,
+        representation=treebased_representation,
         minimize=True,
         seed=seed,
         population_size=100,

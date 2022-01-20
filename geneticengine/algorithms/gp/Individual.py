@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Any, Callable, Generic, List, Optional, Protocol, Tuple, TypeVar
+from typing import Any, Optional
+
 
 @dataclass
 class Individual(object):

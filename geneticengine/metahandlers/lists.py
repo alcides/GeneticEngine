@@ -1,12 +1,15 @@
-from random import Random
-from typing import Protocol, TypeVar, ForwardRef, Tuple, get_args
+from typing import (
+    Any,
+    Callable,
+    TypeVar,
+    Dict,
+    Type,
+)
 
-from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.utils import build_finalizers
+from geneticengine.core.random.sources import Source
 from geneticengine.metahandlers.base import MetaHandlerGenerator
 
-min = TypeVar("min", covariant=True)
-max = TypeVar("max", covariant=True)
+from geneticengine.core.grammar import Grammar
 
 
 class ListSizeBetween(MetaHandlerGenerator):
@@ -14,11 +17,18 @@ class ListSizeBetween(MetaHandlerGenerator):
         self.min = min
         self.max = max
 
-    def generate(self, r: RandomSource, receiver, new_symbol, depth, base_type):
+    def generate(
+        self,
+        r: Source,
+        g: Grammar,
+        rec: Callable[[int, Type], Any],
+        depth: int,
+        base_type,
+        argname: str,
+        context: Dict[str, Type],
+    ):
         size = r.randint(self.min, self.max)
-        fins = build_finalizers(lambda *x: receiver(list(x)), size)
-        for i in range(size):
-            new_symbol(base_type, fins[i], depth - 1)
+        return [rec(depth - 1, base_type) for _ in range(size)]
 
     def __repr__(self):
         return f"ListSizeBetween[{self.min}...{self.max}]"

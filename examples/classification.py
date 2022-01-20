@@ -6,11 +6,11 @@ from math import isinf
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.grammars.sgp import Plus, Literal, Number, Mul, Var
-from geneticengine.grammars.math import SafeLog, SafeSqrt, Sin, Tanh, Exp, SafeDiv
+from geneticengine.grammars.basic_math import SafeLog, SafeSqrt, Sin, Tanh, Exp, SafeDiv
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.metahandlers.vars import VarRange
-from geneticengine.metrics.metrics import f1_score
+from geneticengine.metrics import f1_score
 
 DATASET_NAME = "Banknote"
 DATA_FILE_TRAIN = "examples/data/{}/Train.csv".format(DATASET_NAME)
@@ -29,7 +29,7 @@ for i, n in enumerate(feature_names):
 
 # Prepare Grammar
 Var.__annotations__["name"] = Annotated[str, VarRange(feature_names)]
-Var.feature_indices = feature_indices
+Var.feature_indices = feature_indices  # type: ignore
 
 
 def preprocess():
@@ -48,6 +48,8 @@ def fitness_function(n: Number):
         variables[x] = X[:, i]
 
     y_pred = n.evaluate(**variables)
+    if type(y_pred) == int or y_pred.shape != y.shape:
+        return -100000000000
     fitness = f1_score(y_pred, y)
     if isinf(fitness):
         fitness = -100000000
@@ -57,8 +59,8 @@ def fitness_function(n: Number):
 def evolve(g, seed, mode):
     alg = GP(
         g,
-        treebased_representation,
         fitness_function,
+        representation=treebased_representation,
         minimize=False,
         selection_method=("tournament", 2),
         max_depth=17,
@@ -70,6 +72,7 @@ def evolve(g, seed, mode):
         n_elites=5,
         seed=seed,
         timer_stop_criteria=mode,
+        target_fitness=1,
     )
     (b, bf, bp) = alg.evolve(verbose=0)
     return b, bf

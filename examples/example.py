@@ -6,7 +6,7 @@ from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.grammars.sgp import Plus, Literal, Number, Mul, SafeDiv, Var
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.metahandlers.vars import VarRange
 
 Var.__annotations__["name"] = Annotated[str, VarRange("x")]
@@ -35,8 +35,8 @@ def target(x):
 
 alg_gp = GP(
     g,
-    treebased_representation,
     fit,
+    representation=treebased_representation,
     population_size=150,
     max_depth=5,
     number_of_generations=10,
@@ -45,12 +45,12 @@ alg_gp = GP(
     n_novelties=10,
 )
 (b_gp, bf_gp, bp_gp) = alg_gp.evolve(verbose=0)
-    
-    
+
+
 alg_hc = HC(
     g,
-    treebased_representation,
-    fit,
+    evaluation_function=fit,
+    representation=treebased_representation,
     population_size=150,
     max_depth=5,
     number_of_generations=10,

@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import treebased_representation
 
 
 @abstract
@@ -39,8 +39,8 @@ if __name__ == "__main__":
     )
     alg = GP(
         g,
-        treebased_representation,
         lambda x: 0,
+        representation=treebased_representation,
         max_depth=5,
         population_size=1000,
         n_elites=100,

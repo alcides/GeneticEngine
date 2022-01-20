@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.grammars.coding.control_flow import ForLoop, Code
 from geneticengine.grammars.coding.classes import Expr, Statement, XAssign
@@ -53,22 +53,23 @@ fitness_function = lambda x: fit(x)
 
 def preprocess():
     return extract_grammar(
-        [XPlusConst, XTimesConst, XAssign, ForLoop, Code, Const, VarX], Code)
+        [XPlusConst, XTimesConst, XAssign, ForLoop, Code, Const, VarX], ForLoop
+    )
 
 
 def evolve(g, seed, mode):
     alg = GP(
         g,
-        treebased_representation,
         fitness_function,
-        max_depth=17,
-        population_size=500,
-        number_of_generations=50,
+        representation=treebased_representation,
+        max_depth=3,
+        population_size=1,
+        number_of_generations=1,
         minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
     )
-    (b, bf, bp) = alg.evolve(verbose=0)
+    (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf
 
 

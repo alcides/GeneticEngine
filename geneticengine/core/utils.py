@@ -1,5 +1,3 @@
-import logging
-import sys
 from abc import ABC
 from typing import (
     Any,
@@ -8,7 +6,6 @@ from typing import (
     Type,
     Tuple,
     List,
-    Callable,
 )
 
 from geneticengine.core.decorators import get_gengy
@@ -24,7 +21,7 @@ def is_generic_list(ty: Type[Any]):
     return hasattr(ty, "__origin__") and ty.__origin__ is list
 
 
-def get_generic_parameters(ty: Type[Any]) -> list[type]:
+def get_generic_parameters(ty: Type[Any]) -> List[type]:
     """Annotated[T, <annotations>] or List[T], this function returns Dict[T,]"""
     return ty.__args__
 
@@ -68,37 +65,3 @@ def is_terminal(t: type, l: Set[type]) -> bool:
     if not get_arguments(t):
         return True
     return t not in l
-
-
-def build_finalizers(final_callback, n_args) -> List[Callable[[any], None]]:
-    """
-    Builds a set of functions that accumulate the arguments provided
-    :param final_callback:
-    :param n_args:
-    :return:
-    """
-    uninit = object()
-    rets = [uninit] * n_args
-    to_arrive = [n_args]
-
-    finalizers = []
-
-    for i in range(n_args):
-
-        def fin(x, i=i):
-            if rets[i] is uninit:
-                rets[i] = x
-
-                to_arrive[0] -= 1
-                if to_arrive[0] == 0:
-                    # we recieved all params, finish construction
-                    final_callback(*rets)
-            else:
-                raise Exception("Received duplicate param on finalizer! i=%d" % i)
-
-        finalizers.append(fin)
-
-    if n_args == 0:
-        final_callback()
-
-    return finalizers

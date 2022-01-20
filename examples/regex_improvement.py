@@ -1,10 +1,10 @@
 from geneticengine.grammars.regex import *
 
-from examples.regex_fitness.RegexEval import *
+from examples.regex_fitness.RegexEval import RegexEval
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import treebased_representation
 
 
 # Extracted from PonyGE
@@ -17,31 +17,34 @@ fitness_function = lambda x: fit(x)
 
 
 def preprocess():
-    return extract_grammar([
-        ElementaryREParens,
-        ElementaryREWD,
-        ElementaryRERE,
-        ModifierSingle,
-        ModifierOr,
-        LookaroundSingle,
-        LookaroundComposition,
-        Char,
-        Set,
-        RangeAnChar1,
-        RangeAnChar2,
-        RangeLimits,
-        RecurDigitSingle,
-        RecurDigitMultiple,
-        MatchTimesSingleRecur,
-        MatchTimesDoubleRecur,
-    ], RE)
+    return extract_grammar(
+        [
+            ElementaryREParens,
+            ElementaryREWD,
+            ElementaryRERE,
+            ModifierSingle,
+            ModifierOr,
+            LookaroundSingle,
+            LookaroundComposition,
+            Char,
+            Set,
+            RangeAnChar1,
+            RangeAnChar2,
+            RangeLimits,
+            RecurDigitSingle,
+            RecurDigitMultiple,
+            MatchTimesSingleRecur,
+            MatchTimesDoubleRecur,
+        ],
+        RE,
+    )
 
 
 def evolve(g, seed, mode):
     alg = GP(
         g,
-        treebased_representation,
         fitness_function,
+        representation=treebased_representation,
         max_depth=100,
         population_size=1000,
         n_elites=100,
