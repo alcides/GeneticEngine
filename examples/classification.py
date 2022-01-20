@@ -47,8 +47,9 @@ def fitness_function(n: Number):
         i = feature_indices[x]
         variables[x] = X[:, i]
 
-    y_pred = X.apply(lambda x: n.evaluate(x, variables))
-    print(y_pred.shape, y.shape)
+    y_pred = n.evaluate(**variables)
+    if type(y_pred) == int or y_pred.shape != y.shape:
+        return -100000000000
     fitness = f1_score(y_pred, y)
     if isinf(fitness):
         fitness = -100000000
@@ -71,6 +72,7 @@ def evolve(g, seed, mode):
         n_elites=5,
         seed=seed,
         timer_stop_criteria=mode,
+        target_fitness=1,
     )
     (b, bf, bp) = alg.evolve(verbose=0)
     return b, bf

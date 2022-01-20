@@ -3,6 +3,7 @@ from typing import (
     Callable,
     List,
     NoReturn,
+    Optional,
     Tuple,
     Union,
 )
@@ -57,6 +58,7 @@ class GP(object):
         # -----
         hill_climbing: bool = False,
         minimize: bool = False,
+        target_fitness: Optional[float] = None,
         force_individual: Any = None,
         seed: int = 123,
         # -----
@@ -75,6 +77,7 @@ class GP(object):
             self.create_individual, max_depth=max_depth
         )
         self.minimize = minimize
+        self.target_fitness = target_fitness
         self.timer_stop_criteria = timer_stop_criteria
         if hill_climbing:
             self.mutation = mutation.create_hill_climbing_mutation(
@@ -185,7 +188,11 @@ class GP(object):
                     "is",
                     round(self.evaluate(population[0]), 4),
                 )
-
+            if (
+                self.target_fitness is not None
+                and population[0].fitness == self.target_fitness
+            ):
+                break
             gen += 1
         self.final_population = population
         return (
