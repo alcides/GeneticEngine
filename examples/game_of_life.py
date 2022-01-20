@@ -64,15 +64,15 @@ class MatrixElement(Condition):
 def evaluate(e: Expr) -> Callable[[Any], float]:
 
     if isinstance(e, And):
-        f1 = evaluate(e.e1)
-        f2 = evaluate(e.e2)
+        f1 = evaluate(e.left)
+        f2 = evaluate(e.right)
         return lambda line: f1(line) and f2(line)
     elif isinstance(e, Or):
-        f1 = evaluate(e.e1)
-        f2 = evaluate(e.e2)
+        f1 = evaluate(e.left)
+        f2 = evaluate(e.right)
         return lambda line: f1(line) or f2(line)
     elif isinstance(e, Not):
-        f1 = evaluate(e.e1)
+        f1 = evaluate(e.cond)
         return lambda line: not f1(line)
     elif isinstance(e, MatrixElement):
         r = e.row

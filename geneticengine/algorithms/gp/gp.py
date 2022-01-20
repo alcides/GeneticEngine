@@ -11,7 +11,7 @@ import time
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.api import Representation
-from geneticengine.core.representations.tree import treebased_representation, relabel_nodes_of_trees
+from geneticengine.core.representations.tree.treebased import treebased_representation, relabel_nodes_of_trees
 from geneticengine.algorithms.gp.Individual import Individual
 import geneticengine.algorithms.gp.generation_steps.selection as selection
 import geneticengine.algorithms.gp.generation_steps.mutation as mutation
