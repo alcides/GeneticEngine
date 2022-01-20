@@ -1,3 +1,4 @@
+import csv
 from typing import (
     Any,
     Callable,
@@ -63,6 +64,7 @@ class GP(object):
         seed: int = 123,
         # -----
         timer_stop_criteria: bool = False,  # TODO: This should later be generic
+        safe_gen_to_csv: str = '',
     ):
         # Add check to input numbers (n_elitism, n_novelties, population_size)
         self.grammar = g
@@ -79,6 +81,7 @@ class GP(object):
         self.minimize = minimize
         self.target_fitness = target_fitness
         self.timer_stop_criteria = timer_stop_criteria
+        self.safe_gen_to_csv = safe_gen_to_csv
         if hill_climbing:
             self.mutation = mutation.create_hill_climbing_mutation(
                 self.random,
@@ -169,8 +172,10 @@ class GP(object):
 
             population = npop
             population = sorted(population, key=self.keyfitness())
+            if self.safe_gen_to_csv != '':
+                self.write_to_csv(self.safe_gen_to_csv,population,(gen + 1),(time.time() - start))
             if verbose == 1:
-                self.printFitnesses(population, "G:" + str(gen))
+                # self.printFitnesses(population, "G:" + str(gen))
                 print("Best population:{}.".format(population[0]))
             if not self.timer_stop_criteria:
                 print(
@@ -213,3 +218,24 @@ class GP(object):
         for x in pop:
             print(round(self.evaluate(x), 2), str(x))
         print("---")
+        
+        # "genotype_as_str",fitness_value,depth,number_of_the_generation,time_since_the_start_of_the_evolution
+    def write_to_csv(self,file_name,population: List[Individual],number_of_the_generation,time_since_the_start_of_the_evolution):
+        if number_of_the_generation == 1:
+            with open(f'./results/{file_name}.csv', 'w', newline='') as outfile:
+                writer = csv.writer(outfile)
+                writer.writerow(["genotype_as_str", "fitness", "depth", "number_of_the_generation", "time_since_the_start_of_the_evolution"])
+            
+
+        
+        csv_lines = list()
+        for ind in population:
+            genotype_as_str = str(ind.genotype)
+            fitness = str(ind.fitness)
+            depth = ind.genotype.distance_to_term
+            csv_line = [genotype_as_str, fitness, depth, number_of_the_generation, time_since_the_start_of_the_evolution]
+            csv_lines.append(csv_line)
+        
+        with open(f'./results/{file_name}.csv', 'a', newline='') as outfile:
+            writer = csv.writer(outfile)
+            writer.writerows(csv_lines)
