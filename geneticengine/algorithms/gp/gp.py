@@ -64,7 +64,7 @@ class GP(object):
         seed: int = 123,
         # -----
         timer_stop_criteria: bool = False,  # TODO: This should later be generic
-        safe_gen_to_csv: Tuple[str, bool] = ('', False),
+        safe_gen_to_csv: Tuple[str, str] = ('', 'all'), 
     ):
         # Add check to input numbers (n_elitism, n_novelties, population_size)
         self.grammar = g
@@ -221,14 +221,14 @@ class GP(object):
         print("---")
         
         # "genotype_as_str",fitness_value,depth,number_of_the_generation,time_since_the_start_of_the_evolution
-    def write_to_csv(self,file_name,population: List[Individual],number_of_the_generation,time_since_the_start_of_the_evolution,only_best_individual):
+    def write_to_csv(self,file_name,population: List[Individual],number_of_the_generation,time_since_the_start_of_the_evolution,writing_method):
         if number_of_the_generation == 1:
             with open(f'./results/csvs/{file_name}.csv', 'w', newline='') as outfile:
                 writer = csv.writer(outfile)
                 writer.writerow(["genotype_as_str", "fitness", "depth", "number_of_the_generation", "time_since_the_start_of_the_evolution", "seed"])
             
         csv_lines = list()
-        if only_best_individual:
+        if writing_method == 'only_best_individual':
             population = [population[0]]
         for ind in population:
             genotype_as_str = str(ind.genotype)

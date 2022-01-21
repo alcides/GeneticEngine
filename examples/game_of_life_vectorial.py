@@ -99,7 +99,12 @@ class MatrixSum(Number):
     
     def __str__(self) -> str:
         return f"(sum({self.matrix}))"
-
+    
+@dataclass
+class SumAll(Number):
+    def __str__(self) -> str:
+        return f"(sum({self.matrix}))"
+    
 
 def evaluate(e: Expr) -> Callable[[Any], float]:
 
@@ -136,6 +141,8 @@ def evaluate(e: Expr) -> Callable[[Any], float]:
                 return lambda line: line[e.row2 : e.row1, e.col2 : e.col1]
     elif isinstance(e, MatrixSum):
         return lambda line: e.summing(evaluate(e.matrix)(line))
+    elif isinstance(e, SumAll):
+        return lambda line: sum(sum(line))
     elif isinstance(e, Equals):
         return lambda line: evaluate(e.left)(line) == evaluate(e.right)(line)
     elif isinstance(e, GreaterThan):
@@ -154,9 +161,17 @@ def fitness_function(i: Condition):
     return f1_score(ytrain, ypred)
 
 
+folder = 'GoL/grammar_with_row_col_cube'
+
 def preprocess():
-    # grammar = extract_grammar([And, Or, Not, MatrixElement, MatrixElementsRow, MatrixElementsCol, ArraySum, MatrixElementsCube, MatrixSum, Equals, GreaterThan, LessThan, Literal], Condition)
-    grammar = extract_grammar([And, Or, Not, MatrixElement, MatrixElementsRow, MatrixElementsCol, ArraySum, Equals, GreaterThan, LessThan, Literal], Condition) # Finds solution!!!
+    grammar = extract_grammar([And, Or, Not, MatrixElement, MatrixElementsRow, MatrixElementsCol, ArraySum, MatrixElementsCube, MatrixSum, Equals, GreaterThan, LessThan, Literal], Condition)
+    # grammar = extract_grammar([And, Or, Not, MatrixElement, MatrixElementsCol, ArraySum, Equals, GreaterThan, LessThan, Literal], Condition)
+    # grammar = extract_grammar([And, Or, Not, SumAll, Equals, GreaterThan, LessThan, Literal], Condition)
+
+    file1 = open(f"results/csvs/{folder}/grammar.txt","w")
+    file1.write(str(grammar))
+    file1.close()
+    
     print(grammar)
     return grammar
 
@@ -165,7 +180,7 @@ def evolve(g, seed, mode):
         g,
         fitness_function,
         representation=treebased_representation,
-        number_of_generations=50,
+        number_of_generations=150,
         population_size=100,
         max_depth=15,
         favor_less_deep_trees=True,
@@ -175,9 +190,9 @@ def evolve(g, seed, mode):
         minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
-        safe_gen_to_csv=(f'GoL_vectorial_(seed={seed})',False),
+        safe_gen_to_csv=(f'{folder}/run_seed={seed}','all'),
     )
-    (b, bf, bp) = alg.evolve(verbose=1)
+    (b, bf, bp) = alg.evolve(verbose=0)
 
     print("Best individual:", bp)
     print("Genetic Engine Train F1 score:", bf)

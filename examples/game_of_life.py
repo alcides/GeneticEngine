@@ -87,17 +87,24 @@ def fitness_function(i: Expr):
     ypred = [_clf(line) for line in np.rollaxis(Xtrain, 0)]
     return f1_score(ytrain, ypred)
 
+folder = 'GoL/grammar_standard'
 
 def preprocess():
-    return extract_grammar([And, Or, Not, MatrixElement], Expr)
+    grammar = extract_grammar([And, Or, Not, MatrixElement], Condition)
 
+    file1 = open(f"results/csvs/{folder}/grammar.txt","w")
+    file1.write(str(grammar))
+    file1.close()
+    
+    print(grammar)
+    return grammar
 
 def evolve(g, seed, mode):
     alg = GP(
         g,
         fitness_function,
         representation=treebased_representation,
-        number_of_generations=50,
+        number_of_generations=150,
         population_size=100,
         max_depth=15,
         favor_less_deep_trees=True,
@@ -107,9 +114,9 @@ def evolve(g, seed, mode):
         minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
-        safe_gen_to_csv=(f'GoL_(seed={seed})',False),
+        safe_gen_to_csv=(f'{folder}/run_seed={seed}','all'),
     )
-    (b, bf, bp) = alg.evolve(verbose=1)
+    (b, bf, bp) = alg.evolve(verbose=0)
 
     print("Best individual:", bp)
     print("Genetic Engine Train F1 score:", bf)
