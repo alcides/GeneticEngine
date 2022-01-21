@@ -223,7 +223,7 @@ class GP(object):
         # "genotype_as_str",fitness_value,depth,number_of_the_generation,time_since_the_start_of_the_evolution
     def write_to_csv(self,file_name,population: List[Individual],number_of_the_generation,time_since_the_start_of_the_evolution,only_best_individual):
         if number_of_the_generation == 1:
-            with open(f'./results/{file_name}.csv', 'w', newline='') as outfile:
+            with open(f'./results/csvs/{file_name}.csv', 'w', newline='') as outfile:
                 writer = csv.writer(outfile)
                 writer.writerow(["genotype_as_str", "fitness", "depth", "number_of_the_generation", "time_since_the_start_of_the_evolution", "seed"])
             
@@ -237,6 +237,6 @@ class GP(object):
             csv_line = [genotype_as_str, fitness, depth, number_of_the_generation, time_since_the_start_of_the_evolution, self.seed]
             csv_lines.append(csv_line)
         
-        with open(f'./results/{file_name}.csv', 'a', newline='') as outfile:
+        with open(f'./results/csvs/{file_name}.csv', 'a', newline='') as outfile:
             writer = csv.writer(outfile)
             writer.writerows(csv_lines)

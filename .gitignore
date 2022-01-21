@@ -1,7 +1,9 @@
 dist
 .vscode
-results/*
-!results/.gitkeep
+results/csvs/*
+!results/csvs/.gitkeep
+results/images/*
+!results/images/.gitkeep
 
 
 # Created by https://www.toptal.com/developers/gitignore/api/python,venv,pycharm+all
