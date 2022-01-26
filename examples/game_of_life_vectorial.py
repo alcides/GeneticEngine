@@ -103,7 +103,7 @@ class MatrixSum(Number):
 @dataclass
 class SumAll(Number):
     def __str__(self) -> str:
-        return f"(sum({self.matrix}))"
+        return f"(sum(X))"
     
 
 def evaluate(e: Expr) -> Callable[[Any], float]:
@@ -161,11 +161,11 @@ def fitness_function(i: Condition):
     return f1_score(ytrain, ypred)
 
 
-folder = 'GoL/grammar_with_row_col_cube'
+folder = 'GoL/grammar_col2'
 
 def preprocess():
-    grammar = extract_grammar([And, Or, Not, MatrixElement, MatrixElementsRow, MatrixElementsCol, ArraySum, MatrixElementsCube, MatrixSum, Equals, GreaterThan, LessThan, Literal], Condition)
-    # grammar = extract_grammar([And, Or, Not, MatrixElement, MatrixElementsCol, ArraySum, Equals, GreaterThan, LessThan, Literal], Condition)
+    # grammar = extract_grammar([And, Or, Not, MatrixElement, MatrixElementsRow, MatrixElementsCol, ArraySum, MatrixElementsCube, MatrixSum, Equals, GreaterThan, LessThan, Literal], Condition)
+    grammar = extract_grammar([And, Or, Not, MatrixElement, MatrixElementsCol, ArraySum, Equals, GreaterThan, LessThan, Literal], Condition)
     # grammar = extract_grammar([And, Or, Not, SumAll, Equals, GreaterThan, LessThan, Literal], Condition)
 
     file1 = open(f"results/csvs/{folder}/grammar.txt","w")
@@ -192,7 +192,7 @@ def evolve(g, seed, mode):
         timer_stop_criteria=mode,
         safe_gen_to_csv=(f'{folder}/run_seed={seed}','all'),
     )
-    (b, bf, bp) = alg.evolve(verbose=0)
+    (b, bf, bp) = alg.evolve(verbose=1)
 
     print("Best individual:", bp)
     print("Genetic Engine Train F1 score:", bf)
@@ -223,5 +223,6 @@ if __name__ == "__main__":
     # np.savetxt("Test.csv", np.concatenate([_x, _y], axis=1), fmt='%i', delimiter=",")
     
     for i in range(30):
+        # i = 30 - i -1
         g = preprocess()
         evolve(g, i, False)

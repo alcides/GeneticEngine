@@ -87,7 +87,7 @@ def fitness_function(i: Expr):
     ypred = [_clf(line) for line in np.rollaxis(Xtrain, 0)]
     return f1_score(ytrain, ypred)
 
-folder = 'GoL/grammar_standard'
+folder = 'GoL/grammar_standard2'
 
 def preprocess():
     grammar = extract_grammar([And, Or, Not, MatrixElement], Condition)
@@ -116,7 +116,7 @@ def evolve(g, seed, mode):
         timer_stop_criteria=mode,
         safe_gen_to_csv=(f'{folder}/run_seed={seed}','all'),
     )
-    (b, bf, bp) = alg.evolve(verbose=0)
+    (b, bf, bp) = alg.evolve(verbose=1)
 
     print("Best individual:", bp)
     print("Genetic Engine Train F1 score:", bf)
