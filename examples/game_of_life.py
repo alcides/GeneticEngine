@@ -12,9 +12,18 @@ from geneticengine.algorithms.gp.gp import GP
 from geneticengine.grammars.coding.logical_ops import And, Or, Not
 from geneticengine.grammars.coding.classes import Expr, Condition, Number
 
+WITH_NOISE = True
+
 DATASET_NAME = "GameOfLife"
 DATA_FILE_TRAIN = "examples/data/{}/Train.csv".format(DATASET_NAME)
 DATA_FILE_TEST = "examples/data/{}/Test.csv".format(DATASET_NAME)
+OUTPUT_FOLDER = 'GoL/grammar_standard'
+
+if WITH_NOISE:
+    DATA_FILE_TRAIN = "examples/data/{}/Train_noise.csv".format(DATASET_NAME)
+    OUTPUT_FOLDER = 'GoL/grammar_standard_noise'
+
+
 
 train = np.genfromtxt(DATA_FILE_TRAIN, skip_header=1, delimiter=",")
 Xtrain = train[:, :-1]
@@ -25,32 +34,6 @@ test = np.genfromtxt(DATA_FILE_TEST, skip_header=1, delimiter=",")
 Xtest = test[:, :-1]
 Xtest = Xtest.reshape(test.shape[0], 3, 3)
 ytest = test[:, -1]
-
-
-def game_of_life_rule(m):
-    """
-    Given a 3x3 matriz, outputs the correct result of Game of Life.
-    """
-    cell = m[1, 1]
-    neighbours = np.sum(m) - cell
-    if cell and neighbours in [2, 3]:
-        return 1
-    elif not cell and neighbours == 3:
-        return 1
-    else:
-        return 0
-
-
-def generate_dataset(n: int) -> Tuple[Any, Any]:
-    """
-    Generates a pair of Nx3x3 matrices of input boards,
-    and the next value for the middle position of each board.
-    """
-    m = np.random.randint(0, 2, n * 9).reshape(n, 3, 3)
-    r = np.fromiter((game_of_life_rule(xi) for xi in m), m.dtype)
-    return (m, r)
-
-
 
 @dataclass
 class MatrixElement(Condition):
@@ -87,12 +70,10 @@ def fitness_function(i: Expr):
     ypred = [_clf(line) for line in np.rollaxis(Xtrain, 0)]
     return f1_score(ytrain, ypred)
 
-folder = 'GoL/grammar_standard2'
-
 def preprocess():
     grammar = extract_grammar([And, Or, Not, MatrixElement], Condition)
 
-    file1 = open(f"results/csvs/{folder}/grammar.txt","w")
+    file1 = open(f"results/csvs/{OUTPUT_FOLDER}/grammar.txt","w")
     file1.write(str(grammar))
     file1.close()
     
@@ -114,9 +95,9 @@ def evolve(g, seed, mode):
         minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
-        safe_gen_to_csv=(f'{folder}/run_seed={seed}','all'),
+        safe_gen_to_csv=(f'{OUTPUT_FOLDER}/run_seed={seed}','all'),
     )
-    (b, bf, bp) = alg.evolve(verbose=1)
+    (b, bf, bp) = alg.evolve(verbose=0)
 
     print("Best individual:", bp)
     print("Genetic Engine Train F1 score:", bf)
