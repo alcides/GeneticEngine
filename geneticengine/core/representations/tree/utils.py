@@ -1,4 +1,5 @@
 from typing import Any, List, Set, Tuple
+from geneticengine.core.grammar import Grammar
 from geneticengine.core.tree import TreeNode
 from geneticengine.core.utils import is_terminal
 from geneticengine.core.decorators import is_builtin
@@ -9,6 +10,18 @@ def get_property_names(obj: TreeNode) -> List[Any]:
         return [field for field in obj.__annotations__]
     else:
         return []
+
+
+def get_depth(g: Grammar, i: Any) -> int:
+    if is_builtin(type(i)):
+        return 1
+    elif is_terminal(type(i), g.non_terminals):
+        return 1
+    elif isinstance(i, list):
+        children = i
+    else:
+        children = [getattr(i, field) for field in get_property_names(i)]
+    return 1 + max([get_depth(g, i) for i in children])
 
 
 def relabel_nodes_of_trees(

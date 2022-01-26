@@ -4,6 +4,7 @@ from copy import deepcopy
 from typing import (
     Any,
     Dict,
+    Optional,
     Type,
     TypeVar,
     Tuple,
@@ -29,8 +30,10 @@ from geneticengine.core.utils import (
 from geneticengine.exceptions import GeneticEngineError
 from geneticengine.metahandlers.base import MetaHandlerGenerator, is_metahandler
 
+
 def random_bool(r: Source) -> int:
     return r.choice([True, False])
+
 
 def random_int(r: Source) -> int:
     return r.randint(-(sys.maxsize - 1), sys.maxsize)
@@ -78,29 +81,32 @@ def apply_metahandler(
     return metahandler.generate(r, g, rec, depth, base_type, argn, context)
 
 
-def filter_choices(g: Grammar, possible_choices: List[type], depth):
+def filter_choices(
+    g: Grammar,
+    possible_choices: List[type],
+    depth: int,
+    has_reached_final_depth: bool = False,
+):
     valid_productions = [
         vp for vp in possible_choices if g.distanceToTerminal[vp] <= depth
     ]
-    if any(  # Are we the last recursive symbol?
-        [
-            prod in g.recursive_prods for prod in valid_productions
-        ]  # Are there any  recursive symbols in our expansion?
+    # Are there any  recursive symbols in our expansion?
+    if not has_reached_final_depth and any(
+        [prod in g.recursive_prods for prod in valid_productions]
     ):
-        valid_productions = [
-            vp for vp in valid_productions if vp in g.recursive_prods
-        ]  # If so, then only expand into recursive symbols
-
+        # If so, then only expand into recursive symbols
+        valid_productions = [vp for vp in valid_productions if vp in g.recursive_prods]
     return valid_productions
 
 
 def expand_node(
     r: Source,
     g: Grammar,
-    depth: int,
+    max_depth: int,
     starting_symbol: Any,
     argname: str = "",
     context: Dict[str, Type] = None,
+    has_reached_final_depth: bool = False,
 ) -> Any:
     """
     Creates a random node of a given type (starting_symbol)
@@ -109,12 +115,12 @@ def expand_node(
     if context is None:
         context = {}
 
-    if depth < 0:
+    if max_depth < 0:
         raise GeneticEngineError("Recursion Depth reached")
-    if depth < g.get_distance_to_terminal(starting_symbol):
+    if max_depth < g.get_distance_to_terminal(starting_symbol):
         raise GeneticEngineError(
             "There will be no depth sufficient for symbol {} in this grammar (provided: {}, required: {}).".format(
-                starting_symbol, depth, g.get_distance_to_terminal(starting_symbol)
+                starting_symbol, max_depth, g.get_distance_to_terminal(starting_symbol)
             )
         )
     if starting_symbol is bool:
@@ -124,10 +130,10 @@ def expand_node(
     elif starting_symbol is float:
         return random_float(r)
     elif is_generic_list(starting_symbol):
-        return random_list(r, g, Wrapper, depth, starting_symbol)
+        return random_list(r, g, Wrapper, max_depth, starting_symbol)
     elif is_metahandler(starting_symbol):
         return apply_metahandler(
-            r, g, Wrapper, depth, starting_symbol, argname, context
+            r, g, Wrapper, max_depth, starting_symbol, argname, context
         )
     else:
         if starting_symbol not in g.all_nodes:
@@ -135,12 +141,14 @@ def expand_node(
 
         if starting_symbol in g.alternatives:  # Alternatives
             compatible_productions = g.alternatives[starting_symbol]
-            valid_productions = filter_choices(g, compatible_productions, depth)
+            valid_productions = filter_choices(
+                g, compatible_productions, max_depth, has_reached_final_depth
+            )
             if not valid_productions:
                 raise GeneticEngineError(
                     "No productions for non-terminal node with type: {} in depth {} (minimum required: {}).".format(
                         starting_symbol,
-                        depth,
+                        max_depth,
                         str(
                             [
                                 (vp, g.distanceToTerminal[vp])
@@ -154,13 +162,13 @@ def expand_node(
                 rule = r.choice_weighted(valid_productions, weights)
             else:
                 rule = r.choice(valid_productions)
-            return expand_node(r, g, depth, rule)
+            return expand_node(r, g, max_depth, rule)
         else:  # Normal production
             args = get_arguments(starting_symbol)
             obj = starting_symbol(*[None for _ in args])
             context = {argn: argt for (argn, argt) in args}
             for (argn, argt) in args:
-                w = Wrapper(depth - 1, argt)
+                w = Wrapper(max_depth - 1, argt)
                 setattr(obj, argn, w)
             return obj
 
@@ -168,11 +176,12 @@ def expand_node(
 def random_node(
     r: Source,
     g: Grammar,
-    depth: int,
+    max_depth: int,
     starting_symbol: Type[Any] = int,
+    force_depth: Optional[int] = None,
 ):
     k = create_position_independent_grow(expand_node)
-    root = k(r, g, depth, starting_symbol)
+    root = k(r, g, max_depth, starting_symbol, force_depth)
     relabel_nodes_of_trees(root, g.non_terminals)
     return root
 

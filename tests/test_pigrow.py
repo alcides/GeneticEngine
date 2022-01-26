@@ -89,7 +89,7 @@ class TestPIGrow(object):
     def test_middle_has_right_distance_to_term(self):
         r = RandomSource(seed=1)
         g: Grammar = extract_grammar([Concrete, Middle], Root)
-        x = random_node(r, g, 10, Root)
+        x = random_node(r, g, 10, Root, force_depth=10)
         assert x.distance_to_term == 10
         assert isinstance(x, Root)
 
