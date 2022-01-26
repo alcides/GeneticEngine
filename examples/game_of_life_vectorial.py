@@ -1,4 +1,4 @@
-import os
+import sys
 from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated, Any, Callable, Tuple
@@ -18,21 +18,22 @@ from geneticengine.grammars.coding.numbers import Literal
 MATRIX_ROW_SIZE = 3
 MATRIX_COL_SIZE = 3
 
+def prepare_data(DATASET_NAME):
 
-DATASET_NAME = "GameOfLifeVectorial"
-DATA_FILE_TRAIN = "examples/data/{}/Train.csv".format(DATASET_NAME)
-DATA_FILE_TEST = "examples/data/{}/Test.csv".format(DATASET_NAME)
+    DATA_FILE_TRAIN = "examples/data/{}/Train.csv".format(DATASET_NAME)
+    DATA_FILE_TEST = "examples/data/{}/Test.csv".format(DATASET_NAME)
 
-train = np.genfromtxt(DATA_FILE_TRAIN, skip_header=1, delimiter=",", dtype=bool)
-Xtrain = train[:, :-1]
-Xtrain = Xtrain.reshape(train.shape[0], MATRIX_ROW_SIZE, MATRIX_COL_SIZE)
-ytrain =train[:, -1] 
+    train = np.genfromtxt(DATA_FILE_TRAIN, skip_header=1, delimiter=",", dtype=int)
+    Xtrain = train[:, :-1]
+    Xtrain = Xtrain.reshape(train.shape[0], MATRIX_ROW_SIZE, MATRIX_COL_SIZE)
+    ytrain =train[:, -1]
 
-test = np.genfromtxt(DATA_FILE_TEST, skip_header=1, delimiter=",", dtype=bool)
-Xtest = test[:, :-1]
-Xtest = Xtest.reshape(test.shape[0], MATRIX_ROW_SIZE, MATRIX_COL_SIZE)
-ytest = test[:, -1] 
-
+    test = np.genfromtxt(DATA_FILE_TEST, skip_header=1, delimiter=",", dtype=int)
+    Xtest = test[:, :-1]
+    Xtest = Xtest.reshape(test.shape[0], MATRIX_ROW_SIZE, MATRIX_COL_SIZE)
+    ytest = test[:, -1] 
+    
+    return Xtrain, Xtest, ytrain, ytest
 
 
 @dataclass
@@ -43,16 +44,13 @@ class MatrixElement(Condition):
     def __str__(self) -> str:
         return f"(X[{self.row}, {self.column}])"
 
-@abstract
-class Array(ABC):
-    pass
 
 @abstract
 class Matrix(ABC):
     pass
 
 @dataclass
-class MatrixElementsRow(Array):
+class MatrixElementsRow(Matrix):
     row: Annotated[int, IntRange(0, MATRIX_ROW_SIZE - 1)]
     col1: Annotated[int, IntRange(0, MATRIX_COL_SIZE)]
     col2: Annotated[int, IntRange(0, MATRIX_COL_SIZE)]
@@ -61,21 +59,14 @@ class MatrixElementsRow(Array):
         return f"X[{self.row}, {self.col1} : {self.col2}]"
 
 @dataclass
-class MatrixElementsCol(Array):
+class MatrixElementsCol(Matrix):
     row1: Annotated[int, IntRange(0, MATRIX_ROW_SIZE)]
     row2: Annotated[int, IntRange(0, MATRIX_ROW_SIZE)]
     col: Annotated[int, IntRange(0, MATRIX_COL_SIZE - 1)]
 
     def __str__(self) -> str:
         return f"X[{self.row1} : {self.row2}, {self.col}]"
-
-@dataclass
-class ArraySum(Number):
-    array: Array
     
-    def __str__(self) -> str:
-        return f"(sum({self.array}))"
-
 @dataclass
 class MatrixElementsCube(Matrix):
     row1: Annotated[int, IntRange(0, MATRIX_ROW_SIZE)]
@@ -126,8 +117,6 @@ def evaluate(e: Expr) -> Callable[[Any], float]:
             return lambda line: line[e.row1 : e.row2, e.col]
         else:
             return lambda line: line[e.row2 : e.row1, e.col]
-    elif isinstance(e, ArraySum):
-        return lambda line: sum(evaluate(e.array)(line))
     elif isinstance(e, MatrixElementsCube):
         if e.row1 <= e.row2:
             if e.col1 <= e.col2:
@@ -155,18 +144,28 @@ def evaluate(e: Expr) -> Callable[[Any], float]:
         raise NotImplementedError(str(e))
 
 
-def fitness_function(i: Condition):
-    _clf = evaluate(i)
-    ypred = [_clf(line) for line in np.rollaxis(Xtrain, 0)]
-    return f1_score(ytrain, ypred)
 
 
-folder = 'GoL/grammar_col2'
-
-def preprocess():
-    # grammar = extract_grammar([And, Or, Not, MatrixElement, MatrixElementsRow, MatrixElementsCol, ArraySum, MatrixElementsCube, MatrixSum, Equals, GreaterThan, LessThan, Literal], Condition)
-    grammar = extract_grammar([And, Or, Not, MatrixElement, MatrixElementsCol, ArraySum, Equals, GreaterThan, LessThan, Literal], Condition)
-    # grammar = extract_grammar([And, Or, Not, SumAll, Equals, GreaterThan, LessThan, Literal], Condition)
+def preprocess(folder,method):
+    '''
+        Options for methor are [standard], [row], [col], [row_col], [cube], [row_col_cube], [sum_all].
+    '''
+    if method == 'standard':
+        grammar = extract_grammar([And, Or, Not, MatrixElement], Condition)
+    elif method == 'row':
+        grammar = extract_grammar([And, Or, Not, MatrixElement, MatrixElementsRow, MatrixSum, Equals, GreaterThan, LessThan, Literal], Condition)
+    elif method == 'col':
+        grammar = extract_grammar([And, Or, Not, MatrixElement, MatrixElementsCol, MatrixSum, Equals, GreaterThan, LessThan, Literal], Condition)
+    elif method == 'row_col':
+        grammar = extract_grammar([And, Or, Not, MatrixElement, MatrixElementsRow, MatrixElementsCol, MatrixSum, Equals, GreaterThan, LessThan, Literal], Condition)
+    elif method == 'cube':
+        grammar = extract_grammar([And, Or, Not, MatrixElement, MatrixElementsCube, MatrixSum, Equals, GreaterThan, LessThan, Literal], Condition)
+    elif method == 'row_col_cube':
+        grammar = extract_grammar([And, Or, Not, MatrixElement, MatrixElementsRow, MatrixElementsCol, MatrixElementsCube, MatrixSum, Equals, GreaterThan, LessThan, Literal], Condition)
+    elif method == 'sum_all':
+        grammar = extract_grammar([And, Or, Not, MatrixElement, SumAll, Equals, GreaterThan, LessThan, Literal], Condition)
+    else:
+        grammar = extract_grammar([And, Or, Not, MatrixElement], Condition)
 
     file1 = open(f"results/csvs/{folder}/grammar.txt","w")
     file1.write(str(grammar))
@@ -175,7 +174,7 @@ def preprocess():
     print(grammar)
     return grammar
 
-def evolve(g, seed, mode):
+def evolve(fitness_function, g, seed, mode):
     alg = GP(
         g,
         fitness_function,
@@ -208,21 +207,20 @@ def evolve(g, seed, mode):
 # ip.embed()
 
 if __name__ == "__main__":
- 
-    # # # Generate dataset
-    # # Train
-    # Xtrain, ytrain = generate_dataset(1000)
-    # Xtest, ytest = generate_dataset(1000)
-    # _x = Xtrain.reshape(1000, 9)
-    # _y = ytrain.reshape(1000, 1)
-    # np.savetxt("Train.csv", np.concatenate([_x, _y], axis=1), fmt='%i', delimiter=",")
+    args = sys.argv
+    print(args)
+    folder = args[1] # 'GoL/grammar_col'
+    method = args[2] # 'grammar_col'
+    dataset_name = args[3] # 'GameOfLife'
 
-    # # Test
-    # _x = Xtest.reshape(1000, 9)
-    # _y = ytest.reshape(1000, 1)
-    # np.savetxt("Test.csv", np.concatenate([_x, _y], axis=1), fmt='%i', delimiter=",")
+    g = preprocess(folder,method)
+    
+    Xtrain, Xtest, ytrain, ytest = prepare_data(dataset_name)    
+
+    def fitness_function(i: Condition):
+        _clf = evaluate(i)
+        ypred = [_clf(line) for line in np.rollaxis(Xtrain, 0)]
+        return f1_score(ytrain, ypred)
     
     for i in range(30):
-        # i = 30 - i -1
-        g = preprocess()
-        evolve(g, i, False)
+        evolve(fitness_function, g, i, False)
