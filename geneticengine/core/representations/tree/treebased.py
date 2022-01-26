@@ -30,8 +30,10 @@ from geneticengine.core.utils import (
 from geneticengine.exceptions import GeneticEngineError
 from geneticengine.metahandlers.base import MetaHandlerGenerator, is_metahandler
 
+
 def random_bool(r: Source) -> int:
     return r.choice([True, False])
+
 
 def random_int(r: Source) -> int:
     return r.randint(-(sys.maxsize - 1), sys.maxsize)
@@ -79,18 +81,21 @@ def apply_metahandler(
     return metahandler.generate(r, g, rec, depth, base_type, argn, context)
 
 
-def filter_choices(g: Grammar, possible_choices: List[type], depth:int, reached_required_depth:bool = False):
+def filter_choices(
+    g: Grammar,
+    possible_choices: List[type],
+    depth: int,
+    has_reached_final_depth: bool = False,
+):
     valid_productions = [
         vp for vp in possible_choices if g.distanceToTerminal[vp] <= depth
     ]
-    if any(  # Are we the last recursive symbol?
-        [
-            prod in g.recursive_prods for prod in valid_productions
-        ]  # Are there any  recursive symbols in our expansion?
+    # Are there any  recursive symbols in our expansion?
+    if not has_reached_final_depth and any(
+        [prod in g.recursive_prods for prod in valid_productions]
     ):
-        valid_productions = [
-            vp for vp in valid_productions if vp in g.recursive_prods
-        ]  # If so, then only expand into recursive symbols
+        # If so, then only expand into recursive symbols
+        valid_productions = [vp for vp in valid_productions if vp in g.recursive_prods]
     return valid_productions
 
 
@@ -101,7 +106,7 @@ def expand_node(
     starting_symbol: Any,
     argname: str = "",
     context: Dict[str, Type] = None,
-    reach_final_depth:bool = False
+    has_reached_final_depth: bool = False,
 ) -> Any:
     """
     Creates a random node of a given type (starting_symbol)
@@ -136,7 +141,9 @@ def expand_node(
 
         if starting_symbol in g.alternatives:  # Alternatives
             compatible_productions = g.alternatives[starting_symbol]
-            valid_productions = filter_choices(g, compatible_productions, max_depth, reach_final_depth)
+            valid_productions = filter_choices(
+                g, compatible_productions, max_depth, has_reached_final_depth
+            )
             if not valid_productions:
                 raise GeneticEngineError(
                     "No productions for non-terminal node with type: {} in depth {} (minimum required: {}).".format(

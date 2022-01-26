@@ -20,19 +20,19 @@ class Root(ABC):
 class Leaf(Root):
     pass
 
+
 @dataclass
 class Rec(Root):
     n1: Root
     n2: Root
-    n3: Root
-    n4: Root
-    n5: Root
+
 
 @dataclass
 class RecAlt(Root):
     l: Leaf
 
-def contains_type(t, ty:Type):
+
+def contains_type(t, ty: Type):
     if isinstance(t, ty):
         return True
     elif isinstance(t, list):
@@ -53,11 +53,11 @@ class TestGrammar(object):
         x = random_node(r, g, 2, Root)
         assert isinstance(x, Leaf)
         assert isinstance(x, Root)
-    
+
     def test_rec(self):
         r = RandomSource(seed=1)
         g: Grammar = extract_grammar([Leaf, Rec], Root)
-        x = random_node(r, g, 2, Root)
+        x = random_node(r, g, 2, Root, force_depth=2)
         assert isinstance(x, Rec)
         assert isinstance(x, Root)
 
@@ -67,4 +67,3 @@ class TestGrammar(object):
         x = random_node(r, g, max_depth=5, starting_symbol=Root, force_depth=5)
         assert contains_type(x, RecAlt)
         assert isinstance(x, Root)
-
