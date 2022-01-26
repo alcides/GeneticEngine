@@ -47,9 +47,11 @@ def create_position_independent_grow(
         depth: int,
         starting_symbol: Type[Any] = int,
     ):
-        root = expand_node(r, g, depth, starting_symbol, "", {})
-        prod_queue: List[Future] = [root]
+        has_enough_depth = False
 
+        root = expand_node(r, g, depth, starting_symbol, "", {}, has_enough_depth)
+        prod_queue: List[Future] = [root]
+        
         while prod_queue:
             index = r.randint(0, len(prod_queue) - 1)
             future = prod_queue.pop(index)
@@ -61,13 +63,15 @@ def create_position_independent_grow(
                     starting_symbol=future.ty,
                     argname=future.name,
                     context=future.context,
+                    reach_final_depth=not has_enough_depth,
                 )
                 setattr(future.parent, future.name, obj)
+                if not has_enough_depth and future.ty not in g.recursive_prods:
+                    has_enough_depth = True
             else:
                 obj = future  # only for root
 
             prod_queue.extend(extract_futures(obj))
-
         assert isinstance(root, starting_symbol)
         return root
 

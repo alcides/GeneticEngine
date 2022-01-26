@@ -78,7 +78,7 @@ def apply_metahandler(
     return metahandler.generate(r, g, rec, depth, base_type, argn, context)
 
 
-def filter_choices(g: Grammar, possible_choices: List[type], depth):
+def filter_choices(g: Grammar, possible_choices: List[type], depth:int, reached_required_depth:bool = False):
     valid_productions = [
         vp for vp in possible_choices if g.distanceToTerminal[vp] <= depth
     ]
@@ -90,7 +90,6 @@ def filter_choices(g: Grammar, possible_choices: List[type], depth):
         valid_productions = [
             vp for vp in valid_productions if vp in g.recursive_prods
         ]  # If so, then only expand into recursive symbols
-
     return valid_productions
 
 
@@ -101,6 +100,7 @@ def expand_node(
     starting_symbol: Any,
     argname: str = "",
     context: Dict[str, Type] = None,
+    reach_final_depth:bool = False
 ) -> Any:
     """
     Creates a random node of a given type (starting_symbol)
@@ -135,7 +135,7 @@ def expand_node(
 
         if starting_symbol in g.alternatives:  # Alternatives
             compatible_productions = g.alternatives[starting_symbol]
-            valid_productions = filter_choices(g, compatible_productions, depth)
+            valid_productions = filter_choices(g, compatible_productions, depth, reach_final_depth)
             if not valid_productions:
                 raise GeneticEngineError(
                     "No productions for non-terminal node with type: {} in depth {} (minimum required: {}).".format(
