@@ -29,6 +29,8 @@ from geneticengine.core.utils import (
 from geneticengine.exceptions import GeneticEngineError
 from geneticengine.metahandlers.base import MetaHandlerGenerator, is_metahandler
 
+def random_bool(r: Source) -> int:
+    return r.choice([True, False])
 
 def random_int(r: Source) -> int:
     return r.randint(-(sys.maxsize - 1), sys.maxsize)
@@ -115,7 +117,8 @@ def expand_node(
                 starting_symbol, depth, g.get_distance_to_terminal(starting_symbol)
             )
         )
-
+    if starting_symbol is bool:
+        return random_bool(r)
     if starting_symbol is int:
         return random_int(r)
     elif starting_symbol is float:

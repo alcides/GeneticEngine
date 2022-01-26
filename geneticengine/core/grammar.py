@@ -172,12 +172,9 @@ class Grammar(object):
                     self.distanceToTerminal[sym] = val
 
         for sym in all_sym:
-            # print(sym.__name__)
             if sym in reachability[sym]:  # symbol is recursive
                 self.recursive_prods.add(sym)
-                # print("yes")
             else:
-                # print("no")
                 pass
 
 
