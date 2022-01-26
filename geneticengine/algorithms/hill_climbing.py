@@ -3,7 +3,7 @@ from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.api import Representation
 from geneticengine.core.representations.tree.treebased import treebased_representation
-from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.algorithms.gp.Individual import Individual
 import geneticengine.algorithms.gp.generation_steps.mutation as mutation
 
 
