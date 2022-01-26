@@ -1,8 +1,9 @@
 from dataclasses import dataclass
-from typing import Any, Callable, Type, Dict, List
+from typing import Any, Callable, Optional, Type, Dict, List
 
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import Source
+from geneticengine.core.representations.tree.utils import relabel_nodes_of_trees
 from geneticengine.core.representations.tree.wrapper import Wrapper
 from geneticengine.core.utils import get_arguments
 
@@ -44,34 +45,39 @@ def create_position_independent_grow(
     def position_independent_grow(
         r: Source,
         g: Grammar,
-        depth: int,
+        max_depth: int,
         starting_symbol: Type[Any] = int,
+        force_depth: Optional[int] = None,
     ):
-        has_enough_depth = False
+        has_enough_depth = force_depth is None
 
-        root = expand_node(r, g, depth, starting_symbol, "", {}, has_enough_depth)
+        root = expand_node(r, g, max_depth, starting_symbol, "", {}, has_enough_depth)
         prod_queue: List[Future] = [root]
         
         while prod_queue:
             index = r.randint(0, len(prod_queue) - 1)
             future = prod_queue.pop(index)
             if isinstance(future, Future):
+                expected_depth = future.depth
                 obj = expand_node(
                     r,
                     g,
-                    depth=future.depth,
+                    max_depth=future.depth,
                     starting_symbol=future.ty,
                     argname=future.name,
                     context=future.context,
                     reach_final_depth=not has_enough_depth,
                 )
                 setattr(future.parent, future.name, obj)
-                if not has_enough_depth and future.ty not in g.recursive_prods:
-                    has_enough_depth = True
             else:
+                expected_depth = force_depth
                 obj = future  # only for root
-
-            prod_queue.extend(extract_futures(obj))
+            new_futures = extract_futures(obj)
+            
+            relabel_nodes_of_trees(obj, g.non_terminals)
+            if isinstance(future, Future) and not new_futures and obj.depth == expected_depth:
+                has_enough_depth = True
+            prod_queue.extend(new_futures)
         assert isinstance(root, starting_symbol)
         return root
 
