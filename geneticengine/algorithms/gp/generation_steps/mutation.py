@@ -1,5 +1,5 @@
 from typing import Callable
-from geneticengine.algorithms.gp.Individual import Individual
+from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
 from geneticengine.core.grammar import Grammar

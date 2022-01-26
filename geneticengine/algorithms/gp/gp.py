@@ -12,8 +12,11 @@ import time
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.api import Representation
-from geneticengine.core.representations.tree.treebased import treebased_representation, relabel_nodes_of_trees
-from geneticengine.algorithms.gp.Individual import Individual
+from geneticengine.core.representations.tree.treebased import (
+    treebased_representation,
+    relabel_nodes_of_trees,
+)
+from geneticengine.algorithms.gp.individual import Individual
 import geneticengine.algorithms.gp.generation_steps.selection as selection
 import geneticengine.algorithms.gp.generation_steps.mutation as mutation
 import geneticengine.algorithms.gp.generation_steps.cross_over as cross_over
@@ -41,7 +44,7 @@ class GP(object):
 
     def __init__(
         self,
-        g: Grammar,
+        grammar: Grammar,
         evaluation_function: Callable[[Any], float],
         representation: Representation = treebased_representation,
         randomSource: Callable[[int], RandomSource] = RandomSource,
@@ -64,10 +67,10 @@ class GP(object):
         seed: int = 123,
         # -----
         timer_stop_criteria: bool = False,  # TODO: This should later be generic
-        safe_gen_to_csv: Tuple[str, str] = ('', 'all'), 
+        safe_gen_to_csv: Tuple[str, str] = ("", "all"),
     ):
         # Add check to input numbers (n_elitism, n_novelties, population_size)
-        self.grammar = g
+        self.grammar = grammar
         self.representation = representation
         self.evaluation_function = evaluation_function
         self.random = randomSource(seed)
@@ -130,7 +133,7 @@ class GP(object):
 
     def fitness_correction_for_depth(self, individual: Individual) -> float:
         if self.favor_less_deep_trees:
-            return individual.genotype.distance_to_term * 10**-25
+            return individual.genotype.distance_to_term * 10 ** -25
         else:
             return 0
 
@@ -145,7 +148,9 @@ class GP(object):
         population = self.init_population()
         if self.force_individual is not None:
             population[0] = Individual(
-                genotype=relabel_nodes_of_trees(self.force_individual,self.grammar.non_terminals,self.max_depth),
+                genotype=relabel_nodes_of_trees(
+                    self.force_individual, self.grammar.non_terminals, self.max_depth
+                ),
                 fitness=None,
             )
         population = sorted(population, key=self.keyfitness())
@@ -173,8 +178,14 @@ class GP(object):
 
             population = npop
             population = sorted(population, key=self.keyfitness())
-            if self.safe_gen_to_csv[0] != '':
-                self.write_to_csv(self.safe_gen_to_csv[0],population,(gen + 1),(time.time() - start),self.safe_gen_to_csv[1])
+            if self.safe_gen_to_csv[0] != "":
+                self.write_to_csv(
+                    self.safe_gen_to_csv[0],
+                    population,
+                    (gen + 1),
+                    (time.time() - start),
+                    self.safe_gen_to_csv[1],
+                )
             if verbose == 1:
                 # self.printFitnesses(population, "G:" + str(gen))
                 print("Best population:{}.".format(population[0]))
@@ -219,24 +230,48 @@ class GP(object):
         for x in pop:
             print(round(self.evaluate(x), 2), str(x))
         print("---")
-        
+
         # "genotype_as_str",fitness_value,depth,number_of_the_generation,time_since_the_start_of_the_evolution
-    def write_to_csv(self,file_name,population: List[Individual],number_of_the_generation,time_since_the_start_of_the_evolution,writing_method):
+
+    def write_to_csv(
+        self,
+        file_name,
+        population: List[Individual],
+        number_of_the_generation,
+        time_since_the_start_of_the_evolution,
+        writing_method,
+    ):
         if number_of_the_generation == 1:
-            with open(f'./results/csvs/{file_name}.csv', 'w', newline='') as outfile:
+            with open(f"./results/csvs/{file_name}.csv", "w", newline="") as outfile:
                 writer = csv.writer(outfile)
-                writer.writerow(["genotype_as_str", "fitness", "depth", "number_of_the_generation", "time_since_the_start_of_the_evolution", "seed"])
-            
+                writer.writerow(
+                    [
+                        "genotype_as_str",
+                        "fitness",
+                        "depth",
+                        "number_of_the_generation",
+                        "time_since_the_start_of_the_evolution",
+                        "seed",
+                    ]
+                )
+
         csv_lines = list()
-        if writing_method == 'only_best_individual':
+        if writing_method == "only_best_individual":
             population = [population[0]]
         for ind in population:
             genotype_as_str = str(ind.genotype)
             fitness = str(ind.fitness)
             depth = ind.genotype.distance_to_term
-            csv_line = [genotype_as_str, fitness, depth, number_of_the_generation, time_since_the_start_of_the_evolution, self.seed]
+            csv_line = [
+                genotype_as_str,
+                fitness,
+                depth,
+                number_of_the_generation,
+                time_since_the_start_of_the_evolution,
+                self.seed,
+            ]
             csv_lines.append(csv_line)
-        
-        with open(f'./results/csvs/{file_name}.csv', 'a', newline='') as outfile:
+
+        with open(f"./results/csvs/{file_name}.csv", "a", newline="") as outfile:
             writer = csv.writer(outfile)
             writer.writerows(csv_lines)

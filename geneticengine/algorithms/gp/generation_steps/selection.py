@@ -1,7 +1,7 @@
 from typing import List, Callable
 from copy import deepcopy
 from geneticengine.core.random.sources import RandomSource
-from geneticengine.algorithms.gp.Individual import Individual
+from geneticengine.algorithms.gp.individual import Individual
 
 
 def create_tournament(
