@@ -35,32 +35,6 @@ Xtest = test[:, :-1]
 Xtest = Xtest.reshape(test.shape[0], 3, 3)
 ytest = test[:, -1]
 
-
-def game_of_life_rule(m):
-    """
-    Given a 3x3 matriz, outputs the correct result of Game of Life.
-    """
-    cell = m[1, 1]
-    neighbours = np.sum(m) - cell
-    if cell and neighbours in [2, 3]:
-        return 1
-    elif not cell and neighbours == 3:
-        return 1
-    else:
-        return 0
-
-
-def generate_dataset(n: int) -> Tuple[Any, Any]:
-    """
-    Generates a pair of Nx3x3 matrices of input boards,
-    and the next value for the middle position of each board.
-    """
-    m = np.random.randint(0, 2, n * 9).reshape(n, 3, 3)
-    r = np.fromiter((game_of_life_rule(xi) for xi in m), m.dtype)
-    return (m, r)
-
-
-
 @dataclass
 class MatrixElement(Condition):
     row: Annotated[int, IntRange(0, 2)]
@@ -123,7 +97,7 @@ def evolve(g, seed, mode):
         timer_stop_criteria=mode,
         safe_gen_to_csv=(f'{OUTPUT_FOLDER}/run_seed={seed}','all'),
     )
-    (b, bf, bp) = alg.evolve(verbose=1)
+    (b, bf, bp) = alg.evolve(verbose=0)
 
     print("Best individual:", bp)
     print("Genetic Engine Train F1 score:", bf)

@@ -192,7 +192,7 @@ def evolve(g, seed, mode):
         timer_stop_criteria=mode,
         safe_gen_to_csv=(f'{folder}/run_seed={seed}','all'),
     )
-    (b, bf, bp) = alg.evolve(verbose=1)
+    (b, bf, bp) = alg.evolve(verbose=0)
 
     print("Best individual:", bp)
     print("Genetic Engine Train F1 score:", bf)
