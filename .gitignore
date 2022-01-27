@@ -2,6 +2,7 @@ dist
 .vscode
 results/csvs/*
 !results/csvs/.gitkeep
+results/Franklin/*
 results/images/*
 !results/images/.gitkeep
 

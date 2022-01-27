@@ -7,9 +7,9 @@ def introduce_noise(file_name,label_col='label',percentage_noise=10):
     data = pd.read_csv(f'examples/data/{file_name}.csv')
     
     label_data = data[label_col]
-    for idx,row in enumerate(label_data):
+    for idx,_ in enumerate(label_data):
         if r.randint(1,100) <= percentage_noise:
-            if row == 1:
+            if label_data[idx] == 1:
                 label_data[idx] = 0
             else:
                 label_data[idx] = 1
@@ -17,4 +17,4 @@ def introduce_noise(file_name,label_col='label',percentage_noise=10):
     data[label_col] = label_data
     data.to_csv(f'examples/data/{file_name}_noise.csv',index=False)
 
-introduce_noise('GameOfLife/Train')
+introduce_noise('GameOfLife_noise/Train')

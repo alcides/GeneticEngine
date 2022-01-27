@@ -6,10 +6,8 @@ from palettable.colorbrewer.qualitative import Set2_7
 from geneticengine.exceptions import GeneticEngineError
 
 def load(example_name, metric, single_value):
-    search_folder = f'results\csvs\{example_name}_seed=*.csv'
-    print(search_folder)
+    search_folder = f'results\{example_name}\\run_seed=*.csv'
     f_list = glob.glob(search_folder)
-    print(f_list)
 
     data = list()
 
@@ -21,17 +19,11 @@ def load(example_name, metric, single_value):
         data.append(df[metric].values)
     return np.array(data)
 
-def med(data):
-    median = np.zeros(data.shape[1])
-    for i in range(0, len(median)):
-        median[i] = np.median(data[:, i])
-    return median
-
-def perc(data):
-   median = np.zeros(data.shape[1])
-   perc_25 = np.zeros(data.shape[1])
-   perc_75 = np.zeros(data.shape[1])
-   for i in range(0, len(median)):
+def perc(data,size):
+   median = np.zeros(size)
+   perc_25 = np.zeros(size)
+   perc_75 = np.zeros(size)
+   for i in range(0, size):
        median[i] = np.median(data[:, i])
        perc_25[i] = np.percentile(data[:, i], 25)
        perc_75[i] = np.percentile(data[:, i], 75)
@@ -52,10 +44,13 @@ def plot_comparison(file_run_names, run_names, result_name='results/images/media
     
     for idx, file_run_name in enumerate(file_run_names):
         run_data = load(file_run_name,metric=metric,single_value=single_value)
-        n_generations = run_data.shape[1]
+        try:
+            n_generations = run_data.shape[1]
+        except IndexError:
+            raise GeneticEngineError(f'Index Error. \nMake sure the files you\'re loading in all have the same number of generations!')
         x = np.arange(0, n_generations)
 
-        med_run_data, perc_25_run_data, perc_75_run_data = perc(run_data)
+        med_run_data, perc_25_run_data, perc_75_run_data = perc(run_data,n_generations)
 
         plot(x, med_run_data, linewidth=2, color=colors[idx % len(colors)], linestyle=line_styles[idx % len(line_styles)])
 
@@ -66,39 +61,8 @@ def plot_comparison(file_run_names, run_names, result_name='results/images/media
     frame.set_facecolor('1.0')
     frame.set_edgecolor('1.0')
 
-    savefig(result_name)
+    savefig(result_name)  
 
-def plot_comparison2(file_name1, file_name2, name1, name2, result_name='results/images/medians2.png', metric='fitness', single_value=False):
-    example1_data = load(file_name1,metric=metric,single_value=single_value)
-    example2_data = load(file_name2,metric=metric,single_value=single_value)
 
-    n_generations = example1_data.shape[1]
-    x = np.arange(0, n_generations)
-
-    med_example1, perc_25_example1, perc_75_example1 = perc(example1_data)
-    med_example2, perc_25_example2, perc_75_example2 = perc(example2_data)
-    
-    print(med_example1)
-    print(med_example2)
-    
-    colors = Set2_7.mpl_colors
-    axes(frameon=0)
-    grid(axis='y', color="0.9", linestyle='-', linewidth=1)
-    
-    plot(x, med_example1, linewidth=2, color=colors[0])
-    plot(x, med_example2, linewidth=2, linestyle='--', color=colors[1])
-    
-    fill_between(x, perc_25_example1, perc_75_example1, alpha=0.25, linewidth=0, color=colors[0])
-    fill_between(x, perc_25_example2, perc_75_example2, alpha=0.25, linewidth=0, color=colors[1])
-    
-    legend = plt.legend([name1, name2], loc=4)
-    frame = legend.get_frame()
-    frame.set_facecolor('1.0')
-    frame.set_edgecolor('1.0')
-
-    savefig(result_name)
-    
-plot_comparison2('GoL\grammar_row\\run', 'GoL\grammar_standard\\run', 'normal GoL', 'vectorial GoL')
-
-# plot_comparison(['GoL\grammar_col\\run', 'GoL\grammar_standard\\run'], ['col', 'row'])
+plot_comparison(['Franklin\csvs\GoL\grammar_standard', 'Franklin\csvs\GoL_noise\grammar_standard'], ['normal', 'with noise'], result_name='results/images/noise_comparison.png')
 
