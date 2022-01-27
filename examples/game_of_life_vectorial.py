@@ -166,7 +166,7 @@ def preprocess(output_folder,method):
     elif method == 'sum_all':
         grammar = extract_grammar([And, Or, Not, MatrixElement, SumAll, Equals, GreaterThan, LessThan, Literal], Condition)
     else:
-        grammar = extract_grammar([And, Or, Not, MatrixElement], Condition)
+        raise NotImplementedError(f'Method ({method}) not implemented! Choose from: [standard], [row], [col], [row_col], [cube], [row_col_cube], [sum_all]')
 
     file1 = open(f"results/csvs/{output_folder}/grammar.txt","w")
     file1.write(str(grammar))
