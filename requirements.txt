@@ -1,2 +1,5 @@
 numpy
 sklearn
+lark
+pytest
+z3-solver

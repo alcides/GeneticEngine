@@ -95,7 +95,7 @@ class Grammar(object):
         """All symbols in the current grammar, including terminals"""
         keys = set((k for k in self.alternatives.keys()))
         sequence = set((v for vv in self.alternatives.values() for v in vv))
-        return (keys, sequence, sequence.union(keys))
+        return (keys, sequence, sequence.union(keys).union(self.all_nodes))
 
     def get_distance_to_terminal(self, ty: type) -> int:
         """Returns the current distance to terminal of a given type"""
@@ -154,9 +154,11 @@ class Grammar(object):
 
                         changed |= process_reachability(sym, prods)
                 else:
+                    print(sym, "sym1")
                     if is_terminal(sym, self.non_terminals):
                         val = 1
                     else:
+                        print(sym, "sym")
                         args = get_arguments(sym)
                         assert args
                         val = 1 + max(
@@ -176,6 +178,7 @@ class Grammar(object):
                 self.recursive_prods.add(sym)
             else:
                 pass
+        print("DEBUG", self.distanceToTerminal[self.starting_symbol])
 
 
 def extract_grammar(nodes, starting_symbol):
