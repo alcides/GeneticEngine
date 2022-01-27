@@ -154,11 +154,9 @@ class Grammar(object):
 
                         changed |= process_reachability(sym, prods)
                 else:
-                    print(sym, "sym1")
                     if is_terminal(sym, self.non_terminals):
                         val = 1
                     else:
-                        print(sym, "sym")
                         args = get_arguments(sym)
                         assert args
                         val = 1 + max(
@@ -178,7 +176,6 @@ class Grammar(object):
                 self.recursive_prods.add(sym)
             else:
                 pass
-        print("DEBUG", self.distanceToTerminal[self.starting_symbol])
 
 
 def extract_grammar(nodes, starting_symbol):

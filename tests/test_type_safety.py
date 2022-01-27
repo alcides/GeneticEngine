@@ -22,21 +22,32 @@ class OtherLeaf(Root):
 
 
 @dataclass
-class UnderTest(object):
+class UnderTest(Root):
     a: Leaf
     b: Root
 
 
+class TestCallBack(object):
+    def process_iteration(self, generation: int, population, time: float):
+        for ind in population:
+            x = ind.genotype
+            assert isinstance(x, UnderTest)
+            assert isinstance(x.a, Leaf)
+
+
 class TestGrammar(object):
     def test_safety(self):
-        r = RandomSource(seed=1)
+        r = RandomSource(seed=123)
         g: Grammar = extract_grammar([Leaf, OtherLeaf, UnderTest, Root], UnderTest)
-        g = GP(
+        gp = GP(
             grammar=g,
-            evaluation_function=lambda x: 1,
-            population_size=10,
+            randomSource=lambda x: r,
+            evaluation_function=lambda x: x.depth,
+            population_size=100,
             number_of_generations=100,
+            probability_mutation=1,
+            probability_crossover=1,
+            max_depth=10,
+            callbacks=[TestCallBack()],
         )
-        (_, _, x) = g.evolve()
-        assert isinstance(x.a, Leaf)
-        assert isinstance(x, UnderTest)
+        (_, _, x) = gp.evolve()

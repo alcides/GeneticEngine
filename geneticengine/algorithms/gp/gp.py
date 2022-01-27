@@ -20,6 +20,7 @@ from geneticengine.algorithms.gp.individual import Individual
 import geneticengine.algorithms.gp.generation_steps.selection as selection
 import geneticengine.algorithms.gp.generation_steps.mutation as mutation
 import geneticengine.algorithms.gp.generation_steps.cross_over as cross_over
+from geneticengine.algorithms.gp.callback import Callback
 
 
 class GP(object):
@@ -41,6 +42,7 @@ class GP(object):
     novelty: Union[NoReturn, Callable[[int], List[Individual]]]
     minimize: bool
     final_population: List[Individual]
+    callbacks: List[Callback]
 
     def __init__(
         self,
@@ -68,6 +70,7 @@ class GP(object):
         # -----
         timer_stop_criteria: bool = False,  # TODO: This should later be generic
         safe_gen_to_csv: Tuple[str, str] = ("", "all"),
+        callbacks: List[Callback] = [],
     ):
         # Add check to input numbers (n_elitism, n_novelties, population_size)
         self.grammar = grammar
@@ -86,6 +89,7 @@ class GP(object):
         self.target_fitness = target_fitness
         self.timer_stop_criteria = timer_stop_criteria
         self.safe_gen_to_csv = safe_gen_to_csv
+        self.callbacks = callbacks
         if hill_climbing:
             self.mutation = mutation.create_hill_climbing_mutation(
                 self.random,
@@ -178,6 +182,11 @@ class GP(object):
 
             population = npop
             population = sorted(population, key=self.keyfitness())
+
+            time_gen = time.time() - start
+            for cb in self.callbacks:
+                cb.process_iteration(gen + 1, population, time_gen)
+
             if self.safe_gen_to_csv[0] != "":
                 self.write_to_csv(
                     self.safe_gen_to_csv[0],
