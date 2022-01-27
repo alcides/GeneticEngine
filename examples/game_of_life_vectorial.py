@@ -84,7 +84,7 @@ class MatrixSum(Number):
 
     def summing(self,matrix):
         s = sum(matrix)
-        if type(s) == int:
+        if type(s) == int or type(s) == np.int32:
             return s
         else:
             return sum(s)
@@ -192,7 +192,7 @@ def evolve(fitness_function, output_folder, g, seed, mode):
         timer_stop_criteria=mode,
         safe_gen_to_csv=(f'{output_folder}/run_seed={seed}','all'),
     )
-    (b, bf, bp) = alg.evolve(verbose=0)
+    (b, bf, bp) = alg.evolve(verbose=1)
 
     print("Best individual:", bp)
     print("Genetic Engine Train F1 score:", bf)
@@ -211,7 +211,7 @@ if __name__ == "__main__":
     args = sys.argv
     print(args)
     output_folder = args[1] # 'GoL/grammar_col'
-    method = args[2] # 'grammar_col'
+    method = args[2] # 'col'
     dataset_name = args[3] # 'GameOfLife'
 
     folder = f'./results/csvs/{output_folder}'
