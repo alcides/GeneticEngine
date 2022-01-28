@@ -14,17 +14,17 @@ class Root(ABC):
 
 @dataclass
 class IntC(Root):
-    x: Annotated[int, SMT("9 <= x && x <= 10")]
+    x: Annotated[int, SMT("9 <= _ && _ <= 10")]
 
 
 @dataclass
 class BoolC(Root):
-    x: Annotated[bool, SMT("x")]
+    x: Annotated[bool, SMT("_")]
 
 
 @dataclass
 class FloatC(Root):
-    x: Annotated[float, SMT("x > 0.3")]
+    x: Annotated[float, SMT("_ > 0.3")]
 
 
 T = TypeVar("T")

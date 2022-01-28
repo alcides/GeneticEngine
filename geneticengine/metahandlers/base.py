@@ -16,8 +16,7 @@ class MetaHandlerGenerator(Protocol):
         newsymbol,
         depth: int,
         base_type,
-        argname: str,
-        context: Dict[str, Type],
+        context: Dict[str, str],
     ):
         """
         Generates an instance of type base_type, according to some criterion.

@@ -9,7 +9,10 @@ from typing import (
     TypeVar,
     Tuple,
     List,
+    Callable,
 )
+
+import z3
 
 from geneticengine.core.decorators import get_gengy
 from geneticengine.core.random.sources import Source
@@ -62,6 +65,7 @@ def apply_metahandler(
     new_symbol,
     depth: int,
     ty: Type[Any],
+    context: dict[str, str],
 ) -> Any:
     """
     This method applies a metahandler to use a custom generator for things of a given type.
@@ -73,8 +77,69 @@ def apply_metahandler(
     if is_generic_list(base_type):
         base_type = get_generic_parameter(base_type)
     return metahandler.generate(
-        r, g, receiver, new_symbol, depth, base_type, "", {}
-    )  # todo: last two arguments
+        r, g, receiver, new_symbol, depth, base_type, context
+    )  # todo: last argument
+
+
+# TODO: make non static
+class SMTResolver(object):
+    clauses = []
+    receivers: dict[str, Callable] = {}
+    types: dict[str, Callable] = {}
+
+    @staticmethod
+    def add_clause(claus, recs: dict[str, Callable]):
+        SMTResolver.clauses.extend(claus)
+        print(recs)
+        for k, v in recs.items():
+            SMTResolver.receivers[k] = v
+
+    @staticmethod
+    def register_type(name, typ):
+        SMTResolver.types[name] = SMTResolver.to_z3_typ(typ)
+
+    @staticmethod
+    def to_z3_typ(typ):
+        return z3.Bool if typ == bool else z3.Int if typ == int else z3.Real
+
+    @staticmethod
+    def resolve_clauses():
+        solver = z3.Solver()
+
+        solver.set(":random-seed", 1)
+        solver.reset()
+
+        for clause in SMTResolver.clauses:
+            solver.add(clause(SMTResolver.types))
+        res = solver.check()
+
+        if res != z3.sat:
+            raise Exception(f"{SMTResolver.clauses} failed with {res}")
+
+        model = solver.model()
+        for (name, recv) in SMTResolver.receivers.items():
+            evaled = model.eval(SMTResolver.types[name](name), model_completion=True)
+
+            recv(SMTResolver.get_type(evaled))
+
+        SMTResolver.clauses = []
+        SMTResolver.receivers = {}
+        SMTResolver.types = {}
+
+    @staticmethod
+    def get_type(evaled):
+        if type(evaled) == z3.z3.BoolRef:
+            evaled = bool(str(evaled))
+        elif type(evaled) == z3.z3.IntNumRef:
+            evaled = int(str(evaled))
+        else:
+            evaled = eval(str(evaled))
+        return evaled
+
+    @staticmethod
+    def register_const(ident, val):
+        ty = SMTResolver.to_z3_typ(type(val))
+        SMTResolver.types[ident] = ty
 
 
 def Grow(
@@ -89,16 +154,10 @@ def Grow(
         ]
         return valid_productions
 
-    def handle_symbol(symb, fin, depth):
+    def handle_symbol(symb, fin, depth, ident):
         next_type, next_finalizer, depth = symb, fin, depth
         expand_node(
-            r,
-            g,
-            handle_symbol,
-            filter_choices,
-            next_finalizer,
-            depth,
-            next_type,
+            r, g, handle_symbol, filter_choices, next_finalizer, depth, next_type, ident
         )
 
     state = {}
@@ -106,8 +165,8 @@ def Grow(
     def final_finalize(x):
         state["final"] = x
 
-    handle_symbol(starting_symbol, final_finalize, depth)
-
+    handle_symbol(starting_symbol, final_finalize, depth, "root")
+    SMTResolver.resolve_clauses()
     n = state["final"]
     relabel_nodes_of_trees(n, g.non_terminals)
     return n
@@ -127,13 +186,13 @@ def PI_Grow(
     prodqueue = []
     nRecs = [0]
 
-    def handle_symbol(symb, fin, depth):
+    def handle_symbol(symb, fin, depth, ident: str):
         # print(symb)
-        prodqueue.append((symb, fin, depth))
+        prodqueue.append((symb, fin, depth, ident))
         if symb in g.recursive_prods:
             nRecs[0] += 1
 
-    handle_symbol(starting_symbol, final_finalize, depth)
+    handle_symbol(starting_symbol, final_finalize, depth, "root")
 
     def filter_choices(possible_choices: List[type], depth):
         valid_productions = [
@@ -152,7 +211,7 @@ def PI_Grow(
 
     while prodqueue:
         # print(nRecs[0])
-        next_type, next_finalizer, depth = r.pop_random(prodqueue)
+        next_type, next_finalizer, depth, ident = r.pop_random(prodqueue)
         if next_type in g.recursive_prods:
             nRecs[0] -= 1
         expand_node(
@@ -163,16 +222,15 @@ def PI_Grow(
             next_finalizer,
             depth,
             next_type,
+            ident,
         )
-    if "final" not in state:
-        PI_Grow(r, g, depth, starting_symbol)
-        pass
+    SMTResolver.resolve_clauses()
     n = state["final"]
     relabel_nodes_of_trees(n, g.non_terminals)
     return n
 
 
-random_node = PI_Grow
+random_node = Grow
 
 
 def expand_node(
@@ -183,6 +241,7 @@ def expand_node(
     receiver,
     depth,
     starting_symbol,
+    id: str,
 ) -> Any:
     """
     Creates a random node of a given type (starting_symbol)
@@ -197,16 +256,20 @@ def expand_node(
         )
 
     if starting_symbol is int:
-        receiver(random_int(r))
+        val = random_int(r)
+        SMTResolver.register_const(id, val)
+        receiver(val)
         return
     elif starting_symbol is float:
-        receiver(random_float(r))
+        val = random_float(r)
+        SMTResolver.register_const(id, val)
+        receiver(val)
         return
     elif is_generic_list(starting_symbol):
         random_list(r, receiver, new_symbol, depth, starting_symbol)
         return
     elif is_metahandler(starting_symbol):
-        apply_metahandler(r, g, receiver, new_symbol, depth, starting_symbol)
+        apply_metahandler(r, g, receiver, new_symbol, depth, starting_symbol, {"_": id})
         return
     else:
         if starting_symbol not in g.all_nodes:
@@ -233,12 +296,12 @@ def expand_node(
                 rule = r.choice_weighted(valid_productions, weights)
             else:
                 rule = r.choice(valid_productions)
-            new_symbol(rule, receiver, depth - 1)
+            new_symbol(rule, receiver, depth - 1, id)
         else:  # Normal production
             args = get_arguments(starting_symbol)
             fins = build_finalizers(lambda *x: receiver(starting_symbol(*x)), len(args))
             for i, (argn, argt) in enumerate(args):
-                new_symbol(argt, fins[i], depth - 1)
+                new_symbol(argt, fins[i], depth - 1, id + "_" + str(i))
 
 
 def random_individual(r: Source, g: Grammar, max_depth: int = 5) -> TreeNode:

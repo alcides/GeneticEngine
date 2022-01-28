@@ -41,7 +41,7 @@ BOOLLIT.5 : "true" | "false"
 INTLIT : /[0-9][0-9]*/
 FLOATLIT : SIGNED_FLOAT
 _DOUBLEPIPE.11 : "||"
-VAR : (("a".."z")|("A".."Z")) (("0".."9")|"_"|("a".."z")|("A".."Z"))*
+VAR : (("a".."z")|"_"|("A".."Z")) (("0".."9")|("a".."z")|("A".."Z"))*
 
 %import common.WS
 %import common.CNAME
