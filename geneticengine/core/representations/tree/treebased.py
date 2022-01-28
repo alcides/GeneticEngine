@@ -298,7 +298,7 @@ def tree_crossover_single_tree(
     """
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns one tree that is created by crossing over [p1] and [p2]. The tree returned has [p1] as the base.
     """
-    new_tree = tree_crossover_inner(r, g, deepcopy(p1), deepcopy(p2), max_depth)
+    new_tree = tree_crossover_inner(r, g, deepcopy(p1), deepcopy(p2), g.starting_symbol, max_depth)
     relabeled_new_tree = relabel_nodes_of_trees(new_tree, g.non_terminals)
     return relabeled_new_tree
 
