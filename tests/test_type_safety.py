@@ -52,3 +52,5 @@ class TestGrammar(object):
             callbacks=[TestCallBack()],
         )
         (_, _, x) = gp.evolve()
+        assert isinstance(x, UnderTest)
+        assert isinstance(x.a, Leaf)
