@@ -86,12 +86,12 @@ run_names = [
 plot_comparison(
     files,
     run_names, 
-    result_name='results/images/accuracy/grammars_comparison2.png'
+    result_name='results/Franklin/images/accuracy/grammars_comparison2.png'
 )
 plot_comparison(
     files, 
     run_names,
-    result_name='results/images/time/grammars_time_comparison2.png', 
+    result_name='results/Franklin/images/time/grammars_time_comparison2.png', 
     metric='time_since_the_start_of_the_evolution'
 )
 
