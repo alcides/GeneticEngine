@@ -64,5 +64,5 @@ def plot_comparison(file_run_names, run_names, result_name='results/images/media
     savefig(result_name)  
 
 
-plot_comparison(['Franklin\csvs\GoL\grammar_standard', 'Franklin\csvs\GoL_noise\grammar_standard'], ['normal', 'with noise'], result_name='results/images/noise_comparison.png')
+plot_comparison(['Franklin\csvs\GoL\grammar_standard', 'Franklin\csvs\GoL\grammar_row', 'Franklin\csvs\GoL\grammar_sum_all'], ['standard', 'row', 'sum all'], result_name='results/images/noise_comparison.png')
 

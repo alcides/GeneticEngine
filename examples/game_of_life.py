@@ -12,16 +12,10 @@ from geneticengine.algorithms.gp.gp import GP
 from geneticengine.grammars.coding.logical_ops import And, Or, Not
 from geneticengine.grammars.coding.classes import Expr, Condition, Number
 
-WITH_NOISE = True
-
 DATASET_NAME = "GameOfLife"
 DATA_FILE_TRAIN = "examples/data/{}/Train.csv".format(DATASET_NAME)
 DATA_FILE_TEST = "examples/data/{}/Test.csv".format(DATASET_NAME)
 OUTPUT_FOLDER = 'GoL/grammar_standard'
-
-if WITH_NOISE:
-    DATA_FILE_TRAIN = "examples/data/{}/Train_noise.csv".format(DATASET_NAME)
-    OUTPUT_FOLDER = 'GoL/grammar_standard_noise'
 
 
 
