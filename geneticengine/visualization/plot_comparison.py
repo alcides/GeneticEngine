@@ -62,7 +62,36 @@ def plot_comparison(file_run_names, run_names, result_name='results/images/media
     frame.set_edgecolor('1.0')
 
     savefig(result_name)  
+    plt.close()
 
+files = [
+            'Franklin\csvs\GoL\grammar_standard', 
+            'Franklin\csvs\GoL\grammar_row_col_cube', 
+            'Franklin\csvs\GoL\grammar_cube', 
+            # 'Franklin\csvs\GoL\grammar_row', 
+            # 'Franklin\csvs\GoL\grammar_col', 
+            # 'Franklin\csvs\GoL\grammar_row_col', 
+            'Franklin\csvs\GoL\grammar_sum_all'
+        ] 
+run_names = [
+            'standard', 
+            'row col cube', 
+            'cube', 
+            # 'row', 
+            # 'col', 
+            # 'row col', 
+            'sum all'
+        ]
 
-plot_comparison(['Franklin\csvs\GoL\grammar_standard', 'Franklin\csvs\GoL\grammar_row', 'Franklin\csvs\GoL\grammar_sum_all'], ['standard', 'row', 'sum all'], result_name='results/images/noise_comparison.png')
+plot_comparison(
+    files,
+    run_names, 
+    result_name='results/images/accuracy/grammars_comparison2.png'
+)
+plot_comparison(
+    files, 
+    run_names,
+    result_name='results/images/time/grammars_time_comparison2.png', 
+    metric='time_since_the_start_of_the_evolution'
+)
 
