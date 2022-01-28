@@ -99,9 +99,12 @@ class Grammar(object):
 
     def get_distance_to_terminal(self, ty: type) -> int:
         """Returns the current distance to terminal of a given type"""
-        if is_generic_list(ty) or is_annotated(ty):
+        if is_generic_list(ty):
             ta = get_generic_parameter(ty)
             return 1 + self.get_distance_to_terminal(ta)
+        elif is_annotated(ty):
+            ta = get_generic_parameter(ty)
+            return self.get_distance_to_terminal(ta)
         return self.distanceToTerminal[ty]
 
     def get_min_tree_depth(self):
@@ -145,24 +148,22 @@ class Grammar(object):
                     if sym in self.alternatives:
                         prods = self.alternatives[sym]
                         for prod in prods:
-                            val = min(
-                                val, self.distanceToTerminal[prod]
-                            )  # todo: No +1 because alternatives don't
-                            # todo: actually take tree space. This is problematic and can lead to infinite loops, but
-                            # todo: our implementation is safe because a object cannot inherit itself in a cycle
-                            # todo: we may want to revisit this
+                            val = min(val, 1 + self.distanceToTerminal[prod])
 
                         changed |= process_reachability(sym, prods)
                 else:
-                    print(sym, "sym1")
+                    # print(sym, "sym1")
                     if is_terminal(sym, self.non_terminals):
                         val = 1
                     else:
-                        print(sym, "sym")
+                        # print(sym, "sym")
                         args = get_arguments(sym)
                         assert args
-                        val = 1 + max(
-                            [self.get_distance_to_terminal(argt) for (_, argt) in args]
+                        val = max(
+                            [
+                                1 + self.get_distance_to_terminal(argt)
+                                for (_, argt) in args
+                            ]
                         )
 
                         changed |= process_reachability(

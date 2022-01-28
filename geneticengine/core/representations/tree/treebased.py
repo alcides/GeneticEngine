@@ -77,6 +77,42 @@ def apply_metahandler(
     )  # todo: last two arguments
 
 
+def Grow(
+    r: Source,
+    g: Grammar,
+    depth: int,
+    starting_symbol: Type[Any] = int,
+):
+    def filter_choices(possible_choices: List[type], depth):
+        valid_productions = [
+            vp for vp in possible_choices if g.get_distance_to_terminal(vp) <= depth
+        ]
+        return valid_productions
+
+    def handle_symbol(symb, fin, depth):
+        next_type, next_finalizer, depth = symb, fin, depth
+        expand_node(
+            r,
+            g,
+            handle_symbol,
+            filter_choices,
+            next_finalizer,
+            depth,
+            next_type,
+        )
+
+    state = {}
+
+    def final_finalize(x):
+        state["final"] = x
+
+    handle_symbol(starting_symbol, final_finalize, depth)
+
+    n = state["final"]
+    relabel_nodes_of_trees(n, g.non_terminals)
+    return n
+
+
 def PI_Grow(
     r: Source,
     g: Grammar,
@@ -92,7 +128,7 @@ def PI_Grow(
     nRecs = [0]
 
     def handle_symbol(symb, fin, depth):
-        print(symb)
+        # print(symb)
         prodqueue.append((symb, fin, depth))
         if symb in g.recursive_prods:
             nRecs[0] += 1
@@ -136,7 +172,7 @@ def PI_Grow(
     return n
 
 
-random_node = PI_Grow
+random_node = Grow
 
 
 def expand_node(
@@ -178,7 +214,7 @@ def expand_node(
 
         if starting_symbol in g.alternatives:  # Alternatives
             compatible_productions = g.alternatives[starting_symbol]
-            valid_productions = filter_choices(compatible_productions, depth)
+            valid_productions = filter_choices(compatible_productions, depth - 1)
             if not valid_productions:
                 raise GeneticEngineError(
                     "No productions for non-terminal node with type: {} in depth {} (minimum required: {}).".format(
@@ -197,7 +233,7 @@ def expand_node(
                 rule = r.choice_weighted(valid_productions, weights)
             else:
                 rule = r.choice(valid_productions)
-            new_symbol(rule, receiver, depth)
+            new_symbol(rule, receiver, depth - 1)
         else:  # Normal production
             args = get_arguments(starting_symbol)
             fins = build_finalizers(lambda *x: receiver(starting_symbol(*x)), len(args))
