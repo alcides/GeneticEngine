@@ -132,14 +132,18 @@ class SMTResolver(object):
             evaled = bool(str(evaled))
         elif type(evaled) == z3.z3.IntNumRef:
             evaled = int(str(evaled))
-        else:
+        elif type(evaled) == z3.z3.RatNumRef:
             evaled = eval(str(evaled))
+        else:
+            raise NotImplementedError(
+                f"Don't know what to do with {type(evaled)} {evaled}"
+            )
         return evaled
 
     @staticmethod
     def register_const(ident, val):
-        ty = SMTResolver.to_z3_typ(type(val))
-        SMTResolver.types[ident] = ty
+        SMTResolver.register_type(ident, type(val))
+        ty = SMTResolver.types[ident]
         SMTResolver.clauses.append(lambda _: ty(ident) == val)
 
 
@@ -309,10 +313,10 @@ def expand_node(
                 rule = r.choice_weighted(valid_productions, weights)
             else:
                 rule = r.choice(valid_productions)
-            new_symbol(rule, receiver, depth - 1, id, {})
+            new_symbol(rule, receiver, depth - 1, id, ctx)
         else:  # Normal production
             args = get_arguments(starting_symbol)
-            ctx = {}
+            ctx = ctx.copy()
             l = []
             for argn, _ in args:
                 name = id + "_" + argn
@@ -320,7 +324,7 @@ def expand_node(
 
                 def fn(val, name=name):
                     print(f"{name}={val}")
-                    SMTResolver.register_const(name, val)
+                    # SMTResolver.register_const(name, val)
 
                 l.append(fn)
 

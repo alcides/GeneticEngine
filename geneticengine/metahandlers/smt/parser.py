@@ -35,7 +35,7 @@ expression_simple : "(" expression ")"                      -> same
             | SIGNED_INT                                    -> int_lit
             | FLOATLIT                                      -> float_lit
             | BOOLLIT                                       -> bool_lit
-            | VAR                                           -> var
+            | VAR ("." VAR)*                                -> var
 
 BOOLLIT.5 : "true" | "false"
 INTLIT : /[0-9][0-9]*/
@@ -61,8 +61,8 @@ class TreeToDSL(Transformer):
 
     # Literals
 
-    def var(self, args):
-        return dVar(args[0])
+    def var(self, args: list[str]):
+        return dVar(args)
 
     def int_lit(self, args):
         return int(args[0])
