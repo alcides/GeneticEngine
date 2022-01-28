@@ -1,5 +1,6 @@
 from abc import ABC
 from dataclasses import dataclass
+from geneticengine.algorithms.gp.callback import Callback
 from geneticengine.algorithms.gp.gp import GP
 
 from geneticengine.core.random.sources import RandomSource
@@ -27,7 +28,7 @@ class UnderTest(Root):
     b: Root
 
 
-class TestCallBack(object):
+class TestCallBack(Callback):
     def process_iteration(self, generation: int, population, time: float):
         for ind in population:
             x = ind.genotype

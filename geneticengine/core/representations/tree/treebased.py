@@ -179,6 +179,7 @@ def random_node(
     max_depth: int,
     starting_symbol: Type[Any] = int,
     force_depth: Optional[int] = None,
+    
 ):
     k = create_position_independent_grow(expand_node)
     root = k(r, g, max_depth, starting_symbol, force_depth)
@@ -243,12 +244,11 @@ def find_in_tree(ty: type, o: TreeNode, max_depth: int):
 
 
 def tree_crossover_inner(
-    r: Source, g: Grammar, i: TreeNode, o: TreeNode, max_depth: int
+    r: Source, g: Grammar, i: TreeNode, o: TreeNode, ty: Type, max_depth: int
 ) -> Any:
     if i.nodes > 0:
         c = r.randint(0, i.nodes - 1)
         if c == 0:
-            ty = i.__class__.__bases__[0]
             replacement = None
             options = list(find_in_tree(ty, o, max_depth - i.depth + 1))
             if options:
@@ -262,13 +262,14 @@ def tree_crossover_inner(
         else:
             for field in i.__annotations__:
                 child = getattr(i, field)
+                field_type = i.__annotations__[field]
                 if hasattr(child, "nodes"):
                     count = getattr(i, field).nodes
                     if c <= count:
                         setattr(
                             i,
                             field,
-                            tree_crossover_inner(r, g, getattr(i, field), o, max_depth),
+                            tree_crossover_inner(r, g, getattr(i, field), o, field_type, max_depth),
                         )
                         return i
                     else:
@@ -284,9 +285,9 @@ def tree_crossover(
     """
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns two trees that are created by crossing over [p1] and [p2]. The first tree returned has [p1] as the base, and the second tree has [p2] as a base.
     """
-    new_tree1 = tree_crossover_inner(r, g, deepcopy(p1), deepcopy(p2), max_depth)
+    new_tree1 = tree_crossover_inner(r, g, deepcopy(p1), deepcopy(p2), g.starting_symbol, max_depth)
     relabeled_new_tree1 = relabel_nodes_of_trees(new_tree1, g.non_terminals)
-    new_tree2 = tree_crossover_inner(r, g, deepcopy(p2), deepcopy(p1), max_depth)
+    new_tree2 = tree_crossover_inner(r, g, deepcopy(p2), deepcopy(p1), g.starting_symbol, max_depth)
     relabeled_new_tree2 = relabel_nodes_of_trees(new_tree2, g.non_terminals)
     return relabeled_new_tree1, relabeled_new_tree2
 
