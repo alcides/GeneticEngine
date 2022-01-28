@@ -5,7 +5,8 @@ from typing import Annotated, List
 from geneticengine.core.decorators import abstract
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.grammar import Grammar, extract_grammar
-from geneticengine.core.representations.tree.position_independent_grow import Future, create_position_independent_grow
+from geneticengine.core.representations.tree.left_to_right import create_left_to_right_grow
+from geneticengine.core.representations.tree.position_independent_grow import Future
 from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.core.utils import get_arguments
 from geneticengine.metahandlers.ints import IntRange
@@ -56,32 +57,32 @@ def contains_future(t):
     return False
 
 
-class TestPIGrow(object):
+class TestLTR(object):
     def test_root(self):
         r = RandomSource(seed=1)
         g: Grammar = extract_grammar([Concrete], Root)
-        x = random_node(r, g, 2, Root, grow_method=create_position_independent_grow)
+        x = random_node(r, g, 2, Root, grow_method=create_left_to_right_grow)
         assert isinstance(x, Concrete)
         assert isinstance(x, Root)
 
     def test_leaf(self):
         r = RandomSource(seed=1)
         g: Grammar = extract_grammar([Leaf], Concrete)
-        x = random_node(r, g, 2, Leaf, grow_method=create_position_independent_grow)
+        x = random_node(r, g, 2, Leaf, grow_method=create_left_to_right_grow)
         assert isinstance(x, Leaf)
         assert isinstance(x, Root)
 
     def test_leaf2(self):
         r = RandomSource(seed=1)
         g: Grammar = extract_grammar([Concrete], Root)
-        x = random_node(r, g, 2, Concrete, grow_method=create_position_independent_grow)
+        x = random_node(r, g, 2, Concrete, grow_method=create_left_to_right_grow)
         assert isinstance(x, Concrete)
         assert isinstance(x, Root)
 
     def test_list(self):
         r = RandomSource(seed=1)
         g: Grammar = extract_grammar([ConcreteList], Root)
-        x = random_node(r, g, 3, Root, grow_method=create_position_independent_grow)
+        x = random_node(r, g, 3, Root, grow_method=create_left_to_right_grow)
         assert isinstance(x, ConcreteList)
         assert isinstance(x.xs, list)
         assert isinstance(x, Root)
@@ -89,12 +90,12 @@ class TestPIGrow(object):
     def test_middle_has_right_distance_to_term(self):
         r = RandomSource(seed=1)
         g: Grammar = extract_grammar([Concrete, Middle], Root)
-        x = random_node(r, g, 10, Root, force_depth=10, grow_method=create_position_independent_grow)
+        x = random_node(r, g, 10, Root, force_depth=10, grow_method=create_left_to_right_grow)
         assert x.distance_to_term == 10
         assert isinstance(x, Root)
 
     def test_no_futures(self):
         r = RandomSource(seed=1)
         g: Grammar = extract_grammar([Leaf, A], Root)
-        x = random_node(r, g, 10, Root, grow_method=create_position_independent_grow)
+        x = random_node(r, g, 10, Root, grow_method=create_left_to_right_grow)
         assert not contains_future(x)
