@@ -62,7 +62,60 @@ def plot_comparison(file_run_names, run_names, result_name='results/images/media
     frame.set_edgecolor('1.0')
 
     savefig(result_name)  
+    plt.close()
 
+files = [
+            # 'Franklin\csvs\GoL\grammar_standard', 
+            # 'Franklin\csvs\GoL\grammar_row_col_cube', 
+            # 'Franklin\csvs\GoL\grammar_cube', 
+            # 'Franklin\csvs\GoL\grammar_row', 
+            # 'Franklin\csvs\GoL\grammar_col', 
+            # 'Franklin\csvs\GoL\grammar_row_col', 
+            # 'Franklin\csvs\GoL\grammar_sum_all'
+        ] 
+run_names = [
+            # 'standard', 
+            # 'row col cube', 
+            # 'cube', 
+            # 'row', 
+            # 'col', 
+            # 'row col', 
+            # 'sum all'
+        ]
+files_noise = [
+            'Franklin\csvs\GoL_noise\grammar_standard', 
+            'Franklin\csvs\GoL_noise\grammar_row_col_cube', 
+            'Franklin\csvs\GoL_noise\grammar_cube', 
+            'Franklin\csvs\GoL_noise\grammar_row', 
+            'Franklin\csvs\GoL_noise\grammar_col', 
+            'Franklin\csvs\GoL_noise\grammar_row_col', 
+            'Franklin\csvs\GoL_noise\grammar_sum_all'
+        ] 
+run_names_noise = [
+            'standard noise', 
+            'row col cube noise', 
+            'cube noise', 
+            'row noise', 
+            'col noise', 
+            'row col noise', 
+            'sum all noise',
+        ]
 
-plot_comparison(['Franklin\csvs\GoL\grammar_standard', 'Franklin\csvs\GoL_noise\grammar_standard'], ['normal', 'with noise'], result_name='results/images/noise_comparison.png')
+plot_comparison(
+    ['csvs\GoL\grammar_standard', 'csvs\GoL\grammar_standard(old)'],
+    ['new','old'],
+    # files + files_noise,
+    # run_names + run_names_noise, 
+    result_name='results/images/compare_old_new.png',
+    # result_name='results/Franklin/images/accuracy/grammars_comparison_noise2.png'
+)
+plot_comparison(
+    ['csvs\GoL\grammar_standard', 'csvs\GoL\grammar_standard(old)'],
+    ['new','old'],
+    # files + files_noise,
+    # run_names + run_names_noise, 
+    result_name='results/images/compare_time_old_new.png',
+    # result_name='results/Franklin/images/time/grammars_time_comparison_noise2.png', 
+    metric='time_since_the_start_of_the_evolution'
+)
 
