@@ -2,7 +2,7 @@ import sys
 import os
 from abc import ABC
 from dataclasses import dataclass
-from typing import Annotated, Any, Callable, Tuple
+from typing import Annotated, Any, Callable, Tuple, Union
 import numpy as np
 from sklearn.metrics import f1_score
 from geneticengine.core.grammar import extract_grammar
@@ -96,51 +96,80 @@ class MatrixSum(Number):
 class SumAll(Number):
     def __str__(self) -> str:
         return f"(sum(X))"
-    
 
-def evaluate(e: Expr) -> Callable[[Any], float]:
+def flat_sum(s):
+    if isinstance(s, int):
+        return s
+    elif isinstance(s, float):
+        return s
+    else:
+        return sum(s)
+
+def evaluate(e: Union[Expr, Matrix, Number]) -> Callable[[Any], float]:
 
     if isinstance(e, And):
-        return lambda line: evaluate(e.left)(line) and evaluate(e.right)(line)
+        l = e.left
+        r = e.right
+        return lambda line: evaluate(l)(line) and evaluate(r)(line)
     elif isinstance(e, Or):
-        return lambda line: evaluate(e.left)(line) or evaluate(e.right)(line)
+        l = e.left
+        r = e.right
+        return lambda line: evaluate(l)(line) or evaluate(r)(line)
     elif isinstance(e, Not):
-        return lambda line: not evaluate(e.cond)(line)
+        cond = e.cond
+        return lambda line: not evaluate(cond)(line)
     elif isinstance(e, MatrixElement):
-        return lambda line: line[e.row, e.column]
+        row = e.row
+        col = e.column
+        return lambda line: line[row, col]
     elif isinstance(e, MatrixElementsRow):
+        row = e.row
+        c1 = e.col1
+        c2 = e.col2
         if e.col1 <= e.col2:
-            return lambda line: line[e.row, e.col1 : e.col2]
+            return lambda line: line[row, c1:c2]
         else:
-            return lambda line: line[e.row, e.col2 : e.col1]
+            return lambda line: line[row, c2:c1]
     elif isinstance(e, MatrixElementsCol):
+        row1 = e.row1
+        row2 = e.row2
+        col = e.col
         if e.row1 <= e.row2:
-            return lambda line: line[e.row1 : e.row2, e.col]
+            return lambda line: line[row1:row2, col]
         else:
-            return lambda line: line[e.row2 : e.row1, e.col]
+            return lambda line: line[row2:row1, col]
     elif isinstance(e, MatrixElementsCube):
+        row1 = e.row1
+        row2 = e.row2
+        col1 = e.col1
+        col2 = e.col2
         if e.row1 <= e.row2:
             if e.col1 <= e.col2:
-                return lambda line: line[e.row1 : e.row2, e.col1 : e.col2]
+                return lambda line: line[row1:row2, col1:col2]
             else:
-                return lambda line: line[e.row1 : e.row2, e.col2 : e.col1]
+                return lambda line: line[row1:row2, col2:col1]
         else:
             if e.col1 <= e.col2:
-                return lambda line: line[e.row2 : e.row1, e.col1 : e.col2]
+                return lambda line: line[row2:row1, col1:col2]
             else:
-                return lambda line: line[e.row2 : e.row1, e.col2 : e.col1]
+                return lambda line: line[row2:row1, col2:col1]
     elif isinstance(e, MatrixSum):
-        return lambda line: e.summing(evaluate(e.matrix)(line))
+        m = e.matrix
+        s = e.summing
+        return lambda line: s(evaluate(m)(line))
     elif isinstance(e, SumAll):
-        return lambda line: sum(sum(line))
+        return lambda line: flat_sum(line)
     elif isinstance(e, Equals):
-        return lambda line: evaluate(e.left)(line) == evaluate(e.right)(line)
+        ln : Number = e.left
+        rn : Number = e.right
+        return lambda line: evaluate(ln)(line) == evaluate(rn)(line)
     elif isinstance(e, GreaterThan):
-        return lambda line: evaluate(e.left)(line) > evaluate(e.right)(line)
+        return lambda line: evaluate(l)(line) > evaluate(r)(line)
     elif isinstance(e, LessThan):
-        return lambda line: evaluate(e.left)(line) < evaluate(e.right)(line)
+        return lambda line: evaluate(l)(line) < evaluate(r)(line)
     elif isinstance(e, Literal):
-        return lambda _: e.val
+        v = e.val
+        return lambda _: v
     else:
         raise NotImplementedError(str(e))
 
