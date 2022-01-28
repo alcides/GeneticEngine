@@ -71,7 +71,9 @@ def is_terminal(t: type, l: Set[type]) -> bool:
 # debug_fin = [0]
 
 
-def build_finalizers(final_callback, n_args) -> List[Callable[[any], None]]:
+def build_finalizers(
+    final_callback, n_args, per_callback: List[Callable[[Any], None]] = None
+) -> List[Callable[[any], None]]:
     """
     Builds a set of functions that accumulate the arguments provided
     :param final_callback:
@@ -92,8 +94,11 @@ def build_finalizers(final_callback, n_args) -> List[Callable[[any], None]]:
         def fin(x, i=i):
             if rets[i] is uninit:
                 rets[i] = x
-
                 to_arrive[0] -= 1
+
+                if per_callback is not None:
+                    per_callback[i](x)
+
                 if to_arrive[0] == 0:
                     # we recieved all params, finish construction
                     final_callback(*rets)

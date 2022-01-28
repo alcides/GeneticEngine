@@ -27,6 +27,13 @@ class FloatC(Root):
     x: Annotated[float, SMT("_ > 0.3")]
 
 
+@dataclass
+class ComplexInts(Root):
+    a: int
+    b: Annotated[int, SMT("a == b + 1")]
+    c: Annotated[int, SMT("b == _ + 1")]
+
+
 T = TypeVar("T")
 
 
@@ -42,6 +49,12 @@ class TestMetaHandler(object):
         n = self.skeleton(IntC)
         assert isinstance(n, IntC)
         assert 9 <= n.x <= 10
+
+    def test_complex_int(self):
+        n = self.skeleton(ComplexInts)
+        assert isinstance(n, ComplexInts)
+        assert n.a == n.b + 1
+        assert n.b == n.c + 1
 
     def test_bool(self):
         n = self.skeleton(BoolC)

@@ -27,12 +27,12 @@ class ListSizeBetween(MetaHandlerGenerator):
         depth,
         base_type,
         argname: str,
-        context: Dict[str, Type],
+        context: Dict[str, str],
     ):
         size = r.randint(self.min, self.max)
         fins = build_finalizers(lambda *x: rec(list(x)), size)
         for i in range(size):
-            new_symbol(base_type, fins[i], depth - 1)
+            new_symbol(base_type, fins[i], depth - 1, {})
 
     def __repr__(self):
         return f"ListSizeBetween[{self.min}...{self.max}]"
