@@ -24,8 +24,8 @@ class ListSizeBetween(MetaHandlerGenerator):
         g: Grammar,
         rec,
         new_symbol,
-        base_type,
         depth,
+        base_type,
         argname: str,
         context: Dict[str, Type],
     ):
