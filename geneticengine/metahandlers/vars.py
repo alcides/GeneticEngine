@@ -23,8 +23,7 @@ class VarRange(MetaHandlerGenerator):
         newsymbol,
         depth: int,
         base_type,
-        argname: str,
-        context: Dict[str, Type],
+        context: Dict[str, str],
     ):
         rec(r.choice(self.options))
 

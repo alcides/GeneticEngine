@@ -28,8 +28,7 @@ class IntRange(MetaHandlerGenerator):
         newsymbol,
         depth: int,
         base_type,
-        argname: str,
-        context: Dict[str, Type],
+        context: Dict[str, str],
     ):
         rec(r.randint(self.min, self.max))
 

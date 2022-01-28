@@ -23,10 +23,9 @@ class ListSizeBetween(MetaHandlerGenerator):
         r: Source,
         g: Grammar,
         rec,
-        new_symbol,
-        depth,
+        newsymbol,
+        depth: int,
         base_type,
-        argname: str,
         context: Dict[str, str],
     ):
         size = r.randint(self.min, self.max)
