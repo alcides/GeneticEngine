@@ -172,7 +172,7 @@ def PI_Grow(
     return n
 
 
-random_node = Grow
+random_node = PI_Grow
 
 
 def expand_node(
