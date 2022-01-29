@@ -9,7 +9,10 @@ from typing import (
     TypeVar,
     Tuple,
     List,
+    Callable,
 )
+
+import z3
 
 from geneticengine.core.decorators import get_gengy
 from geneticengine.core.random.sources import Source
@@ -26,6 +29,7 @@ from geneticengine.core.utils import (
     get_arguments,
     is_generic_list,
     get_generic_parameter,
+    build_finalizers,
 )
 from geneticengine.exceptions import GeneticEngineError
 from geneticengine.metahandlers.base import MetaHandlerGenerator, is_metahandler
@@ -46,109 +50,256 @@ def random_float(r: Source) -> float:
 T = TypeVar("T")
 
 
-def random_list(
-    r: Source,
-    g: Grammar,
-    rec: WrapperType,
-    depth: int,
-    ty: Type[List[T]],
-):
+def random_list(r: Source, receiver, new_symbol, depth: int, ty: Type[List[T]]):
     inner_type = get_generic_parameter(ty)
     size = r.randint(0, depth - 1)
-    return [rec(depth - 1, inner_type) for _ in range(size)]
+    fins = build_finalizers(lambda *x: receiver(list(x)), size)
+    for fin in fins:
+        new_symbol(inner_type, fin, depth - 1, {})
 
 
 def apply_metahandler(
     r: Source,
     g: Grammar,
-    rec: WrapperType,
+    receiver,
+    new_symbol,
     depth: int,
     ty: Type[Any],
-    argn: str,
-    context: Dict[str, Type],
+    context: dict[str, str],
 ) -> Any:
     """
     This method applies a metahandler to use a custom generator for things of a given type.
-
     As an example, AnnotatedType[int, IntRange(3,10)] will use the IntRange.generate(r, recursive_generator)
-
     The generator is the annotation on the type ("__metadata__").
     """
-    metahandler: MetaHandlerGenerator = ty.__metadata__[0]
+    metahandler = ty.__metadata__[0]
     base_type = get_generic_parameter(ty)
     if is_generic_list(base_type):
         base_type = get_generic_parameter(base_type)
-    return metahandler.generate(r, g, rec, depth, base_type, argn, context)
+    return metahandler.generate(
+        r, g, receiver, new_symbol, depth, base_type, context
+    )  # todo: last argument
 
 
-def filter_choices(
+# TODO: make non static
+class SMTResolver(object):
+    clauses = []
+    receivers: dict[str, Callable] = {}
+    types: dict[str, Callable] = {}
+
+    @staticmethod
+    def add_clause(claus, recs: dict[str, Callable]):
+        SMTResolver.clauses.extend(claus)
+        print(recs)
+        for k, v in recs.items():
+            SMTResolver.receivers[k] = v
+
+    @staticmethod
+    def register_type(name, typ):
+        SMTResolver.types[name] = SMTResolver.to_z3_typ(typ)
+
+    @staticmethod
+    def to_z3_typ(typ):
+        return z3.Bool if typ == bool else z3.Int if typ == int else z3.Real
+
+    @staticmethod
+    def resolve_clauses():
+        solver = z3.Solver()
+
+        solver.set(":random-seed", 1)
+        solver.reset()
+
+        for clause in SMTResolver.clauses:
+            solver.add(clause(SMTResolver.types))
+        res = solver.check()
+
+        if res != z3.sat:
+            raise Exception(f"{SMTResolver.clauses} failed with {res}")
+
+        model = solver.model()
+        for (name, recv) in SMTResolver.receivers.items():
+            evaled = model.eval(SMTResolver.types[name](name), model_completion=True)
+
+            recv(SMTResolver.get_type(evaled))
+
+        SMTResolver.clauses = []
+        SMTResolver.receivers = {}
+        SMTResolver.types = {}
+
+    @staticmethod
+    def get_type(evaled):
+        if type(evaled) == z3.z3.BoolRef:
+            evaled = bool(str(evaled))
+        elif type(evaled) == z3.z3.IntNumRef:
+            evaled = int(str(evaled))
+        elif type(evaled) == z3.z3.RatNumRef:
+            evaled = eval(str(evaled))
+        else:
+            raise NotImplementedError(
+                f"Don't know what to do with {type(evaled)} {evaled}"
+            )
+        return evaled
+
+    @staticmethod
+    def register_const(ident, val):
+        SMTResolver.register_type(ident, type(val))
+        ty = SMTResolver.types[ident]
+        SMTResolver.clauses.append(lambda _: ty(ident) == val)
+
+
+def Grow(
+    r: Source,
     g: Grammar,
-    possible_choices: List[type],
     depth: int,
-    has_reached_final_depth: bool = False,
+    starting_symbol: Type[Any] = int,
 ):
-    valid_productions = [
-        vp for vp in possible_choices if g.distanceToTerminal[vp] <= depth
-    ]
-    # Are there any  recursive symbols in our expansion?
-    if not has_reached_final_depth and any(
-        [prod in g.recursive_prods for prod in valid_productions]
-    ):
-        # If so, then only expand into recursive symbols
-        valid_productions = [vp for vp in valid_productions if vp in g.recursive_prods]
-    return valid_productions
+    def filter_choices(possible_choices: List[type], depth):
+        valid_productions = [
+            vp for vp in possible_choices if g.get_distance_to_terminal(vp) <= depth
+        ]
+        return valid_productions
+
+    def handle_symbol(symb, fin, depth, ident, ctx):
+        next_type, next_finalizer, depth = symb, fin, depth
+        expand_node(
+            r,
+            g,
+            handle_symbol,
+            filter_choices,
+            next_finalizer,
+            depth,
+            next_type,
+            ident,
+            ctx,
+        )
+
+    state = {}
+
+    def final_finalize(x):
+        state["final"] = x
+
+    handle_symbol(starting_symbol, final_finalize, depth, "root", {})
+    SMTResolver.resolve_clauses()
+    n = state["final"]
+    relabel_nodes_of_trees(n, g.non_terminals)
+    return n
+
+
+def PI_Grow(
+    r: Source,
+    g: Grammar,
+    depth: int,
+    starting_symbol: Type[Any] = int,
+):
+    state = {}
+
+    def final_finalize(x):
+        state["final"] = x
+
+    prodqueue = []
+    nRecs = [0]
+
+    def handle_symbol(symb, fin, depth, ident: str, ctx):
+        # print(symb)
+        prodqueue.append((symb, fin, depth, ident, ctx))
+        if symb in g.recursive_prods:
+            nRecs[0] += 1
+
+    handle_symbol(starting_symbol, final_finalize, depth, "root", {})
+
+    def filter_choices(possible_choices: List[type], depth):
+        valid_productions = [
+            vp for vp in possible_choices if g.distanceToTerminal[vp] <= depth
+        ]
+        if (nRecs == 0) and any(  # Are we the last recursive symbol?
+            [
+                prod in g.recursive_prods for prod in valid_productions
+            ]  # Are there any  recursive symbols in our expansion?
+        ):
+            valid_productions = [
+                vp for vp in valid_productions if vp in g.recursive_prods
+            ]  # If so, then only expand into recursive symbols
+
+        return valid_productions
+
+    while prodqueue:
+        # print(nRecs[0])
+        next_type, next_finalizer, depth, ident, ctx = r.pop_random(prodqueue)
+        if next_type in g.recursive_prods:
+            nRecs[0] -= 1
+        expand_node(
+            r,
+            g,
+            handle_symbol,
+            filter_choices,
+            next_finalizer,
+            depth,
+            next_type,
+            ident,
+            ctx,
+        )
+    SMTResolver.resolve_clauses()
+    n = state["final"]
+    relabel_nodes_of_trees(n, g.non_terminals)
+    return n
+
+
+random_node = Grow
 
 
 def expand_node(
     r: Source,
     g: Grammar,
-    max_depth: int,
-    starting_symbol: Any,
-    argname: str = "",
-    context: Dict[str, Type] = None,
-    has_reached_final_depth: bool = False,
+    new_symbol,
+    filter_choices,
+    receiver,
+    depth,
+    starting_symbol,
+    id: str,
+    ctx: Dict[str, str],
 ) -> Any:
     """
     Creates a random node of a given type (starting_symbol)
     """
-
-    if context is None:
-        context = {}
-
-    if max_depth < 0:
+    if depth < 0:
         raise GeneticEngineError("Recursion Depth reached")
-    if max_depth < g.get_distance_to_terminal(starting_symbol):
+    if depth < g.get_distance_to_terminal(starting_symbol):
         raise GeneticEngineError(
             "There will be no depth sufficient for symbol {} in this grammar (provided: {}, required: {}).".format(
-                starting_symbol, max_depth, g.get_distance_to_terminal(starting_symbol)
+                starting_symbol, depth, g.get_distance_to_terminal(starting_symbol)
             )
         )
-    if starting_symbol is bool:
-        return random_bool(r)
+
     if starting_symbol is int:
-        return random_int(r)
+        val = random_int(r)
+        SMTResolver.register_const(id, val)
+        receiver(val)
+        return
     elif starting_symbol is float:
-        return random_float(r)
+        val = random_float(r)
+        SMTResolver.register_const(id, val)
+        receiver(val)
+        return
     elif is_generic_list(starting_symbol):
-        return random_list(r, g, Wrapper, max_depth, starting_symbol)
+        random_list(r, receiver, new_symbol, depth, starting_symbol)
+        return
     elif is_metahandler(starting_symbol):
-        return apply_metahandler(
-            r, g, Wrapper, max_depth, starting_symbol, argname, context
-        )
+        ctx = ctx.copy()
+        ctx["_"] = id
+        apply_metahandler(r, g, receiver, new_symbol, depth, starting_symbol, ctx)
+        return
     else:
         if starting_symbol not in g.all_nodes:
             raise GeneticEngineError(f"Symbol {starting_symbol} not in grammar rules.")
 
         if starting_symbol in g.alternatives:  # Alternatives
             compatible_productions = g.alternatives[starting_symbol]
-            valid_productions = filter_choices(
-                g, compatible_productions, max_depth, has_reached_final_depth
-            )
+            valid_productions = filter_choices(compatible_productions, depth - 1)
             if not valid_productions:
                 raise GeneticEngineError(
                     "No productions for non-terminal node with type: {} in depth {} (minimum required: {}).".format(
                         starting_symbol,
-                        max_depth,
+                        depth,
                         str(
                             [
                                 (vp, g.distanceToTerminal[vp])
@@ -162,29 +313,25 @@ def expand_node(
                 rule = r.choice_weighted(valid_productions, weights)
             else:
                 rule = r.choice(valid_productions)
-            return expand_node(r, g, max_depth, rule)
+            new_symbol(rule, receiver, depth - 1, id, ctx)
         else:  # Normal production
             args = get_arguments(starting_symbol)
-            obj = starting_symbol(*[None for _ in args])
-            context = {argn: argt for (argn, argt) in args}
-            for (argn, argt) in args:
-                w = Wrapper(max_depth - 1, argt)
-                setattr(obj, argn, w)
-            return obj
+            ctx = ctx.copy()
+            l = []
+            for argn, _ in args:
+                name = id + "_" + argn
+                ctx[argn] = name
 
+                def fn(val, name=name):
+                    print(f"{name}={val}")
+                    # SMTResolver.register_const(name, val)
+                l.append(fn)
 
-def random_node(
-    r: Source,
-    g: Grammar,
-    max_depth: int,
-    starting_symbol: Type[Any] = int,
-    force_depth: Optional[int] = None,
-    
-):
-    k = create_position_independent_grow(expand_node)
-    root = k(r, g, max_depth, starting_symbol, force_depth)
-    relabel_nodes_of_trees(root, g.non_terminals)
-    return root
+            fins = build_finalizers(
+                lambda *x: receiver(starting_symbol(*x)), len(args), l
+            )
+            for i, (argn, argt) in enumerate(args):
+                new_symbol(argt, fins[i], depth - 1, id + "_" + argn, ctx)
 
 
 def random_individual(r: Source, g: Grammar, max_depth: int = 5) -> TreeNode:

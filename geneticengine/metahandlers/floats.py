@@ -24,13 +24,13 @@ class FloatRange(MetaHandlerGenerator):
         self,
         r: Source,
         g: Grammar,
-        rec: Callable[[int, Type], Any],
+        rec,
+        newsymbol,
         depth: int,
         base_type,
-        argname: str,
-        context: Dict[str, Type],
+        context: Dict[str, str],
     ):
-        return r.random_float(self.min, self.max)
+        rec(r.random_float(self.min, self.max))
 
     def __repr__(self):
         return f"[{self.min}...{self.max}]"

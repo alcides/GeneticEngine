@@ -1,8 +1,10 @@
+from typing import Dict, List
+
 import z3
 
 
 class dNode:
-    def translate(self):
+    def translate(self, mappings, types):
         raise NotImplementedError
 
     def eval(self, x):
@@ -16,7 +18,7 @@ class dLit(dNode):
     def __init__(self, val):
         self.val = val
 
-    def translate(self):
+    def translate(self, mappings, types):
         return self.val
 
     def eval(self, x):
@@ -44,31 +46,20 @@ def s(x):
 class dVar(dNode):
 
     # Name needed for multiple variables
-    def __init__(self, name):
-        self.name = name
-        t = "real"
-        if name.startswith("i_"):
-            t = "int"
-        elif name.startswith("b_"):
-            t = "bool"
-        self.type = t
+    def __init__(self, names: List[str]):
+        self.names = names
 
-    def translate(self):
-        if self.type == "int":
-            cons = z3.Int
-        elif self.type == "real":
-            cons = z3.Real
-        elif self.type == "bool":
-            cons = z3.Bool
-        else:
-            raise NotImplementedError(f"unknown var type: {self.type}")
-        return cons(self.name)
+    def translate(self, mappings, types):
+        resolved = mappings[self.names[0]]
+        fullname = "_".join([resolved] + self.names[1:])
+        cons = types[fullname]
+        return cons(fullname)
 
     def eval(self, x):
         return x
 
     def __str__(self):
-        return self.name
+        return ".".join(self.names)
 
     def collect_vars(self):
         return [self.translate()]
@@ -79,8 +70,10 @@ class dAnd(dNode):
         self.left = s(left)
         self.right = s(right)
 
-    def translate(self):
-        return z3.And(self.left.translate(), self.right.translate())
+    def translate(self, mappings, types):
+        return z3.And(
+            self.left.translate(mappings, types), self.right.translate(mappings, types)
+        )
 
     def eval(self, x):
         return self.left.eval(x) and self.right.eval(x)
@@ -97,8 +90,10 @@ class dOr(dNode):
         self.left = s(left)
         self.right = s(right)
 
-    def translate(self):
-        return z3.Or(self.left.translate(), self.right.translate())
+    def translate(self, mappings, types):
+        return z3.Or(
+            self.left.translate(mappings, types), self.right.translate(mappings, types)
+        )
 
     def eval(self, x):
         return self.left.eval(x) or self.right.eval(x)
@@ -115,8 +110,10 @@ class dLE(dNode):
         self.left = s(left)
         self.right = s(right)
 
-    def translate(self):
-        return self.left.translate() <= self.right.translate()
+    def translate(self, mappings, types):
+        return self.left.translate(mappings, types) <= self.right.translate(
+            mappings, types
+        )
 
     def eval(self, x):
         return self.left.eval(x) <= self.right.eval(x)
@@ -133,8 +130,10 @@ class dLt(dNode):
         self.left = s(left)
         self.right = s(right)
 
-    def translate(self):
-        return self.left.translate() < self.right.translate()
+    def translate(self, mappings, types):
+        return self.left.translate(mappings, types) < self.right.translate(
+            mappings, types
+        )
 
     def eval(self, x):
         return self.left.eval(x) < self.right.eval(x)
@@ -151,8 +150,10 @@ class dGE(dNode):
         self.left = s(left)
         self.right = s(right)
 
-    def translate(self):
-        return self.left.translate() >= self.right.translate()
+    def translate(self, mappings, types):
+        return self.left.translate(mappings, types) >= self.right.translate(
+            mappings, types
+        )
 
     def eval(self, x):
         return self.left.eval(x) >= self.right.eval(x)
@@ -169,8 +170,10 @@ class dGt(dNode):
         self.left = s(left)
         self.right = s(right)
 
-    def translate(self):
-        return self.left.translate() > self.right.translate()
+    def translate(self, mappings, types):
+        return self.left.translate(mappings, types) > self.right.translate(
+            mappings, types
+        )
 
     def eval(self, x):
         return self.left.eval(x) > self.right.eval(x)
@@ -187,8 +190,10 @@ class dEQ(dNode):
         self.left = s(left)
         self.right = s(right)
 
-    def translate(self):
-        return self.left.translate() == self.right.translate()
+    def translate(self, mappings, types):
+        return self.left.translate(mappings, types) == self.right.translate(
+            mappings, types
+        )
 
     def eval(self, x):
         return self.left.eval(x) == self.right.eval(x)
@@ -205,8 +210,10 @@ class dMod(dNode):
         self.left = s(left)
         self.right = s(right)
 
-    def translate(self):
-        return self.left.translate() % self.right.translate()
+    def translate(self, mappings, types):
+        return self.left.translate(mappings, types) % self.right.translate(
+            mappings, types
+        )
 
     def eval(self, x):
         return self.left.eval(x) % self.right.eval(x)
@@ -223,8 +230,10 @@ class dPlus(dNode):
         self.left = s(left)
         self.right = s(right)
 
-    def translate(self):
-        return self.left.translate() + self.right.translate()
+    def translate(self, mappings, types):
+        return self.left.translate(mappings, types) + self.right.translate(
+            mappings, types
+        )
 
     def eval(self, x):
         return self.left.eval(x) + self.right.eval(x)
@@ -241,8 +250,10 @@ class dNEQ(dNode):
         self.left = s(left)
         self.right = s(right)
 
-    def translate(self):
-        return self.left.translate() != self.right.translate()
+    def translate(self, mappings, types):
+        return self.left.translate(mappings, types) != self.right.translate(
+            mappings, types
+        )
 
     def eval(self, x):
         return self.left.eval(x) != self.right.eval(x)
@@ -258,8 +269,8 @@ class dNot(dNode):
     def __init__(self, cond):
         self.cond = s(cond)
 
-    def translate(self):
-        return z3.Not(self.cond.translate())
+    def translate(self, mappings, types):
+        return z3.Not(self.cond.translate(mappings, types))
 
     def eval(self, x):
         return not self.cond.eval(x)
@@ -269,3 +280,34 @@ class dNot(dNode):
 
     def collect_vars(self):
         return self.cond.collect_vars()
+
+
+class fNavigate(dNode):
+    def __init__(self, obj, expr):
+        self.obj = obj
+        self.expr = expr
+
+    def translate_mappings(self, mappings: Dict[str, str]):
+        ret = {}
+        obj = self.obj
+        for k, v in mappings.items():
+            if k.startswith(obj + "."):
+                newk = k[len(obj) + 1 :]
+            else:
+                newk = "__parent__." + k
+            ret[newk] = v
+        return ret
+
+    def translate(self, mappings: Dict[str, str], types):
+        mappings = self.translate_mappings(mappings)
+
+        return self.expr.translate(mappings, types)
+
+    def eval(self, x):
+        raise NotImplementedError()
+
+    def __str__(self):
+        return self.obj + "." + str(self.expr)
+
+    def collect_vars(self):
+        raise NotImplementedError()

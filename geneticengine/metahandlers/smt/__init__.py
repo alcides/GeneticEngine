@@ -7,6 +7,7 @@ from typing import (
 )
 
 from geneticengine.core.random.sources import Source
+from geneticengine.core.representations.tree import treebased
 from geneticengine.metahandlers.base import MetaHandlerGenerator
 
 from geneticengine.core.grammar import Grammar
@@ -49,42 +50,20 @@ class SMT(MetaHandlerGenerator):
         self,
         r: Source,
         g: Grammar,
-        rec: Callable[[int, Type], Any],
+        rec,
+        newsymbol,
         depth: int,
         base_type,
-        argname: str,
-        context: Dict[str, Type],
+        context: Dict[str, str],
     ):
-        fix_types(self.restriction, context)
+        # fix_types(self.restriction, context)
+        c = context.copy()
+        treebased.SMTResolver.add_clause(
+            [lambda types: self.restriction.translate(c, types)],
+            {c["_"]: rec},
+        )
 
-        seed = r.randint(0, 1000000)
-        n_samples = 10000
-
-        solver = z3.Solver()
-        random.seed(seed)
-        solver.set(":random-seed", random.randint(0, n_samples * 100))
-        solver.reset()
-
-        keys = self.restriction.collect_vars()
-        k = [k for k in keys if str(k) == argname][0]
-        restr = self.restriction.translate()
-
-        solver.add(restr)
-        res = solver.check()
-
-        if res != z3.sat:
-            raise Exception(f"{restr} failed with {seed} {res}")
-
-        model = solver.model()
-        evaled = model.eval(k, model_completion=True)
-
-        if type(evaled) == z3.z3.BoolRef:
-            evaled = bool(str(evaled))
-        elif type(evaled) == z3.z3.IntNumRef:
-            evaled = int(str(evaled))
-        else:
-            evaled = eval(str(evaled))
-        return evaled
+        treebased.SMTResolver.register_type(c["_"], base_type)
 
     def __repr__(self):
         return f"{self.restriction}"

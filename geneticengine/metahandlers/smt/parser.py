@@ -35,13 +35,13 @@ expression_simple : "(" expression ")"                      -> same
             | SIGNED_INT                                    -> int_lit
             | FLOATLIT                                      -> float_lit
             | BOOLLIT                                       -> bool_lit
-            | VAR                                           -> var
+            | VAR ("." VAR)*                                -> var
 
 BOOLLIT.5 : "true" | "false"
 INTLIT : /[0-9][0-9]*/
 FLOATLIT : SIGNED_FLOAT
 _DOUBLEPIPE.11 : "||"
-VAR : (("a".."z")|("A".."Z")) (("0".."9")|"_"|("a".."z")|("A".."Z"))*
+VAR : (("a".."z")|"_"|("A".."Z")) (("0".."9")|("a".."z")|("A".."Z"))*
 
 %import common.WS
 %import common.CNAME
@@ -61,8 +61,8 @@ class TreeToDSL(Transformer):
 
     # Literals
 
-    def var(self, args):
-        return dVar(args[0])
+    def var(self, args: list[str]):
+        return dVar(args)
 
     def int_lit(self, args):
         return int(args[0])

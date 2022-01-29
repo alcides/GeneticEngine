@@ -259,4 +259,5 @@ if __name__ == "__main__":
         return f1_score(ytrain, ypred)
     
     for i in range(30):
+        print(f"Run: {i}.")
         evolve(fitness_function, output_folder, g, i, False)

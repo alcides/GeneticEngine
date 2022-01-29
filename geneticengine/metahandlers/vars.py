@@ -19,13 +19,13 @@ class VarRange(MetaHandlerGenerator):
         self,
         r: Source,
         g: Grammar,
-        rec: Callable[[int, Type], Any],
+        rec,
+        newsymbol,
         depth: int,
         base_type,
-        argname: str,
-        context: Dict[str, Type],
+        context: Dict[str, str],
     ):
-        return r.choice(self.options)
+        rec(r.choice(self.options))
 
     def __repr__(self):
         return str(self.options)

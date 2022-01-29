@@ -6,6 +6,7 @@ from typing import (
     Type,
     Tuple,
     List,
+    Callable,
 )
 
 from geneticengine.core.decorators import get_gengy
@@ -65,3 +66,50 @@ def is_terminal(t: type, l: Set[type]) -> bool:
     if not get_arguments(t):
         return True
     return t not in l
+
+
+# debug_fin = [0]
+
+
+def build_finalizers(
+    final_callback, n_args, per_callback: List[Callable[[Any], None]] = None
+) -> List[Callable[[any], None]]:
+    """
+    Builds a set of functions that accumulate the arguments provided
+    :param final_callback:
+    :param n_args:
+    :return:
+    """
+    uninit = object()
+    rets = [uninit] * n_args
+    to_arrive = [n_args]
+
+    finalizers = []
+    # id = debug_fin[0]
+    # print("%i has %i fin " % (id, n_args))
+    # debug_fin[0] += 1
+
+    for i in range(n_args):
+
+        def fin(x, i=i):
+            if rets[i] is uninit:
+                rets[i] = x
+                to_arrive[0] -= 1
+
+                if per_callback is not None:
+                    per_callback[i](x)
+
+                if to_arrive[0] == 0:
+                    # we recieved all params, finish construction
+                    final_callback(*rets)
+                # else:
+                #     print("%i prog %i" % (id, to_arrive[0]))
+            else:
+                raise Exception("Received duplicate param on finalizer! i=%d" % i)
+
+        finalizers.append(fin)
+
+    if n_args == 0:
+        final_callback()
+
+    return finalizers

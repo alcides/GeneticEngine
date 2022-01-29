@@ -12,11 +12,11 @@ class MetaHandlerGenerator(Protocol):
         self,
         r: Source,
         g: Grammar,
-        rec: Callable[[int, Type], Any],
+        rec,
+        newsymbol,
         depth: int,
         base_type,
-        argname: str,
-        context: Dict[str, Type],
+        context: Dict[str, str],
     ):
         """
         Generates an instance of type base_type, according to some criterion.

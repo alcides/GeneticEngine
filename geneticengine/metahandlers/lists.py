@@ -7,6 +7,7 @@ from typing import (
 )
 
 from geneticengine.core.random.sources import Source
+from geneticengine.core.utils import build_finalizers
 from geneticengine.metahandlers.base import MetaHandlerGenerator
 
 from geneticengine.core.grammar import Grammar
@@ -21,14 +22,16 @@ class ListSizeBetween(MetaHandlerGenerator):
         self,
         r: Source,
         g: Grammar,
-        rec: Callable[[int, Type], Any],
+        rec,
+        newsymbol,
         depth: int,
         base_type,
-        argname: str,
-        context: Dict[str, Type],
+        context: Dict[str, str],
     ):
         size = r.randint(self.min, self.max)
-        return [rec(depth - 1, base_type) for _ in range(size)]
+        fins = build_finalizers(lambda *x: rec(list(x)), size)
+        for i in range(size):
+            new_symbol(base_type, fins[i], depth - 1, {})
 
     def __repr__(self):
         return f"ListSizeBetween[{self.min}...{self.max}]"
