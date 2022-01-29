@@ -179,9 +179,9 @@ def random_node(
     max_depth: int,
     starting_symbol: Type[Any] = int,
     force_depth: Optional[int] = None,
-    
+    grow_method: Any = create_position_independent_grow, # TODO: type
 ):
-    k = create_position_independent_grow(expand_node)
+    k = grow_method(expand_node)
     root = k(r, g, max_depth, starting_symbol, force_depth)
     relabel_nodes_of_trees(root, g.non_terminals)
     return root
