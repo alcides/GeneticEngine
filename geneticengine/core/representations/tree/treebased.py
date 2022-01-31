@@ -480,9 +480,9 @@ class TreeBasedRepresentation(Representation[TreeNode]):
         return mutate(r, g, ind, depth)
 
     def crossover_individuals(
-        self, r: Source, g: Grammar, i1: TreeNode, i2: TreeNode, int
+        self, r: Source, g: Grammar, i1: TreeNode, i2: TreeNode, max_depth: int
     ) -> Tuple[TreeNode, TreeNode]:
-        return tree_crossover(r, g, i1, i2, int)
+        return tree_crossover(r, g, i1, i2, max_depth)
 
     def genotype_to_phenotype(self, g: Grammar, genotype: TreeNode) -> TreeNode:
         return genotype
