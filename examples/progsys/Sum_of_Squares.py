@@ -80,11 +80,11 @@ def preprocess():
     )
 
 
-def evolve(g, seed, mode=False):
+def evolve(g, seed, mode, representation):
     alg = GP(
         g,
         fitness_function,
-        representation=treebased_representation,
+        representation=representation,
         number_of_generations=50,
         minimize=True,
         seed=seed,
@@ -99,6 +99,6 @@ def evolve(g, seed, mode=False):
 
 if __name__ == "__main__":
     g = preprocess()
-    print("Grammar: {}.".format(repr(g)))
-    b, bf = evolve(g, 0)
-    print(b, bf)
+    bf, b = evolve(g, 0, False, treebased_representation)
+    print(b)
+    print(f"With fitness: {bf}")

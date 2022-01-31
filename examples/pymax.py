@@ -57,11 +57,11 @@ def preprocess():
     )
 
 
-def evolve(g, seed, mode):
+def evolve(g, seed, mode, representation):
     alg = GP(
         g,
         fitness_function,
-        representation=treebased_representation,
+        representation=representation,
         # max_depth=13,
         # population_size=1,
         # number_of_generations=1,
@@ -75,6 +75,6 @@ def evolve(g, seed, mode):
 
 if __name__ == "__main__":
     g = preprocess()
-    bf, b = evolve(g, 0, False)
+    bf, b = evolve(g, 0, False, treebased_representation)
     print(b)
     print(f"With fitness: {bf}")

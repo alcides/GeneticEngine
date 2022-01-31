@@ -59,11 +59,11 @@ def fitness_function(n: Number):
     return fitness
 
 
-def evolve(g, seed, mode):
+def evolve(g, seed, mode, representation):
     alg = GP(
         g,
         fitness_function,
-        representation=treebased_representation,
+        representation=representation,
         minimize=False,
         selection_method=("tournament", 2),
         max_depth=17,
@@ -83,6 +83,6 @@ def evolve(g, seed, mode):
 
 if __name__ == "__main__":
     g = preprocess()
-    print("Grammar: {}.".format(repr(g)))
-    b, bf = evolve(g, 0, False)
-    print(b, bf)
+    bf, b = evolve(g, 0, False, treebased_representation)
+    print(b)
+    print(f"With fitness: {bf}")

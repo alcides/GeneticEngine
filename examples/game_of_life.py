@@ -74,11 +74,11 @@ def preprocess():
     print(grammar)
     return grammar
 
-def evolve(g, seed, mode):
+def evolve(g, seed, mode, representation):
     alg = GP(
         g,
         fitness_function,
-        representation=treebased_representation,
+        representation=representation,
         number_of_generations=150,
         population_size=100,
         max_depth=15,
@@ -103,21 +103,9 @@ def evolve(g, seed, mode):
     return b, bf
 
 
+
 if __name__ == "__main__":
-
-    # # # Generate dataset
-    # # Train
-    # Xtrain, ytrain = generate_dataset(1000)
-    # Xtest, ytest = generate_dataset(1000)
-    # _x = Xtrain.reshape(1000, 9)
-    # _y = ytrain.reshape(1000, 1)
-    # np.savetxt("Train.csv", np.concatenate([_x, _y], axis=1), fmt='%i', delimiter=",")
-
-    # # Test
-    # _x = Xtest.reshape(1000, 9)
-    # _y = ytest.reshape(1000, 1)
-    # np.savetxt("Test.csv", np.concatenate([_x, _y], axis=1), fmt='%i', delimiter=",")
-
-    for i in range(30):
-        g = preprocess()
-        evolve(g, i, False)
+    g = preprocess()
+    bf, b = evolve(g, 0, False, treebased_representation)
+    print(b)
+    print(f"With fitness: {bf}")
