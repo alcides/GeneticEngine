@@ -20,7 +20,6 @@ run_example examples/pymax.py # Works in PonyGE
 run_example examples/regression.py # Works in PonyGE
 run_example examples/classification.py # Works in PonyGE
 run_example examples/santafe.py
-run_example examples/progsys/Number_IO.py
 run_example examples/game_of_life.py
 run_example examples/string_match.py # Works in PonyGE
 
