@@ -164,13 +164,9 @@ def evaluate(e: Union[Expr, Matrix, Number]) -> Callable[[Any], float]:
         rn : Number = e.right
         return lambda line: evaluate(ln)(line) == evaluate(rn)(line)
     elif isinstance(e, GreaterThan):
-        ln : Number = e.left
-        rn : Number = e.right
-        return lambda line: evaluate(ln)(line) > evaluate(rn)(line)
+        return lambda line: evaluate(l)(line) > evaluate(r)(line)
     elif isinstance(e, LessThan):
-        ln : Number = e.left
-        rn : Number = e.right
-        return lambda line: evaluate(ln)(line) < evaluate(rn)(line)
+        return lambda line: evaluate(l)(line) < evaluate(r)(line)
     elif isinstance(e, Literal):
         v = e.val
         return lambda _: v
@@ -223,7 +219,7 @@ def evolve(fitness_function, output_folder, g, seed, mode):
         minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
-        safe_gen_to_csv=(output_folder,'all'),
+        safe_gen_to_csv=(f'{output_folder}/run_seed={seed}','all'),
     )
     (b, bf, bp) = alg.evolve(verbose=1)
 
@@ -248,6 +244,8 @@ if __name__ == "__main__":
     dataset_name = args[3] # 'GameOfLife'
 
     folder = f'./results/csvs/{output_folder}'
+    # import IPython as ip
+    # ip.embed()
     if not os.path.isdir(folder):
         os.mkdir(folder)
 
