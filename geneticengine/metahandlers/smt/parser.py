@@ -31,11 +31,14 @@ expression_fact : expression_simple                         -> same
 
 
 expression_simple : "(" expression ")"                      -> same
+            | comprehension                                 -> same
             | INTLIT                                        -> int_lit
             | SIGNED_INT                                    -> int_lit
             | FLOATLIT                                      -> float_lit
             | BOOLLIT                                       -> bool_lit
             | VAR ("." VAR)*                                -> var
+
+comprehension : "AllPairs" "(" VAR "," VAR "," VAR ")" "{" expression "}" -> all_pairs
 
 BOOLLIT.5 : "true" | "false"
 INTLIT : /[0-9][0-9]*/
@@ -122,6 +125,9 @@ class TreeToDSL(Transformer):
 
     def binop_mod(self, args):
         return dMod(*args)
+
+    def all_pairs(self, args):
+        return dAllPairs(args[0], args[1], args[2], args[3])
 
 
 def mk_parser():
