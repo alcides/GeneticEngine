@@ -79,8 +79,6 @@ def apply_metahandler(
     """
     metahandler = ty.__metadata__[0]
     base_type = get_generic_parameter(ty)
-    if is_generic_list(base_type):
-        base_type = get_generic_parameter(base_type)
     return metahandler.generate(
         r, g, receiver, new_symbol, depth, base_type, context
     )  # todo: last argument
