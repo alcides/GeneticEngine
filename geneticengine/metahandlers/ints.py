@@ -30,11 +30,7 @@ class IntRange(MetaHandlerGenerator):
         base_type,
         context: Dict[str, str],
     ):
-        new_string = ""
-        for letter in [(["a", "t"], [0.09, 0.91])]:
-            r.choice_weighted(letter[0], letter[1])
-        rec(new_string)
-        #rec(r.randint(self.min, self.max))
+        rec(r.randint(self.min, self.max))
 
     def __repr__(self):
         return f"[{self.min}...{self.max}]"
