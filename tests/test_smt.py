@@ -45,9 +45,9 @@ class ObjectNavigation(Root):
     child: ObjectNavigationChild
 
 
-# @dataclass
-# class Comprehension(Root):
-#     val: Annotated[List[int], SMT("AllPairs(x,y){ x != y}")]
+@dataclass
+class Comprehension(Root):
+    vals: Annotated[List[Annotated[int, SMT()]], SMT("AllPairs(_, x, y){x != y}")]
 
 
 T = TypeVar("T")
@@ -86,3 +86,11 @@ class TestMetaHandler(object):
         n = self.skeleton(ObjectNavigation, ObjectNavigationChild, depth=4)
         assert isinstance(n, ObjectNavigation)
         assert n.val == n.child.val + 2020
+
+    def test_comprehensions(self):
+        n = self.skeleton(Comprehension, depth=10)
+        assert isinstance(n, Comprehension)
+        seen = set()
+        for num in n.vals:
+            assert num not in seen
+            seen.add(num)

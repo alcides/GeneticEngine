@@ -56,8 +56,9 @@ def random_list(
     ident = ctx["_"]
     for i, fin in enumerate(fins):
         nctx = ctx.copy()
-        nctx["_"] = ident + "_" + str(i)
-        new_symbol(inner_type, fin, depth - 1, ident, nctx)
+        nident = ident + "_" + str(i)
+        nctx["_"] = nident
+        new_symbol(inner_type, fin, depth - 1, nident, nctx)
 
 
 def apply_metahandler(
@@ -114,7 +115,7 @@ class SMTResolver(object):
         res = solver.check()
 
         if res != z3.sat:
-            raise Exception(f"{SMTResolver.clauses} failed with {res}")
+            raise Exception(f"{solver} failed with {res}")
 
         model = solver.model()
         for (name, recv) in SMTResolver.receivers.items():
@@ -159,7 +160,9 @@ def Grow(
         ]
         return valid_productions
 
-    def handle_symbol(next_type, next_finalizer, depth:int, ident: str, ctx:Dict[str, str]):
+    def handle_symbol(
+        next_type, next_finalizer, depth: int, ident: str, ctx: Dict[str, str]
+    ):
         expand_node(
             r,
             g,
@@ -198,7 +201,9 @@ def PI_Grow(
     prodqueue = []
     nRecs = [0]
 
-    def handle_symbol(next_type, next_finalizer, depth:int, ident: str, ctx: Dict[str, str]):
+    def handle_symbol(
+        next_type, next_finalizer, depth: int, ident: str, ctx: Dict[str, str]
+    ):
         prodqueue.append((next_type, next_finalizer, depth, ident, ctx))
         if next_type in g.recursive_prods:
             nRecs[0] += 1
@@ -242,15 +247,13 @@ def PI_Grow(
     return n
 
 
-
-
-def random_node(r: Source,
+def random_node(
+    r: Source,
     g: Grammar,
     max_depth: int,
     starting_symbol: Type[Any] = int,
     method=PI_Grow):
     return method(r, g, max_depth, starting_symbol)
-    
 
 
 def expand_node(
@@ -325,7 +328,7 @@ def expand_node(
         else:  # Normal production
             args = get_arguments(starting_symbol)
             ctx = ctx.copy()
-            l : List[Any] = []
+            l: List[Any] = []
             for argn, _ in args:
                 name = id + "_" + argn
                 ctx[argn] = name
@@ -360,12 +363,16 @@ def random_individual(r: Source, g: Grammar, max_depth: int = 5) -> TreeNode:
     return ind
 
 
-def mutate_inner(r: Source, g: Grammar, i: TreeNode, max_depth: int, ty:Type) -> TreeNode:
+def mutate_inner(
+    r: Source, g: Grammar, i: TreeNode, max_depth: int, ty: Type
+) -> TreeNode:
     if i.nodes > 0:
         c = r.randint(0, i.nodes - 1)
         if c == 0:
             try:
-                replacement = random_node(r, g, max_depth - i.depth + 1, ty, method=Grow)
+                replacement = random_node(
+                    r, g, max_depth - i.depth + 1, ty, method=Grow
+                )
                 return replacement
             except:
                 return i
@@ -376,7 +383,9 @@ def mutate_inner(r: Source, g: Grammar, i: TreeNode, max_depth: int, ty:Type) ->
                 if hasattr(child, "nodes"):
                     count = child.nodes
                     if c <= count:
-                        setattr(i, field, mutate_inner(r, g, child, max_depth, field_type))
+                        setattr(
+                            i, field, mutate_inner(r, g, child, max_depth, field_type)
+                        )
                         return i
                     else:
                         c -= count
@@ -385,7 +394,9 @@ def mutate_inner(r: Source, g: Grammar, i: TreeNode, max_depth: int, ty:Type) ->
         return random_node(r, g, max_depth - i.depth + 1, ty, method=Grow)
 
 
-def mutate(r: Source, g: Grammar, i: TreeNode, max_depth: int, target_type:Type) -> Any:
+def mutate(
+    r: Source, g: Grammar, i: TreeNode, max_depth: int, target_type: Type
+) -> Any:
     new_tree = mutate_inner(r, g, deepcopy(i), max_depth, target_type)
     relabeled_new_tree = relabel_nodes_of_trees(new_tree, g.non_terminals, max_depth)
     return relabeled_new_tree
@@ -412,7 +423,9 @@ def tree_crossover_inner(
                 replacement = r.choice(options)
             if replacement is None:
                 try:
-                    replacement = random_node(r, g, max_depth - i.depth + 1, ty, method=Grow)
+                    replacement = random_node(
+                        r, g, max_depth - i.depth + 1, ty, method=Grow
+                    )
                 except:
                     return i
             return replacement
@@ -473,7 +486,7 @@ class TreeBasedRepresentation(Representation[TreeNode]):
         return random_individual(r, g, depth)
 
     def mutate_individual(
-        self, r: Source, g: Grammar, ind: TreeNode, depth: int, ty:Type
+        self, r: Source, g: Grammar, ind: TreeNode, depth: int, ty: Type
     ) -> TreeNode:
         return mutate(r, g, ind, depth, ty)
 

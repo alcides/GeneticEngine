@@ -1,12 +1,10 @@
-from typing import Any, Dict, List
+from typing import Dict, List, Any
 
 import z3
 
 
 class dNode:
-    type : Any
-
-    def translate(self, mappings, types):
+    def translate(self, mappings: Dict[str, str], types: Dict[str, Any]):
         raise NotImplementedError
 
     def eval(self, x):
@@ -313,3 +311,39 @@ class fNavigate(dNode):
 
     def collect_vars(self):
         raise NotImplementedError()
+
+
+class dAllPairs(dNode):
+    def __init__(self, cont: str, x: str, y: str, block: dNode):
+        self.cont = cont
+        self.x = x
+        self.y = y
+        self.block = block
+
+    def _gen_pairs(self, l: List):
+        for i1, e1 in enumerate(l):
+            for i2, e2 in enumerate(l):
+                if i1 != i2:
+                    yield e1, e2
+
+    def translate(self, mappings: Dict[str, str], types: Dict[str, Any]):
+        real_cont = mappings[self.cont]
+        subs = []
+        for k in types.keys():
+            if not k.startswith(real_cont):
+                continue
+            trim_k = k[len(real_cont) :]
+            if "." in trim_k:
+                continue
+            subs.append(k)
+
+        ret = True
+
+        for x, y in self._gen_pairs(subs):
+            maps = mappings.copy()
+            maps[self.x] = x
+            maps[self.y] = y
+            transed = self.block.translate(maps, types)
+            ret = z3.And(ret, transed)
+
+        return ret
