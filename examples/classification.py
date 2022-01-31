@@ -73,16 +73,9 @@ def evolve(g, seed, mode, representation='treebased_representation', output_fold
         representation=representation,
         minimize=False,
         selection_method=("tournament", 2),
-        max_depth=17,
-        population_size=500,
-        # max_init_depth=10,
-        # mutation uses src.operators.mutation.int_flip_per_ind. As mutation prob is None, the probability becomes 1/genome_length per codon (what is this?). How do we translate that to our method?
-        number_of_generations=50,
-        probability_crossover=0.75,
-        n_elites=5,
+        number_of_generations=500,
         seed=seed,
         timer_stop_criteria=mode,
-        target_fitness=1,
         safe_gen_to_csv=output_folder
     )
     (b, bf, bp) = alg.evolve(verbose=0)

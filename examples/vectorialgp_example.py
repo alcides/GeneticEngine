@@ -3147,9 +3147,7 @@ def evolve(g, seed, mode, representation='treebased_representation', output_fold
         representation=representation,
         minimize=True,
         seed=seed,
-        population_size=100,
-        number_of_generations=100,
-        max_depth=20,
+        number_of_generations=500,
         timer_stop_criteria=mode,
         safe_gen_to_csv=output_folder
     )
