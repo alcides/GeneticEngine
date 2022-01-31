@@ -66,9 +66,9 @@ class GrammaticalEvolutionRepresentation(Representation[Genotype]):
         return mutate(r, g, ind, depth)
 
     def crossover_individuals(
-        self, r: Source, g: Grammar, i1: Genotype, i2: Genotype, int
+        self, r: Source, g: Grammar, i1: Genotype, i2: Genotype, depth: int
     ) -> Tuple[Genotype, Genotype]:
-        return crossover(r, g, i1, i2, int)
+        return crossover(r, g, i1, i2, depth)
 
     def genotype_to_phenotype(self, g: Grammar, genotype: Genotype) -> TreeNode:
         return create_tree(g, genotype)
