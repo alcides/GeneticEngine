@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, List, Protocol, Tuple
+from typing import Any, List, Protocol, Tuple, Type
 
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource, Source
@@ -61,7 +61,7 @@ class GrammaticalEvolutionRepresentation(Representation[Genotype]):
         return random_individual(r, g, depth)
 
     def mutate_individual(
-        self, r: Source, g: Grammar, ind: Genotype, depth: int
+        self, r: Source, g: Grammar, ind: Genotype, depth: int, ty: Type
     ) -> Genotype:
         return mutate(r, g, ind, depth)
 

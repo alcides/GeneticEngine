@@ -2,6 +2,10 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated, List, Type
 
+from scipy import rand
+from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.individual import Individual
+
 from geneticengine.core.decorators import abstract
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.grammar import Grammar, extract_grammar
@@ -67,3 +71,16 @@ class TestGrammar(object):
         x = random_node(r, g, max_depth=15, starting_symbol=Root, method=PI_Grow)
         assert contains_type(x, RecAlt)
         assert isinstance(x, Root)
+
+
+    def test_depth_increases(self):
+        g: Grammar = extract_grammar([Leaf, Rec], Root)
+
+        x = random_node(RandomSource(3), g, max_depth=2, starting_symbol=Root, method=PI_Grow)
+        assert isinstance(x, Leaf)
+        assert isinstance(x, Root)
+
+        gp = GP(g, evaluation_function=lambda x: x.depth, randomSource=RandomSource, max_depth=5, seed=5)
+
+        nx = gp.mutation(Individual(x))
+        assert nx.genotype.depth > x.depth
