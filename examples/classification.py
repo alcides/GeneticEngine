@@ -1,3 +1,4 @@
+import os
 from typing import Annotated, Any, Callable
 
 import numpy as np
@@ -60,11 +61,13 @@ def fitness_function(n: Number):
     return fitness
 
 
-def evolve(g, seed, mode, representation):
+def evolve(g, seed, mode, representation='treebased_representation', output_folder=''):
     if representation == 'grammatical_evolution':
         representation = ge_representation
     else:
         representation = treebased_representation
+    if (not os.path.isdir(output_folder)) and (output_folder != ''):
+        os.mkdir(output_folder)
     alg = GP(
         g,
         fitness_function,
@@ -81,6 +84,7 @@ def evolve(g, seed, mode, representation):
         seed=seed,
         timer_stop_criteria=mode,
         target_fitness=1,
+        safe_gen_to_csv=output_folder
     )
     (b, bf, bp) = alg.evolve(verbose=0)
     return b, bf
@@ -88,6 +92,6 @@ def evolve(g, seed, mode, representation):
 
 if __name__ == "__main__":
     g = preprocess()
-    bf, b = evolve(g, 0, False, 'treebased_representation')
+    bf, b = evolve(g, 0, False)
     print(b)
     print(f"With fitness: {bf}")
