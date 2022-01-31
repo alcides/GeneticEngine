@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Type
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
@@ -14,7 +14,7 @@ def create_mutation(
     def mutation(individual: Individual):
         new_individual = Individual(
             genotype=representation.mutate_individual(
-                r, g, individual.genotype, max_depth
+                r, g, individual.genotype, max_depth, g.starting_symbol
             ),
             fitness=None,
         )
@@ -34,7 +34,7 @@ def create_hill_climbing_mutation(
     def hill_climbing_mutation(individual: Individual):
         creation_new_individual = lambda: Individual(
             genotype=representation.mutate_individual(
-                r, g, individual.genotype, max_depth
+                r, g, individual.genotype, max_depth, g.starting_symbol
             ),
             fitness=None,
         )

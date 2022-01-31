@@ -76,8 +76,6 @@ def apply_metahandler(
     """
     metahandler = ty.__metadata__[0]
     base_type = get_generic_parameter(ty)
-    if is_generic_list(base_type):
-        base_type = get_generic_parameter(base_type)
     return metahandler.generate(
         r, g, receiver, new_symbol, depth, base_type, context
     )  # todo: last argument
@@ -384,12 +382,12 @@ def mutate_inner(r: Source, g: Grammar, i: TreeNode, max_depth: int, ty:Type) ->
                         c -= count
             return i
     else:
-        return i
+        return random_node(r, g, max_depth - i.depth + 1, ty, method=Grow)
 
 
-def mutate(r: Source, g: Grammar, i: TreeNode, max_depth: int) -> Any:
-    new_tree = mutate_inner(r, g, deepcopy(i), max_depth, type(i))
-    relabeled_new_tree = relabel_nodes_of_trees(new_tree, g.non_terminals)
+def mutate(r: Source, g: Grammar, i: TreeNode, max_depth: int, target_type:Type) -> Any:
+    new_tree = mutate_inner(r, g, deepcopy(i), max_depth, target_type)
+    relabeled_new_tree = relabel_nodes_of_trees(new_tree, g.non_terminals, max_depth)
     return relabeled_new_tree
 
 
@@ -475,9 +473,9 @@ class TreeBasedRepresentation(Representation[TreeNode]):
         return random_individual(r, g, depth)
 
     def mutate_individual(
-        self, r: Source, g: Grammar, ind: TreeNode, depth: int
+        self, r: Source, g: Grammar, ind: TreeNode, depth: int, ty:Type
     ) -> TreeNode:
-        return mutate(r, g, ind, depth)
+        return mutate(r, g, ind, depth, ty)
 
     def crossover_individuals(
         self, r: Source, g: Grammar, i1: TreeNode, i2: TreeNode, max_depth: int

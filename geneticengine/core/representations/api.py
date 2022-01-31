@@ -1,4 +1,4 @@
-from typing import Any, Callable, Generic, TypeVar, Tuple
+from typing import Any, Callable, Generic, Type, TypeVar, Tuple
 from dataclasses import dataclass
 from geneticengine.core.random.sources import Source
 from geneticengine.core.grammar import Grammar
@@ -11,7 +11,7 @@ class Representation(Generic[g]):
     def create_individual(self, r: Source, g: Grammar, depth: int) -> g:
         ...
 
-    def mutate_individual(self, r: Source, g: Grammar, ind: g, depth: int) -> g:
+    def mutate_individual(self, r: Source, g: Grammar, ind: g, depth: int, ty: Type) -> g:
         ...
 
     def crossover_individuals(
