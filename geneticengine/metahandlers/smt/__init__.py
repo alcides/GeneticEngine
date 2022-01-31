@@ -51,7 +51,7 @@ class SMT(MetaHandlerGenerator):
         r: Source,
         g: Grammar,
         rec,
-        newsymbol,
+        new_symbol,
         depth: int,
         base_type,
         context: Dict[str, str],
