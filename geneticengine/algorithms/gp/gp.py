@@ -251,7 +251,7 @@ class GP(object):
         writing_method,
     ):
         if number_of_the_generation == 1:
-            with open(f"./results/csvs/{file_name}.csv", "w", newline="") as outfile:
+            with open(f"{file_name}.csv", "w", newline="") as outfile:
                 writer = csv.writer(outfile)
                 writer.writerow(
                     [
@@ -281,6 +281,6 @@ class GP(object):
             ]
             csv_lines.append(csv_line)
 
-        with open(f"./results/csvs/{file_name}.csv", "a", newline="") as outfile:
+        with open(f"{file_name}.csv", "a", newline="") as outfile:
             writer = csv.writer(outfile)
             writer.writerows(csv_lines)
