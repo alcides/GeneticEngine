@@ -1,5 +1,6 @@
 from abc import ABC
 from dataclasses import dataclass
+import os
 from typing import Annotated, Any
 
 import numpy as np
@@ -3134,11 +3135,13 @@ def preprocess():
     )
 
 
-def evolve(g, seed, mode, representation):
+def evolve(g, seed, mode, representation='treebased_representation', output_folder=''):
     if representation == 'grammatical_evolution':
         representation = ge_representation
     else:
         representation = treebased_representation
+    if (not os.path.isdir(output_folder)) and (output_folder != ''):
+        os.mkdir(output_folder)
     alg = GP(
         g,
         fitness_function,
@@ -3149,6 +3152,7 @@ def evolve(g, seed, mode, representation):
         number_of_generations=100,
         max_depth=20,
         timer_stop_criteria=mode,
+        safe_gen_to_csv=output_folder
     )
     (b, bf, bp) = alg.evolve(verbose=0)
     return b, bf
@@ -3156,6 +3160,6 @@ def evolve(g, seed, mode, representation):
 
 if __name__ == "__main__":
     g = preprocess()
-    bf, b = evolve(g, 0, False, 'treebased_representation')
+    bf, b = evolve(g, 0, False)
     print(b)
     print(f"With fitness: {bf}")
