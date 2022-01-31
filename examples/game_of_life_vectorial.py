@@ -164,9 +164,13 @@ def evaluate(e: Union[Expr, Matrix, Number]) -> Callable[[Any], float]:
         rn : Number = e.right
         return lambda line: evaluate(ln)(line) == evaluate(rn)(line)
     elif isinstance(e, GreaterThan):
-        return lambda line: evaluate(l)(line) > evaluate(r)(line)
+        ln : Number = e.left
+        rn : Number = e.right
+        return lambda line: evaluate(ln)(line) > evaluate(rn)(line)
     elif isinstance(e, LessThan):
-        return lambda line: evaluate(l)(line) < evaluate(r)(line)
+        ln : Number = e.left
+        rn : Number = e.right
+        return lambda line: evaluate(ln)(line) < evaluate(rn)(line)
     elif isinstance(e, Literal):
         v = e.val
         return lambda _: v
