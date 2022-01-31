@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.core.representations.grammatical_evolution import ge_representation
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.grammars.coding.control_flow import ForLoop, Code
 from geneticengine.grammars.coding.classes import Expr, Statement, XAssign
@@ -57,11 +58,15 @@ def preprocess():
     )
 
 
-def evolve(g, seed, mode):
+def evolve(g, seed, mode, representation):
+    if representation == 'grammatical_evolution':
+        representation = ge_representation
+    else:
+        representation = treebased_representation
     alg = GP(
         g,
         fitness_function,
-        representation=treebased_representation,
+        representation=representation,
         # max_depth=13,
         # population_size=1,
         # number_of_generations=1,
@@ -75,6 +80,6 @@ def evolve(g, seed, mode):
 
 if __name__ == "__main__":
     g = preprocess()
-    bf, b = evolve(g, 0, False)
+    bf, b = evolve(g, 0, False, 'treebased_representation')
     print(b)
     print(f"With fitness: {bf}")

@@ -47,12 +47,17 @@ def random_float(r: Source) -> float:
 T = TypeVar("T")
 
 
-def random_list(r: Source, receiver, new_symbol, depth: int, ty: Type[List[T]]):
+def random_list(
+    r: Source, receiver, new_symbol, depth: int, ty: Type[List[T]], ctx: Dict[str, str]
+):
     inner_type = get_generic_parameter(ty)
     size = r.randint(0, depth - 1)
     fins = build_finalizers(lambda *x: receiver(list(x)), size)
-    for fin in fins:
-        new_symbol(inner_type, fin, depth - 1, {})
+    ident = ctx["_"]
+    for i, fin in enumerate(fins):
+        nctx = ctx.copy()
+        nctx["_"] = ident + "_" + str(i)
+        new_symbol(inner_type, fin, depth - 1, ident, nctx)
 
 
 def apply_metahandler(
@@ -87,7 +92,7 @@ class SMTResolver(object):
     @staticmethod
     def add_clause(claus, recs: dict[str, Callable]):
         SMTResolver.clauses.extend(claus)
-        #print(recs)
+        # print(recs)
         for k, v in recs.items():
             SMTResolver.receivers[k] = v
 
@@ -284,7 +289,9 @@ def expand_node(
         receiver(valf)
         return
     elif is_generic_list(starting_symbol):
-        random_list(r, receiver, new_symbol, depth, starting_symbol)
+        ctx = ctx.copy()
+        ctx["_"] = id
+        random_list(r, receiver, new_symbol, depth, starting_symbol, ctx)
         return
     elif is_metahandler(starting_symbol):
         ctx = ctx.copy()
@@ -327,8 +334,9 @@ def expand_node(
 
                 def fn(val, name=name):
                     pass
-                    #print(f"{name}={val}")
+                    # print(f"{name}={val}")
                     # SMTResolver.register_const(name, val)
+
                 l.append(fn)
 
             fins = build_finalizers(
@@ -420,7 +428,9 @@ def tree_crossover_inner(
                         setattr(
                             i,
                             field,
-                            tree_crossover_inner(r, g, getattr(i, field), o, field_type, max_depth),
+                            tree_crossover_inner(
+                                r, g, getattr(i, field), o, field_type, max_depth
+                            ),
                         )
                         return i
                     else:
@@ -436,9 +446,13 @@ def tree_crossover(
     """
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns two trees that are created by crossing over [p1] and [p2]. The first tree returned has [p1] as the base, and the second tree has [p2] as a base.
     """
-    new_tree1 = tree_crossover_inner(r, g, deepcopy(p1), deepcopy(p2), g.starting_symbol, max_depth)
+    new_tree1 = tree_crossover_inner(
+        r, g, deepcopy(p1), deepcopy(p2), g.starting_symbol, max_depth
+    )
     relabeled_new_tree1 = relabel_nodes_of_trees(new_tree1, g.non_terminals)
-    new_tree2 = tree_crossover_inner(r, g, deepcopy(p2), deepcopy(p1), g.starting_symbol, max_depth)
+    new_tree2 = tree_crossover_inner(
+        r, g, deepcopy(p2), deepcopy(p1), g.starting_symbol, max_depth
+    )
     relabeled_new_tree2 = relabel_nodes_of_trees(new_tree2, g.non_terminals)
     return relabeled_new_tree1, relabeled_new_tree2
 
@@ -449,7 +463,9 @@ def tree_crossover_single_tree(
     """
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns one tree that is created by crossing over [p1] and [p2]. The tree returned has [p1] as the base.
     """
-    new_tree = tree_crossover_inner(r, g, deepcopy(p1), deepcopy(p2), g.starting_symbol, max_depth)
+    new_tree = tree_crossover_inner(
+        r, g, deepcopy(p1), deepcopy(p2), g.starting_symbol, max_depth
+    )
     relabeled_new_tree = relabel_nodes_of_trees(new_tree, g.non_terminals)
     return relabeled_new_tree
 

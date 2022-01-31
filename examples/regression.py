@@ -9,6 +9,7 @@ from geneticengine.grammars.sgp import Plus, Literal, Number, Mul, Var
 from geneticengine.grammars.basic_math import SafeLog, SafeSqrt, Sin, Tanh, Exp, SafeDiv
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.core.representations.grammatical_evolution import ge_representation
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import rmse
 
@@ -52,11 +53,15 @@ def fitness_function(n: Number):
     return fitness
 
 
-def evolve(g, seed, mode):
+def evolve(g, seed, mode, representation):
+    if representation == 'grammatical_evolution':
+        representation = ge_representation
+    else:
+        representation = treebased_representation
     alg = GP(
         g,
         fitness_function,
-        representation=treebased_representation,
+        representation=representation,
         minimize=True,
         selection_method=("tournament", 2),
         max_depth=17,
@@ -75,6 +80,6 @@ def evolve(g, seed, mode):
 
 if __name__ == "__main__":
     g = preprocess()
-    print("Grammar: {}.".format(repr(g)))
-    b, bf = evolve(g, 0, False)
-    print(b, bf)
+    bf, b = evolve(g, 0, False, 'treebased_representation')
+    print(b)
+    print(f"With fitness: {bf}")

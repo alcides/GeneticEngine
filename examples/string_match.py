@@ -2,6 +2,7 @@ from geneticengine.grammars.letter import *
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.core.representations.grammatical_evolution import ge_representation
 
 
 # Extracted from PonyGE
@@ -28,11 +29,15 @@ def preprocess():
     return g
 
 
-def evolve(g, seed, mode):
+def evolve(g, seed, mode, representation):
+    if representation == 'grammatical_evolution':
+        representation = ge_representation
+    else:
+        representation = treebased_representation
     alg = GP(
         g,
         fitness_function,
-        representation=treebased_representation,
+        representation=representation,
         max_depth=17,
         probability_crossover=0.75,
         selection_method=("tournament", 2),
@@ -46,4 +51,6 @@ def evolve(g, seed, mode):
 
 if __name__ == "__main__":
     g = preprocess()
-    evolve(g, 1, True)
+    bf, b = evolve(g, 0, False, 'treebased_representation')
+    print(b)
+    print(f"With fitness: {bf}")
