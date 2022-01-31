@@ -67,11 +67,6 @@ def fitness_function(i: Expr):
 
 def preprocess():
     grammar = extract_grammar([And, Or, Not, MatrixElement], Condition)
-
-    file1 = open(f"results/csvs/{OUTPUT_FOLDER}/grammar.txt","w")
-    file1.write(str(grammar))
-    file1.close()
-    
     print(grammar)
     return grammar
 
@@ -80,18 +75,13 @@ def evolve(g, seed, mode, representation='treebased_representation', output_fold
         representation = ge_representation
     else:
         representation = treebased_representation
-    if (not os.path.isdir(output_folder[0])) and (output_folder[0] != ''):
-        os.mkdir(output_folder)
+    
     alg = GP(
         g,
         fitness_function,
         representation=representation,
-        number_of_generations=150,
-        population_size=100,
-        max_depth=15,
+        number_of_generations=500,
         favor_less_deep_trees=True,
-        probability_crossover=0.75,
-        probability_mutation=0.01,
         selection_method=("tournament", 2),
         minimize=False,
         seed=seed,

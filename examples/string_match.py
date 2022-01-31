@@ -35,14 +35,12 @@ def evolve(g, seed, mode, representation='treebased_representation', output_fold
         representation = ge_representation
     else:
         representation = treebased_representation
-    if (not os.path.isdir(output_folder[0])) and (output_folder[0] != ''):
-        os.mkdir(output_folder)
+    
     alg = GP(
         g,
         fitness_function,
         representation=representation,
-        max_depth=17,
-        probability_crossover=0.75,
+        number_of_generations=500,
         selection_method=("tournament", 2),
         minimize=True,
         seed=seed,

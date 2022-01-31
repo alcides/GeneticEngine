@@ -34,8 +34,9 @@ class ListSizeBetween(MetaHandlerGenerator):
         ident = ctx["_"]
         for i, fin in enumerate(fins):
             nctx = ctx.copy()
-            nctx["_"] = ident + "_" + str(i)
-            new_symbol(base_type, fin, depth - 1, ident, nctx)
+            nident = ident + "_" + str(i)
+            nctx["_"] = nident
+            new_symbol(base_type, fin, depth - 1, nident, nctx)
 
     def __repr__(self):
         return f"ListSizeBetween[{self.min}...{self.max}]"

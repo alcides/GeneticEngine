@@ -12,7 +12,7 @@ from geneticengine.metahandlers.base import MetaHandlerGenerator
 
 from geneticengine.core.grammar import Grammar
 from geneticengine.metahandlers.smt.parser import p_expr
-from geneticengine.metahandlers.smt.lang import dNode, dVar
+from geneticengine.metahandlers.smt.lang import dNode, dVar, dLit
 
 import z3
 import random
@@ -42,7 +42,7 @@ def fix_types(e: dNode, context: Dict[str, Type]):
 
 
 class SMT(MetaHandlerGenerator):
-    def __init__(self, restriction_as_str):
+    def __init__(self, restriction_as_str="true==true"):
         self.restriction_as_str = restriction_as_str
         self.restriction = p_expr(restriction_as_str)
 
@@ -58,12 +58,23 @@ class SMT(MetaHandlerGenerator):
     ):
         # fix_types(self.restriction, context)
         c = context.copy()
+
+        ident = c["_"]
+        treebased.SMTResolver.register_type(ident, base_type)
+
         treebased.SMTResolver.add_clause(
-            [lambda types: self.restriction.translate(c, types)],
-            {c["_"]: rec},
+            [lambda types: self.restriction.translate(c, types)], {}
         )
 
-        treebased.SMTResolver.register_type(c["_"], base_type)
+        if base_type == int or base_type == bool or base_type == float:
+            # we need the result, add receiver
+            treebased.SMTResolver.add_clause(
+                [],
+                {ident: rec},
+            )
+        else:
+            # just synth normally
+            new_symbol(base_type, rec, depth, ident, context)
 
     def __repr__(self):
         return f"{self.restriction}"
