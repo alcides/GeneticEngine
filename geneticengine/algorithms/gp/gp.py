@@ -270,7 +270,10 @@ class GP(object):
         for ind in population:
             genotype_as_str = str(ind.genotype)
             fitness = str(ind.fitness)
-            depth = ind.genotype.distance_to_term
+            if self.representation == treebased_representation:
+                depth = ind.genotype.distance_to_term
+            else:
+                depth = -1
             csv_line = [
                 genotype_as_str,
                 fitness,
