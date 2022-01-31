@@ -1,3 +1,4 @@
+import os
 from geneticengine.grammars.letter import *
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
@@ -29,11 +30,13 @@ def preprocess():
     return g
 
 
-def evolve(g, seed, mode, representation):
+def evolve(g, seed, mode, representation='treebased_representation', output_folder=('','all')):
     if representation == 'grammatical_evolution':
         representation = ge_representation
     else:
         representation = treebased_representation
+    if (not os.path.isdir(output_folder[0])) and (output_folder[0] != ''):
+        os.mkdir(output_folder)
     alg = GP(
         g,
         fitness_function,
@@ -44,6 +47,7 @@ def evolve(g, seed, mode, representation):
         minimize=True,
         seed=seed,
         timer_stop_criteria=mode,
+        safe_gen_to_csv=output_folder
     )
     (b, bf, bp) = alg.evolve(verbose=0)
     return b, bf
@@ -51,6 +55,6 @@ def evolve(g, seed, mode, representation):
 
 if __name__ == "__main__":
     g = preprocess()
-    bf, b = evolve(g, 0, False, 'treebased_representation')
+    bf, b = evolve(g, 0, False)
     print(b)
     print(f"With fitness: {bf}")

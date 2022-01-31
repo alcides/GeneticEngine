@@ -2,11 +2,14 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated, List, Type
 
+from scipy import rand
+from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.individual import Individual
+
 from geneticengine.core.decorators import abstract
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.grammar import Grammar, extract_grammar
-from geneticengine.core.representations.tree.position_independent_grow import Future
-from geneticengine.core.representations.tree.treebased import random_node
+from geneticengine.core.representations.tree.treebased import Grow, PI_Grow, random_node
 from geneticengine.core.utils import get_arguments
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.lists import ListSizeBetween
@@ -57,13 +60,27 @@ class TestGrammar(object):
     def test_rec(self):
         r = RandomSource(seed=1)
         g: Grammar = extract_grammar([Leaf, Rec], Root)
-        x = random_node(r, g, 2, Root, force_depth=2)
+        x = random_node(r, g, 10, Root, method=PI_Grow)
+        #print(x) -- Leaf()
         assert isinstance(x, Rec)
         assert isinstance(x, Root)
 
     def test_rec_alt(self):
-        r = RandomSource(seed=2)
+        r = RandomSource(seed=245)
         g: Grammar = extract_grammar([Leaf, Rec, RecAlt], Root)
-        x = random_node(r, g, max_depth=5, starting_symbol=Root, force_depth=5)
+        x = random_node(r, g, max_depth=15, starting_symbol=Root, method=PI_Grow)
         assert contains_type(x, RecAlt)
         assert isinstance(x, Root)
+
+
+    def test_depth_increases(self):
+        g: Grammar = extract_grammar([Leaf, Rec], Root)
+
+        x = random_node(RandomSource(3), g, max_depth=2, starting_symbol=Root, method=PI_Grow)
+        assert isinstance(x, Leaf)
+        assert isinstance(x, Root)
+
+        gp = GP(g, evaluation_function=lambda x: x.depth, randomSource=RandomSource, max_depth=5, seed=5)
+
+        nx = gp.mutation(Individual(x))
+        assert nx.genotype.depth > x.depth

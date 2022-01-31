@@ -1,4 +1,10 @@
-from typing import Any, Callable, TypeVar, Dict, Type, List
+from typing import (
+    Any,
+    Callable,
+    TypeVar,
+    Dict,
+    Type,
+)
 
 from geneticengine.core.random.sources import Source
 from geneticengine.core.utils import build_finalizers
@@ -17,19 +23,19 @@ class ListSizeBetween(MetaHandlerGenerator):
         r: Source,
         g: Grammar,
         rec,
-        newsymbol,
+        new_symbol,
         depth: int,
         base_type,
-        context: Dict[str, str],
+        ctx: Dict[str, str],
     ):
         base_type = base_type.__args__[0]
         size = r.randint(self.min, self.max)
         fins = build_finalizers(lambda *x: rec(list(x)), size)
-        ident = context["_"]
-        for i in range(size):
-            nctx = context.copy()
+        ident = ctx["_"]
+        for i, fin in enumerate(fins):
+            nctx = ctx.copy()
             nctx["_"] = ident + "_" + str(i)
-            newsymbol(base_type, fins[i], depth - 1, ident, context)
+            new_symbol(base_type, fin, depth - 1, ident, nctx)
 
     def __repr__(self):
         return f"ListSizeBetween[{self.min}...{self.max}]"
