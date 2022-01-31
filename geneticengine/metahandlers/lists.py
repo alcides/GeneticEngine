@@ -28,7 +28,7 @@ class ListSizeBetween(MetaHandlerGenerator):
         base_type,
         ctx: Dict[str, str],
     ):
-        
+        base_type = base_type.__args__[0]
         size = r.randint(self.min, self.max)
         fins = build_finalizers(lambda *x: rec(list(x)), size)
         ident = ctx["_"]
