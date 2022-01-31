@@ -67,11 +67,6 @@ def fitness_function(i: Expr):
 
 def preprocess():
     grammar = extract_grammar([And, Or, Not, MatrixElement], Condition)
-
-    file1 = open(f"results/csvs/{OUTPUT_FOLDER}/grammar.txt","w")
-    file1.write(str(grammar))
-    file1.close()
-    
     print(grammar)
     return grammar
 
