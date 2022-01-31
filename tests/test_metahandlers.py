@@ -1,4 +1,5 @@
 from abc import ABC
+
 from dataclasses import dataclass
 from typing import Annotated, List
 from geneticengine.core.random.sources import RandomSource
@@ -15,6 +16,7 @@ from geneticengine.metahandlers.vars import VarRange
 
 from geneticengine.metahandlers.lists import ListSizeBetween
 
+from geneticengine.metahandlers.strings import WeightedStringHandler
 
 class Root(ABC):
     pass
@@ -40,7 +42,24 @@ class ListRangeM(Root):
     x: Annotated[List[int], ListSizeBetween(3, 4)]
 
 
+@dataclass
+class WeightedStringHandlerM(Root):
+    import numpy as np
+    
+    x: Annotated[str,
+                 WeightedStringHandler(
+                     np.array([[-0.01, 0.0425531914894, 0.01, 0.937446808511],
+                               [0.97, 0.01, 0.01, 0.01],
+                               [0.0212765957447, 0.01, 0.958723404255, 0.01],
+                               [
+                                   0.106382978723, 0.0212765957447,
+                                   0.787234042553, 0.0851063829787
+                               ], [0.533191489362, 0.01, 0.01, 0.446808510638]]
+                              ), ['A', 'C', 'G', 'T'])]
+
+
 class TestMetaHandler(object):
+
     def test_int(self):
         r = RandomSource(seed=1)
         g: Grammar = extract_grammar([IntRangeM], Root)
@@ -71,4 +90,12 @@ class TestMetaHandler(object):
         n = random_node(r, g, 4, Root)
         assert isinstance(n, ListRangeM)
         assert 3 <= len(n.x) <= 4
+        assert isinstance(n, Root)
+        
+    def test_weightedstrings(self):
+        r = RandomSource(seed=1)
+        g: Grammar = extract_grammar([WeightedStringHandlerM], Root)
+        n = random_node(r, g, 3, Root)
+        assert isinstance(n, WeightedStringHandlerM)
+        assert all(_x in ["A", "C", "G", "T"] for _x in n.x)
         assert isinstance(n, Root)
