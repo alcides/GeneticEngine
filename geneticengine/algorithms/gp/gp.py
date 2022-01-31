@@ -281,6 +281,6 @@ class GP(object):
             ]
             csv_lines.append(csv_line)
 
-        with open(f"./results/csvs/{file_name}.csv", "a", newline="") as outfile:
+        with open(f"{file_name}.csv", "a", newline="") as outfile:
             writer = csv.writer(outfile)
             writer.writerows(csv_lines)
