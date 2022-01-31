@@ -1,4 +1,5 @@
 import glob
+from typing import List
 import pandas as pd
 from pylab import *
 from palettable.colorbrewer.qualitative import Set2_7
@@ -64,7 +65,7 @@ def plot_comparison(file_run_names, run_names, result_name='results/images/media
     savefig(result_name)  
     plt.close()
 
-files = [
+files : List[str] = [
             # 'Franklin\csvs\GoL\grammar_standard', 
             # 'Franklin\csvs\GoL\grammar_row_col_cube', 
             # 'Franklin\csvs\GoL\grammar_cube', 
@@ -73,7 +74,7 @@ files = [
             # 'Franklin\csvs\GoL\grammar_row_col', 
             # 'Franklin\csvs\GoL\grammar_sum_all'
         ] 
-run_names = [
+run_names : List[str] = [
             # 'standard', 
             # 'row col cube', 
             # 'cube', 

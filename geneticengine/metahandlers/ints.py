@@ -25,12 +25,16 @@ class IntRange(MetaHandlerGenerator):
         r: Source,
         g: Grammar,
         rec,
-        newsymbol,
+        new_symbol,
         depth: int,
         base_type,
         context: Dict[str, str],
     ):
-        rec(r.randint(self.min, self.max))
+        new_string = ""
+        for letter in [(["a", "t"], [0.09, 0.91])]:
+            r.choice_weighted(letter[0], letter[1])
+        rec(new_string)
+        #rec(r.randint(self.min, self.max))
 
     def __repr__(self):
         return f"[{self.min}...{self.max}]"

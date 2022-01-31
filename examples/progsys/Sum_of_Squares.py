@@ -28,6 +28,7 @@ from geneticengine.grammars.coding.logical_ops import And, Or
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.core.representations.grammatical_evolution import ge_representation
 
 FILE_NAME = "Sum_of_Squares"
 DATA_FILE_TRAIN = "./examples/progsys/data/{}/Train.txt".format(FILE_NAME)
@@ -80,11 +81,15 @@ def preprocess():
     )
 
 
-def evolve(g, seed, mode=False):
+def evolve(g, seed, mode, representation):
+    if representation == 'grammatical_evolution':
+        representation = ge_representation
+    else:
+        representation = treebased_representation
     alg = GP(
         g,
         fitness_function,
-        representation=treebased_representation,
+        representation=representation,
         number_of_generations=50,
         minimize=True,
         seed=seed,
@@ -99,6 +104,6 @@ def evolve(g, seed, mode=False):
 
 if __name__ == "__main__":
     g = preprocess()
-    print("Grammar: {}.".format(repr(g)))
-    b, bf = evolve(g, 0)
-    print(b, bf)
+    bf, b = evolve(g, 0, False, 'treebased_representation')
+    print(b)
+    print(f"With fitness: {bf}")

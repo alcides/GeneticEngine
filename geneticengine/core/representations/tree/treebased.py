@@ -5,6 +5,7 @@ from typing import (
     Any,
     Dict,
     Optional,
+    Sequence,
     Type,
     TypeVar,
     Tuple,
@@ -19,10 +20,6 @@ from geneticengine.core.random.sources import Source
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.representations.api import Representation
 from geneticengine.core.representations.tree.utils import relabel_nodes_of_trees
-from geneticengine.core.representations.tree.wrapper import Wrapper, WrapperType
-from geneticengine.core.representations.tree.position_independent_grow import (
-    create_position_independent_grow,
-)
 
 from geneticengine.core.tree import TreeNode
 from geneticengine.core.utils import (
@@ -32,7 +29,7 @@ from geneticengine.core.utils import (
     build_finalizers,
 )
 from geneticengine.exceptions import GeneticEngineError
-from geneticengine.metahandlers.base import MetaHandlerGenerator, is_metahandler
+from geneticengine.metahandlers.base import is_metahandler
 
 
 def random_bool(r: Source) -> int:
@@ -50,12 +47,17 @@ def random_float(r: Source) -> float:
 T = TypeVar("T")
 
 
-def random_list(r: Source, receiver, new_symbol, depth: int, ty: Type[List[T]]):
+def random_list(
+    r: Source, receiver, new_symbol, depth: int, ty: Type[List[T]], ctx: Dict[str, str]
+):
     inner_type = get_generic_parameter(ty)
     size = r.randint(0, depth - 1)
     fins = build_finalizers(lambda *x: receiver(list(x)), size)
-    for fin in fins:
-        new_symbol(inner_type, fin, depth - 1, {})
+    ident = ctx["_"]
+    for i, fin in enumerate(fins):
+        nctx = ctx.copy()
+        nctx["_"] = ident + "_" + str(i)
+        new_symbol(inner_type, fin, depth - 1, ident, nctx)
 
 
 def apply_metahandler(
@@ -83,14 +85,14 @@ def apply_metahandler(
 
 # TODO: make non static
 class SMTResolver(object):
-    clauses = []
+    clauses: List[Any] = []
     receivers: dict[str, Callable] = {}
     types: dict[str, Callable] = {}
 
     @staticmethod
     def add_clause(claus, recs: dict[str, Callable]):
         SMTResolver.clauses.extend(claus)
-        print(recs)
+        # print(recs)
         for k, v in recs.items():
             SMTResolver.receivers[k] = v
 
@@ -159,8 +161,7 @@ def Grow(
         ]
         return valid_productions
 
-    def handle_symbol(symb, fin, depth, ident, ctx):
-        next_type, next_finalizer, depth = symb, fin, depth
+    def handle_symbol(next_type, next_finalizer, depth:int, ident: str, ctx):
         expand_node(
             r,
             g,
@@ -199,10 +200,9 @@ def PI_Grow(
     prodqueue = []
     nRecs = [0]
 
-    def handle_symbol(symb, fin, depth, ident: str, ctx):
-        # print(symb)
-        prodqueue.append((symb, fin, depth, ident, ctx))
-        if symb in g.recursive_prods:
+    def handle_symbol(next_type, next_finalizer, depth:int, ident: str, ctx):
+        prodqueue.append((next_type, next_finalizer, depth, ident, ctx))
+        if next_type in g.recursive_prods:
             nRecs[0] += 1
 
     handle_symbol(starting_symbol, final_finalize, depth, "root", {})
@@ -244,7 +244,15 @@ def PI_Grow(
     return n
 
 
-random_node = Grow
+
+
+def random_node(r: Source,
+    g: Grammar,
+    max_depth: int,
+    starting_symbol: Type[Any] = int,
+    method=PI_Grow):
+    return method(r, g, max_depth, starting_symbol)
+    
 
 
 def expand_node(
@@ -276,12 +284,14 @@ def expand_node(
         receiver(val)
         return
     elif starting_symbol is float:
-        val = random_float(r)
-        SMTResolver.register_const(id, val)
-        receiver(val)
+        valf = random_float(r)
+        SMTResolver.register_const(id, valf)
+        receiver(valf)
         return
     elif is_generic_list(starting_symbol):
-        random_list(r, receiver, new_symbol, depth, starting_symbol)
+        ctx = ctx.copy()
+        ctx["_"] = id
+        random_list(r, receiver, new_symbol, depth, starting_symbol, ctx)
         return
     elif is_metahandler(starting_symbol):
         ctx = ctx.copy()
@@ -317,14 +327,16 @@ def expand_node(
         else:  # Normal production
             args = get_arguments(starting_symbol)
             ctx = ctx.copy()
-            l = []
+            l : List[Any] = []
             for argn, _ in args:
                 name = id + "_" + argn
                 ctx[argn] = name
 
                 def fn(val, name=name):
-                    print(f"{name}={val}")
+                    pass
+                    # print(f"{name}={val}")
                     # SMTResolver.register_const(name, val)
+
                 l.append(fn)
 
             fins = build_finalizers(
@@ -350,23 +362,23 @@ def random_individual(r: Source, g: Grammar, max_depth: int = 5) -> TreeNode:
     return ind
 
 
-def mutate_inner(r: Source, g: Grammar, i: TreeNode, max_depth: int) -> TreeNode:
+def mutate_inner(r: Source, g: Grammar, i: TreeNode, max_depth: int, ty:Type) -> TreeNode:
     if i.nodes > 0:
         c = r.randint(0, i.nodes - 1)
         if c == 0:
-            ty = i.__class__.__bases__[0]
             try:
-                replacement = random_node(r, g, max_depth - i.depth + 1, ty)
+                replacement = random_node(r, g, max_depth - i.depth + 1, ty, method=Grow)
                 return replacement
             except:
                 return i
         else:
             for field in i.__annotations__:
                 child = getattr(i, field)
+                field_type = i.__annotations__[field]
                 if hasattr(child, "nodes"):
                     count = child.nodes
                     if c <= count:
-                        setattr(i, field, mutate_inner(r, g, child, max_depth))
+                        setattr(i, field, mutate_inner(r, g, child, max_depth, field_type))
                         return i
                     else:
                         c -= count
@@ -376,7 +388,7 @@ def mutate_inner(r: Source, g: Grammar, i: TreeNode, max_depth: int) -> TreeNode
 
 
 def mutate(r: Source, g: Grammar, i: TreeNode, max_depth: int) -> Any:
-    new_tree = mutate_inner(r, g, deepcopy(i), max_depth)
+    new_tree = mutate_inner(r, g, deepcopy(i), max_depth, type(i))
     relabeled_new_tree = relabel_nodes_of_trees(new_tree, g.non_terminals)
     return relabeled_new_tree
 
@@ -402,7 +414,7 @@ def tree_crossover_inner(
                 replacement = r.choice(options)
             if replacement is None:
                 try:
-                    replacement = random_node(r, g, max_depth - i.depth + 1, ty)
+                    replacement = random_node(r, g, max_depth - i.depth + 1, ty, method=Grow)
                 except:
                     return i
             return replacement
@@ -416,7 +428,9 @@ def tree_crossover_inner(
                         setattr(
                             i,
                             field,
-                            tree_crossover_inner(r, g, getattr(i, field), o, field_type, max_depth),
+                            tree_crossover_inner(
+                                r, g, getattr(i, field), o, field_type, max_depth
+                            ),
                         )
                         return i
                     else:
@@ -432,9 +446,13 @@ def tree_crossover(
     """
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns two trees that are created by crossing over [p1] and [p2]. The first tree returned has [p1] as the base, and the second tree has [p2] as a base.
     """
-    new_tree1 = tree_crossover_inner(r, g, deepcopy(p1), deepcopy(p2), g.starting_symbol, max_depth)
+    new_tree1 = tree_crossover_inner(
+        r, g, deepcopy(p1), deepcopy(p2), g.starting_symbol, max_depth
+    )
     relabeled_new_tree1 = relabel_nodes_of_trees(new_tree1, g.non_terminals)
-    new_tree2 = tree_crossover_inner(r, g, deepcopy(p2), deepcopy(p1), g.starting_symbol, max_depth)
+    new_tree2 = tree_crossover_inner(
+        r, g, deepcopy(p2), deepcopy(p1), g.starting_symbol, max_depth
+    )
     relabeled_new_tree2 = relabel_nodes_of_trees(new_tree2, g.non_terminals)
     return relabeled_new_tree1, relabeled_new_tree2
 
@@ -445,7 +463,9 @@ def tree_crossover_single_tree(
     """
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns one tree that is created by crossing over [p1] and [p2]. The tree returned has [p1] as the base.
     """
-    new_tree = tree_crossover_inner(r, g, deepcopy(p1), deepcopy(p2), g.starting_symbol, max_depth)
+    new_tree = tree_crossover_inner(
+        r, g, deepcopy(p1), deepcopy(p2), g.starting_symbol, max_depth
+    )
     relabeled_new_tree = relabel_nodes_of_trees(new_tree, g.non_terminals)
     return relabeled_new_tree
 

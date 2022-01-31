@@ -20,7 +20,6 @@ class RandomMutations(object):
             i = mutate(self.random, self.grammar, i)
             f = self.evaluation(i)
             if f > best:
-                print("BESTED")
                 best = f
                 best_ind = i
 

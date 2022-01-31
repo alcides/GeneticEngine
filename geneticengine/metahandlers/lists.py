@@ -23,7 +23,7 @@ class ListSizeBetween(MetaHandlerGenerator):
         r: Source,
         g: Grammar,
         rec,
-        newsymbol,
+        new_symbol,
         depth: int,
         base_type,
         context: Dict[str, str],
@@ -31,7 +31,7 @@ class ListSizeBetween(MetaHandlerGenerator):
         size = r.randint(self.min, self.max)
         fins = build_finalizers(lambda *x: rec(list(x)), size)
         for i in range(size):
-            new_symbol(base_type, fins[i], depth - 1, {})
+            new_symbol(base_type, fins[i], depth - 1, context)
 
     def __repr__(self):
         return f"ListSizeBetween[{self.min}...{self.max}]"
