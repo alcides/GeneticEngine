@@ -8,6 +8,7 @@ from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.metahandlers.ints import IntRange
+from geneticengine.metahandlers.vars import VarRange
 
 class Node(ABC):
     pass
@@ -16,12 +17,22 @@ class Node(ABC):
         ...
 
 @dataclass
-class Plus(Node):
+class Op(Node):
     r:Node
+    op:Annotated[str, VarRange(["+", "-", "*", "/"])]
     l:Node
 
     def evaluate(self, input:List[int]):
-        return self.r.evaluate(input) + self.l.evaluate(input)
+        if self.op == "+":
+            return self.r.evaluate(input) + self.l.evaluate(input)
+        elif self.op == "-":
+            return self.r.evaluate(input) - self.l.evaluate(input)
+        elif self.op == "*":
+            return self.r.evaluate(input) - self.l.evaluate(input)
+        else:
+            if self.l.evaluate(input) == 0:
+                return 0
+            return self.r.evaluate(input) / self.l.evaluate(input)
 
 @dataclass
 class Access(Node):
@@ -42,23 +53,20 @@ class Literal(Node):
 def fitness_function(p):
     dataset = [1,1,2,3,5,8,13]
 
-    errors = []
+    errors = 0
     for i in range(2, len(dataset)):
         input = dataset[:i]
         r = p.evaluate(input)
         e = abs(r - dataset[i])
-        errors.append(e ** 2)
-    return np.mean(errors)
+        errors += e**2
+    return errors
 
 
 if __name__ == "__main__":
-    
-
-    g = extract_grammar([Plus, Access], Node)
-    r = RandomSource(seed=123)
-    gp = GP(grammar=g, evaluation_function=fitness_function, randomSource=lambda x: r, 
-            max_depth=4, number_of_generations=100, population_size=100, probability_mutation=1, probability_crossover=1,
-            callbacks=[DebugCallback()])
+    g = extract_grammar([Op, Access, Literal], Node)
+    gp = GP(grammar=g, evaluation_function=fitness_function, 
+            minimize=True,
+            max_depth=10, number_of_generations=100, population_size=10, probability_mutation=0.5, probability_crossover=0.4)
     (_, fitness, explanation) = gp.evolve()
     print(fitness, explanation)
 
