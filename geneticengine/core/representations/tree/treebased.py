@@ -161,7 +161,7 @@ def Grow(
         ]
         return valid_productions
 
-    def handle_symbol(next_type, next_finalizer, depth:int, ident: str, ctx):
+    def handle_symbol(next_type, next_finalizer, depth:int, ident: str, ctx:Dict[str, str]):
         expand_node(
             r,
             g,
@@ -179,7 +179,7 @@ def Grow(
     def final_finalize(x):
         state["final"] = x
 
-    handle_symbol(starting_symbol, final_finalize, depth, "root", {})
+    handle_symbol(starting_symbol, final_finalize, depth, "root", ctx={})
     SMTResolver.resolve_clauses()
     n = state["final"]
     relabel_nodes_of_trees(n, g.non_terminals)
@@ -200,12 +200,12 @@ def PI_Grow(
     prodqueue = []
     nRecs = [0]
 
-    def handle_symbol(next_type, next_finalizer, depth:int, ident: str, ctx):
+    def handle_symbol(next_type, next_finalizer, depth:int, ident: str, ctx: Dict[str, str]):
         prodqueue.append((next_type, next_finalizer, depth, ident, ctx))
         if next_type in g.recursive_prods:
             nRecs[0] += 1
 
-    handle_symbol(starting_symbol, final_finalize, depth, "root", {})
+    handle_symbol(starting_symbol, final_finalize, depth, "root", ctx={})
 
     def filter_choices(possible_choices: List[type], depth):
         valid_productions = [
