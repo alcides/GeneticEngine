@@ -189,7 +189,7 @@ class GP(object):
 
             if self.safe_gen_to_csv[0] != "":
                 self.write_to_csv(
-                    self.safe_gen_to_csv[0],
+                    f'{self.safe_gen_to_csv[0]}/run_seed={self.seed}',
                     population,
                     (gen + 1),
                     (time.time() - start),
