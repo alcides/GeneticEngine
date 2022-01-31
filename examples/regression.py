@@ -53,7 +53,7 @@ def fitness_function(n: Number):
     return fitness
 
 
-def evolve(g, seed, mode, representation='treebased_representation', output_folder=''):
+def evolve(g, seed, mode, representation='treebased_representation', output_folder=('','all')):
     if representation == 'grammatical_evolution':
         representation = ge_representation
     else:

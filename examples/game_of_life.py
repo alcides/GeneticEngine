@@ -75,7 +75,7 @@ def preprocess():
     print(grammar)
     return grammar
 
-def evolve(g, seed, mode, representation='treebased_representation', output_folder=''):
+def evolve(g, seed, mode, representation='treebased_representation', output_folder=('','all')):
     if representation == 'grammatical_evolution':
         representation = ge_representation
     else:
