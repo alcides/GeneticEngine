@@ -90,7 +90,7 @@ class SMTResolver(object):
     @staticmethod
     def add_clause(claus, recs: dict[str, Callable]):
         SMTResolver.clauses.extend(claus)
-        print(recs)
+        # print(recs)
         for k, v in recs.items():
             SMTResolver.receivers[k] = v
 
@@ -323,7 +323,8 @@ def expand_node(
                 ctx[argn] = name
 
                 def fn(val, name=name):
-                    print(f"{name}={val}")
+                    pass
+                    # print(f"{name}={val}")
                     # SMTResolver.register_const(name, val)
                 l.append(fn)
 
