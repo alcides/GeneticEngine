@@ -5,6 +5,7 @@ from typing import (
     Any,
     Dict,
     Optional,
+    Sequence,
     Type,
     TypeVar,
     Tuple,
@@ -19,10 +20,6 @@ from geneticengine.core.random.sources import Source
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.representations.api import Representation
 from geneticengine.core.representations.tree.utils import relabel_nodes_of_trees
-from geneticengine.core.representations.tree.wrapper import Wrapper, WrapperType
-from geneticengine.core.representations.tree.position_independent_grow import (
-    create_position_independent_grow,
-)
 
 from geneticengine.core.tree import TreeNode
 from geneticengine.core.utils import (
@@ -32,7 +29,7 @@ from geneticengine.core.utils import (
     build_finalizers,
 )
 from geneticengine.exceptions import GeneticEngineError
-from geneticengine.metahandlers.base import MetaHandlerGenerator, is_metahandler
+from geneticengine.metahandlers.base import is_metahandler
 
 
 def random_bool(r: Source) -> int:
@@ -83,14 +80,14 @@ def apply_metahandler(
 
 # TODO: make non static
 class SMTResolver(object):
-    clauses = []
+    clauses: List[Any] = []
     receivers: dict[str, Callable] = {}
     types: dict[str, Callable] = {}
 
     @staticmethod
     def add_clause(claus, recs: dict[str, Callable]):
         SMTResolver.clauses.extend(claus)
-        print(recs)
+        #print(recs)
         for k, v in recs.items():
             SMTResolver.receivers[k] = v
 
@@ -159,8 +156,7 @@ def Grow(
         ]
         return valid_productions
 
-    def handle_symbol(symb, fin, depth, ident, ctx):
-        next_type, next_finalizer, depth = symb, fin, depth
+    def handle_symbol(next_type, next_finalizer, depth:int, ident: str, ctx):
         expand_node(
             r,
             g,
@@ -199,10 +195,9 @@ def PI_Grow(
     prodqueue = []
     nRecs = [0]
 
-    def handle_symbol(symb, fin, depth, ident: str, ctx):
-        # print(symb)
-        prodqueue.append((symb, fin, depth, ident, ctx))
-        if symb in g.recursive_prods:
+    def handle_symbol(next_type, next_finalizer, depth:int, ident: str, ctx):
+        prodqueue.append((next_type, next_finalizer, depth, ident, ctx))
+        if next_type in g.recursive_prods:
             nRecs[0] += 1
 
     handle_symbol(starting_symbol, final_finalize, depth, "root", {})
@@ -244,7 +239,15 @@ def PI_Grow(
     return n
 
 
-random_node = Grow
+
+
+def random_node(r: Source,
+    g: Grammar,
+    max_depth: int,
+    starting_symbol: Type[Any] = int,
+    method=PI_Grow):
+    return method(r, g, max_depth, starting_symbol)
+    
 
 
 def expand_node(
@@ -276,9 +279,9 @@ def expand_node(
         receiver(val)
         return
     elif starting_symbol is float:
-        val = random_float(r)
-        SMTResolver.register_const(id, val)
-        receiver(val)
+        valf = random_float(r)
+        SMTResolver.register_const(id, valf)
+        receiver(valf)
         return
     elif is_generic_list(starting_symbol):
         random_list(r, receiver, new_symbol, depth, starting_symbol)
@@ -317,13 +320,14 @@ def expand_node(
         else:  # Normal production
             args = get_arguments(starting_symbol)
             ctx = ctx.copy()
-            l = []
+            l : List[Any] = []
             for argn, _ in args:
                 name = id + "_" + argn
                 ctx[argn] = name
 
                 def fn(val, name=name):
-                    print(f"{name}={val}")
+                    pass
+                    #print(f"{name}={val}")
                     # SMTResolver.register_const(name, val)
                 l.append(fn)
 
@@ -350,23 +354,23 @@ def random_individual(r: Source, g: Grammar, max_depth: int = 5) -> TreeNode:
     return ind
 
 
-def mutate_inner(r: Source, g: Grammar, i: TreeNode, max_depth: int) -> TreeNode:
+def mutate_inner(r: Source, g: Grammar, i: TreeNode, max_depth: int, ty:Type) -> TreeNode:
     if i.nodes > 0:
         c = r.randint(0, i.nodes - 1)
         if c == 0:
-            ty = i.__class__.__bases__[0]
             try:
-                replacement = random_node(r, g, max_depth - i.depth + 1, ty)
+                replacement = random_node(r, g, max_depth - i.depth + 1, ty, method=Grow)
                 return replacement
             except:
                 return i
         else:
             for field in i.__annotations__:
                 child = getattr(i, field)
+                field_type = i.__annotations__[field]
                 if hasattr(child, "nodes"):
                     count = child.nodes
                     if c <= count:
-                        setattr(i, field, mutate_inner(r, g, child, max_depth))
+                        setattr(i, field, mutate_inner(r, g, child, max_depth, field_type))
                         return i
                     else:
                         c -= count
@@ -376,7 +380,7 @@ def mutate_inner(r: Source, g: Grammar, i: TreeNode, max_depth: int) -> TreeNode
 
 
 def mutate(r: Source, g: Grammar, i: TreeNode, max_depth: int) -> Any:
-    new_tree = mutate_inner(r, g, deepcopy(i), max_depth)
+    new_tree = mutate_inner(r, g, deepcopy(i), max_depth, type(i))
     relabeled_new_tree = relabel_nodes_of_trees(new_tree, g.non_terminals)
     return relabeled_new_tree
 
@@ -402,7 +406,7 @@ def tree_crossover_inner(
                 replacement = r.choice(options)
             if replacement is None:
                 try:
-                    replacement = random_node(r, g, max_depth - i.depth + 1, ty)
+                    replacement = random_node(r, g, max_depth - i.depth + 1, ty, method=Grow)
                 except:
                     return i
             return replacement

@@ -73,7 +73,7 @@ def is_terminal(t: type, l: Set[type]) -> bool:
 
 def build_finalizers(
     final_callback, n_args, per_callback: List[Callable[[Any], None]] = None
-) -> List[Callable[[any], None]]:
+) -> List[Callable[[Any, Any], Any]]:
     """
     Builds a set of functions that accumulate the arguments provided
     :param final_callback:

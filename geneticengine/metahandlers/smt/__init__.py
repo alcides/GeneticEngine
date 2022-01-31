@@ -31,7 +31,7 @@ z3types = {int: "int", bool: "bool", float: "real"}
 
 def fix_types(e: dNode, context: Dict[str, Type]):
     if isinstance(e, dVar):
-        name = str(e.name)
+        name = str(e)
         ty = simplify_type(context[name])
         e.type = z3types[ty]
     else:

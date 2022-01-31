@@ -1,9 +1,11 @@
-from typing import Dict, List
+from typing import Any, Dict, List
 
 import z3
 
 
 class dNode:
+    type : Any
+
     def translate(self, mappings, types):
         raise NotImplementedError
 

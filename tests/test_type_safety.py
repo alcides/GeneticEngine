@@ -45,10 +45,10 @@ class TestGrammar(object):
             randomSource=lambda x: r,
             evaluation_function=lambda x: x.depth,
             population_size=100,
-            number_of_generations=100,
+            number_of_generations=10,
             probability_mutation=1,
             probability_crossover=1,
-            max_depth=10,
+            max_depth=5,
             callbacks=[TestCallBack()],
         )
         (_, _, x) = gp.evolve()
