@@ -1,6 +1,6 @@
 [project]
 name = "GeneticEngine"
-version = "0.0.7"
+version = "0.0.8"
 description = "Genetic Programming with Types and Grammars"
 authors = [
     "Alcides Fonseca <me@alcidesfonseca.com>"
