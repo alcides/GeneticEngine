@@ -44,7 +44,7 @@ class TestGrammar(object):
             grammar=g,
             randomSource=lambda x: r,
             evaluation_function=lambda x: x.depth,
-            population_size=100,
+            population_size=10,
             number_of_generations=10,
             probability_mutation=1,
             probability_crossover=1,
