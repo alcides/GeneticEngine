@@ -136,7 +136,7 @@ class GP(object):
         return individual.fitness
 
     def fitness_correction_for_depth(self, individual: Individual) -> float:
-        if self.favor_less_deep_trees:
+        if self.favor_less_deep_trees: # grammatical evolution does not have distance_to_term
             return individual.genotype.distance_to_term * 10 ** -25
         else:
             return 0
