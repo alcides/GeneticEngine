@@ -4,27 +4,26 @@ from typing import Any, List, Protocol, Tuple, Type
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource, Source
 from geneticengine.core.representations.api import Representation
-from geneticengine.core.representations.tree.treebased import random_node
+from geneticengine.core.representations.tree.treebased import PI_Grow, random_node
 from geneticengine.core.tree import TreeNode
 
 
 @dataclass
 class Genotype:
     dna: List[int]
-    depth: int
 
 
 def random_individual(
     r: Source, g: Grammar, depth: int = 5, starting_symbol: Any = None
 ) -> Genotype:
-    return Genotype([r.randint(0, 10000) for _ in range(256)], depth)
+    return Genotype([r.randint(0, 10000) for _ in range(256)])
 
 
 def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
     rindex = r.randint(0, 255)
     clone = [i for i in ind.dna]
     clone[rindex] = r.randint(0, 10000)
-    return Genotype(clone, ind.depth)
+    return Genotype(clone)
 
 
 def crossover(
@@ -33,7 +32,7 @@ def crossover(
     rindex = r.randint(0, 255)
     c1 = p1.dna[:rindex] + p2.dna[rindex:]
     c2 = p2.dna[:rindex] + p1.dna[rindex:]
-    return (Genotype(c1, p1.depth), Genotype(c2, p2.depth))
+    return (Genotype(c1), Genotype(c2))
 
 
 @dataclass
@@ -51,13 +50,16 @@ class ListWrapper(Source):
         return 1 * (max - min) / k + min
 
 
-def create_tree(g: Grammar, ind: Genotype) -> TreeNode:
+def create_tree(g: Grammar, ind: Genotype, depth: int) -> TreeNode:
     rand: Source = ListWrapper(ind.dna)
-    return random_node(rand, g, ind.depth, g.starting_symbol)
+    return random_node(rand, g, depth, g.starting_symbol, method=PI_Grow)
 
 
 class GrammaticalEvolutionRepresentation(Representation[Genotype]):
+    depth : int
+
     def create_individual(self, r: Source, g: Grammar, depth: int) -> Genotype:
+        self.depth = depth
         return random_individual(r, g, depth)
 
     def mutate_individual(
@@ -71,7 +73,7 @@ class GrammaticalEvolutionRepresentation(Representation[Genotype]):
         return crossover(r, g, i1, i2, depth)
 
     def genotype_to_phenotype(self, g: Grammar, genotype: Genotype) -> TreeNode:
-        return create_tree(g, genotype)
+        return create_tree(g, genotype, self.depth)
 
 
 ge_representation = GrammaticalEvolutionRepresentation()
