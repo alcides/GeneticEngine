@@ -70,6 +70,7 @@ def plot_comparison(file_run_names, run_names, result_name='results/images/media
     frame.set_facecolor('1.0')
     frame.set_edgecolor('1.0')
 
+    print(f"Saving image to path: {result_name}")
     plt.savefig(result_name)  
     plt.close()
 
