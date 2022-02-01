@@ -80,7 +80,7 @@ def evolve(g, seed, mode, representation='treebased_representation', output_fold
         g,
         fitness_function,
         representation=representation,
-        number_of_generations=500,
+        number_of_generations=150,
         favor_less_deep_trees=True,
         selection_method=("tournament", 2),
         minimize=False,
