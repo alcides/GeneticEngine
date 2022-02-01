@@ -54,7 +54,7 @@ def plot_comparison(file_run_names, run_names, result_name='results/images/media
         try:
             n_generations = run_data.shape[1]
         except IndexError:
-            load(file_run_name,metric=metric,single_value=single_value,print_generations=True)
+            run_data = load(file_run_name,metric=metric,single_value=single_value,print_generations=True)
             raise GeneticEngineError(f'Index Error. \nMake sure the files you\'re loading in all have the same number of generations!')
         x = np.arange(0, n_generations)
 
