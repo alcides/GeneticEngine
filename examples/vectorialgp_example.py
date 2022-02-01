@@ -3147,7 +3147,16 @@ def evolve(g, seed, mode, representation='treebased_representation', output_fold
         representation=representation,
         minimize=True,
         seed=seed,
-        number_of_generations=150,
+        # As in PonyGE2:
+        probability_crossover=0.75,
+        probability_mutation=0.01,
+        number_of_generations=100,
+        max_depth=17,
+        # max_init_depth=10,
+        population_size=100,
+        selection_method=("tournament", 2),
+        n_elites=5,
+        #----------------
         timer_stop_criteria=mode,
         safe_gen_to_csv=output_folder
     )
