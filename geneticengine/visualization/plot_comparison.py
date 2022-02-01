@@ -10,7 +10,7 @@ from palettable.colorbrewer.qualitative import Set2_7
 
 from geneticengine.exceptions import GeneticEngineError
 
-def load(example_name, metric, single_value):
+def load(example_name, metric, single_value, print_generations=False):
     search_folder = f'results\{example_name}\\run_seed=*.csv'
     f_list = glob.glob(search_folder)
 
@@ -22,6 +22,8 @@ def load(example_name, metric, single_value):
             df = df[[metric, 'number_of_the_generation']]
             df = df.groupby('number_of_the_generation').agg('mean')
         data.append(df[metric].values)
+        if print_generations:
+            print(f, ': ', df[metric].values)
     return np.array(data)
 
 def perc(data,size):
@@ -52,6 +54,7 @@ def plot_comparison(file_run_names, run_names, result_name='results/images/media
         try:
             n_generations = run_data.shape[1]
         except IndexError:
+            load(file_run_name,metric=metric,single_value=single_value,print_generations=True)
             raise GeneticEngineError(f'Index Error. \nMake sure the files you\'re loading in all have the same number of generations!')
         x = np.arange(0, n_generations)
 
