@@ -26,21 +26,6 @@ def simplify_type(t: Type) -> Type:
     return t
 
 
-z3types = {int: "int", bool: "bool", float: "real"}
-
-
-def fix_types(e: dNode, context: Dict[str, Type]):
-    if isinstance(e, dVar):
-        name = str(e)
-        ty = simplify_type(context[name])
-        e.type = z3types[ty]
-    else:
-        for p in dir(e):
-            a = getattr(e, p)
-            if isinstance(a, dNode):
-                fix_types(a, context)
-
-
 class SMT(MetaHandlerGenerator):
     def __init__(self, restriction_as_str="true==true"):
         self.restriction_as_str = restriction_as_str
