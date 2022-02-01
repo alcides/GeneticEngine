@@ -214,7 +214,7 @@ def PI_Grow(
         valid_productions = [
             vp for vp in possible_choices if g.distanceToTerminal[vp] <= depth
         ]
-        if (nRecs == 0) and any(  # Are we the last recursive symbol?
+        if (nRecs[0] == 0) and any(  # Are we the last recursive symbol?
             [
                 prod in g.recursive_prods for prod in valid_productions
             ]  # Are there any  recursive symbols in our expansion?
@@ -252,7 +252,8 @@ def random_node(
     g: Grammar,
     max_depth: int,
     starting_symbol: Type[Any] = int,
-    method=PI_Grow):
+    method=PI_Grow,
+):
     return method(r, g, max_depth, starting_symbol)
 
 
