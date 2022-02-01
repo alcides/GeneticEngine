@@ -11,7 +11,7 @@ from palettable.colorbrewer.qualitative import Set2_7
 from geneticengine.exceptions import GeneticEngineError
 
 def load(example_name, metric, single_value, print_generations=False):
-    search_folder = f'results\{example_name}\\run_seed=*.csv'
+    search_folder = f'results/{example_name}/run_seed=*.csv'
     print(f'Loading from: {search_folder}')
     f_list = glob.glob(search_folder)
 
@@ -74,13 +74,13 @@ def plot_comparison(file_run_names, run_names, result_name='results/images/media
     plt.close()
 
 files : List[str] = [
-            # 'Franklin\csvs\GoL\grammar_standard', 
-            # 'Franklin\csvs\GoL\grammar_row_col_cube', 
-            # 'Franklin\csvs\GoL\grammar_cube', 
-            # 'Franklin\csvs\GoL\grammar_row', 
-            # 'Franklin\csvs\GoL\grammar_col', 
-            # 'Franklin\csvs\GoL\grammar_row_col', 
-            # 'Franklin\csvs\GoL\grammar_sum_all'
+            # 'Franklin/csvs/GoL/grammar_standard', 
+            # 'Franklin/csvs/GoL/grammar_row_col_cube', 
+            # 'Franklin/csvs/GoL/grammar_cube', 
+            # 'Franklin/csvs/GoL/grammar_row', 
+            # 'Franklin/csvs/GoL/grammar_col', 
+            # 'Franklin/csvs/GoL/grammar_row_col', 
+            # 'Franklin/csvs/GoL/grammar_sum_all'
         ] 
 run_names : List[str] = [
             # 'standard', 
@@ -92,13 +92,13 @@ run_names : List[str] = [
             # 'sum all'
         ]
 files_noise = [
-            'Franklin\csvs\GoL_noise\grammar_standard', 
-            'Franklin\csvs\GoL_noise\grammar_row_col_cube', 
-            'Franklin\csvs\GoL_noise\grammar_cube', 
-            'Franklin\csvs\GoL_noise\grammar_row', 
-            'Franklin\csvs\GoL_noise\grammar_col', 
-            'Franklin\csvs\GoL_noise\grammar_row_col', 
-            'Franklin\csvs\GoL_noise\grammar_sum_all'
+            'Franklin/csvs/GoL_noise/grammar_standard', 
+            'Franklin/csvs/GoL_noise/grammar_row_col_cube', 
+            'Franklin/csvs/GoL_noise/grammar_cube', 
+            'Franklin/csvs/GoL_noise/grammar_row', 
+            'Franklin/csvs/GoL_noise/grammar_col', 
+            'Franklin/csvs/GoL_noise/grammar_row_col', 
+            'Franklin/csvs/GoL_noise/grammar_sum_all'
         ] 
 run_names_noise = [
             'standard noise', 
@@ -111,7 +111,7 @@ run_names_noise = [
         ]
 
 # plot_comparison(
-#     ['csvs\GoL\grammar_standard', 'csvs\GoL\grammar_standard(old)'],
+#     ['csvs/GoL/grammar_standard', 'csvs/GoL/grammar_standard(old)'],
 #     ['new','old'],
 #     # files + files_noise,
 #     # run_names + run_names_noise, 
@@ -119,7 +119,7 @@ run_names_noise = [
 #     # result_name='results/Franklin/images/accuracy/grammars_comparison_noise2.pdf'
 # )
 # plot_comparison(
-#     ['csvs\GoL\grammar_standard', 'csvs\GoL\grammar_standard(old)'],
+#     ['csvs/GoL/grammar_standard', 'csvs/GoL/grammar_standard(old)'],
 #     ['new','old'],
 #     # files + files_noise,
 #     # run_names + run_names_noise, 
