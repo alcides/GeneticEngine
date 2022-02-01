@@ -109,21 +109,21 @@ run_names_noise = [
             'sum all noise',
         ]
 
-plot_comparison(
-    ['csvs\GoL\grammar_standard', 'csvs\GoL\grammar_standard(old)'],
-    ['new','old'],
-    # files + files_noise,
-    # run_names + run_names_noise, 
-    result_name='results/images/compare_old_new.pdf',
-    # result_name='results/Franklin/images/accuracy/grammars_comparison_noise2.pdf'
-)
-plot_comparison(
-    ['csvs\GoL\grammar_standard', 'csvs\GoL\grammar_standard(old)'],
-    ['new','old'],
-    # files + files_noise,
-    # run_names + run_names_noise, 
-    result_name='results/images/compare_time_old_new.pdf',
-    # result_name='results/Franklin/images/time/grammars_time_comparison_noise2.pdf', 
-    metric='time_since_the_start_of_the_evolution'
-)
+# plot_comparison(
+#     ['csvs\GoL\grammar_standard', 'csvs\GoL\grammar_standard(old)'],
+#     ['new','old'],
+#     # files + files_noise,
+#     # run_names + run_names_noise, 
+#     result_name='results/images/compare_old_new.pdf',
+#     # result_name='results/Franklin/images/accuracy/grammars_comparison_noise2.pdf'
+# )
+# plot_comparison(
+#     ['csvs\GoL\grammar_standard', 'csvs\GoL\grammar_standard(old)'],
+#     ['new','old'],
+#     # files + files_noise,
+#     # run_names + run_names_noise, 
+#     result_name='results/images/compare_time_old_new.pdf',
+#     # result_name='results/Franklin/images/time/grammars_time_comparison_noise2.pdf', 
+#     metric='time_since_the_start_of_the_evolution'
+# )
 
