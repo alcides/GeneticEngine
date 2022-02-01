@@ -2,6 +2,8 @@ import glob
 from typing import List
 import pandas as pd
 from pylab import *
+plt.rcParams['pdf.fonttype'] = 42
+plt.rcParams['ps.fonttype'] = 42
 from palettable.colorbrewer.qualitative import Set2_7
 
 from geneticengine.exceptions import GeneticEngineError
@@ -31,7 +33,7 @@ def perc(data,size):
    return median, perc_25, perc_75
     
 
-def plot_comparison(file_run_names, run_names, result_name='results/images/medians.png', metric='fitness', single_value=False):
+def plot_comparison(file_run_names, run_names, result_name='results/images/medians.pdf', metric='fitness', single_value=False):
     if len(file_run_names) != len(run_names) and len(run_names) != 0:
         raise GeneticEngineError('The given [file_run_names] has a different length than the given [run_names]. Length should be same or keep enter an empty list for [run_names].')
     if len(run_names) == 0:
@@ -107,16 +109,16 @@ plot_comparison(
     ['new','old'],
     # files + files_noise,
     # run_names + run_names_noise, 
-    result_name='results/images/compare_old_new.png',
-    # result_name='results/Franklin/images/accuracy/grammars_comparison_noise2.png'
+    result_name='results/images/compare_old_new.pdf',
+    # result_name='results/Franklin/images/accuracy/grammars_comparison_noise2.pdf'
 )
 plot_comparison(
     ['csvs\GoL\grammar_standard', 'csvs\GoL\grammar_standard(old)'],
     ['new','old'],
     # files + files_noise,
     # run_names + run_names_noise, 
-    result_name='results/images/compare_time_old_new.png',
-    # result_name='results/Franklin/images/time/grammars_time_comparison_noise2.png', 
+    result_name='results/images/compare_time_old_new.pdf',
+    # result_name='results/Franklin/images/time/grammars_time_comparison_noise2.pdf', 
     metric='time_since_the_start_of_the_evolution'
 )
 
