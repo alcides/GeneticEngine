@@ -1,7 +1,8 @@
 import glob
 from typing import List
 import pandas as pd
-from pylab import *
+import matplotlib as plt
+import numpy as np
 plt.rcParams['pdf.fonttype'] = 42
 plt.rcParams['ps.fonttype'] = 42
 from palettable.colorbrewer.qualitative import Set2_7
@@ -41,8 +42,8 @@ def plot_comparison(file_run_names, run_names, result_name='results/images/media
         run_names = file_run_names
 
     colors = Set2_7.mpl_colors
-    axes(frameon=0)
-    grid(axis='y', color="0.9", linestyle='-', linewidth=1)
+    plt.axes(frameon=0)
+    plt.grid(axis='y', color="0.9", linestyle='-', linewidth=1)
     line_styles = ['solid', 'dotted', 'dashed', 'dashdot']
     
     for idx, file_run_name in enumerate(file_run_names):
@@ -55,16 +56,16 @@ def plot_comparison(file_run_names, run_names, result_name='results/images/media
 
         med_run_data, perc_25_run_data, perc_75_run_data = perc(run_data,n_generations)
 
-        plot(x, med_run_data, linewidth=2, color=colors[idx % len(colors)], linestyle=line_styles[idx % len(line_styles)])
+        plt.plot(x, med_run_data, linewidth=2, color=colors[idx % len(colors)], linestyle=line_styles[idx % len(line_styles)])
 
-        fill_between(x, perc_25_run_data, perc_75_run_data, alpha=0.25, linewidth=0, color=colors[idx % len(colors)], label='_nolegend_')
+        plt.fill_between(x, perc_25_run_data, perc_75_run_data, alpha=0.25, linewidth=0, color=colors[idx % len(colors)], label='_nolegend_')
 
     legend = plt.legend(run_names, loc=4)
     frame = legend.get_frame()
     frame.set_facecolor('1.0')
     frame.set_edgecolor('1.0')
 
-    savefig(result_name)  
+    plt.savefig(result_name)  
     plt.close()
 
 files : List[str] = [
