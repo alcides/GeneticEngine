@@ -1,10 +1,11 @@
 import glob
-from typing import List
+from typing import Any, List
 import pandas as pd
-import matplotlib as plt
+import matplotlib #type:ignore
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42
 import numpy as np
-plt.rcParams['pdf.fonttype'] = 42
-plt.rcParams['ps.fonttype'] = 42
+import matplotlib.pyplot as plt #type:ignore
 from palettable.colorbrewer.qualitative import Set2_7
 
 from geneticengine.exceptions import GeneticEngineError
