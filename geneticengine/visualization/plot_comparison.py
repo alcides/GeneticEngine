@@ -12,6 +12,7 @@ from geneticengine.exceptions import GeneticEngineError
 
 def load(example_name, metric, single_value, print_generations=False):
     search_folder = f'results\{example_name}\\run_seed=*.csv'
+    print(f'Loading from: {search_folder}')
     f_list = glob.glob(search_folder)
 
     data = list()
