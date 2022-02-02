@@ -3150,7 +3150,7 @@ def evolve(g, seed, mode, representation='treebased_representation', output_fold
         # As in PonyGE2:
         probability_crossover=0.75,
         probability_mutation=0.01,
-        number_of_generations=100,
+        number_of_generations=30,
         max_depth=15,
         # max_init_depth=10,
         population_size=100,
