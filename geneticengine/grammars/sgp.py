@@ -26,6 +26,18 @@ class Plus(Number):
 
 
 @dataclass
+class Minus(Number):
+    left: Number
+    right: Number
+
+    def evaluate(self, **kwargs):
+        return self.left.evaluate(**kwargs) - self.right.evaluate(**kwargs)
+
+    def __str__(self) -> str:
+        return f"({self.left} - {self.right})"
+
+
+@dataclass
 class Mul(Number):
     left: Number
     right: Number

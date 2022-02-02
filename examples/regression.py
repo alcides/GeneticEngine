@@ -7,14 +7,14 @@ import pandas as pd
 from math import isinf
 
 from geneticengine.algorithms.gp.gp import GP
-from geneticengine.grammars.sgp import Plus, Number, Mul, Var
+from geneticengine.grammars.sgp import Plus, Minus, Number, Mul, Var
 from geneticengine.grammars.basic_math import SafeLog, SafeSqrt, Sin, Tanh, Exp, SafeDiv
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.core.representations.grammatical_evolution import ge_representation
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.vars import VarRange
-from geneticengine.metrics import rmse
+from geneticengine.metrics import mse
 
 DATASET_NAME = "Vladislavleva4"
 DATA_FILE_TRAIN = "examples/data/{}/Train.txt".format(DATASET_NAME)
@@ -45,8 +45,23 @@ class Literal(Number):
 
 def preprocess():
     return extract_grammar(
-        [Plus, Mul, SafeDiv, Literal, Var, SafeSqrt, Exp, Sin, Tanh, SafeLog], Number
+        [Plus, Minus, Mul, SafeDiv, Literal, Var, SafeSqrt, Exp, Sin, Tanh, SafeLog], Number
     )
+
+    # <e>  ::=  <e>+<e>|
+    #       <e>-<e>|
+    #       <e>*<e>|
+    #       pdiv(<e>,<e>)|
+    #       psqrt(<e>)|
+    #       np.sin(<e>)|
+    #       np.tanh(<e>)|
+    #       np.exp(<e>)|
+    #       plog(<e>)|
+    #       x[:, 0]|x[:, 1]|x[:, 2]|x[:, 3]|x[:, 4]|
+    #       <c>
+    # <c>  ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+
+
 
 
 def fitness_function(n: Number):
@@ -59,7 +74,7 @@ def fitness_function(n: Number):
         variables[x] = X[:, i]
 
     y_pred = n.evaluate(**variables)
-    fitness = rmse(y_pred, y)
+    fitness = mse(y_pred, y) # mse is used in PonyGE, as the error metric is not None!
     if isinf(fitness) or np.isnan(fitness):
         fitness = 100000000
     return fitness
