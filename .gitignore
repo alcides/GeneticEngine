@@ -3,6 +3,7 @@ dist
 results/csvs/*
 !results/csvs/.gitkeep
 results/Franklin/*
+results/Polaris/*
 results/images/*
 !results/images/.gitkeep
 
