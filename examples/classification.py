@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import os
 from typing import Annotated, Any, Callable
 
@@ -6,11 +7,12 @@ import pandas as pd
 from math import isinf
 
 from geneticengine.algorithms.gp.gp import GP
-from geneticengine.grammars.sgp import Plus, Literal, Number, Mul, Var
-from geneticengine.grammars.basic_math import SafeLog, SafeSqrt, Sin, Tanh, Exp, SafeDiv
+from geneticengine.grammars.sgp import Plus, Number, Mul, Var
+from geneticengine.grammars.basic_math import SafeLog, SafeSqrt, SafeDiv
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.core.representations.grammatical_evolution import ge_representation
+from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import f1_score
 
@@ -33,12 +35,87 @@ for i, n in enumerate(feature_names):
 Var.__annotations__["name"] = Annotated[str, VarRange(feature_names)]
 Var.feature_indices = feature_indices  # type: ignore
 
+class Literal(Number):
+    pass
+
+@dataclass
+class One(Literal):
+    def evaluate(self, **kwargs):
+        return 1
+
+    def __str__(self) -> str:
+        return str(1)
+
+@dataclass
+class PointOne(Literal):
+    def evaluate(self, **kwargs):
+        return .1
+
+    def __str__(self) -> str:
+        return str(.1)
+
+@dataclass
+class PointtOne(Literal):
+    def evaluate(self, **kwargs):
+        return .01
+
+    def __str__(self) -> str:
+        return str(.01)
+
+@dataclass
+class PointttOne(Literal):
+    def evaluate(self, **kwargs):
+        return .001
+
+    def __str__(self) -> str:
+        return str(.001)
+
+@dataclass
+class MinusPointttOne(Literal):
+    def evaluate(self, **kwargs):
+        return -.001
+
+    def __str__(self) -> str:
+        return str(-.001)
+
+@dataclass
+class MinusPointtOne(Literal):
+    def evaluate(self, **kwargs):
+        return -.01
+
+    def __str__(self) -> str:
+        return str(-.01)
+
+@dataclass
+class MinusPointOne(Literal):
+    def evaluate(self, **kwargs):
+        return -.1
+
+    def __str__(self) -> str:
+        return str(-.1)
+
+@dataclass
+class MinusOne(Literal):
+    def evaluate(self, **kwargs):
+        return -1
+
+    def __str__(self) -> str:
+        return str(-1)
+
+literals = [MinusOne, MinusPointOne, MinusPointtOne, MinusPointttOne, One, PointOne, PointtOne, PointttOne]
 
 def preprocess():
     return extract_grammar(
-        [Plus, Mul, SafeDiv, Literal, Var, Exp, SafeSqrt, Sin, Tanh, SafeLog], Number
+        [Plus, Mul, SafeDiv, Literal, Var, SafeSqrt, SafeLog] + literals, Number
     )
 
+# <e> ::= (<e> <op> <e>) | <f1>(<e>) | <f2>(<e>, <e>) | <v> | <c>
+# <op> ::= + | * | -
+# <f1> ::= psqrt | plog
+# <f2> ::= pdiv
+# <v> ::= x[:, <idx>]
+# <idx> ::= 0 | 1 | 2 | 3
+# <c> ::= -1.0 | -0.1 | -0.01 | -0.001 | 0.001 | 0.01 | 0.1 | 1.0
 
 def fitness_function(n: Number):
     X = data.values
@@ -75,7 +152,7 @@ def evolve(g, seed, mode, representation='treebased_representation', output_fold
         probability_crossover=0.75,
         probability_mutation=0.01,
         number_of_generations=50,
-        max_depth=17,
+        max_depth=15,
         # max_init_depth=10,
         population_size=500,
         selection_method=("tournament", 2),
@@ -92,6 +169,7 @@ def evolve(g, seed, mode, representation='treebased_representation', output_fold
 
 if __name__ == "__main__":
     g = preprocess()
+    print(g)
     bf, b = evolve(g, 0, False)
     print(b)
     print(f"With fitness: {bf}")

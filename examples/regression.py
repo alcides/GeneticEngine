@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Annotated, Any, Callable
 
 import os
@@ -6,11 +7,12 @@ import pandas as pd
 from math import isinf
 
 from geneticengine.algorithms.gp.gp import GP
-from geneticengine.grammars.sgp import Plus, Literal, Number, Mul, Var
+from geneticengine.grammars.sgp import Plus, Number, Mul, Var
 from geneticengine.grammars.basic_math import SafeLog, SafeSqrt, Sin, Tanh, Exp, SafeDiv
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.core.representations.grammatical_evolution import ge_representation
+from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import rmse
 
@@ -31,6 +33,15 @@ for i, n in enumerate(feature_names):
 Var.__annotations__["name"] = Annotated[str, VarRange(feature_names)]
 Var.feature_indices = feature_indices  # type: ignore
 
+@dataclass
+class Literal(Number):
+    val: Annotated[int, IntRange(0, 9)]
+
+    def evaluate(self, **kwargs):
+        return self.val
+
+    def __str__(self) -> str:
+        return str(self.val)
 
 def preprocess():
     return extract_grammar(
@@ -69,7 +80,7 @@ def evolve(g, seed, mode, representation='treebased_representation', output_fold
         probability_crossover=0.75,
         probability_mutation=0.01,
         number_of_generations=50,
-        max_depth=17,
+        max_depth=15,
         # max_init_depth=10,
         population_size=500,
         selection_method=("tournament", 2),

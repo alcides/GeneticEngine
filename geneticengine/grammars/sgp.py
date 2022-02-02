@@ -55,7 +55,7 @@ class SafeDiv(Number):
 
 @dataclass
 class Literal(Number):
-    val: Annotated[int, IntRange(-10, 11)]
+    val: Annotated[int, IntRange(0, 9)]
 
     def evaluate(self, **kwargs):
         return self.val
