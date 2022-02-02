@@ -2926,9 +2926,19 @@ class Vectorial(ABC):
     pass
 
 
-@dataclass
 class Value(Scalar):
-    value: Annotated[float, FloatRange(-10, 10)]
+    pass
+
+@dataclass
+class Positive(Value):     
+    value: Annotated[float, FloatRange(0, 10)]
+
+    def __str__(self):
+        return str(self.value)
+
+@dataclass
+class Negative(Value):     
+    value: Annotated[float, FloatRange(-10, -1)]
 
     def __str__(self):
         return str(self.value)
@@ -3099,7 +3109,7 @@ def fitness_function(n: Scalar):
     regressor = lambda l: compile(n, l)
     y_pred = [regressor(line) for line in dataset]
     y = [line[-1] for line in dataset]
-    r = mean_squared_error(y, y_pred)
+    r = mean_squared_error(y, y_pred) # should use our own from metrics, but left as such to align with pony
     return r
 
 
@@ -3115,24 +3125,40 @@ def fitness_function_alternative(n: Scalar):
 def preprocess():
     return extract_grammar(
         [
-            Value,
-            ScalarVar,
-            VectorialVar,
-            Add,
-            Mean,
-            Max,
-            Min,
-            Sum,
-            Length,
-            ElementWiseSum,
-            ElementWiseSub,
-            CumulativeSum,
-            CumulativeMean,
-            CumulativeMax,
-            CumulativeMin,
+            Value,#
+            Positive,
+            Negative,
+            ScalarVar,#
+            VectorialVar,#
+            Add,#
+            Mean,#
+            Max,#
+            Min,#
+            Sum,#
+            Length,#
+            ElementWiseSum,#
+            ElementWiseSub,#
+            CumulativeSum,#
+            # CumulativeMean,
+            CumulativeMax,#
+            CumulativeMin,#
         ],
         Scalar,
     )
+    
+    # see fitness/vectorialgp.py for docs.
+
+    # <p> ::= XXX_output_XXX = <s>
+    # <s> ::= <literal> | <variable> | <s> + <s> | np.mean(<v>) | np.max(<v>) | np.min(<v>) | np.sum(<v>) | len(<v>)
+
+    # <variable> ::= line[<si>]
+    # <si> ::= 0 | 1
+    # <literal> ::= <d>.<d> | -<d>.<d>
+
+    # <v> ::= line[<sv>] | np.cumsum(<v>) | np.add(<s>, <v>) | np.subtract(<s>, <v>) | cummax(<v>) | cummin(<v>)
+    # <sv> ::= 2 | 3
+
+    # <d> ::= GE_RANGE:10
 
 
 def evolve(g, seed, mode, representation='treebased_representation', output_folder=('','all')):
