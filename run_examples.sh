@@ -11,8 +11,8 @@ function run_example {
     
 }
 
-# Should be somewhere else (maybe add to unit tests)
-run_example examples/simple_choice_of_choice.py
+# # Should be somewhere else (maybe add to unit tests)
+# run_example examples/simple_choice_of_choice.py
 
 run_example examples/example.py
 run_example examples/pymax.py # Works in PonyGE
