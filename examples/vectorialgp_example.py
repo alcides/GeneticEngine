@@ -2926,19 +2926,9 @@ class Vectorial(ABC):
     pass
 
 
-class Value(Scalar):
-    pass
-
 @dataclass
-class Positive(Value):     
-    value: Annotated[float, FloatRange(0, 10)]
-
-    def __str__(self):
-        return str(self.value)
-
-@dataclass
-class Negative(Value):     
-    value: Annotated[float, FloatRange(-10, -1)]
+class Value(Scalar):     
+    value: Annotated[int, IntRange(-10, 10)]
 
     def __str__(self):
         return str(self.value)
@@ -3123,28 +3113,29 @@ def fitness_function_alternative(n: Scalar):
 
 
 def preprocess():
-    return extract_grammar(
-        [
-            Value,#
-            Positive,
-            Negative,
-            ScalarVar,#
-            VectorialVar,#
-            Add,#
-            Mean,#
-            Max,#
-            Min,#
-            Sum,#
-            Length,#
-            ElementWiseSum,#
-            ElementWiseSub,#
-            CumulativeSum,#
-            # CumulativeMean,
-            CumulativeMax,#
-            CumulativeMin,#
-        ],
-        Scalar,
-    )
+    g = extract_grammar(
+            [
+                Value,#
+                ScalarVar,#
+                VectorialVar,#
+                Add,#
+                Mean,#
+                Max,#
+                Min,#
+                Sum,#
+                Length,#
+                ElementWiseSum,#
+                ElementWiseSub,#
+                CumulativeSum,#
+                # CumulativeMean,
+                CumulativeMax,#
+                CumulativeMin,#
+            ],
+            Scalar,
+        )
+    print(g)
+    return g
+    
     
     # see fitness/vectorialgp.py for docs.
 
