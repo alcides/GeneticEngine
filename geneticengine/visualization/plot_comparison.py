@@ -10,7 +10,7 @@ from palettable.colorbrewer.qualitative import Set2_7
 
 from geneticengine.exceptions import GeneticEngineError
 
-def load(example_name, metric, single_value, print_generations=False):
+def load(example_name, metric, single_value, aggregation, print_generations=False):
     search_folder = f'results/{example_name}/run_seed=*.csv'
     print(f'Loading from: {search_folder}')
     f_list = glob.glob(search_folder)
@@ -21,7 +21,7 @@ def load(example_name, metric, single_value, print_generations=False):
         df = pd.read_csv(f)
         if not single_value:
             df = df[[metric, 'number_of_the_generation']]
-            df = df.groupby('number_of_the_generation').agg('mean')
+            df = df.groupby('number_of_the_generation').agg(aggregation)
         data.append(df[metric].values)
         if print_generations:
             print(f, ': ', df[metric].values)
@@ -38,7 +38,7 @@ def perc(data,size):
    return median, perc_25, perc_75
     
 
-def plot_comparison(file_run_names, run_names, result_name='results/images/medians.pdf', metric='fitness', single_value=False):
+def plot_comparison(file_run_names, run_names, result_name='results/images/medians.pdf', metric='fitness', aggregation='mean', single_value=False):
     if len(file_run_names) != len(run_names) and len(run_names) != 0:
         raise GeneticEngineError('The given [file_run_names] has a different length than the given [run_names]. Length should be same or keep enter an empty list for [run_names].')
     if len(run_names) == 0:
@@ -51,11 +51,11 @@ def plot_comparison(file_run_names, run_names, result_name='results/images/media
     line_styles = ['solid', 'dotted', 'dashed', 'dashdot']
     
     for idx, file_run_name in enumerate(file_run_names):
-        run_data = load(file_run_name,metric=metric,single_value=single_value)
+        run_data = load(file_run_name,metric=metric,single_value=single_value,aggregation=aggregation)
         try:
             n_generations = run_data.shape[1]
         except IndexError:
-            run_data = load(file_run_name,metric=metric,single_value=single_value,print_generations=True)
+            run_data = load(file_run_name,metric=metric,single_value=single_value,aggregation=aggregation,print_generations=True)
             raise GeneticEngineError(f'Index Error. \nMake sure the files you\'re loading in all have the same number of generations!')
         x = np.arange(0, n_generations)
 
