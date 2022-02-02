@@ -4,3 +4,4 @@ lark
 pytest
 palettable
 z3-solver
+pandas
