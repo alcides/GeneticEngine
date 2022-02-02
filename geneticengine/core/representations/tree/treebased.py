@@ -105,6 +105,10 @@ class SMTResolver(object):
 
     @staticmethod
     def resolve_clauses():
+
+        if not SMTResolver.receivers:
+            return  # don't try to smt solve if we don't need to
+
         solver = z3.Solver()
 
         solver.set(":random-seed", 1)
