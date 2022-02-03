@@ -4,9 +4,9 @@ from geneticengine.core.utils import get_arguments
 
 @runtime_checkable
 class TreeNode(Protocol):
-    depth: int
-    distance_to_term: int
-    nodes: int
+    gengy_labeled: bool
+    gengy_distance_to_term: int
+    gengy_nodes: int
 
 
 class PrettyPrintable(object):
