@@ -35,7 +35,7 @@ def create_elitism(
         population: List[Individual], fitness: Callable[[Individual], float]
     ) -> List[Individual]:
         population = sorted(population, key=fitness)
-        return [deepcopy(x) for x in population[:n_elites]]
+        return [x for x in population[:n_elites]]
 
     return elitism
 

@@ -1,11 +1,8 @@
 import sys
 from copy import deepcopy
-
 from typing import (
     Any,
     Dict,
-    Optional,
-    Sequence,
     Type,
     TypeVar,
     Tuple,
@@ -16,11 +13,13 @@ from typing import (
 import z3
 
 from geneticengine.core.decorators import get_gengy
-from geneticengine.core.random.sources import Source
 from geneticengine.core.grammar import Grammar
+from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
-from geneticengine.core.representations.tree.utils import relabel_nodes_of_trees
-
+from geneticengine.core.representations.tree.utils import (
+    relabel_nodes_of_trees,
+    relabel_nodes,
+)
 from geneticengine.core.tree import TreeNode
 from geneticengine.core.utils import (
     get_arguments,
@@ -405,22 +404,25 @@ def mutate(
 
 
 def find_in_tree(g: Grammar, ty: type, o: TreeNode, max_depth: int):
-    if ty in o.__class__.__bases__ and o.gengy_distance_to_term <= max_depth:
-        if is_abstract(ty):
-            if (
-                o.gengy_distance_to_term
-                + g.abstract_dist_to_t[ty][
-                    type(o)
-                ]  # adjust for having to produce a choice
-                <= max_depth
-            ):
-                yield o
-        else:
-            yield o
-    if hasattr(o, "__annotations__"):
-        for field in o.__annotations__:
-            child = getattr(o, field)
-            yield from find_in_tree(g, ty, child, max_depth)
+    is_abs = is_abstract(ty)
+    if hasattr(o, "gengy_types_this_way"):
+
+        for t in o.gengy_types_this_way:
+
+            def is_valid(node):
+                _, depth, _ = relabel_nodes(node, g.non_terminals)
+
+                if is_abs:
+                    depth += g.abstract_dist_to_t[ty][t]
+
+                return depth <= max_depth
+
+            if not isinstance(ty, type):
+                raise NotImplementedError("")
+            if ty in t.__bases__:
+                vals = o.gengy_types_this_way[t]
+                if vals:
+                    yield from filter(is_valid, vals)
 
 
 def tree_crossover_inner(

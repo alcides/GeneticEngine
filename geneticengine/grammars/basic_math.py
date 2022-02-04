@@ -1,6 +1,7 @@
 from abc import ABC
 from typing import Callable, Any
 from geneticengine.core.tree import TreeNode
+from geneticengine.core.utils import fdataclass
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.vars import VarRange
 
@@ -13,7 +14,7 @@ from math import isnan
 from geneticengine.grammars.sgp import Number
 
 
-@dataclass
+@fdataclass
 class SafeDiv(Number):
     left: Number
     right: Number
@@ -33,7 +34,7 @@ class SafeDiv(Number):
         return f"({self.left}/{self.right})"
 
 
-@dataclass
+@fdataclass
 class SafeSqrt(Number):
     number: Number
 
@@ -45,7 +46,7 @@ class SafeSqrt(Number):
         return f"np.sqrt(np.abs({self.number}))"
 
 
-@dataclass
+@fdataclass
 class Sin(Number):
     number: Number
 
@@ -57,7 +58,7 @@ class Sin(Number):
         return f"np.sin({self.number})"
 
 
-@dataclass
+@fdataclass
 class Tanh(Number):
     number: Number
 
@@ -69,7 +70,7 @@ class Tanh(Number):
         return f"np.tanh({self.number})"
 
 
-@dataclass
+@fdataclass
 class Exp(Number):
     number: Number
 
@@ -81,7 +82,7 @@ class Exp(Number):
         return f"np.exp({self.number})"
 
 
-@dataclass
+@fdataclass
 class SafeLog(Number):
     number: Number
 
