@@ -68,8 +68,9 @@ class HC(object):
         population = self.population
 
         for gen in range(self.number_of_generations):
-
             population = self.mutation(population)
+            if verbose == 1:
+                print("Best population:{}.".format(population[0]))
             print(
                 "BEST at",
                 gen + 1,
