@@ -4,6 +4,7 @@ from typing import Annotated
 
 from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.random_search import RandomSearch
 from geneticengine.grammars.sgp import Plus, Literal, Number, Mul, SafeDiv, Var
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.tree.treebased import treebased_representation
@@ -57,6 +58,21 @@ alg_hc = HC(
     minimize=True,
 )
 (b_hc, bf_hc, bp_hc) = alg_hc.evolve(verbose=0)
+
+alg_rs = RandomSearch(
+    g,
+    evaluation_function=fit,
+    representation=treebased_representation,
+    population_size=150,
+    max_depth=5,
+    number_of_generations=40,
+    minimize=True,
+    favor_less_deep_trees=True
+)
+(b_rs, bf_rs, bp_rs) = alg_rs.evolve(verbose=0)
+
+print("\n======\nRS\n======\n")
+print(bf_rs, bp_rs, b_rs)
 
 print("\n======\nHC\n======\n")
 print(bf_hc, bp_hc, b_hc)
