@@ -198,22 +198,23 @@ class GP(object):
             if verbose == 2:
                 # self.printFitnesses(population, "G:" + str(gen))
                 print("Best population:{}.".format(population[0]))
-            if not self.timer_stop_criteria and (verbose >= 1):
-                print(
-                    "BEST at",
-                    gen + 1,
-                    "/",
-                    self.number_of_generations,
-                    "is",
-                    round(self.evaluate(population[0]), 4),
-                )
-            else:
-                print(
-                    "BEST at",
-                    gen + 1,
-                    "is",
-                    round(self.evaluate(population[0]), 4),
-                )
+            if verbose >= 1:
+                if not self.timer_stop_criteria:
+                    print(
+                        "BEST at",
+                        gen + 1,
+                        "/",
+                        self.number_of_generations,
+                        "is",
+                        round(self.evaluate(population[0]), 4),
+                    )
+                else:
+                    print(
+                        "BEST at",
+                        gen + 1,
+                        "is",
+                        round(self.evaluate(population[0]), 4),
+                    )
             if (
                 self.target_fitness is not None
                 and population[0].fitness == self.target_fitness
