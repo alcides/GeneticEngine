@@ -64,21 +64,22 @@ class HC(object):
         else:
             return lambda x: -self.evaluate(x)
 
-    def evolve(self, verbose=0):
+    def evolve(self, verbose=1):
         population = self.population
 
         for gen in range(self.number_of_generations):
             population = self.mutation(population)
-            if verbose == 1:
+            if verbose == 2:
                 print("Best population:{}.".format(population[0]))
-            print(
-                "BEST at",
-                gen + 1,
-                "/",
-                self.number_of_generations,
-                "is",
-                round(self.evaluate(population), 2),
-            )
+            if verbose >= 1:
+                print(
+                    "BEST at",
+                    gen + 1,
+                    "/",
+                    self.number_of_generations,
+                    "is",
+                    round(self.evaluate(population), 2),
+                )
         return (
             population,
             self.evaluate(population),

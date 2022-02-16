@@ -55,7 +55,7 @@ def evolve(g, seed, mode):
         seed=seed,
         timer_stop_criteria=mode,
     )
-    (b, bf, bp) = alg.evolve(verbose=1)
+    (b, bf, bp) = alg.evolve(verbose=2)
 
 
 if __name__ == "__main__":

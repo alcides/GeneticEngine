@@ -96,7 +96,7 @@ def evolve(g, seed, mode, representation='treebased_representation', output_fold
         timer_stop_criteria=mode,
         safe_gen_to_csv=output_folder,
     )
-    (b, bf, bp) = alg.evolve(verbose=0)
+    (b, bf, bp) = alg.evolve(verbose=1)
 
     print("Best individual:", bp)
     print("Genetic Engine Train F1 score:", bf)

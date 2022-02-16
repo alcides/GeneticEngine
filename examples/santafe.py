@@ -170,7 +170,7 @@ def evolve(g, seed, mode):
         n_elites=10,
         timer_stop_criteria=mode,
     )
-    (b_gp, bf_gp, bp_gp) = alg_gp.evolve(verbose=0)
+    (b_gp, bf_gp, bp_gp) = alg_gp.evolve(verbose=1)
     return b_gp, bf_gp
 
 
@@ -188,7 +188,7 @@ if __name__ == "__main__":
         n_novelties=10,
         n_elites=10,
     )
-    (b_gp, bf_gp, bp_gp) = alg_gp.evolve(verbose=0)
+    (b_gp, bf_gp, bp_gp) = alg_gp.evolve(verbose=1)
 
     alg_hc = HC(
         g,
@@ -199,7 +199,7 @@ if __name__ == "__main__":
         number_of_generations=50,
         population_size=150,
     )
-    (b_hc, bf_hc, bp_hc) = alg_hc.evolve(verbose=0)
+    (b_hc, bf_hc, bp_hc) = alg_hc.evolve(verbose=1)
 
     print("\n======\nHC\n======\n")
     print(bf_hc, bp_hc, b_hc)

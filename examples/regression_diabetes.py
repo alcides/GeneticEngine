@@ -38,7 +38,7 @@ def evolve(g, seed):
         number_of_generations=10,
         seed=seed,
     )
-    (b, bf, bp) = alg.evolve(verbose=0)
+    (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf
 
 

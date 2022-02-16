@@ -125,7 +125,7 @@ def evolve(g, seed, mode, representation):
         probability_crossover=0.9,
         timer_stop_criteria=mode,
     )
-    (b, bf, bp) = alg.evolve(verbose=0)
+    (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf
 
 

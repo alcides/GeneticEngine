@@ -45,7 +45,7 @@ alg_gp = GP(
     n_elites=10,
     n_novelties=10,
 )
-(b_gp, bf_gp, bp_gp) = alg_gp.evolve(verbose=0)
+(b_gp, bf_gp, bp_gp) = alg_gp.evolve(verbose=1)
 
 
 alg_hc = HC(
@@ -57,7 +57,7 @@ alg_hc = HC(
     number_of_generations=10,
     minimize=True,
 )
-(b_hc, bf_hc, bp_hc) = alg_hc.evolve(verbose=0)
+(b_hc, bf_hc, bp_hc) = alg_hc.evolve(verbose=1)
 
 alg_rs = RandomSearch(
     g,
@@ -69,7 +69,7 @@ alg_rs = RandomSearch(
     minimize=True,
     favor_less_deep_trees=True
 )
-(b_rs, bf_rs, bp_rs) = alg_rs.evolve(verbose=0)
+(b_rs, bf_rs, bp_rs) = alg_rs.evolve(verbose=1)
 
 print("\n======\nRS\n======\n")
 print(bf_rs, bp_rs, b_rs)

@@ -147,7 +147,7 @@ class GP(object):
         else:
             return lambda x: -self.evaluate(x) - self.fitness_correction_for_depth(x)
 
-    def evolve(self, verbose=0) -> Tuple[Individual, float, Any]:
+    def evolve(self, verbose=1) -> Tuple[Individual, float, Any]:
         # TODO: This is not ramped half and half
         population = self.init_population()
         if self.force_individual is not None:
@@ -195,10 +195,10 @@ class GP(object):
                     (time.time() - start),
                     self.safe_gen_to_csv[1],
                 )
-            if verbose == 1:
+            if verbose == 2:
                 # self.printFitnesses(population, "G:" + str(gen))
                 print("Best population:{}.".format(population[0]))
-            if not self.timer_stop_criteria:
+            if not self.timer_stop_criteria and (verbose >= 1):
                 print(
                     "BEST at",
                     gen + 1,
