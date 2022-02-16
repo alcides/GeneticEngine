@@ -60,7 +60,7 @@ class RandomSearch(object):
         else:
             return lambda x: -self.evaluate(x)
 
-    def evolve(self, verbose=0):
+    def evolve(self, verbose=1):
         best = 1000000
         best_ind = None
         if self.force_individual is not None:
