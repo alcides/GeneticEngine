@@ -78,16 +78,17 @@ class RandomSearch(object):
                 if f < best:
                     best = f
                     best_ind = i
-            if verbose == 1:
+            if verbose == 2:
                 print("Best population:{}.".format(best_ind))
-            print(
-                "BEST at",
-                gen + 1,
-                "/",
-                self.number_of_generations,
-                "is",
-                round(best, 2),
-            )
+            if verbose >= 1:
+                print(
+                    "BEST at",
+                    gen + 1,
+                    "/",
+                    self.number_of_generations,
+                    "is",
+                    round(best, 2),
+                )
 
         return (
             best_ind,
