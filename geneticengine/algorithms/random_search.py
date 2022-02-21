@@ -61,7 +61,7 @@ class RandomSearch(object):
             return lambda x: -self.evaluate(x)
 
     def evolve(self, verbose=1):
-        best = 1000000
+        best = None
         best_ind = None
         if self.force_individual is not None:
             best_ind = Individual(
@@ -75,7 +75,7 @@ class RandomSearch(object):
             for _ in range(self.population_size):
                 i = self.create_individual(15)
                 f = self.keyfitness()(i)
-                if f < best:
+                if (best == None) or (f < best):
                     best = f
                     best_ind = i
             if verbose == 2:
