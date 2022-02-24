@@ -21,7 +21,8 @@ class HC(object):
         force_individual: Any = None,
         seed: int = 123,
     ):
-        # Add check to input numbers (n_elitism, n_novelties, population_size)
+        assert population_size >= 1
+        
         self.grammar: Grammar = g
         self.representation = representation
         self.evaluation_function = evaluation_function

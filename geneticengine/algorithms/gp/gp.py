@@ -72,7 +72,8 @@ class GP(object):
         safe_gen_to_csv: Tuple[str, str] = ("", "all"),
         callbacks: List[Callback] = [],
     ):
-        # Add check to input numbers (n_elitism, n_novelties, population_size)
+        assert population_size > (n_elites + n_novelties + 1)
+        
         self.grammar = grammar
         self.representation = representation
         self.evaluation_function = evaluation_function
