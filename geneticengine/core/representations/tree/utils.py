@@ -52,7 +52,8 @@ def relabel_nodes(
     types_this_way = defaultdict(lambda: [])
     types_this_way[type(i)] = [i]
     for (_, _, types) in properties_of_children:
-        types_this_way.update(types)
+        for (k, v) in types.items():
+            types_this_way[k].extend(v)
     if not isinstance(i, list):
         i.gengy_labeled = True
         i.gengy_distance_to_term = distance_to_term

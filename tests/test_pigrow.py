@@ -39,7 +39,6 @@ class ConcreteList(Root):
     xs: List[int]
 
 
-
 class TestPIGrow(object):
     def test_root(self):
         r = RandomSource(seed=1)
@@ -74,5 +73,5 @@ class TestPIGrow(object):
         r = RandomSource(seed=1)
         g: Grammar = extract_grammar([Concrete, Middle], Root)
         x = random_node(r, g, 20, Root, method=PI_Grow)
-        assert x.distance_to_term == 10
+        assert x.gengy_distance_to_term == 10
         assert isinstance(x, Root)
