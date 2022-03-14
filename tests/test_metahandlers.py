@@ -28,9 +28,9 @@ class IntRangeM(Root):
 
 @dataclass
 class IntervalRangeM(Root):
-    x: Annotated[Tuple[int], IntervalRange(min_len=5, 
-                                          max_len=10, 
-                                          top_limit=100)]
+    x: Annotated[Tuple[int], IntervalRange(minimum_length=5, 
+                                          maximum_length=10, 
+                                          maximum_top_limit=100)]
     
 @dataclass
 class FloatRangeM(Root):
