@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 from typing import Annotated, Callable, Any
+
+from geneticengine.core.utils import fdataclass
 from geneticengine.exceptions import GeneticEngineError
 from geneticengine.grammars.coding.classes import Expr, Statement, Number
 from geneticengine.metahandlers.vars import VarRange
@@ -114,7 +116,7 @@ class SafeDiv(Number):
         return f"({self.left}/{self.right})"
 
 
-@dataclass
+@fdataclass
 class Literal(Number):
     val: Annotated[int, IntRange(0, 9)]
 

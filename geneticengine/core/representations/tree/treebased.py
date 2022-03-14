@@ -1,11 +1,8 @@
 import sys
 from copy import deepcopy
-
 from typing import (
     Any,
     Dict,
-    Optional,
-    Sequence,
     Type,
     TypeVar,
     Tuple,
@@ -16,17 +13,20 @@ from typing import (
 import z3
 
 from geneticengine.core.decorators import get_gengy
-from geneticengine.core.random.sources import Source
 from geneticengine.core.grammar import Grammar
+from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
-from geneticengine.core.representations.tree.utils import relabel_nodes_of_trees
-
+from geneticengine.core.representations.tree.utils import (
+    relabel_nodes_of_trees,
+    relabel_nodes,
+)
 from geneticengine.core.tree import TreeNode
 from geneticengine.core.utils import (
     get_arguments,
     is_generic_list,
     get_generic_parameter,
     build_finalizers,
+    is_abstract,
 )
 from geneticengine.exceptions import GeneticEngineError
 from geneticengine.metahandlers.base import is_metahandler
@@ -371,84 +371,88 @@ def random_individual(r: Source, g: Grammar, max_depth: int = 5) -> TreeNode:
 def mutate_inner(
     r: Source, g: Grammar, i: TreeNode, max_depth: int, ty: Type
 ) -> TreeNode:
-    if i.nodes > 0:
-        c = r.randint(0, i.nodes - 1)
+    if i.gengy_nodes > 0:
+        c = r.randint(0, i.gengy_nodes - 1)
         if c == 0:
-            try:
-                replacement = random_node(
-                    r, g, max_depth - i.depth + 1, ty, method=Grow
-                )
-                return replacement
-            except:
-                return i
-        else:
-            for field in i.__annotations__:
-                child = getattr(i, field)
-                field_type = i.__annotations__[field]
-                if hasattr(child, "nodes"):
-                    count = child.nodes
-                    if c <= count:
-                        setattr(
-                            i, field, mutate_inner(r, g, child, max_depth, field_type)
-                        )
-                        return i
-                    else:
-                        c -= count
-            return i
-    else:
-        return random_node(r, g, max_depth - i.depth + 1, ty, method=Grow)
-
-
-def mutate(
-    r: Source, g: Grammar, i: TreeNode, max_depth: int, target_type: Type
-) -> Any:
-    new_tree = mutate_inner(r, g, deepcopy(i), max_depth, target_type)
-    relabeled_new_tree = relabel_nodes_of_trees(new_tree, g.non_terminals, max_depth)
-    return relabeled_new_tree
-
-
-def find_in_tree(ty: type, o: TreeNode, max_depth: int):
-    if ty in o.__class__.__bases__ and o.distance_to_term <= max_depth:
-        yield o
-    if hasattr(o, "__annotations__"):
-        for field in o.__annotations__:
-            child = getattr(o, field)
-            yield from find_in_tree(ty, child, max_depth)
-
-
-def tree_crossover_inner(
-    r: Source, g: Grammar, i: TreeNode, o: TreeNode, ty: Type, max_depth: int
-) -> Any:
-    if i.nodes > 0:
-        c = r.randint(0, i.nodes - 1)
-        if c == 0:
-            replacement = None
-            options = list(find_in_tree(ty, o, max_depth - i.depth + 1))
-            if options:
-                replacement = r.choice(options)
-            if replacement is None:
-                try:
-                    replacement = random_node(
-                        r, g, max_depth - i.depth + 1, ty, method=Grow
-                    )
-                except:
-                    return i
+            replacement = random_node(r, g, max_depth, ty, method=Grow)
             return replacement
         else:
             args = {}
             for field in i.__annotations__:
                 child = getattr(i, field)
                 field_type = i.__annotations__[field]
-                if hasattr(child, "nodes"):
-                    count = child.nodes
+                if hasattr(child, "gengy_nodes"):
+                    count = child.gengy_nodes
                     if c <= count:
-                        args[field] = tree_crossover_inner(
-                            r, g, getattr(i, field), o, field_type, max_depth
+                        args[field] = mutate_inner(
+                            r, g, child, max_depth - 1, field_type
                         )
                         continue
                     else:
                         c -= count
-                        args[field] = child
+            return modify_and_construct(i, args)
+    else:
+        return random_node(r, g, max_depth, ty, method=Grow)
+
+
+def mutate(
+    r: Source, g: Grammar, i: TreeNode, max_depth: int, target_type: Type
+) -> Any:
+    new_tree = mutate_inner(r, g, i, max_depth, target_type)
+    relabeled_new_tree = relabel_nodes_of_trees(new_tree, g.non_terminals)
+    return relabeled_new_tree
+
+
+def find_in_tree(g: Grammar, ty: type, o: TreeNode, max_depth: int):
+    is_abs = is_abstract(ty)
+    if hasattr(o, "gengy_types_this_way"):
+
+        for t in o.gengy_types_this_way:
+
+            def is_valid(node):
+                _, depth, _ = relabel_nodes(node, g.non_terminals)
+
+                if is_abs:
+                    depth += g.abstract_dist_to_t[ty][t]
+
+                return depth <= max_depth
+
+            if not isinstance(ty, type):
+                raise NotImplementedError("")
+            if ty in t.__bases__:
+                vals = o.gengy_types_this_way[t]
+                if vals:
+                    yield from filter(is_valid, vals)
+
+
+def tree_crossover_inner(
+    r: Source, g: Grammar, i: TreeNode, o: TreeNode, ty: Type, max_depth: int
+) -> Any:
+    if i.gengy_nodes > 0:
+        c = r.randint(0, i.gengy_nodes - 1)
+        if c == 0:
+            replacement = None
+            options = list(find_in_tree(g, ty, o, max_depth))
+            if options:
+                replacement = r.choice(options)
+            if replacement is None:
+                replacement = random_node(r, g, max_depth, ty, method=Grow)
+
+            return replacement
+        else:
+            args = {}
+            for field in i.__annotations__:
+                child = getattr(i, field)
+                field_type = i.__annotations__[field]
+                if hasattr(child, "gengy_nodes"):
+                    count = child.gengy_nodes
+                    if c <= count:
+                        args[field] = tree_crossover_inner(
+                            r, g, getattr(i, field), o, field_type, max_depth - 1
+                        )
+                        continue
+                    else:
+                        c -= count
             return modify_and_construct(i, args)
     else:
         return i

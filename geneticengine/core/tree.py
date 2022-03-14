@@ -1,12 +1,14 @@
-from typing import Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable, List, Dict, Any
+
 from geneticengine.core.utils import get_arguments
 
 
 @runtime_checkable
 class TreeNode(Protocol):
-    depth: int
-    distance_to_term: int
-    nodes: int
+    gengy_labeled: bool
+    gengy_distance_to_term: int
+    gengy_nodes: int
+    gengy_types_this_way: Dict[type, List[Any]]
 
 
 class PrettyPrintable(object):

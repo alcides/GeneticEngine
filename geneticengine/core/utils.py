@@ -1,4 +1,6 @@
 from abc import ABC
+from dataclasses import dataclass
+from functools import wraps
 from typing import (
     Any,
     Protocol,
@@ -113,3 +115,42 @@ def build_finalizers(
         final_callback()
 
     return finalizers
+
+
+def fdataclass(cls: type):
+    c = dataclass(cls, unsafe_hash=True)
+
+    oinit = c.__init__
+
+    oseta = cls.__setattr__
+    odela = cls.__delattr__
+
+    @wraps(oinit)
+    def init(self1, *args, **kwargs):
+        oinit(self1, *args, **kwargs)
+
+        @wraps(oseta)
+        def seta(self, key: str, value):
+            print(key)
+            if key.startswith("gengy"):
+                oseta(self, key, value)
+            else:
+                raise NotImplementedError(
+                    f'trying to mutate "{key}" on frozen class {type(self)}'
+                )
+
+        @wraps(odela)
+        def dela(self, item: str):
+            if item.startswith("gengy"):
+                odela(self, item)
+            else:
+                raise NotImplementedError(
+                    f'trying to delete "{item}" on frozen class {type(self)}'
+                )
+
+        # self1.__setattr__ = seta
+        # self1.__delattr__ = dela
+
+    # c.__init__ = init
+
+    return c

@@ -7,6 +7,7 @@ import pandas as pd
 from math import isinf
 
 from geneticengine.algorithms.gp.gp import GP
+from geneticengine.core.utils import fdataclass
 from geneticengine.grammars.sgp import Plus, Minus, Number, Mul, Var
 from geneticengine.grammars.basic_math import SafeLog, SafeSqrt, Sin, Tanh, Exp, SafeDiv
 from geneticengine.core.grammar import extract_grammar
@@ -33,7 +34,8 @@ for i, n in enumerate(feature_names):
 Var.__annotations__["name"] = Annotated[str, VarRange(feature_names)]
 Var.feature_indices = feature_indices  # type: ignore
 
-@dataclass
+
+@fdataclass
 class Literal(Number):
     val: Annotated[int, IntRange(0, 9)]
 
@@ -43,9 +45,11 @@ class Literal(Number):
     def __str__(self) -> str:
         return str(self.val)
 
+
 def preprocess():
     return extract_grammar(
-        [Plus, Minus, Mul, SafeDiv, Literal, Var, SafeSqrt, Exp, Sin, Tanh, SafeLog], Number
+        [Plus, Minus, Mul, SafeDiv, Literal, Var, SafeSqrt, Exp, Sin, Tanh, SafeLog],
+        Number,
     )
 
     # <e>  ::=  <e>+<e>|
@@ -62,8 +66,6 @@ def preprocess():
     # <c>  ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 
 
-
-
 def fitness_function(n: Number):
     X = data.values
     y = target.values
@@ -74,18 +76,20 @@ def fitness_function(n: Number):
         variables[x] = X[:, i]
 
     y_pred = n.evaluate(**variables)
-    fitness = mse(y_pred, y) # mse is used in PonyGE, as the error metric is not None!
+    fitness = mse(y_pred, y)  # mse is used in PonyGE, as the error metric is not None!
     if isinf(fitness) or np.isnan(fitness):
         fitness = 100000000
     return fitness
 
 
-def evolve(g, seed, mode, representation='treebased_representation', output_folder=('','all')):
-    if representation == 'grammatical_evolution':
+def evolve(
+    g, seed, mode, representation="treebased_representation", output_folder=("", "all")
+):
+    if representation == "grammatical_evolution":
         representation = ge_representation
     else:
         representation = treebased_representation
-    
+
     alg = GP(
         g,
         fitness_function,
@@ -95,15 +99,15 @@ def evolve(g, seed, mode, representation='treebased_representation', output_fold
         probability_crossover=0.75,
         probability_mutation=0.01,
         number_of_generations=50,
-        max_depth=15,
+        max_depth=30,
         # max_init_depth=10,
         population_size=500,
         selection_method=("tournament", 2),
         n_elites=5,
-        #----------------
+        # ----------------
         seed=seed,
         timer_stop_criteria=mode,
-        safe_gen_to_csv=output_folder
+        safe_gen_to_csv=output_folder,
     )
     (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf

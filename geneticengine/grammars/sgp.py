@@ -1,11 +1,9 @@
 from abc import ABC
-from typing import Annotated, Any, Callable
-from geneticengine.exceptions import GeneticEngineError
+from typing import Annotated
+
+from geneticengine.core.utils import fdataclass
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.vars import VarRange
-
-from typing import Annotated
-from dataclasses import dataclass
 
 
 class Number(ABC):
@@ -13,7 +11,7 @@ class Number(ABC):
         return 0.0
 
 
-@dataclass
+@fdataclass
 class Plus(Number):
     left: Number
     right: Number
@@ -25,7 +23,7 @@ class Plus(Number):
         return f"({self.left} + {self.right})"
 
 
-@dataclass
+@fdataclass
 class Minus(Number):
     left: Number
     right: Number
@@ -37,7 +35,7 @@ class Minus(Number):
         return f"({self.left} - {self.right})"
 
 
-@dataclass
+@fdataclass
 class Mul(Number):
     left: Number
     right: Number
@@ -49,7 +47,7 @@ class Mul(Number):
         return f"({self.left} * {self.right})"
 
 
-@dataclass
+@fdataclass
 class SafeDiv(Number):
     left: Number
     right: Number
@@ -65,7 +63,7 @@ class SafeDiv(Number):
         return f"({self.left}/{self.right})"
 
 
-@dataclass
+@fdataclass
 class Literal(Number):
     val: Annotated[int, IntRange(0, 9)]
 
@@ -76,7 +74,7 @@ class Literal(Number):
         return str(self.val)
 
 
-@dataclass
+@fdataclass
 class Var(Number):
     name: Annotated[str, VarRange(["x", "y", "z"])]
 

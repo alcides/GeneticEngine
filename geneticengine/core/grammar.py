@@ -23,6 +23,7 @@ class Grammar(object):
         type
     ]  # todo: both terminals and non_terminals can be obtained by checking if disttoterminal == or!= 0
     non_terminals: Set[type]
+    abstract_dist_to_t: Dict[type, Dict[type, int]]
 
     def __init__(self, starting_symbol) -> None:
         self.alternatives: Dict[type, List[type]] = {}
@@ -32,6 +33,7 @@ class Grammar(object):
         self.recursive_prods = set()
         self.terminals = set()
         self.non_terminals = set()
+        self.abstract_dist_to_t = defaultdict(lambda: defaultdict(lambda: 1000000))
 
     def register_alternative(self, nonterminal: type, nodetype: type):
         """
@@ -149,7 +151,21 @@ class Grammar(object):
                         prods = self.alternatives[sym]
                         for prod in prods:
                             val = min(val, 1 + self.distanceToTerminal[prod])
-
+                            old = self.abstract_dist_to_t[sym][prod]
+                            if 1 < old:
+                                self.abstract_dist_to_t[sym][prod] = 1
+                                changed = True
+                            if prod in self.abstract_dist_to_t:
+                                for subprod, dist in self.abstract_dist_to_t[
+                                    prod
+                                ].items():
+                                    currdist = self.abstract_dist_to_t[sym][subprod]
+                                    candidate = dist + 1
+                                    if candidate < currdist:
+                                        self.abstract_dist_to_t[sym][
+                                            subprod
+                                        ] = candidate
+                                        changed = True
                         changed |= process_reachability(sym, prods)
                 else:
                     if is_terminal(sym, self.non_terminals):
