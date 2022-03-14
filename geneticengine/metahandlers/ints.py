@@ -34,3 +34,43 @@ class IntRange(MetaHandlerGenerator):
 
     def __repr__(self):
         return f"[{self.min}...{self.max}]"
+
+
+class IntervalRange(MetaHandlerGenerator):
+    """
+    This metahandler restricts the creation of ranges
+    between two integers by forcing a minimum and maximum
+    range size, as well as a top limit that the range 
+    can reach
+
+    This is useful in genomics to generate random windows 
+    of variable size to scan an input sequence
+    """
+    def __init__(self, minimum_length: int, maximum_length: int,
+                 maximum_top_limit: int):
+        """
+        :param int minimum_length: Minimum length possible when randomly generating the range
+        :param int maximum_length: Maximum length possible when randomly generating the range
+        :param int maximum_top_limit: Maximum value the range can reach 
+        """
+        assert maximum_length > minimum_length
+        assert maximum_length < maximum_top_limit
+
+        self.minimum_length = minimum_length
+        self.maximum_length = maximum_length
+        self.maximum_top_limit = maximum_top_limit
+
+    def generate(
+        self,
+        r: Source,
+        g: Grammar,
+        rec,
+        new_symbol,
+        depth: int,
+        base_type,
+        context: Dict[str, str],
+    ):
+
+        range_length = r.randint(self.minimum_length, self.maximum_length)
+        start_position = r.randint(0, self.maximum_top_limit - range_length)
+        rec((start_position, start_position + range_length))

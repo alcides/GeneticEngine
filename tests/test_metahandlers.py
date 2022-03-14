@@ -1,14 +1,14 @@
 from abc import ABC
 
 from dataclasses import dataclass
-from typing import Annotated, List
+from typing import Annotated, List, Tuple
 from geneticengine.core.random.sources import RandomSource
 
 from geneticengine.core.grammar import Grammar, extract_grammar
 
 from geneticengine.core.representations.tree.treebased import random_node
 
-from geneticengine.metahandlers.ints import IntRange
+from geneticengine.metahandlers.ints import IntRange, IntervalRange
 
 from geneticengine.metahandlers.floats import FloatRange
 
@@ -26,7 +26,12 @@ class Root(ABC):
 class IntRangeM(Root):
     x: Annotated[int, IntRange(9, 10)]
 
-
+@dataclass
+class IntervalRangeM(Root):
+    x: Annotated[Tuple[int], IntervalRange(min_len=5, 
+                                          max_len=10, 
+                                          top_limit=100)]
+    
 @dataclass
 class FloatRangeM(Root):
     x: Annotated[float, FloatRange(9.0, 10.0)]
@@ -98,4 +103,16 @@ class TestMetaHandler(object):
         n = random_node(r, g, 3, Root)
         assert isinstance(n, WeightedStringHandlerM)
         assert all(_x in ["A", "C", "G", "T"] for _x in n.x)
+        assert isinstance(n, Root)
+    
+    def test_intervalrange(self):
+        r = RandomSource(seed=1)
+        g: Grammar = extract_grammar([IntervalRangeM], Root)
+       
+        n = random_node(r, g, 4, Root)
+        
+        print(n)
+   
+        assert isinstance(n, IntervalRangeM)
+        assert 5 < n.x[1] - n.x[0] < 10 and n.x[1] < 100
         assert isinstance(n, Root)
