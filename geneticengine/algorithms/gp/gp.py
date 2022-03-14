@@ -73,7 +73,7 @@ class GP(object):
         callbacks: List[Callback] = [],
     ):
         assert population_size > (n_elites + n_novelties + 1)
-        
+
         self.grammar = grammar
         self.representation = representation
         self.evaluation_function = evaluation_function
@@ -137,7 +137,9 @@ class GP(object):
         return individual.fitness
 
     def fitness_correction_for_depth(self, individual: Individual) -> float:
-        if self.favor_less_deep_trees: # grammatical evolution does not have distance_to_term
+        if (
+            self.favor_less_deep_trees
+        ):  # grammatical evolution does not have distance_to_term
             return individual.genotype.distance_to_term * 10 ** -25
         else:
             return 0
@@ -154,7 +156,7 @@ class GP(object):
         if self.force_individual is not None:
             population[0] = Individual(
                 genotype=relabel_nodes_of_trees(
-                    self.force_individual, self.grammar.non_terminals, self.max_depth
+                    self.force_individual, self.grammar.non_terminals
                 ),
                 fitness=None,
             )

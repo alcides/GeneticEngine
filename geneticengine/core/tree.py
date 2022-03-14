@@ -1,4 +1,4 @@
-from typing import Protocol, runtime_checkable, List, Dict, Any
+from typing import Protocol, runtime_checkable, List, Any, Dict
 
 from geneticengine.core.utils import get_arguments
 
