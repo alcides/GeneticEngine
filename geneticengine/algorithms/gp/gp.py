@@ -24,6 +24,36 @@ from geneticengine.algorithms.gp.callback import Callback
 
 
 class GP(object):
+    '''
+    Genetic Programming object. Main attribute: evolve
+
+    Parameters:
+        - grammar (Grammar): The grammar used to guide the search.
+        - evaluation_function (Callable[[Any], float]): The fitness function. Should take in any valid individual and return a float. The default is that the higher the fitness, the more applicable is the solution to the problem. Turn on the parameter minimize to switch it around.
+        - minimize (bool): When switch on, the fitness function is reversed, so that a higher result from the fitness function corresponds to a less fit solution (default = False).
+        - representation (Representation): The individual representation used by the GP program. The default is treebased_representation.
+        - randomSource (Callable[[int], RandomSource]): The random source function used by the program. Should take in an integer, representing the seed, and return a RandomSource. 
+        - seed (int): The seed of the RandomSource (default = 123).
+        - population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (n_elites + n_novelties + 1) must hold.
+        - n_elites (int): Number of elites, i.e. the number of best individuals that are preserved every generation (default = 5).
+        - n_novelties (int): Number of novelties, i.e. the number of newly generated individuals added to the population each generation. (default = 10).
+        - number_of_generations (int): Number of generations (default = 100).
+        - max_depth (int): The maximum depth a tree can have (default = 15).
+        - favor_less_deep_trees (bool): If set to True, this gives a tiny penalty to deeper trees to favor simpler trees (default = False).
+        - selection_method (Tuple[str, int]): Allows the user to define the method to choose individuals for the next population (default = ("tournament", 5)).
+        - hill_climbing (bool): Allows the user to change the standard mutation operations to the hill-climbing mutation operation, in which an individual is mutated to 5 different new individuals, after which the best is chosen to survive (default = False).
+        - target_fitness (Optional[float]): Sets a target fitness. When this fitness is reached, the algorithm stops running (default = None).
+        - force_individual (Any): Allows the incorporation of an individual in the first population (default = None).
+        - timer_stop_criteria (bool): If set to True, the algorithm is stopped after the time limit (60 seconds). Then the fittest individual is returned (default = False).
+        - save_gen_to_csv (Tuple[str, str]): If the first argument is not an empty string, for each generation all individuals and their fitnesses are written to the file [first_argument].csv. The second argument can be changed to only_best_individual if you only want to save the fittest individual (default = ("", "all")).
+        - callbacks (List[Callback]): The callbacks to define what is done with the returned prints from the algorithm (default = []).
+        -----
+        Default as given in A Field Guide to GP, p.17, by Poli and Mcphee:
+        - probability_mutation (float): probability that an individual is mutated (default = 0.01).
+        - probability_crossover (float): probability that an individual is chosen for cross-over (default = 0.9).
+        -----
+  
+    '''
     # reason for union with noreturn in evaluation function, elitism and elitism: https://stackoverflow.com/questions/51811024/mypy-type-checking-on-callable-thinks-that-member-variable-is-a-method
     grammar: Grammar
     representation: Representation[Any]
@@ -69,7 +99,7 @@ class GP(object):
         seed: int = 123,
         # -----
         timer_stop_criteria: bool = False,  # TODO: This should later be generic
-        safe_gen_to_csv: Tuple[str, str] = ("", "all"),
+        save_gen_to_csv: Tuple[str, str] = ("", "all"),
         callbacks: List[Callback] = [],
     ):
         assert population_size > (n_elites + n_novelties + 1)
@@ -89,7 +119,7 @@ class GP(object):
         self.minimize = minimize
         self.target_fitness = target_fitness
         self.timer_stop_criteria = timer_stop_criteria
-        self.safe_gen_to_csv = safe_gen_to_csv
+        self.save_gen_to_csv = save_gen_to_csv
         self.callbacks = callbacks
         if hill_climbing:
             self.mutation = mutation.create_hill_climbing_mutation(
@@ -151,6 +181,17 @@ class GP(object):
             return lambda x: -self.evaluate(x) - self.fitness_correction_for_depth(x)
 
     def evolve(self, verbose=1) -> Tuple[Individual, float, Any]:
+        '''
+        The main function of the GP object. This function runs the GP algorithm over the set number of generations, evolving better solutions
+        
+        Parameters:
+            - verbose (int): Sets the verbose level of the function (0: no prints, 1: print progress, or 2: print the best individual in each generation).
+        
+        Returns a tuple with the following arguments:
+            1. individual (Individual): The fittest individual after the algorithm has finished.
+            2. fitness (float): The fitness of above individual.
+            3. phenotype (Any): The phenotype of the best individual. 
+        '''
         # TODO: This is not ramped half and half
         population = self.init_population()
         if self.force_individual is not None:
@@ -190,13 +231,13 @@ class GP(object):
             for cb in self.callbacks:
                 cb.process_iteration(gen + 1, population, time_gen)
 
-            if self.safe_gen_to_csv[0] != "":
+            if self.save_gen_to_csv[0] != "":
                 self.write_to_csv(
-                    self.safe_gen_to_csv[0],
+                    self.save_gen_to_csv[0],
                     population,
                     (gen + 1),
                     (time.time() - start),
-                    self.safe_gen_to_csv[1],
+                    self.save_gen_to_csv[1],
                 )
             if verbose == 2:
                 # self.printFitnesses(population, "G:" + str(gen))

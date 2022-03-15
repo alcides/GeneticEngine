@@ -75,7 +75,7 @@ def evolve(g, seed, mode, representation='treebased_representation', output_fold
         minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
-        safe_gen_to_csv=output_folder
+        save_gen_to_csv=output_folder
     )
     (b, bf, bp) = alg.evolve(verbose=2)
     return b, bf
