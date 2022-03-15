@@ -261,6 +261,15 @@ def random_node(
     return method(r, g, max_depth, starting_symbol)
 
 
+def mk_save_init(starting_symbol: Callable, receiver: Callable):
+    def fin_recv(*x):
+        built = starting_symbol(*x)
+        built.gengy_init_values = x
+        return receiver(built)
+
+    return fin_recv
+
+
 def expand_node(
     r: Source,
     g: Grammar,
@@ -268,7 +277,7 @@ def expand_node(
     filter_choices,
     receiver,
     depth,
-    starting_symbol,
+    starting_symbol: type,
     id: str,
     ctx: Dict[str, str],
 ) -> Any:
@@ -346,7 +355,7 @@ def expand_node(
                 l.append(fn)
 
             fins = build_finalizers(
-                lambda *x: receiver(starting_symbol(*x)), len(args), l
+                mk_save_init(starting_symbol, receiver), len(args), l
             )
             for i, (argn, argt) in enumerate(args):
                 new_symbol(argt, fins[i], depth - 1, id + "_" + argn, ctx)
@@ -377,20 +386,17 @@ def mutate_inner(
             replacement = random_node(r, g, max_depth, ty, method=Grow)
             return replacement
         else:
-            args = {}
-            for field in i.__annotations__:
-                child = getattr(i, field)
-                field_type = i.__annotations__[field]
+            args = list(i.gengy_init_values)
+            for idx, (field, field_type) in enumerate(get_arguments(i)):
+                child = args[idx]
                 if hasattr(child, "gengy_nodes"):
                     count = child.gengy_nodes
                     if c <= count:
-                        args[field] = mutate_inner(
-                            r, g, child, max_depth - 1, field_type
-                        )
+                        args[idx] = mutate_inner(r, g, child, max_depth - 1, field_type)
                         continue
                     else:
                         c -= count
-            return modify_and_construct(i, args)
+            return mk_save_init(type(i), lambda x: x)(*args)
     else:
         return random_node(r, g, max_depth, ty, method=Grow)
 
@@ -440,38 +446,21 @@ def tree_crossover_inner(
 
             return replacement
         else:
-            args = {}
-            for field in i.__annotations__:
-                child = getattr(i, field)
-                field_type = i.__annotations__[field]
+            args = list(i.gengy_init_values)
+            for idx, (field, field_type) in enumerate(get_arguments(i)):
+                child = args[idx]
                 if hasattr(child, "gengy_nodes"):
                     count = child.gengy_nodes
                     if c <= count:
-                        args[field] = tree_crossover_inner(
-                            r, g, getattr(i, field), o, field_type, max_depth - 1
+                        args[idx] = tree_crossover_inner(
+                            r, g, child, o, field_type, max_depth - 1
                         )
                         continue
                     else:
                         c -= count
-            return modify_and_construct(i, args)
+            return mk_save_init(type(i), lambda x: x)(*args)
     else:
         return i
-
-
-def modify_and_construct(source, mods):
-    cons = type(source)
-    init = cons.__init__
-    var_list = init.__code__.co_varnames[
-        1 : init.__code__.co_argcount
-    ]  # todo: cursed, we should store the args we pass
-    # todo: to the init in a sep variable and use them instead, but oh well
-    final = {}
-    for var in var_list:
-        if var in mods:
-            final[var] = mods[var]
-        else:
-            final[var] = getattr(source, var)
-    return cons(**final)
 
 
 def tree_crossover(

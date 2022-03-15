@@ -49,11 +49,12 @@ def get_arguments(n) -> List[Tuple[str, type]]:
     :param n: production
     :return: list((argname, argtype))
     """
-    if hasattr(n, "__annotations__"):
-        args = n.__annotations__
-        return [(a, args[a]) for a in args]
-    else:
-        return []
+    if hasattr(n, "__init__"):
+        init = n.__init__
+        if hasattr(init, "__annotations__"):
+            args = init.__annotations__
+            return [(a, args[a]) for a in filter(lambda x: x != "return", args)]
+    return []
 
 
 def is_abstract(t: type) -> bool:

@@ -1,32 +1,10 @@
 from collections import defaultdict
-from functools import reduce
 from typing import Any, List, Set, Tuple, Dict
-from geneticengine.core.grammar import Grammar
 from geneticengine.core.tree import TreeNode
-from geneticengine.core.utils import is_terminal
+from geneticengine.core.utils import is_terminal, get_arguments
 from geneticengine.core.decorators import is_builtin
 
 
-def get_property_names(obj: TreeNode) -> List[Any]:
-    if hasattr(obj, "__annotations__"):
-        return [field for field in obj.__annotations__]
-    else:
-        return []
-
-
-def get_depth(g: Grammar, i: Any) -> int:
-    if is_builtin(type(i)):
-        return 1
-    elif is_terminal(type(i), g.non_terminals):
-        return 1
-    elif isinstance(i, list):
-        children = i
-    else:
-        children = [getattr(i, field) for field in get_property_names(i)]
-    return 1 + max([get_depth(g, i) for i in children])
-
-
-# print("Node: {}, nodes: {}, distance_to_term: {}, depth: {}.".format(i,i.nodes,i.distance_to_term,i.depth))
 def relabel_nodes(
     i: TreeNode, non_terminals: Set[type]
 ) -> Tuple[int, int, Dict[type, List[Any]]]:
@@ -43,12 +21,13 @@ def relabel_nodes(
     elif isinstance(i, list):
         children = i
     else:
-        children = [getattr(i, field) for field in get_property_names(i)]
+        if not hasattr(i, "gengy_init_values"):
+            breakpoint()
+        children = [i.gengy_init_values[idx] for idx, _ in enumerate(get_arguments(i))]
     assert children
     properties_of_children = [relabel_nodes(child, non_terminals) for child in children]
     number_of_nodes = 1 + sum([prop[0] for prop in properties_of_children])
     distance_to_term = 1 + max([prop[1] for prop in properties_of_children])
-    # print(dir(type(i).__init__.__code__.co_filename))
     types_this_way = defaultdict(lambda: [])
     types_this_way[type(i)] = [i]
     for (_, _, types) in properties_of_children:

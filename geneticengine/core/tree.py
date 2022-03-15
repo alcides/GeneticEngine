@@ -8,6 +8,7 @@ class TreeNode(Protocol):
     gengy_distance_to_term: int
     gengy_nodes: int
     gengy_types_this_way: Dict[type, List[Any]]
+    gengy_init_values: tuple[Any]
 
 
 class PrettyPrintable(object):
