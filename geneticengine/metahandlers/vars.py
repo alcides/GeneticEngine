@@ -13,6 +13,8 @@ from geneticengine.core.grammar import Grammar
 
 class VarRange(MetaHandlerGenerator):
     def __init__(self, options):
+        if len(options)==0:
+            raise Exception(f"Invalid varrange specified: {options}")
         self.options = options
 
     def generate(
