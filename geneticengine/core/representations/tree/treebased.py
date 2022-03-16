@@ -255,9 +255,11 @@ def random_node(
     r: Source,
     g: Grammar,
     max_depth: int,
-    starting_symbol: Type[Any] = int,
+    starting_symbol: Type[Any] = None,
     method=PI_Grow,
 ):
+    if starting_symbol is None:
+        starting_symbol = g.starting_symbol
     return method(r, g, max_depth, starting_symbol)
 
 
