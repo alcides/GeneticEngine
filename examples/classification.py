@@ -7,6 +7,7 @@ import pandas as pd
 from math import isinf
 
 from geneticengine.algorithms.gp.gp import GP
+from geneticengine.core.decorators import abstract
 from geneticengine.grammars.sgp import Plus, Number, Mul, Var
 from geneticengine.grammars.basic_math import SafeLog, SafeSqrt, SafeDiv
 from geneticengine.core.grammar import extract_grammar
@@ -32,9 +33,10 @@ for i, n in enumerate(feature_names):
     feature_indices[n] = i
 
 # Prepare Grammar
-Var.__annotations__["name"] = Annotated[str, VarRange(feature_names)]
+Var.__init__.__annotations__["name"] = Annotated[str, VarRange(feature_names)]
 Var.feature_indices = feature_indices  # type: ignore
 
+@abstract
 class Literal(Number):
     pass
 

@@ -30,7 +30,7 @@ for i, n in enumerate(feature_names):
     feature_indices[n] = i
 
 # Prepare Grammar
-Var.__annotations__["name"] = Annotated[str, VarRange(feature_names)]
+Var.__init__.__annotations__["name"] = Annotated[str, VarRange(feature_names)]
 Var.feature_indices = feature_indices  # type: ignore
 
 

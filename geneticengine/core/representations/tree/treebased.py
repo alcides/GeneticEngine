@@ -388,13 +388,17 @@ def mutate_inner(
             replacement = random_node(r, g, max_depth, ty, method=Grow)
             return replacement
         else:
+            if is_abstract(ty):
+                max_depth -= g.abstract_dist_to_t[ty][type(i)]
+            else:
+                max_depth -= 1
             args = list(i.gengy_init_values)
             for idx, (field, field_type) in enumerate(get_arguments(i)):
                 child = args[idx]
                 if hasattr(child, "gengy_nodes"):
                     count = child.gengy_nodes
                     if c <= count:
-                        args[idx] = mutate_inner(r, g, child, max_depth - 1, field_type)
+                        args[idx] = mutate_inner(r, g, child, max_depth, field_type)
                         continue
                     else:
                         c -= count
@@ -448,6 +452,10 @@ def tree_crossover_inner(
 
             return replacement
         else:
+            if is_abstract(ty):
+                max_depth -= g.abstract_dist_to_t[ty][type(i)]
+            else:
+                max_depth -= 1
             args = list(i.gengy_init_values)
             for idx, (field, field_type) in enumerate(get_arguments(i)):
                 child = args[idx]
@@ -455,7 +463,7 @@ def tree_crossover_inner(
                     count = child.gengy_nodes
                     if c <= count:
                         args[idx] = tree_crossover_inner(
-                            r, g, child, o, field_type, max_depth - 1
+                            r, g, child, o, field_type, max_depth
                         )
                         continue
                     else:

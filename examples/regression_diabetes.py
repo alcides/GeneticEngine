@@ -19,7 +19,7 @@ for i, n in enumerate(bunch.feature_names):
     feature_indices[n] = i
 
 # Prepare Grammar
-Var.__annotations__["name"] = Annotated[str, VarRange(bunch.feature_names)]
+Var.__init__.__annotations__["name"] = Annotated[str, VarRange(bunch.feature_names)]
 Var.feature_indices = feature_indices  # type: ignore
 
 
@@ -32,8 +32,8 @@ def preprocess():
 def evolve(g, seed):
     alg = GP(
         g,
-        treebased_representation,
         fitness_function,
+        treebased_representation,
         minimize=True,
         number_of_generations=10,
         seed=seed,

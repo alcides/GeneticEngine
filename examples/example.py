@@ -10,7 +10,7 @@ from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.metahandlers.vars import VarRange
 
-Var.__annotations__["name"] = Annotated[str, VarRange("x")]
+Var.__init__.__annotations__["name"] = Annotated[str, VarRange("x")]
 g = extract_grammar([Plus, Mul, SafeDiv, Literal, Var], Number)
 print("Grammar:")
 print(repr(g))

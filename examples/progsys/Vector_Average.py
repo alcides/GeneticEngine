@@ -34,8 +34,8 @@ variables = {}
 for i, n in enumerate(vars):
     variables[n] = i
 
-XAssign.__annotations__["value"] = Number
-lists.Var.__annotations__["name"] = Annotated[str, VarRange(vars)]
+XAssign.__init__.__annotations__["value"] = Number
+lists.Var.__init__.__annotations__["name"] = Annotated[str, VarRange(vars)]
 lists.Var.feature_indices = variables  # type: ignore
 
 

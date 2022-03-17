@@ -27,7 +27,7 @@ variables = {}
 for i, n in enumerate(vars):
     variables[n] = i
 
-Var.__annotations__["name"] = Annotated[str, VarRange(vars)]
+Var.__init__.__annotations__["name"] = Annotated[str, VarRange(vars)]
 Var.feature_indices = variables  # type: ignore
 
 
