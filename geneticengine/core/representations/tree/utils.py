@@ -15,7 +15,7 @@ def relabel_nodes(
         if not is_builtin(type(i)):
             i.gengy_labeled = True
             i.gengy_distance_to_term = 1
-            i.gengy_nodes = 0
+            i.gengy_nodes = 1
             i.gengy_types_this_way = {type(i): [i]}
         return 0, 1, {type(i): [i]}
     elif isinstance(i, list):
