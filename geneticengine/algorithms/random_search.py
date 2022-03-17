@@ -84,7 +84,7 @@ class RandomSearch(object):
         if self.force_individual is not None:
             best_ind = Individual(
                 genotype=relabel_nodes_of_trees(
-                    self.force_individual, self.grammar.non_terminals, self.max_depth
+                    self.force_individual, self.grammar
                 ),
                 fitness=None,
             )

@@ -1,13 +1,16 @@
 from collections import defaultdict
 from typing import Any, List, Set, Tuple, Dict
+
+from geneticengine.core.grammar import Grammar
 from geneticengine.core.tree import TreeNode
-from geneticengine.core.utils import is_terminal, get_arguments
+from geneticengine.core.utils import is_terminal, get_arguments, is_abstract
 from geneticengine.core.decorators import is_builtin
 
 
 def relabel_nodes(
-    i: TreeNode, non_terminals: Set[type]
+    i: TreeNode, g: Grammar
 ) -> Tuple[int, int, Dict[type, List[Any]]]:
+    non_terminals = g.non_terminals
     children: List[Any]
     if getattr(i, "gengy_labeled", False):
         return i.gengy_nodes, i.gengy_distance_to_term, i.gengy_types_this_way
@@ -23,16 +26,21 @@ def relabel_nodes(
     else:
         if not hasattr(i, "gengy_init_values"):
             breakpoint()
-        children = [i.gengy_init_values[idx] for idx, _ in enumerate(get_arguments(i))]
+        children = [(typ[1], i.gengy_init_values[idx]) for idx, typ in enumerate(get_arguments(i))]
     assert children
-    properties_of_children = [relabel_nodes(child, non_terminals) for child in children]
-    number_of_nodes = 1 + sum([prop[0] for prop in properties_of_children])
-    distance_to_term = 1 + max([prop[1] for prop in properties_of_children])
+    number_of_nodes = 1
+    distance_to_term = 1
     types_this_way = defaultdict(lambda: [])
     types_this_way[type(i)] = [i]
-    for (_, _, types) in properties_of_children:
-        for (k, v) in types.items():
+    for t, c in children:
+        # print(f"{t=}, {c=}")
+        nodes, dist, thisway = relabel_nodes(c, g)
+        abs_adjust = 0 if not is_abstract(t) else g.abstract_dist_to_t[t][type(c)]
+        number_of_nodes += abs_adjust + nodes
+        distance_to_term = max(distance_to_term, dist + abs_adjust + 1)
+        for (k, v) in thisway.items():
             types_this_way[k].extend(v)
+
     if not isinstance(i, list):
         i.gengy_labeled = True
         i.gengy_distance_to_term = distance_to_term
@@ -41,9 +49,9 @@ def relabel_nodes(
     return number_of_nodes, distance_to_term, types_this_way
 
 
-def relabel_nodes_of_trees(i: TreeNode, non_terminals: Set[type]) -> TreeNode:
+def relabel_nodes_of_trees(i: TreeNode, g: Grammar) -> TreeNode:
     """Recomputes all the nodes, depth and distance_to_term in the tree"""
 
     # print("Node: {}, nodes: {}, distance_to_term: {}, depth: {}.".format(i,i.nodes,i.distance_to_term,i.depth))
-    relabel_nodes(i, non_terminals)
+    relabel_nodes(i, g)
     return i

@@ -187,7 +187,7 @@ def Grow(
     handle_symbol(starting_symbol, final_finalize, depth, "root", ctx={})
     SMTResolver.resolve_clauses()
     n = state["final"]
-    relabel_nodes_of_trees(n, g.non_terminals)
+    relabel_nodes_of_trees(n, g)
     return n
 
 
@@ -247,7 +247,7 @@ def PI_Grow(
         )
     SMTResolver.resolve_clauses()
     n = state["final"]
-    relabel_nodes_of_trees(n, g.non_terminals)
+    relabel_nodes_of_trees(n, g)
     return n
 
 
@@ -390,8 +390,7 @@ def mutate_inner(
         else:
             if is_abstract(ty):
                 max_depth -= g.abstract_dist_to_t[ty][type(i)]
-            else:
-                max_depth -= 1
+            max_depth -= 1
             args = list(i.gengy_init_values)
             for idx, (field, field_type) in enumerate(get_arguments(i)):
                 child = args[idx]
@@ -399,7 +398,7 @@ def mutate_inner(
                     count = child.gengy_nodes
                     if c <= count:
                         args[idx] = mutate_inner(r, g, child, max_depth, field_type)
-                        continue
+                        break
                     else:
                         c -= count
             return mk_save_init(type(i), lambda x: x)(*args)
@@ -411,7 +410,7 @@ def mutate(
     r: Source, g: Grammar, i: TreeNode, max_depth: int, target_type: Type
 ) -> Any:
     new_tree = mutate_inner(r, g, i, max_depth, target_type)
-    relabeled_new_tree = relabel_nodes_of_trees(new_tree, g.non_terminals)
+    relabeled_new_tree = relabel_nodes_of_trees(new_tree, g)
     return relabeled_new_tree
 
 
@@ -422,7 +421,7 @@ def find_in_tree(g: Grammar, ty: type, o: TreeNode, max_depth: int):
         for t in o.gengy_types_this_way:
 
             def is_valid(node):
-                _, depth, _ = relabel_nodes(node, g.non_terminals)
+                _, depth, _ = relabel_nodes(node, g)
 
                 if is_abs:
                     depth += g.abstract_dist_to_t[ty][t]
@@ -435,6 +434,10 @@ def find_in_tree(g: Grammar, ty: type, o: TreeNode, max_depth: int):
                 vals = o.gengy_types_this_way[t]
                 if vals:
                     yield from filter(is_valid, vals)
+
+
+def get_height(n:TreeNode):
+    pass
 
 
 def tree_crossover_inner(
@@ -454,8 +457,7 @@ def tree_crossover_inner(
         else:
             if is_abstract(ty):
                 max_depth -= g.abstract_dist_to_t[ty][type(i)]
-            else:
-                max_depth -= 1
+            max_depth -= 1
             args = list(i.gengy_init_values)
             for idx, (field, field_type) in enumerate(get_arguments(i)):
                 child = args[idx]
@@ -465,7 +467,7 @@ def tree_crossover_inner(
                         args[idx] = tree_crossover_inner(
                             r, g, child, o, field_type, max_depth
                         )
-                        continue
+                        break
                     else:
                         c -= count
             return mk_save_init(type(i), lambda x: x)(*args)
@@ -480,9 +482,9 @@ def tree_crossover(
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns two trees that are created by crossing over [p1] and [p2]. The first tree returned has [p1] as the base, and the second tree has [p2] as a base.
     """
     new_tree1 = tree_crossover_inner(r, g, p1, p2, g.starting_symbol, max_depth)
-    relabeled_new_tree1 = relabel_nodes_of_trees(new_tree1, g.non_terminals)
+    relabeled_new_tree1 = relabel_nodes_of_trees(new_tree1, g)
     new_tree2 = tree_crossover_inner(r, g, p2, p1, g.starting_symbol, max_depth)
-    relabeled_new_tree2 = relabel_nodes_of_trees(new_tree2, g.non_terminals)
+    relabeled_new_tree2 = relabel_nodes_of_trees(new_tree2, g)
     return relabeled_new_tree1, relabeled_new_tree2
 
 
@@ -495,7 +497,7 @@ def tree_crossover_single_tree(
     new_tree = tree_crossover_inner(
         r, g, deepcopy(p1), deepcopy(p2), g.starting_symbol, max_depth
     )
-    relabeled_new_tree = relabel_nodes_of_trees(new_tree, g.non_terminals)
+    relabeled_new_tree = relabel_nodes_of_trees(new_tree, g)
     return relabeled_new_tree
 
 

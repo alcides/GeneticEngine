@@ -197,7 +197,7 @@ class GP(object):
         if self.force_individual is not None:
             population[0] = Individual(
                 genotype=relabel_nodes_of_trees(
-                    self.force_individual, self.grammar.non_terminals
+                    self.force_individual, self.grammar
                 ),
                 fitness=None,
             )
