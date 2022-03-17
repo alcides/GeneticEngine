@@ -15,6 +15,16 @@ from geneticengine.grammars.sgp import Number
 
 @dataclass
 class SafeDiv(Number):
+    '''
+    Safe Division object. If division fails because of a ZeroDivisionError, 1 is returned. 
+    
+    Parameters:
+        - left  (Number)
+        - right (Number)
+        
+    Returns when evaluated:
+        left / right
+    '''
     left: Number
     right: Number
 
@@ -35,6 +45,15 @@ class SafeDiv(Number):
 
 @dataclass
 class SafeSqrt(Number):
+    '''
+    Safe Square Root object. If the number is negative, the square root of the positive counterpart of the number is returned. 
+    
+    Parameters:
+        - number (Number)
+        
+    Returns when evaluated:
+        np.sqrt(number)
+    '''
     number: Number
 
     def evaluate(self, **kwargs):
@@ -47,6 +66,15 @@ class SafeSqrt(Number):
 
 @dataclass
 class Sin(Number):
+    '''
+    Standard Sinus object.
+    
+    Parameters:
+        - number (Number)
+        
+    Returns when evaluated:
+        np.sin(number)
+    '''
     number: Number
 
     def evaluate(self, **kwargs):
@@ -59,6 +87,15 @@ class Sin(Number):
 
 @dataclass
 class Tanh(Number):
+    '''
+    Standard Hyperbolic Tangent object.
+    
+    Parameters:
+        - number (Number)
+        
+    Returns when evaluated:
+        np.tanh(number)
+    '''
     number: Number
 
     def evaluate(self, **kwargs):
@@ -71,6 +108,15 @@ class Tanh(Number):
 
 @dataclass
 class Exp(Number):
+    '''
+    Standard Exponential object.
+    
+    Parameters:
+        - number (Number)
+        
+    Returns when evaluated:
+        np.exp(number)
+    '''
     number: Number
 
     def evaluate(self, **kwargs):
@@ -83,6 +129,16 @@ class Exp(Number):
 
 @dataclass
 class SafeLog(Number):
+    '''
+    Safe Logarithmic object. If the number is negative, the logarithm of the positive counterpart of the number + 1 is returned. 
+    
+    Parameters:
+        - left  (Number)
+        - right (Number)
+        
+    Returns when evaluated:
+        np.log(number)
+    '''
     number: Number
 
     def evaluate(self, **kwargs):

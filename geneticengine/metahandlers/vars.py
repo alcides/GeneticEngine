@@ -2,7 +2,9 @@ from typing import (
     Any,
     Callable,
     Dict,
+    List,
     Type,
+    TypeVar,
 )
 
 from geneticengine.core.random.sources import Source
@@ -10,11 +12,17 @@ from geneticengine.metahandlers.base import MetaHandlerGenerator
 
 from geneticengine.core.grammar import Grammar
 
+T = TypeVar("T")
 
 class VarRange(MetaHandlerGenerator):
-    def __init__(self, options):
-        if len(options)==0:
-            raise Exception(f"Invalid varrange specified: {options}")
+    """
+        VarRange([a, b, c]) represents the alternative between a, b, and c.
+        The list of options can be dynamically altered before the grammar extraction (Var.__annotations__["name"] = Annotated[str, VarRange([d, e, f])]).
+        It must not be empty.
+    """
+    def __init__(self, options:List[T]):
+        if not options:
+            raise Exception(f"The VarRange metahandler requires a non-empty set of options. Options found: {options}")
         self.options = options
 
     def generate(

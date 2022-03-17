@@ -16,6 +16,10 @@ max = TypeVar("max", covariant=True)
 
 
 class FloatRange(MetaHandlerGenerator):
+    """
+        FloatRange(a,b) restricts floats to be between a and b.
+        The range can be dynamically altered before the grammar extraction (Float.__annotations__["value"] = Annotated[float, FloatRange(c,d)].
+    """
     def __init__(self, min, max):
         self.min = min
         self.max = max

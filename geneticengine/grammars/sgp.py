@@ -7,12 +7,25 @@ from geneticengine.metahandlers.vars import VarRange
 
 
 class Number(ABC):
+    '''
+    Standard Number object.
+    '''
     def evaluate(self, **kwargs) -> float:
         return 0.0
 
 
 @dataclass
 class Plus(Number):
+    '''
+    Standard Plus object. 
+    
+    Parameters:
+        - left  (Number)
+        - right (Number)
+        
+    Returns when evaluated:
+        left + right
+    '''
     left: Number
     right: Number
 
@@ -25,6 +38,16 @@ class Plus(Number):
 
 @dataclass
 class Minus(Number):
+    '''
+    Standard Minus object. 
+    
+    Parameters:
+        - left  (Number)
+        - right (Number)
+        
+    Returns when evaluated:
+        left - right
+    '''
     left: Number
     right: Number
 
@@ -37,6 +60,16 @@ class Minus(Number):
 
 @dataclass
 class Mul(Number):
+    '''
+    Standard Multiplication object. 
+    
+    Parameters:
+        - left  (Number)
+        - right (Number)
+        
+    Returns when evaluated:
+        left * right
+    '''
     left: Number
     right: Number
 
@@ -49,6 +82,16 @@ class Mul(Number):
 
 @dataclass
 class SafeDiv(Number):
+    '''
+    Safe Division object. If the right variable is 0, it is modified to 0.00001, to circumvent division by 0. 
+    
+    Parameters:
+        - left  (Number)
+        - right (Number)
+        
+    Returns when evaluated:
+        left / right
+    '''
     left: Number
     right: Number
 
@@ -65,6 +108,15 @@ class SafeDiv(Number):
 
 @dataclass
 class Literal(Number):
+    '''
+    Standard Literal object. 
+    
+    Parameters:
+        - val  (Number)
+        
+    Returns when evaluated:
+        val
+    '''
     val: Annotated[int, IntRange(0, 9)]
 
     def evaluate(self, **kwargs):
@@ -76,6 +128,15 @@ class Literal(Number):
 
 @dataclass
 class Var(Number):
+    '''
+    Standard Variable object. Used to introduce variables.
+    
+    Parameters:
+        - name  (str)
+        
+    Returns when evaluated:
+        name
+    '''
     name: Annotated[str, VarRange(["x", "y", "z"])]
 
     def evaluate(self, **kwargs):
