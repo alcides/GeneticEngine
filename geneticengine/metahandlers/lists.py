@@ -14,6 +14,11 @@ from geneticengine.core.grammar import Grammar
 
 
 class ListSizeBetween(MetaHandlerGenerator):
+    """
+        ListSizeBetween(a,b) restricts lists to be of length between a and b.
+        The list of options can be dynamically altered before the grammar extraction (Set.__annotations__["set"] = Annotated[List[Type], ListSizeBetween(c,d)].
+    """
+        
     def __init__(self, min, max):
         self.min = min
         self.max = max

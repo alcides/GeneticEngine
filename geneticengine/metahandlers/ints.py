@@ -16,6 +16,10 @@ max = TypeVar("max", covariant=True)
 
 
 class IntRange(MetaHandlerGenerator):
+    """
+        IntRange(a,b) restricts ints to be between a and b.
+        The range can be dynamically altered before the grammar extraction (Int.__annotations__["value"] = Annotated[int, IntRange(c,d)].
+    """
     def __init__(self, min, max):
         self.min = min
         self.max = max

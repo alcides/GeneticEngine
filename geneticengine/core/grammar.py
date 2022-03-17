@@ -196,6 +196,18 @@ class Grammar(object):
 
 
 def extract_grammar(nodes, starting_symbol):
+    '''
+    The extract_grammar takes in all the productions of the grammar (nodes) and a starting symbol (starting_symbol). It goes through all the nodes and constructs a complete grammar that can then be used for search algorithms such as Genetic Programming and Hill Climbing.
+    
+    Parameters:
+        - nodes (list): A list of objects representing tree nodes. Make sure that any node can be produced be the starting symbol.
+        - starting_symbol (object): The starting symbol of each tree. Makes sure every generated tree by the returned grammar starts with this symbol. Make sure that the starting symbol can produce any object of nodes.
+        
+    Returns:
+        - The grammar
+    
+    '''
+    
     g = Grammar(starting_symbol)
     g.register_type(starting_symbol)
     for n in nodes:
