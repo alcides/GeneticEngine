@@ -188,9 +188,9 @@ class GP(object):
             - verbose (int): Sets the verbose level of the function (0: no prints, 1: print progress, or 2: print the best individual in each generation).
         
         Returns a tuple with the following arguments:
-            1. individual (Individual): The fittest individual after the algorithm has finished.
-            2. fitness (float): The fitness of above individual.
-            3. phenotype (Any): The phenotype of the best individual. 
+            - individual (Individual): The fittest individual after the algorithm has finished.
+            - fitness (float): The fitness of above individual.
+            - phenotype (Any): The phenotype of the best individual. 
         '''
         # TODO: This is not ramped half and half
         population = self.init_population()
