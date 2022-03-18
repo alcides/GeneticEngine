@@ -90,7 +90,7 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
 
     def fit(self, X, y):
         """
-        Fits the classifier with data X and target y.
+        Fits the regressor with data X and target y.
         """
         if type(y) == pd.Series:
             target = y.values
@@ -213,7 +213,7 @@ class HillClimbingRegressor(BaseEstimator, TransformerMixin):
 
     def fit(self, X, y):
         """
-        Fits the classifier with data X and target y.
+        Fits the regressor with data X and target y.
         """
         if type(y) == pd.Series:
             target = y.values
