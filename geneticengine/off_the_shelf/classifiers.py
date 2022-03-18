@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Annotated, List
 import pandas as pd
-from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.base import BaseEstimator, TransformerMixin #type: ignore
 import numpy as np
 from math import isinf
 
