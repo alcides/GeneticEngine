@@ -169,8 +169,8 @@ class GP(object):
     def fitness_correction_for_depth(self, individual: Individual) -> float:
         if (
             self.favor_less_deep_trees
-        ):  # grammatical evolution does not have distance_to_term
-            return individual.genotype.distance_to_term * 10 ** -25
+        ):  # grammatical evolution does not have gengy_distance_to_term
+            return individual.genotype.gengy_distance_to_term * 10 ** -25
         else:
             return 0
 
@@ -316,7 +316,7 @@ class GP(object):
             genotype_as_str = str(ind.genotype)
             fitness = str(ind.fitness)
             if self.representation == treebased_representation:
-                depth = ind.genotype.distance_to_term
+                depth = ind.genotype.gengy_distance_to_term
             else:
                 depth = -1
             csv_line = [
