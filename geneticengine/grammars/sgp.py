@@ -10,7 +10,7 @@ class Number(ABC):
     '''
     Standard Number object.
     '''
-    def evaluate(self, **kwargs) -> float:
+    def evaluate(self, **kwargs):
         return 0.0
 
 
