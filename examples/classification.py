@@ -7,6 +7,7 @@ import pandas as pd
 from math import isinf
 
 from geneticengine.algorithms.gp.gp import GP
+from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.core.representations.grammatical_evolution import ge_representation
