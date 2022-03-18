@@ -41,7 +41,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
     '''
     def __init__(
         self,
-        nodes: List[Number] = [ Plus, Mul, ExpLiteral, Var, SafeDiv, SafeLog, SafeSqrt ] + exp_literals,
+        nodes: List[Number] = [ Plus, Mul, ExpLiteral, Var, SafeDiv, SafeLog, SafeSqrt ] + exp_literals, # "type: ignore"
         representation: Representation = treebased_representation,
         population_size: int = 200,
         n_elites: int = 5,  # Shouldn't this be a percentage of population size?
@@ -94,7 +94,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
             feature_indices[n] = i
         
         Var.__init__.__annotations__["name"] = Annotated[str, VarRange(feature_names)]
-        Var.feature_indices = feature_indices  # type: ignore
+        Var.feature_indices = feature_indices 
             
         self.grammar = extract_grammar(self.nodes, Number)
         self.feature_names = feature_names
