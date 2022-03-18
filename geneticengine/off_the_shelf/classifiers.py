@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-from typing import Annotated, List
+from typing import Annotated, List, Type
 import pandas as pd
-from sklearn.base import BaseEstimator, TransformerMixin #type: ignore
+from sklearn.base import BaseEstimator, TransformerMixin  # type: ignore
 import numpy as np
 from math import isinf
 
@@ -18,9 +18,8 @@ from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import f1_score
 
 
-
 class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
-    '''
+    """
     Genetic Programming Classifier. Main attributes: fit and predict
 
     Parameters:
@@ -39,10 +38,11 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
         - probability_mutation (float): probability that an individual is mutated (default = 0.01).
         - probability_crossover (float): probability that an individual is chosen for cross-over (default = 0.9).
         -----
-    '''
+    """
+
     def __init__(
         self,
-        nodes = [ Plus, Mul, ExpLiteral, Var, SafeDiv, SafeLog, SafeSqrt, *exp_literals ], # "type: ignore"
+        nodes: List[Type[Number]] = None,
         representation: Representation = treebased_representation,
         population_size: int = 200,
         n_elites: int = 5,  # Shouldn't this be a percentage of population size?
@@ -58,6 +58,17 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
         probability_crossover: float = 0.9,
         # -----
     ):
+        if nodes is None:
+            nodes = [
+                Plus,
+                Mul,
+                ExpLiteral,
+                Var,
+                SafeDiv,
+                SafeLog,
+                SafeSqrt,
+                *exp_literals,
+            ]
         assert population_size > (n_elites + n_novelties + 1)
         assert Var in nodes
 
@@ -76,34 +87,33 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
         self.number_of_generations = number_of_generations
         self.probability_mutation = probability_mutation
         self.probability_crossover = probability_crossover
-        
-    
-    def fit(self,X, y):
-        '''
+
+    def fit(self, X, y):
+        """
         Fits the classifier with data X and target y.
-        '''
+        """
         if type(y) == pd.Series:
             target = y.values
         else:
             target = y
-            
+
         if type(X) == pd.DataFrame:
             feature_names = list(X.columns.values)
             data = X.values
         else:
-            feature_names = [ f"x{i}" for i in range(data.values.shape[1]) ]
+            feature_names = [f"x{i}" for i in range(data.values.shape[1])]
             data = X
         feature_indices = {}
         for i, n in enumerate(feature_names):
             feature_indices[n] = i
-        
+
         Var.__init__.__annotations__["name"] = Annotated[str, VarRange(feature_names)]
-        Var.feature_indices = feature_indices 
-            
+        Var.feature_indices = feature_indices
+
         self.grammar = extract_grammar(self.nodes, Number)
         self.feature_names = feature_names
         self.feature_indices = feature_indices
-        
+
         def fitness_function(n: Number):
             variables = {}
             for x in feature_names:
@@ -120,35 +130,37 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
             if isinf(fitness):
                 fitness = -100000000
             return fitness
-        
-        model = GP(grammar = self.grammar,
-                   evaluation_function=fitness_function,
-                   representation=self.representation,
-                   population_size=self.population_size,
-                   n_elites=self.n_elites,
-                   n_novelties=self.n_novelties,
-                   number_of_generations=self.number_of_generations,
-                   max_depth=self.max_depth,
-                   favor_less_deep_trees=self.favor_less_deep_trees,
-                   probability_mutation=self.probability_mutation,
-                   probability_crossover=self.probability_crossover,
-                   hill_climbing=self.hill_climbing,
-                   seed=self.seed)
-        
+
+        model = GP(
+            grammar=self.grammar,
+            evaluation_function=fitness_function,
+            representation=self.representation,
+            population_size=self.population_size,
+            n_elites=self.n_elites,
+            n_novelties=self.n_novelties,
+            number_of_generations=self.number_of_generations,
+            max_depth=self.max_depth,
+            favor_less_deep_trees=self.favor_less_deep_trees,
+            probability_mutation=self.probability_mutation,
+            probability_crossover=self.probability_crossover,
+            hill_climbing=self.hill_climbing,
+            seed=self.seed,
+        )
+
         best_ind, fitness, phenotype = model.evolve(verbose=1)
         self.evolved_phenotype = phenotype
-    
-    def predict(self,X):
-        '''
+
+    def predict(self, X):
+        """
         Predict the target values of X. The model must have been fitted
-        '''
+        """
         assert self.evolved_phenotype != None
         if (type(X) == pd.DataFrame) or (type(X) == pd.Series):
             data = X.values
         else:
             data = X
         if len(data.shape) == 1:
-            data = np.array( [ data ] )
+            data = np.array([data])
         assert data.shape[1] == len(self.feature_names)
 
         variables = {}
@@ -156,11 +168,12 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
             i = self.feature_indices[x]
             variables[x] = data[:, i]
         y_pred = self.evolved_phenotype.evaluate(**variables)
-        
+
         return y_pred
 
+
 class HillClimbingClassifier(BaseEstimator, TransformerMixin):
-    '''
+    """
     Hill Climbing Classifier. Main attributes: fit and predict
 
     Parameters:
@@ -170,10 +183,20 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
         - population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (n_elites + n_novelties + 1) must hold.
         - number_of_generations (int): Number of generations (default = 100).
         - max_depth (int): The maximum depth a tree can have (default = 15).
-    '''
+    """
+
     def __init__(
         self,
-        nodes = [ Plus, Mul, ExpLiteral, Var, SafeDiv, SafeLog, SafeSqrt, *exp_literals ], # "type: ignore"
+        nodes=[
+            Plus,
+            Mul,
+            ExpLiteral,
+            Var,
+            SafeDiv,
+            SafeLog,
+            SafeSqrt,
+            *exp_literals,
+        ],  # "type: ignore"
         representation: Representation = treebased_representation,
         population_size: int = 200,
         number_of_generations: int = 100,
@@ -191,34 +214,33 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
         self.population_size = population_size
         self.max_depth = max_depth
         self.number_of_generations = number_of_generations
-        
-    
-    def fit(self,X, y):
-        '''
+
+    def fit(self, X, y):
+        """
         Fits the classifier with data X and target y.
-        '''
+        """
         if type(y) == pd.Series:
             target = y.values
         else:
             target = y
-            
+
         if type(X) == pd.DataFrame:
             feature_names = list(X.columns.values)
             data = X.values
         else:
-            feature_names = [ f"x{i}" for i in range(data.values.shape[1]) ]
+            feature_names = [f"x{i}" for i in range(data.values.shape[1])]
             data = X
         feature_indices = {}
         for i, n in enumerate(feature_names):
             feature_indices[n] = i
-        
+
         Var.__init__.__annotations__["name"] = Annotated[str, VarRange(feature_names)]
-        Var.feature_indices = feature_indices 
-            
+        Var.feature_indices = feature_indices
+
         self.grammar = extract_grammar(self.nodes, Number)
         self.feature_names = feature_names
         self.feature_indices = feature_indices
-        
+
         def fitness_function(n: Number):
             variables = {}
             for x in feature_names:
@@ -235,29 +257,31 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
             if isinf(fitness):
                 fitness = -100000000
             return fitness
-        
-        model = HC(g = self.grammar,
-                   evaluation_function=fitness_function,
-                   representation=self.representation,
-                   population_size=self.population_size,
-                   number_of_generations=self.number_of_generations,
-                   max_depth=self.max_depth,
-                   seed=self.seed)
-        
+
+        model = HC(
+            g=self.grammar,
+            evaluation_function=fitness_function,
+            representation=self.representation,
+            population_size=self.population_size,
+            number_of_generations=self.number_of_generations,
+            max_depth=self.max_depth,
+            seed=self.seed,
+        )
+
         best_ind, fitness, phenotype = model.evolve(verbose=1)
         self.evolved_phenotype = phenotype
-    
-    def predict(self,X):
-        '''
+
+    def predict(self, X):
+        """
         Predict the target values of X. The model must have been fitted
-        '''
+        """
         assert self.evolved_phenotype != None
         if (type(X) == pd.DataFrame) or (type(X) == pd.Series):
             data = X.values
         else:
             data = X
         if len(data.shape) == 1:
-            data = np.array( [ data ] )
+            data = np.array([data])
         assert data.shape[1] == len(self.feature_names)
 
         variables = {}
@@ -265,10 +289,10 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
             i = self.feature_indices[x]
             variables[x] = data[:, i]
         y_pred = self.evolved_phenotype.evaluate(**variables)
-        
+
         return y_pred
-    
-    
+
+
 DATASET_NAME = "Banknote"
 DATA_FILE_TRAIN = "examples/data/{}/Train.csv".format(DATASET_NAME)
 DATA_FILE_TEST = "examples/data/{}/Test.csv".format(DATASET_NAME)
@@ -279,13 +303,12 @@ data = bunch.drop(["y"], axis=1)
 
 print("GP Classifier")
 model = GeneticProgrammingClassifier()
-model.fit(data,target)
+model.fit(data, target)
 print(model.predict(data.iloc[0:5]))
 print(target.iloc[0:5].values)
-        
+
 print("HC Classifier")
 model = HillClimbingClassifier()
-model.fit(data,target)
+model.fit(data, target)
 print(model.predict(data.iloc[0:5]))
 print(target.iloc[0:5].values)
-        
