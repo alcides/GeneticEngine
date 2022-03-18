@@ -42,7 +42,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
     '''
     def __init__(
         self,
-        nodes: List[Number] = [ Plus, Mul, ExpLiteral, Var, SafeDiv, SafeLog, SafeSqrt ] + exp_literals, # "type: ignore"
+        nodes = [ Plus, Mul, ExpLiteral, Var, SafeDiv, SafeLog, SafeSqrt ] + exp_literals, # "type: ignore"
         representation: Representation = treebased_representation,
         population_size: int = 200,
         n_elites: int = 5,  # Shouldn't this be a percentage of population size?
@@ -173,7 +173,7 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
     '''
     def __init__(
         self,
-        nodes: List[Number] = [ Plus, Mul, ExpLiteral, Var, SafeDiv, SafeLog, SafeSqrt ] + exp_literals, # "type: ignore"
+        nodes = [ Plus, Mul, ExpLiteral, Var, SafeDiv, SafeLog, SafeSqrt ] + exp_literals, # "type: ignore"
         representation: Representation = treebased_representation,
         population_size: int = 200,
         number_of_generations: int = 100,
