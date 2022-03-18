@@ -6,6 +6,7 @@ import numpy as np
 from math import isinf
 
 from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.api import Representation
@@ -20,7 +21,7 @@ from geneticengine.metrics import f1_score
 
 class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
     '''
-    Genetic Programming object. Main attribute: evolve
+    Genetic Programming Classifier. Main attributes: fit and predict
 
     Parameters:
         - nodes (List[Number]): The list of nodes to be used in the grammar. You can design your own, or use the ones in geneticengine.grammars.[sgp,literals,basic_math]. The default uses [ Plus, Mul, ExpLiteral, Var, SafeDiv, SafeLog, SafeSqrt ] + exp_literals.
@@ -78,6 +79,9 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
         
     
     def fit(self,X, y):
+        '''
+        Fits the classifier with data X and target y.
+        '''
         if type(y) == pd.Series:
             target = y.values
         else:
@@ -135,6 +139,118 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
         self.evolved_phenotype = phenotype
     
     def predict(self,X):
+        '''
+        Predict the target values of X. The model must have been fitted
+        '''
+        assert self.evolved_phenotype != None
+        if (type(X) == pd.DataFrame) or (type(X) == pd.Series):
+            data = X.values
+        else:
+            data = X
+        if len(data.shape) == 1:
+            data = np.array( [ data ] )
+        assert data.shape[1] == len(self.feature_names)
+
+        variables = {}
+        for x in self.feature_names:
+            i = self.feature_indices[x]
+            variables[x] = data[:, i]
+        y_pred = self.evolved_phenotype.evaluate(**variables)
+        
+        return y_pred
+
+class HillClimbingClassifier(BaseEstimator, TransformerMixin):
+    '''
+    Hill Climbing Classifier. Main attributes: fit and predict
+
+    Parameters:
+        - nodes (List[Number]): The list of nodes to be used in the grammar. You can design your own, or use the ones in geneticengine.grammars.[sgp,literals,basic_math]. The default uses [ Plus, Mul, ExpLiteral, Var, SafeDiv, SafeLog, SafeSqrt ] + exp_literals.
+        - representation (Representation): The individual representation used by the GP program. The default is treebased_representation. Currently Genetic Engine also supports Grammatical Evolution: geneticengine.core.representations.grammatical_evolution.ge_representation. You can also deisgn your own.
+        - seed (int): The seed for the RandomSource (default = 123).
+        - population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (n_elites + n_novelties + 1) must hold.
+        - number_of_generations (int): Number of generations (default = 100).
+        - max_depth (int): The maximum depth a tree can have (default = 15).
+    '''
+    def __init__(
+        self,
+        nodes: List[Number] = [ Plus, Mul, ExpLiteral, Var, SafeDiv, SafeLog, SafeSqrt ] + exp_literals, # "type: ignore"
+        representation: Representation = treebased_representation,
+        population_size: int = 200,
+        number_of_generations: int = 100,
+        max_depth: int = 15,
+        seed: int = 123,
+    ):
+        assert Var in nodes
+
+        self.nodes = nodes
+        self.representation = representation
+        self.evolved_ind = None
+        self.nodes = nodes
+        self.random = RandomSource(seed)
+        self.seed = seed
+        self.population_size = population_size
+        self.max_depth = max_depth
+        self.number_of_generations = number_of_generations
+        
+    
+    def fit(self,X, y):
+        '''
+        Fits the classifier with data X and target y.
+        '''
+        if type(y) == pd.Series:
+            target = y.values
+        else:
+            target = y
+            
+        if type(X) == pd.DataFrame:
+            feature_names = list(X.columns.values)
+            data = X.values
+        else:
+            feature_names = [ f"x{i}" for i in range(data.values.shape[1]) ]
+            data = X
+        feature_indices = {}
+        for i, n in enumerate(feature_names):
+            feature_indices[n] = i
+        
+        Var.__init__.__annotations__["name"] = Annotated[str, VarRange(feature_names)]
+        Var.feature_indices = feature_indices 
+            
+        self.grammar = extract_grammar(self.nodes, Number)
+        self.feature_names = feature_names
+        self.feature_indices = feature_indices
+        
+        def fitness_function(n: Number):
+            variables = {}
+            for x in feature_names:
+                i = feature_indices[x]
+                variables[x] = data[:, i]
+            y_pred = n.evaluate(**variables)
+
+            if type(y_pred) in [np.float64, int, float]:
+                """If n does not use variables, the output will be scalar."""
+                y_pred = np.full(len(target), y_pred)
+            if y_pred.shape != (len(target),):
+                return -100000000
+            fitness = f1_score(y_pred, target)
+            if isinf(fitness):
+                fitness = -100000000
+            return fitness
+        
+        model = HC(g = self.grammar,
+                   evaluation_function=fitness_function,
+                   representation=self.representation,
+                   population_size=self.population_size,
+                   number_of_generations=self.number_of_generations,
+                   max_depth=self.max_depth,
+                   seed=self.seed)
+        
+        best_ind, fitness, phenotype = model.evolve(verbose=1)
+        self.evolved_phenotype = phenotype
+    
+    def predict(self,X):
+        '''
+        Predict the target values of X. The model must have been fitted
+        '''
         assert self.evolved_phenotype != None
         if (type(X) == pd.DataFrame) or (type(X) == pd.Series):
             data = X.values
@@ -161,7 +277,14 @@ bunch = pd.read_csv(DATA_FILE_TRAIN, delimiter=" ")
 target = bunch.y
 data = bunch.drop(["y"], axis=1)
 
+print("GP Classifier")
 model = GeneticProgrammingClassifier()
+model.fit(data,target)
+print(model.predict(data.iloc[0:5]))
+print(target.iloc[0:5].values)
+        
+print("HC Classifier")
+model = HillClimbingClassifier()
 model.fit(data,target)
 print(model.predict(data.iloc[0:5]))
 print(target.iloc[0:5].values)
