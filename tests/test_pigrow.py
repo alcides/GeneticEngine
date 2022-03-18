@@ -70,8 +70,14 @@ class TestPIGrow(object):
         assert isinstance(x, Root)
 
     def test_middle_has_right_distance_to_term(self):
+        @dataclass
+        class RootHolder(
+            object
+        ):  # a holder is needed to know the true height, because choosing consumes height
+            root: Root
+
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar([Concrete, Middle], Root)
-        x = random_node(r, g, 20, Root, method=PI_Grow)
-        assert x.gengy_distance_to_term == 10
-        assert isinstance(x, Root)
+        g: Grammar = extract_grammar([Concrete, Middle, Root], RootHolder)
+        x = random_node(r, g, 20, RootHolder, method=PI_Grow)
+        assert x.gengy_distance_to_term == 20
+        assert isinstance(x, RootHolder)
