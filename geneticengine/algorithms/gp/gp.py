@@ -169,8 +169,8 @@ class GP(object):
     def fitness_correction_for_depth(self, individual: Individual) -> float:
         if (
             self.favor_less_deep_trees
-        ):  # grammatical evolution does not have distance_to_term
-            return individual.genotype.distance_to_term * 10 ** -25
+        ):  # grammatical evolution does not have gengy_distance_to_term
+            return individual.genotype.gengy_distance_to_term * 10 ** -25
         else:
             return 0
 
@@ -188,9 +188,9 @@ class GP(object):
             - verbose (int): Sets the verbose level of the function (0: no prints, 1: print progress, or 2: print the best individual in each generation).
         
         Returns a tuple with the following arguments:
-            1. individual (Individual): The fittest individual after the algorithm has finished.
-            2. fitness (float): The fitness of above individual.
-            3. phenotype (Any): The phenotype of the best individual. 
+            - individual (Individual): The fittest individual after the algorithm has finished.
+            - fitness (float): The fitness of above individual.
+            - phenotype (Any): The phenotype of the best individual. 
         '''
         # TODO: This is not ramped half and half
         population = self.init_population()
@@ -316,7 +316,7 @@ class GP(object):
             genotype_as_str = str(ind.genotype)
             fitness = str(ind.fitness)
             if self.representation == treebased_representation:
-                depth = ind.genotype.distance_to_term
+                depth = ind.genotype.gengy_distance_to_term
             else:
                 depth = -1
             csv_line = [
