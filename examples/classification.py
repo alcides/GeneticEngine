@@ -172,6 +172,6 @@ def evolve(g, seed, mode, representation='treebased_representation', output_fold
 if __name__ == "__main__":
     g = preprocess()
     print(g)
-    bf, b = evolve(g, 0, False)
-    print(b)
-    print(f"With fitness: {bf}")
+    b, bf = evolve(g, 123, False)
+    print(bf)
+    print(f"With fitness: {b}")
