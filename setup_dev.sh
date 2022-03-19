@@ -1,3 +1,3 @@
 #!/bin/bash
-echo $"#/bin/sh\nblack .\n" > .git/hooks/pre-commit
-chmod +x .git/hooks/pre-commit
+python3 -m install -r requirements.txt
+pre-commit install
