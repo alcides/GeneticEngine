@@ -2,7 +2,6 @@ lark
 numpy
 palettable
 pandas
-precommit
 pytest
 sklearn
 z3-solver
