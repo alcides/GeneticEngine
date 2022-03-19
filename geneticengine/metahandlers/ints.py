@@ -32,7 +32,7 @@ class IntRange(MetaHandlerGenerator):
         new_symbol,
         depth: int,
         base_type,
-        context: Dict[str, str],
+        context: dict[str, str],
     ):
         rec(r.randint(self.min, self.max))
 
@@ -72,7 +72,7 @@ class IntervalRange(MetaHandlerGenerator):
         new_symbol,
         depth: int,
         base_type,
-        context: Dict[str, str],
+        context: dict[str, str],
     ):
 
         range_length = r.randint(self.minimum_length, self.maximum_length)

@@ -36,7 +36,7 @@ class TestCallBack(Callback):
             assert isinstance(x.a, Leaf)
 
 
-class TestGrammar(object):
+class TestGrammar:
     def test_safety(self):
         r = RandomSource(seed=123)
         g: Grammar = extract_grammar([Leaf, OtherLeaf, UnderTest, Root], UnderTest)

@@ -9,7 +9,7 @@ from geneticengine.core.representations.tree.treebased import (
 from geneticengine.algorithms.gp.individual import Individual
 
 
-class RandomSearch(object):
+class RandomSearch:
     '''
     Random Search object. Main attribute: evolve
 
@@ -97,7 +97,7 @@ class RandomSearch(object):
                     best = f
                     best_ind = i
             if verbose == 2:
-                print("Best population:{}.".format(best_ind))
+                print(f"Best population:{best_ind}.")
             if verbose >= 1:
                 print(
                     "BEST at",

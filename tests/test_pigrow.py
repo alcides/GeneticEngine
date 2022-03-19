@@ -20,8 +20,8 @@ class Leaf(Root):
 
 @dataclass
 class A(Root):
-    y: List[Annotated[int, IntRange(7, 9)]]
-    z: Annotated[List[Root], ListSizeBetween(2, 3)]
+    y: list[Annotated[int, IntRange(7, 9)]]
+    z: Annotated[list[Root], ListSizeBetween(2, 3)]
 
 
 @dataclass
@@ -36,10 +36,10 @@ class Middle(Root):
 
 @dataclass
 class ConcreteList(Root):
-    xs: List[int]
+    xs: list[int]
 
 
-class TestPIGrow(object):
+class TestPIGrow:
     def test_root(self):
         r = RandomSource(seed=1)
         g: Grammar = extract_grammar([Concrete], Root)
@@ -71,9 +71,7 @@ class TestPIGrow(object):
 
     def test_middle_has_right_distance_to_term(self):
         @dataclass
-        class RootHolder(
-            object
-        ):  # a holder is needed to know the true height, because choosing consumes height
+        class RootHolder:  # a holder is needed to know the true height, because choosing consumes height
             root: Root
 
         r = RandomSource(seed=1)

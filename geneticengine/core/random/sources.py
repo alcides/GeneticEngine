@@ -17,12 +17,12 @@ class Source(ABC):
     def random_float(self, min: float, max: float) -> float:
         ...
 
-    def choice(self, choices: List[T]) -> T:
+    def choice(self, choices: list[T]) -> T:
         assert choices
         i = self.randint(0, len(choices) - 1)
         return choices[i]
 
-    def choice_weighted(self, choices: List[T], weights: List[float]) -> T:
+    def choice_weighted(self, choices: list[T], weights: list[float]) -> T:
         acc_weights = list(accumulate(weights))
         total = acc_weights[-1] + 0.0
         rand_value: float = self.random_float(0, total)
@@ -32,13 +32,13 @@ class Source(ABC):
                 return choice
         return choices[0]
 
-    def shuffle(self, l: List[T]):
+    def shuffle(self, l: list[T]):
         for i in reversed(range(1, len(l))):
             j = self.randint(0, i)
             l[i], l[j] = l[j], l[i]
         return l
 
-    def pop_random(self, l: List[T]) -> T:
+    def pop_random(self, l: list[T]) -> T:
         item = l.pop()
         total_len = len(l)
 

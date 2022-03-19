@@ -21,7 +21,7 @@ class VarRange(MetaHandlerGenerator):
         with something like Var.__init__.__annotations__["name"] = Annotated[str, VarRange([d, e, f])].
         The option list must not be empty.
     """
-    def __init__(self, options:List[T]):
+    def __init__(self, options:list[T]):
         if not options:
             raise Exception(f"The VarRange metahandler requires a non-empty set of options. Options found: {options}")
         self.options = options
@@ -34,7 +34,7 @@ class VarRange(MetaHandlerGenerator):
         new_symbol,
         depth: int,
         base_type,
-        context: Dict[str, str],
+        context: dict[str, str],
     ):
         rec(r.choice(self.options))
 

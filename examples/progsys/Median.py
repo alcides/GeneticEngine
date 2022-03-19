@@ -31,8 +31,8 @@ from geneticengine.core.representations.tree.treebased import treebased_represen
 from geneticengine.core.representations.grammatical_evolution import ge_representation
 
 FILE_NAME = "Median"
-DATA_FILE_TRAIN = "./examples/progsys/data/{}/Train.txt".format(FILE_NAME)
-DATA_FILE_TEST = "./examples/progsys/data/{}/Test.txt".format(FILE_NAME)
+DATA_FILE_TRAIN = f"./examples/progsys/data/{FILE_NAME}/Train.txt"
+DATA_FILE_TEST = f"./examples/progsys/data/{FILE_NAME}/Test.txt"
 
 inval, outval = get_data(DATA_FILE_TRAIN, DATA_FILE_TEST)
 imported = import_embedded(FILE_NAME)

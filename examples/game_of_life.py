@@ -14,8 +14,8 @@ from geneticengine.grammars.coding.logical_ops import And, Or, Not
 from geneticengine.grammars.coding.classes import Expr, Condition, Number
 
 DATASET_NAME = "GameOfLife"
-DATA_FILE_TRAIN = "examples/data/{}/Train.csv".format(DATASET_NAME)
-DATA_FILE_TEST = "examples/data/{}/Test.csv".format(DATASET_NAME)
+DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.csv"
+DATA_FILE_TEST = f"examples/data/{DATASET_NAME}/Test.csv"
 OUTPUT_FOLDER = 'GoL/grammar_standard'
 
 

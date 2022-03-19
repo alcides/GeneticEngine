@@ -11,7 +11,7 @@ from geneticengine.core.representations.tree.treebased import (
 
 
 @abstract
-class Node(object):
+class Node:
     pass
 
 

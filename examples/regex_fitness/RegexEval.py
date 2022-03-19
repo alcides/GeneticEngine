@@ -9,7 +9,7 @@ from examples.regex_fitness.testing.RegexTimer import time_regex_test_case
 # Author: Brendan Cody-Kenny - codykenny at gmail
 
 
-class RegexEval(object):
+class RegexEval:
     """
     Fitness function for regex (lower fitness value is better)
     Fitness = functionality error + time

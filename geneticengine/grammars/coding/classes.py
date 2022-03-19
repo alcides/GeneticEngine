@@ -36,7 +36,7 @@ class Condition(Expr[bool]):
 
 
 @abstract
-class NumberList(Expr[List[float]]):
+class NumberList(Expr[list[float]]):
     pass
 
 
@@ -53,4 +53,4 @@ class XAssign(Statement):
         return lambda line: self.value.evaluate_lines(**kwargs)(line)
 
     def __str__(self):
-        return "x = {}".format(self.value)
+        return f"x = {self.value}"

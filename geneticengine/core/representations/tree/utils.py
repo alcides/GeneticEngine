@@ -9,9 +9,9 @@ from geneticengine.core.decorators import is_builtin
 
 def relabel_nodes(
     i: TreeNode, g: Grammar
-) -> Tuple[int, int, Dict[type, List[Any]]]:
+) -> tuple[int, int, dict[type, list[Any]]]:
     non_terminals = g.non_terminals
-    children: List[Any]
+    children: list[Any]
     if getattr(i, "gengy_labeled", False):
         return i.gengy_nodes, i.gengy_distance_to_term, i.gengy_types_this_way
     if is_terminal(type(i), non_terminals):

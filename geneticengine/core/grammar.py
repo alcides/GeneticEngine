@@ -13,20 +13,20 @@ from geneticengine.core.utils import (
 )
 
 
-class Grammar(object):
+class Grammar:
     starting_symbol: type
-    alternatives: Dict[type, List[type]]
-    distanceToTerminal: Dict[Any, int]
-    all_nodes: Set[type]
-    recursive_prods: Set[type]
-    terminals: Set[
+    alternatives: dict[type, list[type]]
+    distanceToTerminal: dict[Any, int]
+    all_nodes: set[type]
+    recursive_prods: set[type]
+    terminals: set[
         type
     ]  # todo: both terminals and non_terminals can be obtained by checking if disttoterminal == or!= 0
-    non_terminals: Set[type]
-    abstract_dist_to_t: Dict[type, Dict[type, int]]
+    non_terminals: set[type]
+    abstract_dist_to_t: dict[type, dict[type, int]]
 
     def __init__(self, starting_symbol) -> None:
-        self.alternatives: Dict[type, List[type]] = {}
+        self.alternatives: dict[type, list[type]] = {}
         self.starting_symbol = starting_symbol
         self.distanceToTerminal = {int: 1, str: 1, float: 1}
         self.all_nodes = set()
@@ -93,10 +93,10 @@ class Grammar(object):
             f"Grammar<Starting={self.starting_symbol.__name__},Productions=[{prods}]>"
         )
 
-    def get_all_symbols(self) -> Tuple[Set[Type], Set[Type], Set[Type]]:
+    def get_all_symbols(self) -> tuple[set[type], set[type], set[type]]:
         """All symbols in the current grammar, including terminals"""
-        keys = set((k for k in self.alternatives.keys()))
-        sequence = set((v for vv in self.alternatives.values() for v in vv))
+        keys = {k for k in self.alternatives.keys()}
+        sequence = {v for vv in self.alternatives.values() for v in vv}
         return (keys, sequence, sequence.union(keys).union(self.all_nodes))
 
     def get_distance_to_terminal(self, ty: type) -> int:
@@ -125,9 +125,9 @@ class Grammar(object):
             self.distanceToTerminal[s] = 1000000
         changed = True
 
-        reachability: Dict[type, Set[type]] = defaultdict(lambda: set())
+        reachability: dict[type, set[type]] = defaultdict(lambda: set())
 
-        def process_reachability(src: type, dsts: List[type]):
+        def process_reachability(src: type, dsts: list[type]):
             src = strip_annotations(src)
             ch = False
             src_reach = reachability[src]
@@ -174,10 +174,10 @@ class Grammar(object):
                         args = get_arguments(sym)
                         assert args
                         val = max(
-                            [
+                            
                                 1 + self.get_distance_to_terminal(argt)
                                 for (_, argt) in args
-                            ]
+                            
                         )
 
                         changed |= process_reachability(

@@ -3,7 +3,7 @@ from typing import Any, Optional
 
 
 @dataclass
-class Individual(object):
+class Individual:
     genotype: Any
     fitness: Optional[float] = None
 

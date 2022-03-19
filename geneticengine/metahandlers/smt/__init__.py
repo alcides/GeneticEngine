@@ -20,7 +20,7 @@ import random
 from geneticengine.core.representations.tree.treebased import is_metahandler
 
 
-def simplify_type(t: Type) -> Type:
+def simplify_type(t: type) -> type:
     if is_metahandler(t):
         return get_args(t)[0]
     return t
@@ -39,7 +39,7 @@ class SMT(MetaHandlerGenerator):
         new_symbol,
         depth: int,
         base_type,
-        context: Dict[str, str],
+        context: dict[str, str],
     ):
         # fix_types(self.restriction, context)
         c = context.copy()

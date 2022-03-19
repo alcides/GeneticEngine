@@ -28,7 +28,7 @@ class IntRangeM(Root):
 
 @dataclass
 class IntervalRangeM(Root):
-    x: Annotated[Tuple[int], IntervalRange(minimum_length=5, 
+    x: Annotated[tuple[int], IntervalRange(minimum_length=5, 
                                           maximum_length=10, 
                                           maximum_top_limit=100)]
     
@@ -44,7 +44,7 @@ class VarRangeM(Root):
 
 @dataclass
 class ListRangeM(Root):
-    x: Annotated[List[int], ListSizeBetween(3, 4)]
+    x: Annotated[list[int], ListSizeBetween(3, 4)]
 
 
 @dataclass
@@ -63,7 +63,7 @@ class WeightedStringHandlerM(Root):
                               ), ['A', 'C', 'G', 'T'])]
 
 
-class TestMetaHandler(object):
+class TestMetaHandler:
 
     def test_int(self):
         r = RandomSource(seed=1)

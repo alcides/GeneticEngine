@@ -13,7 +13,7 @@ from geneticengine.metahandlers.vars import VarRange
 class Node(ABC):
     pass
 
-    def evaluate(self, input:List[int]):
+    def evaluate(self, input:list[int]):
         ...
 
 @dataclass
@@ -22,7 +22,7 @@ class Op(Node):
     op:Annotated[str, VarRange(["+", "-", "*", "/"])]
     l:Node
 
-    def evaluate(self, input:List[int]):
+    def evaluate(self, input:list[int]):
         if self.op == "+":
             return self.r.evaluate(input) + self.l.evaluate(input)
         elif self.op == "-":
@@ -38,7 +38,7 @@ class Op(Node):
 class Access(Node):
     i:Annotated[int, IntRange(-2,-1)]
 
-    def evaluate(self, input:List[int]):
+    def evaluate(self, input:list[int]):
         return input[self.i]
 
 
@@ -46,7 +46,7 @@ class Access(Node):
 class Literal(Node):
     i:Annotated[int, IntRange(-10,10)]
 
-    def evaluate(self, input:List[int]):
+    def evaluate(self, input:list[int]):
         return self.i
 
 

@@ -7,7 +7,7 @@ from geneticengine.metahandlers.ints import IntRange
 
 @dataclass
 class Code(Statement):
-    stmts: List[Statement]
+    stmts: list[Statement]
 
     def evaluate(self, **kwargs) -> float:
         x = kwargs.get("x", 1.0)

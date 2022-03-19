@@ -48,7 +48,7 @@ T = TypeVar("T")
 
 
 def random_list(
-    r: Source, receiver, new_symbol, depth: int, ty: Type[List[T]], ctx: Dict[str, str]
+    r: Source, receiver, new_symbol, depth: int, ty: type[list[T]], ctx: dict[str, str]
 ):
     inner_type = get_generic_parameter(ty)
     size = r.randint(0, depth - 1)
@@ -67,7 +67,7 @@ def apply_metahandler(
     receiver,
     new_symbol,
     depth: int,
-    ty: Type[Any],
+    ty: type[Any],
     context: dict[str, str],
 ) -> Any:
     """
@@ -83,8 +83,8 @@ def apply_metahandler(
 
 
 # TODO: make non static
-class SMTResolver(object):
-    clauses: List[Any] = []
+class SMTResolver:
+    clauses: list[Any] = []
     receivers: dict[str, Callable] = {}
     types: dict[str, Callable] = {}
 
@@ -156,16 +156,16 @@ def Grow(
     r: Source,
     g: Grammar,
     depth: int,
-    starting_symbol: Type[Any] = int,
+    starting_symbol: type[Any] = int,
 ):
-    def filter_choices(possible_choices: List[type], depth):
+    def filter_choices(possible_choices: list[type], depth):
         valid_productions = [
             vp for vp in possible_choices if g.get_distance_to_terminal(vp) <= depth
         ]
         return valid_productions
 
     def handle_symbol(
-        next_type, next_finalizer, depth: int, ident: str, ctx: Dict[str, str]
+        next_type, next_finalizer, depth: int, ident: str, ctx: dict[str, str]
     ):
         expand_node(
             r,
@@ -195,7 +195,7 @@ def PI_Grow(
     r: Source,
     g: Grammar,
     depth: int,
-    starting_symbol: Type[Any] = int,
+    starting_symbol: type[Any] = int,
 ):
     state = {}
 
@@ -206,7 +206,7 @@ def PI_Grow(
     nRecs = [0]
 
     def handle_symbol(
-        next_type, next_finalizer, depth: int, ident: str, ctx: Dict[str, str]
+        next_type, next_finalizer, depth: int, ident: str, ctx: dict[str, str]
     ):
         prodqueue.append((next_type, next_finalizer, depth, ident, ctx))
         if next_type in g.recursive_prods:
@@ -214,7 +214,7 @@ def PI_Grow(
 
     handle_symbol(starting_symbol, final_finalize, depth, "root", ctx={})
 
-    def filter_choices(possible_choices: List[type], depth):
+    def filter_choices(possible_choices: list[type], depth):
         valid_productions = [
             vp for vp in possible_choices if g.distanceToTerminal[vp] <= depth
         ]
@@ -255,7 +255,7 @@ def random_node(
     r: Source,
     g: Grammar,
     max_depth: int,
-    starting_symbol: Type[Any] = None,
+    starting_symbol: type[Any] = None,
     method=PI_Grow,
 ):
     if starting_symbol is None:
@@ -281,7 +281,7 @@ def expand_node(
     depth,
     starting_symbol: type,
     id: str,
-    ctx: Dict[str, str],
+    ctx: dict[str, str],
 ) -> Any:
     """
     Creates a random node of a given type (starting_symbol)
@@ -344,7 +344,7 @@ def expand_node(
         else:  # Normal production
             args = get_arguments(starting_symbol)
             ctx = ctx.copy()
-            l: List[Any] = []
+            l: list[Any] = []
             for argn, _ in args:
                 name = id + "_" + argn
                 ctx[argn] = name
@@ -380,7 +380,7 @@ def random_individual(r: Source, g: Grammar, max_depth: int = 5) -> TreeNode:
 
 
 def mutate_inner(
-    r: Source, g: Grammar, i: TreeNode, max_depth: int, ty: Type
+    r: Source, g: Grammar, i: TreeNode, max_depth: int, ty: type
 ) -> TreeNode:
     if i.gengy_nodes > 0:
         c = r.randint(0, i.gengy_nodes - 1)
@@ -407,7 +407,7 @@ def mutate_inner(
 
 
 def mutate(
-    r: Source, g: Grammar, i: TreeNode, max_depth: int, target_type: Type
+    r: Source, g: Grammar, i: TreeNode, max_depth: int, target_type: type
 ) -> Any:
     new_tree = mutate_inner(r, g, i, max_depth, target_type)
     relabeled_new_tree = relabel_nodes_of_trees(new_tree, g)
@@ -441,7 +441,7 @@ def get_height(n:TreeNode):
 
 
 def tree_crossover_inner(
-    r: Source, g: Grammar, i: TreeNode, o: TreeNode, ty: Type, max_depth: int
+    r: Source, g: Grammar, i: TreeNode, o: TreeNode, ty: type, max_depth: int
 ) -> Any:
     if i.gengy_nodes > 0:
         c = r.randint(0, i.gengy_nodes - 1)
@@ -477,7 +477,7 @@ def tree_crossover_inner(
 
 def tree_crossover(
     r: Source, g: Grammar, p1: TreeNode, p2: TreeNode, max_depth: int
-) -> Tuple[TreeNode, TreeNode]:
+) -> tuple[TreeNode, TreeNode]:
     """
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns two trees that are created by crossing over [p1] and [p2]. The first tree returned has [p1] as the base, and the second tree has [p2] as a base.
     """
@@ -506,13 +506,13 @@ class TreeBasedRepresentation(Representation[TreeNode]):
         return random_individual(r, g, depth)
 
     def mutate_individual(
-        self, r: Source, g: Grammar, ind: TreeNode, depth: int, ty: Type
+        self, r: Source, g: Grammar, ind: TreeNode, depth: int, ty: type
     ) -> TreeNode:
         return mutate(r, g, ind, depth, ty)
 
     def crossover_individuals(
         self, r: Source, g: Grammar, i1: TreeNode, i2: TreeNode, max_depth: int
-    ) -> Tuple[TreeNode, TreeNode]:
+    ) -> tuple[TreeNode, TreeNode]:
         return tree_crossover(r, g, i1, i2, max_depth)
 
     def genotype_to_phenotype(self, g: Grammar, genotype: TreeNode) -> TreeNode:

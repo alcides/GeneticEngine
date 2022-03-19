@@ -18,8 +18,8 @@ from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import f1_score
 
 DATASET_NAME = "Banknote"
-DATA_FILE_TRAIN = "examples/data/{}/Train.csv".format(DATASET_NAME)
-DATA_FILE_TEST = "examples/data/{}/Test.csv".format(DATASET_NAME)
+DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.csv"
+DATA_FILE_TEST = f"examples/data/{DATASET_NAME}/Test.csv"
 
 bunch = pd.read_csv(DATA_FILE_TRAIN, delimiter=" ")
 # import IPython as ip

@@ -36,7 +36,7 @@ class RecAlt(Root):
     l: Leaf
 
 
-def contains_type(t, ty: Type):
+def contains_type(t, ty: type):
     if isinstance(t, ty):
         return True
     elif isinstance(t, list):
@@ -50,7 +50,7 @@ def contains_type(t, ty: Type):
     return False
 
 
-class TestGrammar(object):
+class TestGrammar:
     def test_root(self):
         r = RandomSource(seed=1)
         g: Grammar = extract_grammar([Leaf], Root)

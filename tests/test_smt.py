@@ -36,7 +36,7 @@ class ComplexInts(Root):
 
 
 @dataclass
-class ObjectNavigationChild(object):
+class ObjectNavigationChild:
     val: int
 
 
@@ -48,14 +48,14 @@ class ObjectNavigation(Root):
 
 @dataclass
 class Comprehension(Root):
-    vals: Annotated[List[Annotated[int, SMT()]], SMT("AllPairs(_, x, y){x != y}")]
+    vals: Annotated[list[Annotated[int, SMT()]], SMT("AllPairs(_, x, y){x != y}")]
 
 
 T = TypeVar("T")
 
 
 @skip
-class TestMetaHandler(object):
+class TestMetaHandler:
     def skeleton(self, *t, depth=3):
         r = RandomSource(seed=1)
         g: Grammar = extract_grammar(list(t), Root)

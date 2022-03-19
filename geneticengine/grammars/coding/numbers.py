@@ -160,7 +160,7 @@ class XAssign(Statement):
         return lambda line: self.value.evaluate_lines(**kwargs)(line)
 
     def __str__(self):
-        return "x = {}".format(self.value)
+        return f"x = {self.value}"
 
 
 all_operators = [Max, Min, Abs, Plus, Mul, SafeDiv, Literal, Var, XAssign]

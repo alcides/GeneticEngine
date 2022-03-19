@@ -3,7 +3,7 @@ from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.tree.treebased import mutate, random_individual
 
 
-class RandomMutations(object):
+class RandomMutations:
     def __init__(self, g: Grammar, representation, e):
         self.grammar = g
         self.representation = representation

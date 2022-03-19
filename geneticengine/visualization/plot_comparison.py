@@ -74,7 +74,7 @@ def plot_comparison(file_run_names, run_names, result_name='results/images/media
     plt.savefig(result_name)  
     plt.close()
 
-files : List[str] = [
+files : list[str] = [
             # 'Franklin/csvs/GoL/grammar_standard', 
             # 'Franklin/csvs/GoL/grammar_row_col_cube', 
             # 'Franklin/csvs/GoL/grammar_cube', 
@@ -83,7 +83,7 @@ files : List[str] = [
             # 'Franklin/csvs/GoL/grammar_row_col', 
             # 'Franklin/csvs/GoL/grammar_sum_all'
         ] 
-run_names : List[str] = [
+run_names : list[str] = [
             # 'standard', 
             # 'row col cube', 
             # 'cube', 

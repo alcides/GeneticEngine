@@ -32,7 +32,7 @@ class FloatRange(MetaHandlerGenerator):
         new_symbol,
         depth: int,
         base_type,
-        context: Dict[str, str],
+        context: dict[str, str],
     ):
         rec(r.random_float(self.min, self.max))
 

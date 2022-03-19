@@ -23,7 +23,7 @@ import geneticengine.algorithms.gp.generation_steps.cross_over as cross_over
 from geneticengine.algorithms.gp.callback import Callback
 
 
-class GP(object):
+class GP:
     '''
     Genetic Programming object. Main attribute: evolve
 
@@ -62,17 +62,17 @@ class GP(object):
     population_size: int
     elitism: Union[
         NoReturn,
-        Callable[[List[Individual], Callable[[Individual], float]], List[Individual]],
+        Callable[[list[Individual], Callable[[Individual], float]], list[Individual]],
     ]
     mutation: Union[
         NoReturn,
         Callable[[Individual], Individual],
     ]
     max_depth: int
-    novelty: Union[NoReturn, Callable[[int], List[Individual]]]
+    novelty: Union[NoReturn, Callable[[int], list[Individual]]]
     minimize: bool
-    final_population: List[Individual]
-    callbacks: List[Callback]
+    final_population: list[Individual]
+    callbacks: list[Callback]
 
     def __init__(
         self,
@@ -86,7 +86,7 @@ class GP(object):
         number_of_generations: int = 100,
         max_depth: int = 15,
         favor_less_deep_trees: bool = False,  # now based on depth, maybe on number of nodes?
-        selection_method: Tuple[str, int] = ("tournament", 5),
+        selection_method: tuple[str, int] = ("tournament", 5),
         # -----
         # As given in A Field Guide to GP, p.17, by Poli and Mcphee
         probability_mutation: float = 0.01,
@@ -99,8 +99,8 @@ class GP(object):
         seed: int = 123,
         # -----
         timer_stop_criteria: bool = False,  # TODO: This should later be generic
-        save_gen_to_csv: Tuple[str, str] = ("", "all"),
-        callbacks: List[Callback] = [],
+        save_gen_to_csv: tuple[str, str] = ("", "all"),
+        callbacks: list[Callback] = [],
     ):
         assert population_size > (n_elites + n_novelties + 1)
 
@@ -180,7 +180,7 @@ class GP(object):
         else:
             return lambda x: -self.evaluate(x) - self.fitness_correction_for_depth(x)
 
-    def evolve(self, verbose=1) -> Tuple[Individual, float, Any]:
+    def evolve(self, verbose=1) -> tuple[Individual, float, Any]:
         '''
         The main function of the GP object. This function runs the GP algorithm over the set number of generations, evolving better solutions
         
@@ -241,7 +241,7 @@ class GP(object):
                 )
             if verbose == 2:
                 # self.printFitnesses(population, "G:" + str(gen))
-                print("Best population:{}.".format(population[0]))
+                print(f"Best population:{population[0]}.")
             if verbose >= 1:
                 if not self.timer_stop_criteria:
                     print(
@@ -290,7 +290,7 @@ class GP(object):
     def write_to_csv(
         self,
         file_name,
-        population: List[Individual],
+        population: list[Individual],
         number_of_the_generation,
         time_since_the_start_of_the_evolution,
         writing_method,

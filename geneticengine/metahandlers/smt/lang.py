@@ -4,7 +4,7 @@ import z3
 
 
 class dNode:
-    def translate(self, mappings: Dict[str, str], types: Dict[str, Any]):
+    def translate(self, mappings: dict[str, str], types: dict[str, Any]):
         raise NotImplementedError
 
     def eval(self, x):
@@ -46,7 +46,7 @@ def s(x):
 class dVar(dNode):
 
     # Name needed for multiple variables
-    def __init__(self, names: List[str]):
+    def __init__(self, names: list[str]):
         self.names = names
 
     def translate(self, mappings, types):
@@ -287,7 +287,7 @@ class fNavigate(dNode):
         self.obj = obj
         self.expr = expr
 
-    def translate_mappings(self, mappings: Dict[str, str]):
+    def translate_mappings(self, mappings: dict[str, str]):
         ret = {}
         obj = self.obj
         for k, v in mappings.items():
@@ -298,7 +298,7 @@ class fNavigate(dNode):
             ret[newk] = v
         return ret
 
-    def translate(self, mappings: Dict[str, str], types):
+    def translate(self, mappings: dict[str, str], types):
         mappings = self.translate_mappings(mappings)
 
         return self.expr.translate(mappings, types)
@@ -320,13 +320,13 @@ class dAllPairs(dNode):
         self.y = y
         self.block = block
 
-    def _gen_pairs(self, l: List):
+    def _gen_pairs(self, l: list):
         for i1, e1 in enumerate(l):
             for i2, e2 in enumerate(l):
                 if i1 != i2:
                     yield e1, e2
 
-    def translate(self, mappings: Dict[str, str], types: Dict[str, Any]):
+    def translate(self, mappings: dict[str, str], types: dict[str, Any]):
         real_cont = mappings[self.cont]
         subs = []
         for k in types.keys():

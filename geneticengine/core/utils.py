@@ -14,27 +14,27 @@ from typing import (
 from geneticengine.core.decorators import get_gengy
 
 
-def is_annotated(ty: Type[Any]):
+def is_annotated(ty: type[Any]):
     """Returns whether type is annotated with metadata."""
     return hasattr(ty, "__metadata__")
 
 
-def is_generic_list(ty: Type[Any]):
+def is_generic_list(ty: type[Any]):
     """Returns whether a type is List[T] for any T"""
     return hasattr(ty, "__origin__") and ty.__origin__ is list
 
 
-def get_generic_parameters(ty: Type[Any]) -> List[type]:
+def get_generic_parameters(ty: type[Any]) -> list[type]:
     """Annotated[T, <annotations>] or List[T], this function returns Dict[T,]"""
     return ty.__args__
 
 
-def get_generic_parameter(ty: Type[Any]) -> type:
+def get_generic_parameter(ty: type[Any]) -> type:
     """When given Annotated[T, <annotations>] or List[T], this function returns T"""
     return get_generic_parameters(ty)[0]
 
 
-def strip_annotations(ty: Type[Any]) -> type:
+def strip_annotations(ty: type[Any]) -> type:
     """When given Annotated[T, <annotations>] or List[T], this function recurses with T
     Otherwise, it returns the parameter unchanged.
     """
@@ -44,7 +44,7 @@ def strip_annotations(ty: Type[Any]) -> type:
         return ty
 
 
-def get_arguments(n) -> List[Tuple[str, type]]:
+def get_arguments(n) -> list[tuple[str, type]]:
     """
     :param n: production
     :return: list((argname, argtype))
@@ -62,7 +62,7 @@ def is_abstract(t: type) -> bool:
     return t.mro()[1] in [ABC, Protocol] or get_gengy(t).get("abstract", False)
 
 
-def is_terminal(t: type, l: Set[type]) -> bool:
+def is_terminal(t: type, l: set[type]) -> bool:
     """Returns whether a node is a terminal or not, based on the list of non terminals in the grammar"""
     if is_annotated(t):
         return all([is_terminal(inner, l) for inner in get_generic_parameters(t)])
@@ -75,8 +75,8 @@ def is_terminal(t: type, l: Set[type]) -> bool:
 
 
 def build_finalizers(
-    final_callback, n_args, per_callback: List[Callable[[Any], None]] = None
-) -> List[Any]:
+    final_callback, n_args, per_callback: list[Callable[[Any], None]] = None
+) -> list[Any]:
     """
     Builds a set of functions that accumulate the arguments provided
     :param final_callback:

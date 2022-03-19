@@ -10,10 +10,10 @@ def create_cross_over(
     representation: Representation,
     g: Grammar,
     max_depth: int,
-) -> Callable[[Individual, Individual], Tuple[Individual, Individual]]:
+) -> Callable[[Individual, Individual], tuple[Individual, Individual]]:
     def cross_over_double(
         individual1: Individual, individual2: Individual
-    ) -> Tuple[Individual, Individual]:
+    ) -> tuple[Individual, Individual]:
         (g1, g2) = representation.crossover_individuals(
             r, g, individual1.genotype, individual2.genotype, max_depth
         )

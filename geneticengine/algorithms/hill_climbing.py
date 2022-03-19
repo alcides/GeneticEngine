@@ -7,7 +7,7 @@ from geneticengine.algorithms.gp.individual import Individual
 import geneticengine.algorithms.gp.generation_steps.mutation as mutation
 
 
-class HC(object):
+class HC:
     '''
     Hill Climbing object. Main attribute: evolve
 
@@ -87,7 +87,7 @@ class HC(object):
         for gen in range(self.number_of_generations):
             population = self.mutation(population)
             if verbose == 2:
-                print("Best population:{}.".format(population[0]))
+                print(f"Best population:{population[0]}.")
             if verbose >= 1:
                 print(
                     "BEST at",

@@ -17,8 +17,8 @@ from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import mse
 
 DATASET_NAME = "Vladislavleva4"
-DATA_FILE_TRAIN = "examples/data/{}/Train.txt".format(DATASET_NAME)
-DATA_FILE_TEST = "examples/data/{}/Test.txt".format(DATASET_NAME)
+DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.txt"
+DATA_FILE_TEST = f"examples/data/{DATASET_NAME}/Test.txt"
 
 bunch = pd.read_csv(DATA_FILE_TRAIN, delimiter="\t")
 target = bunch.response

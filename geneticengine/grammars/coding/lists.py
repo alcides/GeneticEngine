@@ -57,7 +57,7 @@ class Combine(NumberList):
     def evaluate(self, **kwargs):
         return self.list1.evaluate(**kwargs) + self.list2.evaluate(**kwargs)
 
-    def evaluate_lines(self, **kwargs) -> Callable[[Any], List[float]]:
+    def evaluate_lines(self, **kwargs) -> Callable[[Any], list[float]]:
         return lambda line: self.list1.evaluate_lines(**kwargs)(
             line
         ) + self.list2.evaluate_lines(**kwargs)(line)
@@ -68,7 +68,7 @@ class Combine(NumberList):
 
 @dataclass
 class Literal(NumberList):
-    list: Annotated[List[Number], ListSizeBetween(2, 3)]
+    list: Annotated[list[Number], ListSizeBetween(2, 3)]
 
     def evaluate(self, **kwargs):
         return [v.evaluate(**kwargs) for v in self.list]

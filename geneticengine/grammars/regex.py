@@ -71,7 +71,7 @@ class ElementaryREParens(RE):
 # elementary-re ::= \w | \d
 @dataclass
 class ElementaryREWD(RE):
-    option: Annotated[str, VarRange(["\w", "\d"])]
+    option: Annotated[str, VarRange([r"\w", r"\d"])]
 
     def __str__(self):
         return self.option

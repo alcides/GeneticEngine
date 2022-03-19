@@ -4,8 +4,8 @@ import importlib as il
 
 
 def get_data(data_file_train, data_file_test, test=False):
-    with open(data_file_train, 'r') as train_file, \
-            open(data_file_test, 'r') as test_file:
+    with open(data_file_train) as train_file, \
+            open(data_file_test) as test_file:
         train_data = train_file.read()
         test_data = test_file.read()
 

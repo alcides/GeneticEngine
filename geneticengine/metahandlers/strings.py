@@ -40,7 +40,7 @@ class WeightedStringHandler(MetaHandlerGenerator):
         newsymbol,
         depth: int,
         base_type,
-        context: Dict[str, str],
+        context: dict[str, str],
     ):
         out = ""
         for row in self.probability_matrix:

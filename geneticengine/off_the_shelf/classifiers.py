@@ -42,7 +42,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
 
     def __init__(
         self,
-        nodes: List[Type[Number]] = None,
+        nodes: list[type[Number]] = None,
         representation: Representation = treebased_representation,
         population_size: int = 200,
         n_elites: int = 5,  # Shouldn't this be a percentage of population size?
@@ -294,8 +294,8 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
 
 
 DATASET_NAME = "Banknote"
-DATA_FILE_TRAIN = "examples/data/{}/Train.csv".format(DATASET_NAME)
-DATA_FILE_TEST = "examples/data/{}/Test.csv".format(DATASET_NAME)
+DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.csv"
+DATA_FILE_TEST = f"examples/data/{DATASET_NAME}/Test.csv"
 
 bunch = pd.read_csv(DATA_FILE_TRAIN, delimiter=" ")
 target = bunch.y

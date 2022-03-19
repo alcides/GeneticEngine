@@ -10,7 +10,7 @@ from geneticengine.core.tree import TreeNode
 
 @dataclass
 class Genotype:
-    dna: List[int]
+    dna: list[int]
 
 
 def random_individual(
@@ -28,7 +28,7 @@ def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
 
 def crossover(
     r: Source, g: Grammar, p1: Genotype, p2: Genotype, max_depth: int
-) -> Tuple[Genotype, Genotype]:
+) -> tuple[Genotype, Genotype]:
     rindex = r.randint(0, 255)
     c1 = p1.dna[:rindex] + p2.dna[rindex:]
     c2 = p2.dna[:rindex] + p1.dna[rindex:]
@@ -37,7 +37,7 @@ def crossover(
 
 @dataclass
 class ListWrapper(Source):
-    list: List[int]
+    list: list[int]
     index: int = 0
 
     def randint(self, min, max) -> int:
@@ -63,13 +63,13 @@ class GrammaticalEvolutionRepresentation(Representation[Genotype]):
         return random_individual(r, g, depth)
 
     def mutate_individual(
-        self, r: Source, g: Grammar, ind: Genotype, depth: int, ty: Type
+        self, r: Source, g: Grammar, ind: Genotype, depth: int, ty: type
     ) -> Genotype:
         return mutate(r, g, ind, depth)
 
     def crossover_individuals(
         self, r: Source, g: Grammar, i1: Genotype, i2: Genotype, depth: int
-    ) -> Tuple[Genotype, Genotype]:
+    ) -> tuple[Genotype, Genotype]:
         return crossover(r, g, i1, i2, depth)
 
     def genotype_to_phenotype(self, g: Grammar, genotype: Genotype) -> TreeNode:

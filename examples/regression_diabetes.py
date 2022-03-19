@@ -57,6 +57,6 @@ def fitness_function(n: Number):
 
 if __name__ == "__main__":
     g = preprocess()
-    print("Grammar: {}.".format(repr(g)))
+    print(f"Grammar: {repr(g)}.")
     b, bf = evolve(g, 0)
     print(b, bf)

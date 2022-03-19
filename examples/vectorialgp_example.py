@@ -2939,7 +2939,7 @@ class ScalarVar(Scalar):
     index: Annotated[int, IntRange(0, 1)]
 
     def __str__(self):
-        return "line[{}]".format(self.index)
+        return f"line[{self.index}]"
 
 
 @dataclass
@@ -2947,7 +2947,7 @@ class VectorialVar(Vectorial):
     index: Annotated[int, IntRange(2, 3)]
 
     def __str__(self):
-        return "line[{}]".format(self.index)
+        return f"line[{self.index}]"
 
 
 @dataclass
@@ -2956,7 +2956,7 @@ class Add(Scalar):
     right: Scalar
 
     def __str__(self):
-        return "({} + {})".format(self.left, self.right)
+        return f"({self.left} + {self.right})"
 
 
 @dataclass
@@ -2964,7 +2964,7 @@ class Mean(Scalar):
     arr: Vectorial
 
     def __str__(self):
-        return "np.mean({})".format(self.arr)
+        return f"np.mean({self.arr})"
 
 
 @dataclass
@@ -2972,7 +2972,7 @@ class Max(Scalar):
     arr: Vectorial
 
     def __str__(self):
-        return "np.max({})".format(self.arr)
+        return f"np.max({self.arr})"
 
 
 @dataclass
@@ -2980,7 +2980,7 @@ class Min(Scalar):
     arr: Vectorial
 
     def __str__(self):
-        return "np.min({})".format(self.arr)
+        return f"np.min({self.arr})"
 
 
 @dataclass
@@ -2988,7 +2988,7 @@ class Sum(Scalar):
     arr: Vectorial
 
     def __str__(self):
-        return "np.sum({})".format(self.arr)
+        return f"np.sum({self.arr})"
 
 
 @dataclass
@@ -2996,7 +2996,7 @@ class Length(Scalar):
     arr: Vectorial
 
     def __str__(self):
-        return "len({})".format(self.arr)
+        return f"len({self.arr})"
 
 
 @dataclass
@@ -3005,7 +3005,7 @@ class ElementWiseSum(Vectorial):
     vector: Vectorial
 
     def __str__(self):
-        return "np.add({}, {})".format(self.scalar, self.vector)
+        return f"np.add({self.scalar}, {self.vector})"
 
 
 @dataclass
@@ -3014,7 +3014,7 @@ class ElementWiseSub(Vectorial):
     vector: Vectorial
 
     def __str__(self):
-        return "np.subtract({}, {})".format(self.scalar, self.vector)
+        return f"np.subtract({self.scalar}, {self.vector})"
 
 
 @dataclass
@@ -3022,7 +3022,7 @@ class CumulativeSum(Vectorial):
     arr: Vectorial
 
     def __str__(self):
-        return "np.cumsum({})".format(self.arr)
+        return f"np.cumsum({self.arr})"
 
 
 @dataclass
@@ -3104,7 +3104,7 @@ def fitness_function(n: Scalar):
 
 
 def fitness_function_alternative(n: Scalar):
-    code = "lambda line: {}".format(str(n))
+    code = f"lambda line: {str(n)}"
     regressor = eval(code)
     y_pred = [regressor(line) for line in dataset]
     y = [line[-1] for line in dataset]

@@ -57,7 +57,7 @@ def getIndexIntList(curList, index):
 
 def getIndexStringList(curList, index):
     if not curList:
-        return str()
+        return ''
     return curList[index % len(curList)]
 
 

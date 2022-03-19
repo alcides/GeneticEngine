@@ -7,11 +7,11 @@ class TreeNode(Protocol):
     gengy_labeled: bool
     gengy_distance_to_term: int
     gengy_nodes: int
-    gengy_types_this_way: Dict[type, List[Any]]
+    gengy_types_this_way: dict[type, list[Any]]
     gengy_init_values: tuple[Any]
 
 
-class PrettyPrintable(object):
+class PrettyPrintable:
     def __repr__(self):
         args = ", ".join(
             [f"{a}={getattr(self, a)}" for (a, at) in get_arguments(self.__class__)]

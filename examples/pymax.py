@@ -32,7 +32,7 @@ class XPlusConst(Expr):
         return x + self.right.evaluate(x)
 
     def __str__(self) -> str:
-        return "x + {}".format(self.right)
+        return f"x + {self.right}"
 
 
 @dataclass
@@ -43,7 +43,7 @@ class XTimesConst(Expr):
         return x * self.right.evaluate(x)
 
     def __str__(self) -> str:
-        return "x * {}".format(self.right)
+        return f"x * {self.right}"
 
 
 def fit(indiv: Code):

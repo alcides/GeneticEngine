@@ -31,7 +31,7 @@ class ListSizeBetween(MetaHandlerGenerator):
         new_symbol,
         depth: int,
         base_type,
-        ctx: Dict[str, str],
+        ctx: dict[str, str],
     ):
         base_type = base_type.__args__[0]
         size = r.randint(self.min, self.max)

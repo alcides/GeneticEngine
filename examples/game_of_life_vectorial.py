@@ -21,8 +21,8 @@ MATRIX_COL_SIZE = 3
 
 def prepare_data(DATASET_NAME):
 
-    DATA_FILE_TRAIN = "examples/data/{}/Train.csv".format(DATASET_NAME)
-    DATA_FILE_TEST = "examples/data/{}/Test.csv".format(DATASET_NAME)
+    DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.csv"
+    DATA_FILE_TEST = f"examples/data/{DATASET_NAME}/Test.csv"
 
     train = np.genfromtxt(DATA_FILE_TRAIN, skip_header=1, delimiter=",", dtype=int)
     Xtrain = train[:, :-1]
