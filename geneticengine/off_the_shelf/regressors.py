@@ -1,9 +1,15 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Annotated, List, Type
-import pandas as pd
-from sklearn.base import BaseEstimator, TransformerMixin  # type: ignore
-import numpy as np
 from math import isinf
+from typing import Annotated
+from typing import List
+from typing import Type
+
+import numpy as np
+import pandas as pd
+from sklearn.base import BaseEstimator
+from sklearn.base import TransformerMixin
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.hill_climbing import HC
@@ -11,11 +17,19 @@ from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.api import Representation
 from geneticengine.core.representations.tree.treebased import treebased_representation
-from geneticengine.grammars.basic_math import SafeDiv, SafeLog, SafeSqrt
-from geneticengine.grammars.sgp import Plus, Mul, Var, Number, Literal
-from geneticengine.grammars.literals import exp_literals, ExpLiteral
+from geneticengine.grammars.basic_math import SafeDiv
+from geneticengine.grammars.basic_math import SafeLog
+from geneticengine.grammars.basic_math import SafeSqrt
+from geneticengine.grammars.literals import exp_literals
+from geneticengine.grammars.literals import ExpLiteral
+from geneticengine.grammars.sgp import Literal
+from geneticengine.grammars.sgp import Mul
+from geneticengine.grammars.sgp import Number
+from geneticengine.grammars.sgp import Plus
+from geneticengine.grammars.sgp import Var
 from geneticengine.metahandlers.vars import VarRange
-from geneticengine.metrics import f1_score, mse
+from geneticengine.metrics import f1_score
+from geneticengine.metrics import mse
 
 
 class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
@@ -121,7 +135,10 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
                 variables[x] = data[:, i]
             y_pred = n.evaluate(**variables)
 
-            fitness = mse(y_pred, y)  # mse is used in PonyGE, as the error metric is not None!
+            fitness = mse(
+                y_pred,
+                y,
+            )  # mse is used in PonyGE, as the error metric is not None!
             if isinf(fitness) or np.isnan(fitness):
                 fitness = 100000000
             return fitness
@@ -244,7 +261,7 @@ class HillClimbingRegressor(BaseEstimator, TransformerMixin):
                 variables[x] = data[:, i]
             y_pred = n.evaluate(**variables)
 
-            fitness = mse(y_pred, y) 
+            fitness = mse(y_pred, y)
             if isinf(fitness) or np.isnan(fitness):
                 fitness = 100000000
             return fitness

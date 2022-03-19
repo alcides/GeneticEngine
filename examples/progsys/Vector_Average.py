@@ -1,26 +1,37 @@
-from typing import Annotated, Any, Callable
-from examples.progsys.utils import get_data, import_embedded
+from __future__ import annotations
 
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.grammars.coding.classes import Number, Statement, XAssign
-import geneticengine.grammars.coding.numbers as numbers  # Max, Min, Abs, Plus, Literal, Mul, SafeDiv, Var
-import geneticengine.grammars.coding.lists as lists  # Max, Min, Abs, Plus, Literal, Mul, SafeDiv, Var
-from geneticengine.grammars.coding.control_flow import IfThen, IfThenElse, While
-from geneticengine.grammars.coding.conditions import (
-    Equals,
-    NotEquals,
-    GreaterOrEqualThan,
-    GreaterThan,
-    LessOrEqualThan,
-    LessThan,
-    Is,
-    IsNot,
-)
-from geneticengine.grammars.coding.logical_ops import And, Or
-from geneticengine.metahandlers.vars import VarRange
+from typing import Annotated
+from typing import Any
+from typing import Callable
+
+import geneticengine.grammars.coding.lists as lists
+import geneticengine.grammars.coding.numbers as numbers
+from examples.progsys.utils import get_data
+from examples.progsys.utils import import_embedded
 from geneticengine.algorithms.gp.gp import GP
-from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.grammatical_evolution import ge_representation
+from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.grammars.coding.classes import Number
+from geneticengine.grammars.coding.classes import Statement
+from geneticengine.grammars.coding.classes import XAssign
+from geneticengine.grammars.coding.conditions import Equals
+from geneticengine.grammars.coding.conditions import GreaterOrEqualThan
+from geneticengine.grammars.coding.conditions import GreaterThan
+from geneticengine.grammars.coding.conditions import Is
+from geneticengine.grammars.coding.conditions import IsNot
+from geneticengine.grammars.coding.conditions import LessOrEqualThan
+from geneticengine.grammars.coding.conditions import LessThan
+from geneticengine.grammars.coding.conditions import NotEquals
+from geneticengine.grammars.coding.control_flow import IfThen
+from geneticengine.grammars.coding.control_flow import IfThenElse
+from geneticengine.grammars.coding.control_flow import While
+from geneticengine.grammars.coding.logical_ops import And
+from geneticengine.grammars.coding.logical_ops import Or
+from geneticengine.metahandlers.vars import VarRange
+
+# Max, Min, Abs, Plus, Literal, Mul, SafeDiv, Var
+# Max, Min, Abs, Plus, Literal, Mul, SafeDiv, Var
 
 FILE_NAME = "Vector_Average"
 DATA_FILE_TRAIN = f"./examples/progsys/data/{FILE_NAME}/Train.txt"
@@ -80,7 +91,7 @@ def fitness_function(n: Statement):
 
 
 def evolve(g, seed, mode, representation):
-    if representation == 'grammatical_evolution':
+    if representation == "grammatical_evolution":
         representation = ge_representation
     else:
         representation = treebased_representation
@@ -102,6 +113,6 @@ def evolve(g, seed, mode, representation):
 
 if __name__ == "__main__":
     g = preprocess()
-    bf, b = evolve(g, 0, False, 'treebased_representation')
+    bf, b = evolve(g, 0, False, "treebased_representation")
     print(b)
     print(f"With fitness: {bf}")

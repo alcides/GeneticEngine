@@ -1,10 +1,18 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Any, List, Protocol, Tuple, Type
+from typing import Any
+from typing import List
+from typing import Protocol
+from typing import Tuple
+from typing import Type
 
 from geneticengine.core.grammar import Grammar
-from geneticengine.core.random.sources import RandomSource, Source
+from geneticengine.core.random.sources import RandomSource
+from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
-from geneticengine.core.representations.tree.treebased import PI_Grow, random_node
+from geneticengine.core.representations.tree.treebased import PI_Grow
+from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.core.tree import TreeNode
 
 
@@ -14,7 +22,10 @@ class Genotype:
 
 
 def random_individual(
-    r: Source, g: Grammar, depth: int = 5, starting_symbol: Any = None
+    r: Source,
+    g: Grammar,
+    depth: int = 5,
+    starting_symbol: Any = None,
 ) -> Genotype:
     return Genotype([r.randint(0, 10000) for _ in range(256)])
 
@@ -27,7 +38,11 @@ def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
 
 
 def crossover(
-    r: Source, g: Grammar, p1: Genotype, p2: Genotype, max_depth: int
+    r: Source,
+    g: Grammar,
+    p1: Genotype,
+    p2: Genotype,
+    max_depth: int,
 ) -> tuple[Genotype, Genotype]:
     rindex = r.randint(0, 255)
     c1 = p1.dna[:rindex] + p2.dna[rindex:]
@@ -56,19 +71,29 @@ def create_tree(g: Grammar, ind: Genotype, depth: int) -> TreeNode:
 
 
 class GrammaticalEvolutionRepresentation(Representation[Genotype]):
-    depth : int
+    depth: int
 
     def create_individual(self, r: Source, g: Grammar, depth: int) -> Genotype:
         self.depth = depth
         return random_individual(r, g, depth)
 
     def mutate_individual(
-        self, r: Source, g: Grammar, ind: Genotype, depth: int, ty: type
+        self,
+        r: Source,
+        g: Grammar,
+        ind: Genotype,
+        depth: int,
+        ty: type,
     ) -> Genotype:
         return mutate(r, g, ind, depth)
 
     def crossover_individuals(
-        self, r: Source, g: Grammar, i1: Genotype, i2: Genotype, depth: int
+        self,
+        r: Source,
+        g: Grammar,
+        i1: Genotype,
+        i2: Genotype,
+        depth: int,
     ) -> tuple[Genotype, Genotype]:
         return crossover(r, g, i1, i2, depth)
 

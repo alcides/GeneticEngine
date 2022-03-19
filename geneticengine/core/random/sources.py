@@ -1,8 +1,11 @@
-from abc import ABC
-import random
-from itertools import accumulate
+from __future__ import annotations
 
-from typing import List, Any, TypeVar
+import random
+from abc import ABC
+from itertools import accumulate
+from typing import Any
+from typing import List
+from typing import TypeVar
 
 T = TypeVar("T")
 

@@ -1,15 +1,14 @@
-from typing import (
-    Any,
-    Callable,
-    TypeVar,
-    Dict,
-    Type,
-)
+from __future__ import annotations
 
-from geneticengine.core.random.sources import Source
-from geneticengine.metahandlers.base import MetaHandlerGenerator
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import Type
+from typing import TypeVar
 
 from geneticengine.core.grammar import Grammar
+from geneticengine.core.random.sources import Source
+from geneticengine.metahandlers.base import MetaHandlerGenerator
 
 min = TypeVar("min", covariant=True)
 max = TypeVar("max", covariant=True)
@@ -17,9 +16,10 @@ max = TypeVar("max", covariant=True)
 
 class FloatRange(MetaHandlerGenerator):
     """
-        FloatRange(a,b) restricts floats to be between a and b.
-        The range can be dynamically altered before the grammar extraction (Float.__annotations__["value"] = Annotated[float, FloatRange(c,d)].
+    FloatRange(a,b) restricts floats to be between a and b.
+    The range can be dynamically altered before the grammar extraction (Float.__annotations__["value"] = Annotated[float, FloatRange(c,d)].
     """
+
     def __init__(self, min, max):
         self.min = min
         self.max = max

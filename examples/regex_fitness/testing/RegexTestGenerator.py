@@ -1,4 +1,6 @@
 # Class extracted from PonyGE
+from __future__ import annotations
+
 import re
 
 from examples.regex_fitness.testing.RegexTest import RegexTest
@@ -25,14 +27,18 @@ def generate_equivalence_test_suite_replacement(a_match, compiled_regex):
     # compiled_regex = re.compile(a_regex)
     if len(a_match.matches) > 0:
         for i in range(0, len(a_match.search_string)):
-            for char in [a for a in range(ord('0'), ord('9'))] + \
-                        [ord('a'), ord('Z')]:
-                new_search_string = a_match.search_string[:i] + \
-                                    chr(char) + \
-                                    a_match.search_string[i + 1:]
+            for char in [a for a in range(ord("0"), ord("9"))] + [ord("a"), ord("Z")]:
+                new_search_string = (
+                    a_match.search_string[:i]
+                    + chr(char)
+                    + a_match.search_string[i + 1 :]
+                )
                 a_test_case_string = RegexTest(new_search_string)
-                vals = time_regex_test_case(compiled_regex, a_test_case_string,
-                                            1)
+                vals = time_regex_test_case(
+                    compiled_regex,
+                    a_test_case_string,
+                    1,
+                )
                 if len(list(vals[1])) == 0:
                     test_cases.append(a_test_case_string)
     return test_cases
@@ -53,23 +59,29 @@ def generate_equivalence_test_suite_length(a_match, compiled_regex):
     if len(a_match.matches) > 0:
 
         # check string with one character added at the front
-        new_search_string = 'a' + a_match.search_string
+        new_search_string = "a" + a_match.search_string
 
         add_test_case_if_fails(new_search_string, compiled_regex, test_cases)
         # check string with one character added at the end
-        new_search_string = a_match.search_string + 'a'
+        new_search_string = a_match.search_string + "a"
         add_test_case_if_fails(new_search_string, compiled_regex, test_cases)
         for i in range(len(a_match.search_string) - 1):
             # TODO: refactor this
             new_search_string = a_match.search_string[i:]
-            add_test_case_if_fails(new_search_string, compiled_regex,
-                                   test_cases)
+            add_test_case_if_fails(
+                new_search_string,
+                compiled_regex,
+                test_cases,
+            )
 
         for i in range(len(a_match.search_string) - 1):
             # TODO: refactor this
             new_search_string = a_match.search_string[:i]
-            add_test_case_if_fails(new_search_string, compiled_regex,
-                                   test_cases)
+            add_test_case_if_fails(
+                new_search_string,
+                compiled_regex,
+                test_cases,
+            )
     return test_cases
 
 
@@ -89,7 +101,7 @@ def add_test_case_if_fails(new_search_string, compiled_regex, test_cases):
 
 def generate_test_suite(regex_string):
     """
-    
+
     :param regex_string:
     :return:
     """
@@ -103,8 +115,8 @@ def generate_test_suite(regex_string):
     # cache and reuse these (read/write to a file before/after GP)
     known_test_strings = [
         "5C0A5B634A82",
-        "Jan 12 06:26:20: ACCEPT service dns from 140.105.48.16 to firewall(pub-nic-dns), prefix: \"none\" (in: eth0 140.105.48.16(00:21:dd:bc:95:44):4263 -> 140.105.63.158(00:14:31:83:c6:8d):53 UDP len:76",
-        "Jan 12 06:27:09: DROP service 68->67(udp) from 216.34.211.83 to 216.34.253.94, prefix: \"spoof iana-0/8\" (in: eth0 213.92.153.78(00:1f:d6:19:0a:80):68 -> 69.43.177.110(00:30:fe:fd:d6:51):67 UDP le"
+        'Jan 12 06:26:20: ACCEPT service dns from 140.105.48.16 to firewall(pub-nic-dns), prefix: "none" (in: eth0 140.105.48.16(00:21:dd:bc:95:44):4263 -> 140.105.63.158(00:14:31:83:c6:8d):53 UDP len:76',
+        'Jan 12 06:27:09: DROP service 68->67(udp) from 216.34.211.83 to 216.34.253.94, prefix: "spoof iana-0/8" (in: eth0 213.92.153.78(00:1f:d6:19:0a:80):68 -> 69.43.177.110(00:30:fe:fd:d6:51):67 UDP le'
         "Jan 12 06:26:19: ACCEPT service http from 119.63.193.196 to firewall(pub-nic), prefix: ",
         "Jan 12 06:26:19: ACCEPT service http from 119.63.193.196 to firewall(pub-nic), prefix: ",
         "26:19: ACCEPT service http from 119.63.193.196 to firewall(pub-nic), prefix: ",
@@ -161,8 +173,8 @@ def generate_test_suite(regex_string):
         "a46b  ",
         "0.045e-10",
         "aXXXXas",
-        "<s_char>        ::= !|\"#\"|$|%|&|\\(|\\)|*|+|,|-|.|\\/|:|;|\"<\"|=|\">\"|?|@|\\[|\\|\\]|^|_|\"`\"|{|}|~|\"|\"|'\"'|\"'\"|\" \""
-        "!|\"#\"|$|%|&|\\(|\\)|*|+|,|-|.|\\/|:|;|\"<\"|=|\">\"|?|@|\\[|\\|\\]|^|_|\"`\"|{|}|~|\"|\"|'\"'|\"'\"|\" \"",
+        '<s_char>        ::= !|"#"|$|%|&|\\(|\\)|*|+|,|-|.|\\/|:|;|"<"|=|">"|?|@|\\[|\\|\\]|^|_|"`"|{|}|~|"|"|\'"\'|"\'"|" "'
+        '!|"#"|$|%|&|\\(|\\)|*|+|,|-|.|\\/|:|;|"<"|=|">"|?|@|\\[|\\|\\]|^|_|"`"|{|}|~|"|"|\'"\'|"\'"|" "',
         "<A_Z>           ::= A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z",
         "A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z",
     ]
@@ -170,8 +182,10 @@ def generate_test_suite(regex_string):
     compiled_regex = re.compile(regex_string)
     test_cases = []
     for test_string in known_test_strings:
-        test_cases += generate_tests_if_string_match(compiled_regex,
-                                                     test_string)
+        test_cases += generate_tests_if_string_match(
+            compiled_regex,
+            test_string,
+        )
 
     # if we don't have any known test strings, see if the regex matches it.
     test_cases += generate_tests_if_string_match(compiled_regex, regex_string)
@@ -199,7 +213,7 @@ def add_re_match_to_test(matches, passing_test_string):
 
 def generate_tests_if_string_match(compiled_regex, test_string):
     """
-    
+
     :param compiled_regex:
     :param test_string:
     :return:
@@ -215,7 +229,11 @@ def generate_tests_if_string_match(compiled_regex, test_string):
 
         # now find regex which negate
         test_cases += generate_equivalence_test_suite_replacement(
-            a_positive_test, compiled_regex)
+            a_positive_test,
+            compiled_regex,
+        )
         test_cases += generate_equivalence_test_suite_length(
-            a_positive_test, compiled_regex)
+            a_positive_test,
+            compiled_regex,
+        )
     return test_cases

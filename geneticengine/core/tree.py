@@ -1,4 +1,11 @@
-from typing import Protocol, runtime_checkable, List, Any, Dict
+from __future__ import annotations
+
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Protocol
+from typing import runtime_checkable
+
 from geneticengine.core.utils import get_arguments
 
 
@@ -14,6 +21,6 @@ class TreeNode(Protocol):
 class PrettyPrintable:
     def __repr__(self):
         args = ", ".join(
-            [f"{a}={getattr(self, a)}" for (a, at) in get_arguments(self.__class__)]
+            [f"{a}={getattr(self, a)}" for (a, at) in get_arguments(self.__class__)],
         )
         return f"{self.__class__.__name__}({args})"

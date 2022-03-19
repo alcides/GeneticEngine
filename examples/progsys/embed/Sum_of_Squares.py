@@ -1,6 +1,8 @@
 # *****************************************************************************
 # Helper Code
 # *****************************************************************************
+from __future__ import annotations
+
 import math
 
 
@@ -57,13 +59,13 @@ def getIndexIntList(curList, index):
 
 def getIndexStringList(curList, index):
     if not curList:
-        return ''
+        return ""
     return curList[index % len(curList)]
 
 
 def getCharFromString(curString, index):
     if not curString:
-        return ''
+        return ""
     return curString[index % len(curString)]
 
 

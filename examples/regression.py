@@ -1,17 +1,30 @@
-from dataclasses import dataclass
-from typing import Annotated, Any, Callable
+from __future__ import annotations
 
 import os
+from dataclasses import dataclass
+from math import isinf
+from typing import Annotated
+from typing import Any
+from typing import Callable
+
 import numpy as np
 import pandas as pd
-from math import isinf
 
 from geneticengine.algorithms.gp.gp import GP
-from geneticengine.grammars.sgp import Plus, Minus, Number, Mul, Var
-from geneticengine.grammars.basic_math import SafeLog, SafeSqrt, Sin, Tanh, Exp, SafeDiv
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.core.representations.grammatical_evolution import ge_representation
+from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.grammars.basic_math import Exp
+from geneticengine.grammars.basic_math import SafeDiv
+from geneticengine.grammars.basic_math import SafeLog
+from geneticengine.grammars.basic_math import SafeSqrt
+from geneticengine.grammars.basic_math import Sin
+from geneticengine.grammars.basic_math import Tanh
+from geneticengine.grammars.sgp import Minus
+from geneticengine.grammars.sgp import Mul
+from geneticengine.grammars.sgp import Number
+from geneticengine.grammars.sgp import Plus
+from geneticengine.grammars.sgp import Var
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import mse
@@ -47,7 +60,19 @@ class Literal(Number):
 
 def preprocess():
     return extract_grammar(
-        [Plus, Minus, Mul, SafeDiv, Literal, Var, SafeSqrt, Exp, Sin, Tanh, SafeLog],
+        [
+            Plus,
+            Minus,
+            Mul,
+            SafeDiv,
+            Literal,
+            Var,
+            SafeSqrt,
+            Exp,
+            Sin,
+            Tanh,
+            SafeLog,
+        ],
         Number,
     )
 
@@ -75,14 +100,19 @@ def fitness_function(n: Number):
         variables[x] = X[:, i]
 
     y_pred = n.evaluate(**variables)
-    fitness = mse(y_pred, y)  # mse is used in PonyGE, as the error metric is not None!
+    # mse is used in PonyGE, as the error metric is not None!
+    fitness = mse(y_pred, y)
     if isinf(fitness) or np.isnan(fitness):
         fitness = 100000000
     return fitness
 
 
 def evolve(
-    g, seed, mode, representation="treebased_representation", output_folder=("", "all")
+    g,
+    seed,
+    mode,
+    representation="treebased_representation",
+    output_folder=("", "all"),
 ):
     if representation == "grammatical_evolution":
         representation = ge_representation
@@ -106,7 +136,7 @@ def evolve(
         # ----------------
         seed=seed,
         timer_stop_criteria=mode,
-        save_gen_to_csv=output_folder
+        save_gen_to_csv=output_folder,
     )
     (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf

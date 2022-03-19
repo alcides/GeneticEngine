@@ -1,10 +1,13 @@
+from __future__ import annotations
+
 from abc import ABC
 from dataclasses import dataclass
+
 from geneticengine.algorithms.gp.callback import Callback
 from geneticengine.algorithms.gp.gp import GP
-
+from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.grammar import Grammar, extract_grammar
 from geneticengine.core.representations.tree.treebased import random_node
 
 
@@ -39,7 +42,10 @@ class TestCallBack(Callback):
 class TestGrammar:
     def test_safety(self):
         r = RandomSource(seed=123)
-        g: Grammar = extract_grammar([Leaf, OtherLeaf, UnderTest, Root], UnderTest)
+        g: Grammar = extract_grammar(
+            [Leaf, OtherLeaf, UnderTest, Root],
+            UnderTest,
+        )
         gp = GP(
             grammar=g,
             randomSource=lambda x: r,

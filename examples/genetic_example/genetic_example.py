@@ -1,13 +1,15 @@
+from __future__ import annotations
+
+from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
-import pandas as pd
-import numpy as np
-from abc import ABC
 
+import numpy as np
+import pandas as pd
 from sklearn import metrics
 from sympy import E
-from geneticengine.algorithms.gp.gp import GP
 
+from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.metahandlers.ints import IntRange

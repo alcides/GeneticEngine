@@ -1,9 +1,12 @@
+from __future__ import annotations
+
 import os
-from geneticengine.grammars.letter import *
+
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.core.representations.grammatical_evolution import ge_representation
+from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.grammars.letter import *
 
 
 # Extracted from PonyGE
@@ -22,7 +25,8 @@ def fit(individual: String):
     return fitness
 
 
-fitness_function = lambda x: fit(x)
+def fitness_function(x):
+    return fit(x)
 
 
 def preprocess():
@@ -30,12 +34,18 @@ def preprocess():
     return g
 
 
-def evolve(g, seed, mode, representation='treebased_representation', output_folder=('','all')):
-    if representation == 'grammatical_evolution':
+def evolve(
+    g,
+    seed,
+    mode,
+    representation="treebased_representation",
+    output_folder=("", "all"),
+):
+    if representation == "grammatical_evolution":
         representation = ge_representation
     else:
         representation = treebased_representation
-    
+
     alg = GP(
         g,
         fitness_function,
@@ -49,11 +59,11 @@ def evolve(g, seed, mode, representation='treebased_representation', output_fold
         population_size=500,
         selection_method=("tournament", 2),
         n_elites=5,
-        #----------------
+        # ----------------
         minimize=True,
         seed=seed,
         timer_stop_criteria=mode,
-        save_gen_to_csv=output_folder
+        save_gen_to_csv=output_folder,
     )
     (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf

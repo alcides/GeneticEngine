@@ -1,4 +1,9 @@
-from lark import Lark, Transformer, v_args
+from __future__ import annotations
+
+from lark import Lark
+from lark import Transformer
+from lark import v_args
+
 from geneticengine.metahandlers.smt.lang import *
 
 dsl_grammar = """

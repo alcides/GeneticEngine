@@ -8,7 +8,7 @@ PYTHON_BINARY=python
 function run_example {
     printf "Running $1..."
     $PYTHON_BINARY $1 > /dev/null && echo "(done)" || echo "(failed)"
-    
+
 }
 
 # # Should be somewhere else (maybe add to unit tests)
@@ -27,4 +27,3 @@ run_example examples/progsys/Number_IO.py # Works in PonyGE
 run_example examples/progsys/Median.py # Works in PonyGE: PonyGE gives very bad results
 run_example examples/progsys/Smallest.py # Works in PonyGE: PonyGE gives very bad results
 run_example examples/progsys/Sum_of_Squares.py # Works in PonyGE: PonyGE gives very bad results
-

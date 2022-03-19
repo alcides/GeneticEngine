@@ -1,19 +1,22 @@
-from typing import Annotated, Any, Callable
-from examples.progsys.utils import get_data, import_embedded
+from __future__ import annotations
 
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.grammars.coding.numbers import (
-    Plus,
-    Literal,
-    Number,
-    Mul,
-    SafeDiv,
-    Var,
-)
-from geneticengine.metahandlers.vars import VarRange
+from typing import Annotated
+from typing import Any
+from typing import Callable
+
+from examples.progsys.utils import get_data
+from examples.progsys.utils import import_embedded
 from geneticengine.algorithms.gp.gp import GP
-from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.grammatical_evolution import ge_representation
+from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.grammars.coding.numbers import Literal
+from geneticengine.grammars.coding.numbers import Mul
+from geneticengine.grammars.coding.numbers import Number
+from geneticengine.grammars.coding.numbers import Plus
+from geneticengine.grammars.coding.numbers import SafeDiv
+from geneticengine.grammars.coding.numbers import Var
+from geneticengine.metahandlers.vars import VarRange
 
 FILE_NAME = "Number_IO"
 DATA_FILE_TRAIN = f"./examples/progsys/data/{FILE_NAME}/Train.txt"
@@ -41,7 +44,7 @@ def preprocess():
 
 
 def evolve(g, seed, mode, representation):
-    if representation == 'grammatical_evolution':
+    if representation == "grammatical_evolution":
         representation = ge_representation
     else:
         representation = treebased_representation
@@ -63,6 +66,6 @@ def evolve(g, seed, mode, representation):
 
 if __name__ == "__main__":
     g = preprocess()
-    bf, b = evolve(g, 0, False, 'treebased_representation')
+    bf, b = evolve(g, 0, False, "treebased_representation")
     print(b)
     print(f"With fitness: {bf}")

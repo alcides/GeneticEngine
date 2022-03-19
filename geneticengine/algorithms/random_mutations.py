@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.tree.treebased import mutate, random_individual
+from geneticengine.core.representations.tree.treebased import mutate
+from geneticengine.core.representations.tree.treebased import random_individual
 
 
 class RandomMutations:
@@ -14,7 +17,9 @@ class RandomMutations:
         best = 0
         best_ind = None
         i = random_individual(
-            self.random, self.grammar, 10
+            self.random,
+            self.grammar,
+            10,
         )  # Puts in grammar but random_individual takes Processed Grammar
         for _ in range(1000):
             i = mutate(self.random, self.grammar, i)

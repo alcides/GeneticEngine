@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import string
 from abc import ABC
 from dataclasses import dataclass

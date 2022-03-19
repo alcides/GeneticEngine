@@ -1,23 +1,23 @@
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Type,
-    get_args,
-)
+from __future__ import annotations
 
-from geneticengine.core.random.sources import Source
-from geneticengine.core.representations.tree import treebased
-from geneticengine.metahandlers.base import MetaHandlerGenerator
-
-from geneticengine.core.grammar import Grammar
-from geneticengine.metahandlers.smt.parser import p_expr
-from geneticengine.metahandlers.smt.lang import dNode, dVar, dLit
+import random
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import get_args
+from typing import Type
 
 import z3
-import random
 
+from geneticengine.core.grammar import Grammar
+from geneticengine.core.random.sources import Source
+from geneticengine.core.representations.tree import treebased
 from geneticengine.core.representations.tree.treebased import is_metahandler
+from geneticengine.metahandlers.base import MetaHandlerGenerator
+from geneticengine.metahandlers.smt.lang import dLit
+from geneticengine.metahandlers.smt.lang import dNode
+from geneticengine.metahandlers.smt.lang import dVar
+from geneticengine.metahandlers.smt.parser import p_expr
 
 
 def simplify_type(t: type) -> type:
@@ -48,7 +48,8 @@ class SMT(MetaHandlerGenerator):
         treebased.SMTResolver.register_type(ident, base_type)
 
         treebased.SMTResolver.add_clause(
-            [lambda types: self.restriction.translate(c, types)], {}
+            [lambda types: self.restriction.translate(c, types)],
+            {},
         )
 
         if base_type == int or base_type == bool or base_type == float:

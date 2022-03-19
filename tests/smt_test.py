@@ -1,10 +1,15 @@
+from __future__ import annotations
+
 from abc import ABC
 from dataclasses import dataclass
-from typing import Annotated, TypeVar, List
+from typing import Annotated
+from typing import List
+from typing import TypeVar
 from unittest import skip
 
+from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.grammar import Grammar, extract_grammar
 from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.metahandlers.smt import SMT
 
@@ -48,7 +53,12 @@ class ObjectNavigation(Root):
 
 @dataclass
 class Comprehension(Root):
-    vals: Annotated[list[Annotated[int, SMT()]], SMT("AllPairs(_, x, y){x != y}")]
+    vals: Annotated[
+        list[Annotated[int, SMT()]],
+        SMT(
+            "AllPairs(_, x, y){x != y}",
+        ),
+    ]
 
 
 T = TypeVar("T")

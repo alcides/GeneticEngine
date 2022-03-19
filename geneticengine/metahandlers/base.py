@@ -1,8 +1,13 @@
-from typing import Any, Callable, Dict, Type, Protocol
+from __future__ import annotations
 
-from geneticengine.core.random.sources import Source
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import Protocol
+from typing import Type
 
 from geneticengine.core.grammar import Grammar
+from geneticengine.core.random.sources import Source
 
 
 class MetaHandlerGenerator(Protocol):

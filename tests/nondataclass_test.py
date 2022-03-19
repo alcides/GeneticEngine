@@ -1,13 +1,14 @@
+from __future__ import annotations
+
 from geneticengine.core.decorators import abstract
-from geneticengine.core.grammar import Grammar, extract_grammar
+from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.tree.treebased import (
-    random_node,
-    PI_Grow,
-    tree_crossover,
-    Grow,
-    mutate,
-)
+from geneticengine.core.representations.tree.treebased import Grow
+from geneticengine.core.representations.tree.treebased import mutate
+from geneticengine.core.representations.tree.treebased import PI_Grow
+from geneticengine.core.representations.tree.treebased import random_node
+from geneticengine.core.representations.tree.treebased import tree_crossover
 
 
 @abstract

@@ -1,14 +1,21 @@
-from typing import List, Callable
+from __future__ import annotations
+
 from copy import deepcopy
-from geneticengine.core.random.sources import RandomSource
+from typing import Callable
+from typing import List
+
 from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.core.random.sources import RandomSource
 
 
 def create_tournament(
-    tournament_size: int, minimize=False
+    tournament_size: int,
+    minimize=False,
 ) -> Callable[[RandomSource, list[Individual], int], list[Individual]]:
     def tournament(
-        r: RandomSource, population: list[Individual], n_winners: int
+        r: RandomSource,
+        population: list[Individual],
+        n_winners: int,
     ) -> list[Individual]:
         winners = []
         for _ in range(n_winners):
@@ -32,7 +39,8 @@ def create_elitism(
     n_elites: int,
 ) -> Callable[[list[Individual], Callable[[Individual], float]], list[Individual]]:
     def elitism(
-        population: list[Individual], fitness: Callable[[Individual], float]
+        population: list[Individual],
+        fitness: Callable[[Individual], float],
     ) -> list[Individual]:
         population = sorted(population, key=fitness)
         return [x for x in population[:n_elites]]
@@ -41,7 +49,8 @@ def create_elitism(
 
 
 def create_novelties(
-    create_individual: Callable[[int], Individual], max_depth: int
+    create_individual: Callable[[int], Individual],
+    max_depth: int,
 ) -> Callable[[int], list[Individual]]:
     def novelties(n_novelties: int) -> list[Individual]:
         return [create_individual(max_depth) for _ in range(n_novelties)]

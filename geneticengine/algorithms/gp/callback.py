@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from abc import ABC
 
 
@@ -7,7 +9,8 @@ class Callback(ABC):
 
 
 class DebugCallback(Callback):
-    """ Example of a callback that prints all the individuals in the population """
+    """Example of a callback that prints all the individuals in the population"""
+
     def process_iteration(self, generation: int, population, time: float):
         for p in population:
             print(p)

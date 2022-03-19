@@ -1,12 +1,17 @@
+from __future__ import annotations
+
 from abc import ABC
 from dataclasses import dataclass
 from enum import Enum
-from typing import Annotated, List, Tuple
+from typing import Annotated
+from typing import List
+from typing import Tuple
+
+from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.metahandlers.lists import ListSizeBetween
-from geneticengine.algorithms.gp.gp import GP
-from geneticengine.algorithms.hill_climbing import HC
 
 map = """.###............................
 ...#............................
@@ -92,7 +97,8 @@ def map_from_string(map_str: str) -> list[list[Position]]:
 
 
 def next_pos(
-    pos: tuple[int, int, Direction], map: list[list[Position]]
+    pos: tuple[int, int, Direction],
+    map: list[list[Position]],
 ) -> tuple[int, int]:
     masks = {
         Direction.EAST: (0, 1),
@@ -122,7 +128,8 @@ def simulate(a: Action, map_str: str) -> int:
     while next_instructions:
         current_instruction = next_instructions.pop(0)  # Default is -1
         if isinstance(
-            current_instruction, ActionBlock
+            current_instruction,
+            ActionBlock,
         ):  # ActionBlock contains list of action lists.
             for action in reversed(current_instruction.actions):
                 next_instructions = [action] + next_instructions

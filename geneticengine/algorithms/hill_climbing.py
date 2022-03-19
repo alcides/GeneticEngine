@@ -1,14 +1,19 @@
-from typing import Any, Callable, Type
+from __future__ import annotations
+
+from typing import Any
+from typing import Callable
+from typing import Type
+
+import geneticengine.algorithms.gp.generation_steps.mutation as mutation
+from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.api import Representation
 from geneticengine.core.representations.tree.treebased import treebased_representation
-from geneticengine.algorithms.gp.individual import Individual
-import geneticengine.algorithms.gp.generation_steps.mutation as mutation
 
 
 class HC:
-    '''
+    """
     Hill Climbing object. Main attribute: evolve
 
     Parameters:
@@ -16,14 +21,15 @@ class HC:
         - evaluation_function (Callable[[Any], float]): The fitness function. Should take in any valid individual and return a float. The default is that the higher the fitness, the more applicable is the solution to the problem. Turn on the parameter minimize to switch it around.
         - minimize (bool): When switch on, the fitness function is reversed, so that a higher result from the fitness function corresponds to a less fit solution (default = False).
         - representation (Representation): The individual representation used by the GP program. The default is treebased_representation.
-        - randomSource (Callable[[int], RandomSource]): The random source function used by the program. Should take in an integer, representing the seed, and return a RandomSource. 
+        - randomSource (Callable[[int], RandomSource]): The random source function used by the program. Should take in an integer, representing the seed, and return a RandomSource.
         - seed (int): The seed of the RandomSource (default = 123).
         - population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (n_elites + n_novelties + 1) must hold.
         - number_of_generations (int): Number of generations (default = 100).
         - max_depth (int): The maximum depth a tree can have (default = 15).
         - force_individual (Any): Allows the incorporation of an individual in the first population (default = None).
-        
-    '''
+
+    """
+
     def __init__(
         self,
         g: Grammar,
@@ -38,7 +44,7 @@ class HC:
         seed: int = 123,
     ):
         assert population_size >= 1
-        
+
         self.grammar: Grammar = g
         self.representation = representation
         self.evaluation_function = evaluation_function
@@ -62,7 +68,9 @@ class HC:
         else:
             self.population = Individual(
                 genotype=self.representation.create_individual(
-                    self.random, self.grammar, max_depth
+                    self.random,
+                    self.grammar,
+                    max_depth,
                 ),
                 fitness=None,
             )
@@ -70,7 +78,8 @@ class HC:
     def evaluate(self, individual: Individual) -> float:
         if individual.fitness is None:
             phenotype = self.representation.genotype_to_phenotype(
-                self.grammar, individual.genotype
+                self.grammar,
+                individual.genotype,
             )
             individual.fitness = self.evaluation_function(phenotype)
         return individual.fitness
@@ -101,6 +110,7 @@ class HC:
             population,
             self.evaluate(population),
             self.representation.genotype_to_phenotype(
-                self.grammar, population.genotype
+                self.grammar,
+                population.genotype,
             ),
         )

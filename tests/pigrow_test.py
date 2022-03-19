@@ -1,10 +1,15 @@
+from __future__ import annotations
+
 from abc import ABC
 from dataclasses import dataclass
-from typing import Annotated, List
+from typing import Annotated
+from typing import List
 
+from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.grammar import Grammar, extract_grammar
-from geneticengine.core.representations.tree.treebased import PI_Grow, random_node
+from geneticengine.core.representations.tree.treebased import PI_Grow
+from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.lists import ListSizeBetween
 

@@ -1,10 +1,14 @@
-#Class extracted from PonyGE
+# Class extracted from PonyGE
+from __future__ import annotations
+
 import re
-from multiprocessing import Process, Queue
+from multiprocessing import Process
+from multiprocessing import Queue
 
 import examples.regex_fitness.testing.RegexTestGenerator as TestGen
 from examples.regex_fitness.testing.RegexTimer import time_regex_test_case
-#from stats.stats import stats
+
+# from stats.stats import stats
 
 # Author: Brendan Cody-Kenny - codykenny at gmail
 
@@ -33,7 +37,7 @@ class RegexEval:
         """
         This method is called when this class is instantiated with an
         individual (a regex)
-        
+
         :param individual:
         :param q:
         :return:
@@ -54,7 +58,7 @@ class RegexEval:
         """
         Sum the functionality error with time (and any other fitness penalties
         you want to add, e.g. length of regex)
-        
+
         :param eval_results:
         :return:
         """
@@ -70,7 +74,7 @@ class RegexEval:
     def test_regex(self, compiled_regex):
         """
         Iterate through test cases
-        
+
         :param compiled_regex:
         :return:
         """
@@ -80,8 +84,12 @@ class RegexEval:
 
         for test_case in RegexEval.test_cases:
             results.append(
-                time_regex_test_case(compiled_regex, test_case,
-                                     testing_iterations))
+                time_regex_test_case(
+                    compiled_regex,
+                    test_case,
+                    testing_iterations,
+                ),
+            )
         return results
 
     def evaluate(self, ind, **kwargs):
@@ -101,20 +109,26 @@ class RegexEval:
             RegexEval.test_cases = TestGen.generate_test_suite(str(ind))
 
             if len(RegexEval.test_cases) == 0:
-                s = "fitness.regex.RegexEval.RegexEval\n" \
-                    "Error: no regex test cases found! " \
+                s = (
+                    "fitness.regex.RegexEval.RegexEval\n"
+                    "Error: no regex test cases found! "
                     "       Please add at least one passing regex test string."
+                )
                 raise Exception(s)
 
         if RegexEval.pstartup is None:
-            RegexEval.pstartup = Process(target=self.call_fitness,
-                                         name="self.call_fitness")
+            RegexEval.pstartup = Process(
+                target=self.call_fitness,
+                name="self.call_fitness",
+            )
         RegexEval.pstartup._args = (ind, RegexEval.q)
 
         RegexEval.pstartup.start()
         RegexEval.prunner = RegexEval.pstartup
-        RegexEval.pstartup = Process(target=self.call_fitness,
-                                     name="self.call_fitness")
+        RegexEval.pstartup = Process(
+            target=self.call_fitness,
+            name="self.call_fitness",
+        )
 
         # Set one second time limit for running thread.
         self.prunner.join(1)
@@ -122,13 +136,12 @@ class RegexEval:
         # If thread is active
         if self.prunner.is_alive():
             # After one second, if prunner is still running, kill it.
-            print("Regex evaluation timeout reached, "
-                  "killing evaluation process")
+            print("Regex evaluation timeout reached, " "killing evaluation process")
             self.prunner.terminate()
             self.prunner.join()
 
             # Count individual as a runtime error.
-            #stats['runtime_error'] += 1
+            # stats['runtime_error'] += 1
 
             return self.default_fitness
 

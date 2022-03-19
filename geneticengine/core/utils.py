@@ -1,15 +1,15 @@
+from __future__ import annotations
+
 from abc import ABC
 from dataclasses import dataclass
 from functools import wraps
-from typing import (
-    Any,
-    Protocol,
-    Set,
-    Type,
-    Tuple,
-    List,
-    Callable,
-)
+from typing import Any
+from typing import Callable
+from typing import List
+from typing import Protocol
+from typing import Set
+from typing import Tuple
+from typing import Type
 
 from geneticengine.core.decorators import get_gengy
 
@@ -75,7 +75,9 @@ def is_terminal(t: type, l: set[type]) -> bool:
 
 
 def build_finalizers(
-    final_callback, n_args, per_callback: list[Callable[[Any], None]] = None
+    final_callback,
+    n_args,
+    per_callback: list[Callable[[Any], None]] = None,
 ) -> list[Any]:
     """
     Builds a set of functions that accumulate the arguments provided
@@ -108,7 +110,9 @@ def build_finalizers(
                 # else:
                 #     print("%i prog %i" % (id, to_arrive[0]))
             else:
-                raise Exception("Received duplicate param on finalizer! i=%d" % i)
+                raise Exception(
+                    "Received duplicate param on finalizer! i=%d" % i,
+                )
 
         finalizers.append(fin)
 

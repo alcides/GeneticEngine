@@ -1,16 +1,21 @@
+from __future__ import annotations
+
 from abc import ABC
 from collections import defaultdict
-from typing import Any, Dict, List, Set, Type, Tuple
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Set
+from typing import Tuple
+from typing import Type
 
-from geneticengine.core.utils import (
-    get_arguments,
-    get_generic_parameter,
-    is_abstract,
-    is_annotated,
-    is_generic_list,
-    is_terminal,
-    strip_annotations,
-)
+from geneticengine.core.utils import get_arguments
+from geneticengine.core.utils import get_generic_parameter
+from geneticengine.core.utils import is_abstract
+from geneticengine.core.utils import is_annotated
+from geneticengine.core.utils import is_generic_list
+from geneticengine.core.utils import is_terminal
+from geneticengine.core.utils import strip_annotations
 
 
 class Grammar:
@@ -33,7 +38,9 @@ class Grammar:
         self.recursive_prods = set()
         self.terminals = set()
         self.non_terminals = set()
-        self.abstract_dist_to_t = defaultdict(lambda: defaultdict(lambda: 1000000))
+        self.abstract_dist_to_t = defaultdict(
+            lambda: defaultdict(lambda: 1000000),
+        )
 
     def register_alternative(self, nonterminal: type, nodetype: type):
         """
@@ -78,7 +85,9 @@ class Grammar:
             return n
 
         def format(x):
-            args = ", ".join([f"{a}: {wrap(at)}" for (a, at) in get_arguments(x)])
+            args = ", ".join(
+                [f"{a}: {wrap(at)}" for (a, at) in get_arguments(x)],
+            )
             return f"{x.__name__}({args})"
 
         prods = ";".join(
@@ -87,7 +96,7 @@ class Grammar:
                 + " -> "
                 + ("|".join([format(p) for p in self.alternatives[p]]))
                 for p in self.alternatives
-            ]
+            ],
         )
         return (
             f"Grammar<Starting={self.starting_symbol.__name__},Productions=[{prods}]>"
@@ -115,7 +124,10 @@ class Grammar:
 
     def get_max_node_depth(self):
         """Returns the maximum minimum depth a node can have"""
-        dist = lambda x: self.distanceToTerminal[x]
+
+        def dist(x):
+            return self.distanceToTerminal[x]
+
         return max(list(map(dist, self.all_nodes)))
 
     def preprocess(self):
@@ -174,14 +186,13 @@ class Grammar:
                         args = get_arguments(sym)
                         assert args
                         val = max(
-                            
-                                1 + self.get_distance_to_terminal(argt)
-                                for (_, argt) in args
-                            
+                            1 + self.get_distance_to_terminal(argt)
+                            for (_, argt) in args
                         )
 
                         changed |= process_reachability(
-                            sym, [argt for (_, argt) in args]
+                            sym,
+                            [argt for (_, argt) in args],
                         )
 
                 if val < old_val:
@@ -196,18 +207,18 @@ class Grammar:
 
 
 def extract_grammar(nodes, starting_symbol):
-    '''
+    """
     The extract_grammar takes in all the productions of the grammar (nodes) and a starting symbol (starting_symbol). It goes through all the nodes and constructs a complete grammar that can then be used for search algorithms such as Genetic Programming and Hill Climbing.
-    
+
     Parameters:
         - nodes (list): A list of objects representing tree nodes. Make sure that any node can be produced be the starting symbol.
         - starting_symbol (object): The starting symbol of each tree. Makes sure every generated tree by the returned grammar starts with this symbol. Make sure that the starting symbol can produce any object of nodes.
-        
+
     Returns:
         - The grammar
-    
-    '''
-    
+
+    """
+
     g = Grammar(starting_symbol)
     g.register_type(starting_symbol)
     for n in nodes:

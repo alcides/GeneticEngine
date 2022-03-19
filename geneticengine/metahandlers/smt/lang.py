@@ -1,4 +1,8 @@
-from typing import Dict, List, Any
+from __future__ import annotations
+
+from typing import Any
+from typing import Dict
+from typing import List
 
 import z3
 
@@ -72,7 +76,11 @@ class dAnd(dNode):
 
     def translate(self, mappings, types):
         return z3.And(
-            self.left.translate(mappings, types), self.right.translate(mappings, types)
+            self.left.translate(
+                mappings,
+                types,
+            ),
+            self.right.translate(mappings, types),
         )
 
     def eval(self, x):
@@ -92,7 +100,11 @@ class dOr(dNode):
 
     def translate(self, mappings, types):
         return z3.Or(
-            self.left.translate(mappings, types), self.right.translate(mappings, types)
+            self.left.translate(
+                mappings,
+                types,
+            ),
+            self.right.translate(mappings, types),
         )
 
     def eval(self, x):
@@ -112,7 +124,8 @@ class dLE(dNode):
 
     def translate(self, mappings, types):
         return self.left.translate(mappings, types) <= self.right.translate(
-            mappings, types
+            mappings,
+            types,
         )
 
     def eval(self, x):
@@ -132,7 +145,8 @@ class dLt(dNode):
 
     def translate(self, mappings, types):
         return self.left.translate(mappings, types) < self.right.translate(
-            mappings, types
+            mappings,
+            types,
         )
 
     def eval(self, x):
@@ -152,7 +166,8 @@ class dGE(dNode):
 
     def translate(self, mappings, types):
         return self.left.translate(mappings, types) >= self.right.translate(
-            mappings, types
+            mappings,
+            types,
         )
 
     def eval(self, x):
@@ -172,7 +187,8 @@ class dGt(dNode):
 
     def translate(self, mappings, types):
         return self.left.translate(mappings, types) > self.right.translate(
-            mappings, types
+            mappings,
+            types,
         )
 
     def eval(self, x):
@@ -192,7 +208,8 @@ class dEQ(dNode):
 
     def translate(self, mappings, types):
         return self.left.translate(mappings, types) == self.right.translate(
-            mappings, types
+            mappings,
+            types,
         )
 
     def eval(self, x):
@@ -212,7 +229,8 @@ class dMod(dNode):
 
     def translate(self, mappings, types):
         return self.left.translate(mappings, types) % self.right.translate(
-            mappings, types
+            mappings,
+            types,
         )
 
     def eval(self, x):
@@ -232,7 +250,8 @@ class dPlus(dNode):
 
     def translate(self, mappings, types):
         return self.left.translate(mappings, types) + self.right.translate(
-            mappings, types
+            mappings,
+            types,
         )
 
     def eval(self, x):
@@ -252,7 +271,8 @@ class dNEQ(dNode):
 
     def translate(self, mappings, types):
         return self.left.translate(mappings, types) != self.right.translate(
-            mappings, types
+            mappings,
+            types,
         )
 
     def eval(self, x):
