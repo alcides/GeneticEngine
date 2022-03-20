@@ -43,16 +43,16 @@ class RecAlt(Root):
     l: Leaf
 
 
-def contains_type(t, ty: type):
+def contains_type(t, ty: type, globalns):
     if isinstance(t, ty):
         return True
     elif isinstance(t, list):
         for el in t:
-            if contains_type(el, ty):
+            if contains_type(el, ty, globalns):
                 return True
     else:
-        for (argn, argt) in get_arguments(t):
-            if contains_type(getattr(t, argn), ty):
+        for (argn, argt) in get_arguments(t, globalns):
+            if contains_type(getattr(t, argn), ty, globalns):
                 return True
     return False
 
@@ -60,14 +60,14 @@ def contains_type(t, ty: type):
 class TestGrammar:
     def test_root(self):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar([Leaf], Root)
+        g: Grammar = extract_grammar(Root, globals(), [Leaf])
         x = random_node(r, g, 2, Root)
         assert isinstance(x, Leaf)
         assert isinstance(x, Root)
 
     def test_rec(self):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar([Leaf, Rec], Root)
+        g: Grammar = extract_grammar(Root, globals(), [Leaf, Rec])
         x = random_node(r, g, 10, Root, method=PI_Grow)
         # print(x) -- Leaf()
         assert isinstance(x, Rec)
@@ -75,7 +75,7 @@ class TestGrammar:
 
     def test_rec_alt(self):
         r = RandomSource(seed=245)
-        g: Grammar = extract_grammar([Leaf, Rec, RecAlt], Root)
+        g: Grammar = extract_grammar(Root, globals(), [Leaf, Rec, RecAlt])
         x = random_node(
             r,
             g,
@@ -83,12 +83,12 @@ class TestGrammar:
             starting_symbol=Root,
             method=PI_Grow,
         )
-        assert contains_type(x, RecAlt)
+        assert contains_type(x, RecAlt, globals())
         assert isinstance(x, Root)
 
-    @skip  # todo: maybe reenable idk what it does
+    @skip("Reevaluate what this test does")
     def test_depth_increases(self):
-        g: Grammar = extract_grammar([Leaf, Rec], Root)
+        g: Grammar = extract_grammar(Root, globals(), [Leaf, Rec])
 
         x = random_node(
             RandomSource(3),

@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from functools import wraps
 from typing import Any
 from typing import Callable
+from typing import get_type_hints
 from typing import List
 from typing import Protocol
 from typing import Set
@@ -22,6 +23,11 @@ def is_annotated(ty: type[Any]):
 def is_generic_list(ty: type[Any]):
     """Returns whether a type is List[T] for any T"""
     return hasattr(ty, "__origin__") and ty.__origin__ is list
+
+
+def is_generic(ty: type[Any]):
+    """Returns whether a type is x[T] for any T"""
+    return hasattr(ty, "__origin__")
 
 
 def get_generic_parameters(ty: type[Any]) -> list[type]:
@@ -44,16 +50,28 @@ def strip_annotations(ty: type[Any]) -> type:
         return ty
 
 
-def get_arguments(n) -> list[tuple[str, type]]:
+def has_arguments(n: Any) -> bool:
+    """Returns whether a node has arguments or not"""
+    return (
+        hasattr(n, "__init__")
+        and hasattr(n.__init__, "__annotations__")
+        and len(n.__init__.__annotations__) > 0
+    )
+
+
+def get_arguments(n, globalns=globals()) -> list[tuple[str, type]]:
     """
     :param n: production
     :return: list((argname, argtype))
     """
     if hasattr(n, "__init__"):
         init = n.__init__
-        if hasattr(init, "__annotations__"):
-            args = init.__annotations__
-            return [(a, args[a]) for a in filter(lambda x: x != "return", args)]
+        args: dict[str, type] = get_type_hints(
+            init,
+            globalns=globalns,
+            include_extras=True,
+        )
+        return [(a, args[a]) for a in filter(lambda x: x != "return", args)]
     return []
 
 
@@ -66,7 +84,7 @@ def is_terminal(t: type, l: set[type]) -> bool:
     """Returns whether a node is a terminal or not, based on the list of non terminals in the grammar"""
     if is_annotated(t):
         return all([is_terminal(inner, l) for inner in get_generic_parameters(t)])
-    if not get_arguments(t):
+    if not has_arguments(t):
         return True
     return t not in l
 

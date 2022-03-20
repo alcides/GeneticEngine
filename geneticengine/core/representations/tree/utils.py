@@ -34,7 +34,7 @@ def relabel_nodes(i: TreeNode, g: Grammar) -> tuple[int, int, dict[type, list[An
             breakpoint()
         children = [
             (typ[1], i.gengy_init_values[idx])
-            for idx, typ in enumerate(get_arguments(i))
+            for idx, typ in enumerate(get_arguments(i, g.globalns))
         ]
     assert children
     number_of_nodes = 1

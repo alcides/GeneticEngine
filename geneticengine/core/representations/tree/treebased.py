@@ -379,7 +379,7 @@ def expand_node(
                 rule = r.choice(valid_productions)
             new_symbol(rule, receiver, depth - 1, id, ctx)
         else:  # Normal production
-            args = get_arguments(starting_symbol)
+            args = get_arguments(starting_symbol, g.globalns)
             ctx = ctx.copy()
             l: list[Any] = []
             for argn, _ in args:
@@ -435,7 +435,7 @@ def mutate_inner(
                 max_depth -= g.abstract_dist_to_t[ty][type(i)]
             max_depth -= 1
             args = list(i.gengy_init_values)
-            for idx, (field, field_type) in enumerate(get_arguments(i)):
+            for idx, (field, field_type) in enumerate(get_arguments(i, g.globalns)):
                 child = args[idx]
                 if hasattr(child, "gengy_nodes"):
                     count = child.gengy_nodes
@@ -517,7 +517,7 @@ def tree_crossover_inner(
                 max_depth -= g.abstract_dist_to_t[ty][type(i)]
             max_depth -= 1
             args = list(i.gengy_init_values)
-            for idx, (field, field_type) in enumerate(get_arguments(i)):
+            for idx, (field, field_type) in enumerate(get_arguments(i, g.globalns)):
                 child = args[idx]
                 if hasattr(child, "gengy_nodes"):
                     count = child.gengy_nodes

@@ -42,10 +42,7 @@ class TestCallBack(Callback):
 class TestGrammar:
     def test_safety(self):
         r = RandomSource(seed=123)
-        g: Grammar = extract_grammar(
-            [Leaf, OtherLeaf, UnderTest, Root],
-            UnderTest,
-        )
+        g: Grammar = extract_grammar(UnderTest, globals())
         gp = GP(
             grammar=g,
             randomSource=lambda x: r,

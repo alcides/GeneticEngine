@@ -68,7 +68,7 @@ T = TypeVar("T")
 class TestMetaHandler:
     def skeleton(self, *t, depth=3):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar(list(t), Root)
+        g: Grammar = extract_grammar(Root, globals(), list(t))
         n = random_node(r, g, depth, Root)
         assert isinstance(n, Root)
         return n

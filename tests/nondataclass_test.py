@@ -28,7 +28,7 @@ class Inner(Node):
 
 def test_crossover():
     r = RandomSource(seed=1)
-    g: Grammar = extract_grammar([Leaf, Inner], Node)
+    g: Grammar = extract_grammar(Node, globals(), [Leaf, Inner])
     x = random_node(r, g, 20, Node, method=PI_Grow)
     for i in range(100):
         y = random_node(r, g, 20, Node, method=PI_Grow)
@@ -37,7 +37,7 @@ def test_crossover():
 
 def test_mutation():
     r = RandomSource(seed=1)
-    g: Grammar = extract_grammar([Leaf, Inner], Node)
+    g: Grammar = extract_grammar(Node, globals(), [Leaf, Inner])
     x = random_node(r, g, 20, Node, method=PI_Grow)
     for i in range(100):
         x = mutate(r, g, x, 20, Node)
