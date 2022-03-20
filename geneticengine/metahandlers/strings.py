@@ -50,3 +50,6 @@ class WeightedStringHandler(MetaHandlerGenerator):
 
     def __repr__(self):
         return f"str[aphabet={self.alphabet}, size={self.probability_matrix.shape[0]}"
+
+    def __class_getitem__(self, args):
+        return WeightedStringHandler(*args)

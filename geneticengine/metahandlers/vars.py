@@ -43,3 +43,6 @@ class VarRange(MetaHandlerGenerator):
 
     def __repr__(self):
         return str(self.options)
+
+    def __class_getitem__(self, args):
+        return VarRange(*args)

@@ -42,5 +42,8 @@ class ListSizeBetween(MetaHandlerGenerator):
             nctx["_"] = nident
             new_symbol(base_type, fin, depth - 1, nident, nctx)
 
+    def __class_getitem__(self, args):
+        return ListSizeBetween(*args)
+
     def __repr__(self):
         return f"ListSizeBetween[{self.min}...{self.max}]"

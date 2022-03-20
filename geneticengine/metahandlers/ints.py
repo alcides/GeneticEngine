@@ -36,6 +36,9 @@ class IntRange(MetaHandlerGenerator):
     ):
         rec(r.randint(self.min, self.max))
 
+    def __class_getitem__(self, args):
+        return IntRange(*args)
+
     def __repr__(self):
         return f"[{self.min}...{self.max}]"
 
@@ -68,6 +71,9 @@ class IntervalRange(MetaHandlerGenerator):
         self.minimum_length = minimum_length
         self.maximum_length = maximum_length
         self.maximum_top_limit = maximum_top_limit
+
+    def __class_getitem__(self, args):
+        return IntervalRange(*args)
 
     def generate(
         self,

@@ -26,7 +26,7 @@ class Root(ABC):
 
 @dataclass
 class IntRangeM(Root):
-    x: Annotated[int, IntRange(9, 10)]
+    x: Annotated[int, IntRange[9, 10]]
 
 
 @dataclass
@@ -43,7 +43,7 @@ class IntervalRangeM(Root):
 
 @dataclass
 class FloatRangeM(Root):
-    x: Annotated[float, FloatRange(9.0, 10.0)]
+    x: Annotated[float, FloatRange[9.0, 10.0]]
 
 
 @dataclass
@@ -53,7 +53,7 @@ class VarRangeM(Root):
 
 @dataclass
 class ListRangeM(Root):
-    x: Annotated[list[int], ListSizeBetween(3, 4)]
+    x: Annotated[list[int], ListSizeBetween[3, 4]]
 
 
 @dataclass

@@ -36,5 +36,8 @@ class FloatRange(MetaHandlerGenerator):
     ):
         rec(r.random_float(self.min, self.max))
 
+    def __class_getitem__(self, args):
+        return FloatRange(*args)
+
     def __repr__(self):
         return f"[{self.min}...{self.max}]"
