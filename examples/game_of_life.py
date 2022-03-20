@@ -77,7 +77,7 @@ def fitness_function(i: Expr):
 
 
 def preprocess():
-    grammar = extract_grammar([And, Or, Not, MatrixElement], Condition)
+    grammar = extract_grammar(Condition, globals(), [And, Or, Not, MatrixElement])
     print(grammar)
     return grammar
 

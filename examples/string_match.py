@@ -30,7 +30,7 @@ def fitness_function(x):
 
 
 def preprocess():
-    g = extract_grammar([LetterString, Char, Vowel, Consonant], String)
+    g = extract_grammar(String, globals(), [LetterString, Char, Vowel, Consonant])
     return g
 
 
