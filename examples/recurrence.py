@@ -71,7 +71,7 @@ def fitness_function(p):
 
 
 if __name__ == "__main__":
-    g = extract_grammar(Node, globals(), [Op, Access, Literal])
+    g = extract_grammar([Op, Access, Literal], Node)
     gp = GP(
         grammar=g,
         evaluation_function=fitness_function,

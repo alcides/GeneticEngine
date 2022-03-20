@@ -43,16 +43,16 @@ class RecAlt(Root):
     l: Leaf
 
 
-def contains_type(t, ty: type, globalns):
+def contains_type(t, ty: type):
     if isinstance(t, ty):
         return True
     elif isinstance(t, list):
         for el in t:
-            if contains_type(el, ty, globalns):
+            if contains_type(el, ty):
                 return True
     else:
-        for (argn, argt) in get_arguments(t, globalns):
-            if contains_type(getattr(t, argn), ty, globalns):
+        for (argn, argt) in get_arguments(t):
+            if contains_type(getattr(t, argn), ty):
                 return True
     return False
 
@@ -60,14 +60,14 @@ def contains_type(t, ty: type, globalns):
 class TestGrammar:
     def test_root(self):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar(Root, globals(), [Leaf])
+        g: Grammar = extract_grammar([Leaf], Root)
         x = random_node(r, g, 2, Root)
         assert isinstance(x, Leaf)
         assert isinstance(x, Root)
 
     def test_rec(self):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar(Root, globals(), [Leaf, Rec])
+        g: Grammar = extract_grammar([Leaf, Rec], Root)
         x = random_node(r, g, 10, Root, method=PI_Grow)
         # print(x) -- Leaf()
         assert isinstance(x, Rec)
@@ -75,7 +75,7 @@ class TestGrammar:
 
     def test_rec_alt(self):
         r = RandomSource(seed=245)
-        g: Grammar = extract_grammar(Root, globals(), [Leaf, Rec, RecAlt])
+        g: Grammar = extract_grammar([Leaf, Rec, RecAlt], Root)
         x = random_node(
             r,
             g,
@@ -83,12 +83,12 @@ class TestGrammar:
             starting_symbol=Root,
             method=PI_Grow,
         )
-        assert contains_type(x, RecAlt, globals())
+        assert contains_type(x, RecAlt)
         assert isinstance(x, Root)
 
     @skip("Reevaluate what this test does")
     def test_depth_increases(self):
-        g: Grammar = extract_grammar(Root, globals(), [Leaf, Rec])
+        g: Grammar = extract_grammar([Leaf, Rec], Root)
 
         x = random_node(
             RandomSource(3),

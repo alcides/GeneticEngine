@@ -137,7 +137,7 @@ Similarly, CumulativeSum takes a vectorial expression (`arr`) and returns anothe
 The example we just wrote could have been written in a Grammar-Guided GP approach. In fact, we automate that translation:
 
 ```python
-g = extract_grammar(Scalar, globals())
+g = extract_grammar([Value, ScalarVar, VectorialVar, Mean, CumulativeSum], Scalar)
 print("Grammar: {}.".format(repr(g)))
 ```
 

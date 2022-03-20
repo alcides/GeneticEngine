@@ -59,16 +59,18 @@ def has_arguments(n: Any) -> bool:
     )
 
 
-def get_arguments(n, globalns=globals()) -> list[tuple[str, type]]:
+def get_arguments(n) -> list[tuple[str, type]]:
     """
     :param n: production
     :return: list((argname, argtype))
     """
     if hasattr(n, "__init__"):
         init = n.__init__
+        import sys
+
         args: dict[str, type] = get_type_hints(
             init,
-            globalns=globalns,
+            globalns=sys.modules[n.__module__].__dict__,
             include_extras=True,
         )
         return [(a, args[a]) for a in filter(lambda x: x != "return", args)]

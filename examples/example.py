@@ -18,7 +18,7 @@ from geneticengine.grammars.sgp import Var
 from geneticengine.metahandlers.vars import VarRange
 
 Var.__init__.__annotations__["name"] = Annotated[str, VarRange("x")]
-g = extract_grammar(Number, globals(), [Plus, Mul, SafeDiv, Literal, Var])
+g = extract_grammar([Plus, Mul, SafeDiv, Literal, Var], Number)
 print("Grammar:")
 print(repr(g))
 

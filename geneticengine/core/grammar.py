@@ -4,6 +4,7 @@ from abc import ABC
 from abc import ABCMeta
 from collections import defaultdict
 from inspect import isclass
+from tracemalloc import start
 from typing import Any
 from typing import Dict
 from typing import List
@@ -24,7 +25,6 @@ from geneticengine.core.utils import strip_annotations
 
 class Grammar:
     starting_symbol: type
-    globalns: dict[str, Any]
     alternatives: dict[type, list[type]]
     distanceToTerminal: dict[Any, int]
     all_nodes: set[type]
@@ -38,7 +38,6 @@ class Grammar:
     def __init__(
         self,
         starting_symbol: type,
-        globalns: dict[str, Any],
         considered_subtypes: list[type] = None,
     ) -> None:
         self.alternatives: dict[type, list[type]] = {}
@@ -51,8 +50,7 @@ class Grammar:
         self.abstract_dist_to_t = defaultdict(
             lambda: defaultdict(lambda: 1000000),
         )
-        self.globalns = globalns
-        self.considered_subtypes = considered_subtypes
+        self.considered_subtypes = considered_subtypes or []
 
     def register_alternative(self, nonterminal: type, nodetype: type):
         """
@@ -89,20 +87,14 @@ class Grammar:
         terminal = False
         if not is_abstract(ty):
             terminal = True
-            for (arg, argt) in get_arguments(ty, self.globalns):
-                print(ty, arg, argt)
+            for (arg, argt) in get_arguments(ty):
                 terminal = False
                 if isinstance(argt, type) or isinstance(argt, ABCMeta):
                     self.register_type(argt)
 
-        if self.considered_subtypes:
-            for st in self.considered_subtypes:
-                if issubclass(st, ty):
-                    self.register_type(st)
-        else:
-            for v in self.globalns.values():
-                if isclass(v) and issubclass(v, ty) and v != ty:
-                    self.register_type(v)
+        for st in self.considered_subtypes:
+            if issubclass(st, ty):
+                self.register_type(st)
 
         if terminal:
             self.terminals.add(ty)
@@ -221,7 +213,7 @@ class Grammar:
                     if is_terminal(sym, self.non_terminals):
                         val = 1
                     else:
-                        args = get_arguments(sym, self.globalns)
+                        args = get_arguments(sym)
                         assert args
                         val = max(
                             1 + self.get_distance_to_terminal(argt)
@@ -245,9 +237,8 @@ class Grammar:
 
 
 def extract_grammar(
+    considered_subtypes: list[type],
     starting_symbol: type,
-    globalns: dict[str, Any],
-    considered_subtypes: list[type] = None,
 ):
     """
     The extract_grammar takes in all the productions of the grammar (nodes) and a starting symbol (starting_symbol). It goes through all the nodes and constructs a complete grammar that can then be used for search algorithms such as Genetic Programming and Hill Climbing.
@@ -260,8 +251,7 @@ def extract_grammar(
         - The grammar
 
     """
-
-    g = Grammar(starting_symbol, globalns, considered_subtypes)
+    g = Grammar(starting_symbol, considered_subtypes)
     g.register_type(starting_symbol)
     g.preprocess()
     return g

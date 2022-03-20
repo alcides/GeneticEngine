@@ -47,28 +47,28 @@ class ConcreteList(Root):
 class TestPIGrow:
     def test_root(self):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar(Root, globals(), [Concrete])
+        g: Grammar = extract_grammar([Concrete], Root)
         x = random_node(r, g, 4, Root, method=PI_Grow)
         assert isinstance(x, Concrete)
         assert isinstance(x, Root)
 
     def test_leaf(self):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar(Concrete, globals(), [Leaf])
+        g: Grammar = extract_grammar([Leaf], Root)
         x = random_node(r, g, 4, Leaf, method=PI_Grow)
         assert isinstance(x, Leaf)
         assert isinstance(x, Root)
 
     def test_leaf2(self):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar(Root, globals(), [Concrete])
+        g: Grammar = extract_grammar([Concrete], Root)
         x = random_node(r, g, 4, Concrete, method=PI_Grow)
         assert isinstance(x, Concrete)
         assert isinstance(x, Root)
 
     def test_list(self):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar(Root, globals(), [ConcreteList])
+        g: Grammar = extract_grammar([ConcreteList], Root)
         x = random_node(r, g, 6, Root, method=PI_Grow)
         assert isinstance(x, ConcreteList)
         assert isinstance(x.xs, list)
@@ -80,7 +80,7 @@ class TestPIGrow:
             root: Root
 
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar(RootHolder, globals(), [Concrete, Middle, Root])
+        g: Grammar = extract_grammar([Concrete, Middle, Root], RootHolder)
         x = random_node(r, g, 20, RootHolder, method=PI_Grow)
         assert x.gengy_distance_to_term == 20
         assert isinstance(x, RootHolder)

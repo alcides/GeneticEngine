@@ -40,7 +40,7 @@ def fitness_function(n: Number):
 
 
 def preprocess():
-    return extract_grammar(Number, globals(), [Plus, Mul, SafeDiv, Literal, Var])
+    return extract_grammar([Plus, Mul, SafeDiv, Literal, Var], Number)
 
 
 def evolve(g, seed, mode, representation):
