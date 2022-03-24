@@ -185,7 +185,7 @@ class GP(object):
         The main function of the GP object. This function runs the GP algorithm over the set number of generations, evolving better solutions
         
         Parameters:
-            - verbose (int): Sets the verbose level of the function (0: no prints, 1: print progress, or 2: print the best individual in each generation).
+            - verbose (int): Sets the verbose level of the function (0: no prints, >0: print progress, >1: print the best individual in each generation, >2: print all individuals in each generation).
         
         Returns a tuple with the following arguments:
             - individual (Individual): The fittest individual after the algorithm has finished.
@@ -239,9 +239,10 @@ class GP(object):
                     (time.time() - start),
                     self.save_gen_to_csv[1],
                 )
-            if verbose == 2:
-                # self.printFitnesses(population, "G:" + str(gen))
+            if verbose >= 2:
                 print("Best population:{}.".format(population[0]))
+            if verbose >= 3:
+                self.printFitnesses(population, "G:" + str(gen))
             if verbose >= 1:
                 if not self.timer_stop_criteria:
                     print(
