@@ -1,4 +1,5 @@
 import csv
+import functools
 from typing import (
     Any,
     Callable,
@@ -21,10 +22,11 @@ import geneticengine.algorithms.gp.generation_steps.selection as selection
 import geneticengine.algorithms.gp.generation_steps.mutation as mutation
 import geneticengine.algorithms.gp.generation_steps.cross_over as cross_over
 from geneticengine.algorithms.gp.callback import Callback
+from geneticengine.evaluators import Evaluator, SeqEvaluator
 
 
 class GP(object):
-    '''
+    """
     Genetic Programming object. Main attribute: evolve
 
     Parameters:
@@ -32,7 +34,7 @@ class GP(object):
         - evaluation_function (Callable[[Any], float]): The fitness function. Should take in any valid individual and return a float. The default is that the higher the fitness, the more applicable is the solution to the problem. Turn on the parameter minimize to switch it around.
         - minimize (bool): When switch on, the fitness function is reversed, so that a higher result from the fitness function corresponds to a less fit solution (default = False).
         - representation (Representation): The individual representation used by the GP program. The default is treebased_representation.
-        - randomSource (Callable[[int], RandomSource]): The random source function used by the program. Should take in an integer, representing the seed, and return a RandomSource. 
+        - randomSource (Callable[[int], RandomSource]): The random source function used by the program. Should take in an integer, representing the seed, and return a RandomSource.
         - seed (int): The seed of the RandomSource (default = 123).
         - population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (n_elites + n_novelties + 1) must hold.
         - n_elites (int): Number of elites, i.e. the number of best individuals that are preserved every generation (default = 5).
@@ -52,8 +54,9 @@ class GP(object):
         - probability_mutation (float): probability that an individual is mutated (default = 0.01).
         - probability_crossover (float): probability that an individual is chosen for cross-over (default = 0.9).
         -----
-  
-    '''
+
+    """
+
     # reason for union with noreturn in evaluation function, elitism and elitism: https://stackoverflow.com/questions/51811024/mypy-type-checking-on-callable-thinks-that-member-variable-is-a-method
     grammar: Grammar
     representation: Representation[Any]
@@ -101,6 +104,8 @@ class GP(object):
         timer_stop_criteria: bool = False,  # TODO: This should later be generic
         save_gen_to_csv: Tuple[str, str] = ("", "all"),
         callbacks: List[Callback] = [],
+        # -----
+        evaluator: Evaluator = SeqEvaluator(),
     ):
         assert population_size > (n_elites + n_novelties + 1)
 
@@ -148,6 +153,7 @@ class GP(object):
         else:
             self.selection = lambda r, ls, n: [x for x in ls[:n]]
         self.force_individual = force_individual
+        self.evaluator = evaluator
 
     def create_individual(self, depth: int):
         genotype = self.representation.create_individual(
@@ -170,38 +176,60 @@ class GP(object):
         if (
             self.favor_less_deep_trees
         ):  # grammatical evolution does not have gengy_distance_to_term
-            return individual.genotype.gengy_distance_to_term * 10 ** -25
+            return (
+                individual.genotype.gengy_distance_to_term
+                * (10**-25)
+                * (1 if self.minimize else -1)
+            )
         else:
             return 0
 
-    def keyfitness(self):
+    @functools.cached_property
+    def fitness_key(self):
         if self.minimize:
-            return lambda x: self.evaluate(x) + self.fitness_correction_for_depth(x)
+            return lambda x: x.fitness
         else:
-            return lambda x: -self.evaluate(x) - self.fitness_correction_for_depth(x)
+            return lambda x: -x.fitness
+
+    def sorted_pop(self, pop: List[Individual]):
+        indivs = []
+        to_eval = []
+        for indiv in pop:
+            if indiv.fitness is None:
+                indivs.append(indiv)
+                to_eval.append(
+                    self.representation.genotype_to_phenotype(
+                        self.grammar, indiv.genotype
+                    )
+                )
+
+        res = self.evaluator.eval(self.evaluation_function, to_eval)
+        for i, fit in enumerate(res):
+            indiv = indivs[i]
+            indiv.fitness = fit + self.fitness_correction_for_depth(indiv)
+
+        return sorted(pop, key=lambda x: x.fitness)
 
     def evolve(self, verbose=1) -> Tuple[Individual, float, Any]:
-        '''
+        """
         The main function of the GP object. This function runs the GP algorithm over the set number of generations, evolving better solutions
-        
+
         Parameters:
             - verbose (int): Sets the verbose level of the function (0: no prints, 1: print progress, or 2: print the best individual in each generation).
-        
+
         Returns a tuple with the following arguments:
             - individual (Individual): The fittest individual after the algorithm has finished.
             - fitness (float): The fitness of above individual.
-            - phenotype (Any): The phenotype of the best individual. 
-        '''
+            - phenotype (Any): The phenotype of the best individual.
+        """
         # TODO: This is not ramped half and half
         population = self.init_population()
         if self.force_individual is not None:
             population[0] = Individual(
-                genotype=relabel_nodes_of_trees(
-                    self.force_individual, self.grammar
-                ),
+                genotype=relabel_nodes_of_trees(self.force_individual, self.grammar),
                 fitness=None,
             )
-        population = sorted(population, key=self.keyfitness())
+        population = self.sorted_pop(population)
 
         gen = 0
         start = time.time()
@@ -209,8 +237,9 @@ class GP(object):
         while (not self.timer_stop_criteria and gen < self.number_of_generations) or (
             self.timer_stop_criteria and (time.time() - start) < 60
         ):
+            population = self.sorted_pop(population)
             npop = self.novelty(self.n_novelties)
-            npop.extend(self.elitism(population, self.keyfitness()))
+            npop.extend(self.elitism(population, self.fitness_key))
             spotsLeft = self.population_size - len(npop)
             for _ in range(spotsLeft // 2):
                 candidates = self.selection(self.random, population, 2)
@@ -225,7 +254,7 @@ class GP(object):
                 npop.append(p2)
 
             population = npop
-            population = sorted(population, key=self.keyfitness())
+            population = self.sorted_pop(population)
 
             time_gen = time.time() - start
             for cb in self.callbacks:
