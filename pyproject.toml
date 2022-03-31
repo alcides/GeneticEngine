@@ -10,7 +10,9 @@ authors = [
     {name = "Alcides Fonseca", email = "me@alcidesfonseca.com"}
 ]
 readme = "README.md"
-python = "^3.9"
+requires-python = "^3.9"
+
+[project.urls]
 homepage = "https://github.com/alcides/GeneticEngine/"
 repository = "https://github.com/alcides/GeneticEngine/"
 documentation = "https://github.com/alcides/GeneticEngine/"
