@@ -5,12 +5,14 @@ description = "Genetic Programming with Types and Grammars"
 authors = [
     "Alcides Fonseca <me@alcidesfonseca.com>"
 ]
-license = "MIT"
 readme = "README.md"
 python = "^3.9"
 homepage = "https://github.com/alcides/GeneticEngine/"
 repository = "https://github.com/alcides/GeneticEngine/"
 documentation = "https://github.com/alcides/GeneticEngine/"
+
+[project.license]
+url = "https://opensource.org/licenses/MIT"
 
 [build-system]
 build-backend = 'setuptools.build_meta'
