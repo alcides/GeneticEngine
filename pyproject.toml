@@ -12,7 +12,7 @@ repository = "https://github.com/alcides/GeneticEngine/"
 documentation = "https://github.com/alcides/GeneticEngine/"
 
 [project.license]
-url = "https://opensource.org/licenses/MIT"
+text = "https://opensource.org/licenses/MIT"
 
 [build-system]
 build-backend = 'setuptools.build_meta'
