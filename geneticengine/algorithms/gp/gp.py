@@ -182,7 +182,7 @@ class GP:
         if (
             self.favor_less_deep_trees
         ):  # grammatical evolution does not have gengy_distance_to_term
-            return individual.genotype.gengy_distance_to_term * 10 ** -25
+            return individual.genotype.gengy_distance_to_term * 10**-25
         else:
             return 0
 
@@ -252,9 +252,10 @@ class GP:
                     (time.time() - start),
                     self.save_gen_to_csv[1],
                 )
-            if verbose == 2:
-                # self.printFitnesses(population, "G:" + str(gen))
+            if verbose >= 2:
                 print(f"Best population:{population[0]}.")
+            if verbose >= 3:
+                self.printFitnesses(population, "G:" + str(gen))
             if verbose >= 1:
                 if not self.timer_stop_criteria:
                     print(
