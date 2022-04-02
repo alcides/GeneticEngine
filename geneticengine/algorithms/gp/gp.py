@@ -15,6 +15,7 @@ import geneticengine.algorithms.gp.generation_steps.cross_over as cross_over
 import geneticengine.algorithms.gp.generation_steps.mutation as mutation
 import geneticengine.algorithms.gp.generation_steps.selection as selection
 from geneticengine.algorithms.gp.callback import Callback
+from geneticengine.algorithms.gp.callback import DebugCallback
 from geneticengine.algorithms.gp.callback import PrintBestCallback
 from geneticengine.algorithms.gp.callback import ProgressCallback
 from geneticengine.algorithms.gp.csv_callback import CSVCallback
@@ -214,9 +215,11 @@ class GP:
             - fitness (float): The fitness of above individual.
             - phenotype (Any): The phenotype of the best individual.
         """
-        if verbose == 2:
+        if verbose > 2:
+            self.callbacks.append(DebugCallback())
+        if verbose > 1:
             self.callbacks.append(PrintBestCallback())
-        elif verbose == 1:
+        if verbose > 0:
             self.callbacks.append(ProgressCallback())
 
         # TODO: This is not ramped half and half

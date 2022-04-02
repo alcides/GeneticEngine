@@ -16,15 +16,14 @@ class DebugCallback(Callback):
 
     def process_iteration(self, generation: int, population, time: float, gp):
         for p in population:
-            print(p)
-        print(f"___ end of gen {generation}")
+            print(f"[{self.__class__}] {p} at generation {generation}")
 
 
 class ProgressCallback(Callback):
     """Prints the number of the generation"""
 
     def process_iteration(self, generation: int, population, time: float, gp):
-        print(f"Generation {generation}. Time {time}")
+        print(f"[{self.__class__}] Generation {generation}. Time {time}")
 
 
 class PrintBestCallback(Callback):
@@ -33,8 +32,12 @@ class PrintBestCallback(Callback):
     def process_iteration(self, generation: int, population, time: float, gp):
         fitness = round(gp.evaluate(population[0]), 4)
         if not gp.timer_stop_criteria:
-            print(f"Generation {generation} / {gp.number_of_generations}. Time {time}")
+            print(
+                f"[{self.__class__}] Generation {generation} / {gp.number_of_generations}. Time {time}",
+            )
         else:
-            print(f"Generation {generation}. Time {time} / {gp.timer_stop_criteria}")
-        print(f"Best fitness: {fitness}")
-        print(f"Best genotype: {population[0].genotype}")
+            print(
+                f"[{self.__class__}] Generation {generation}. Time {time} / {gp.timer_stop_criteria}",
+            )
+        print(f"[{self.__class__}] Best fitness: {fitness}")
+        print(f"[{self.__class__}] Best genotype: {population[0].genotype}")
