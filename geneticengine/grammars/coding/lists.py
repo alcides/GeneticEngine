@@ -65,12 +65,9 @@ class Combine(NumberList):
         return self.list1.evaluate(**kwargs) + self.list2.evaluate(**kwargs)
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], list[float]]:
-        return (
-            lambda line: self.list1.evaluate_lines(**kwargs)(
-                line,
-            )
-            + self.list2.evaluate_lines(**kwargs)(line)
-        )
+        return lambda line: self.list1.evaluate_lines(**kwargs)(
+            line,
+        ) + self.list2.evaluate_lines(**kwargs)(line)
 
     def __str__(self) -> str:
         return f"({self.list1} + {self.list2})"

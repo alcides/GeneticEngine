@@ -72,12 +72,9 @@ class Plus(Number):
         return self.left.evaluate(**kwargs) + self.right.evaluate(**kwargs)
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
-        return (
-            lambda line: self.left.evaluate_lines(**kwargs)(
-                line,
-            )
-            + self.right.evaluate_lines(**kwargs)(line)
-        )
+        return lambda line: self.left.evaluate_lines(**kwargs)(
+            line,
+        ) + self.right.evaluate_lines(**kwargs)(line)
 
     def __str__(self) -> str:
         return f"({self.left} + {self.right})"
@@ -92,12 +89,9 @@ class Mul(Number):
         return self.left.evaluate(**kwargs) * self.right.evaluate(**kwargs)
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
-        return (
-            lambda line: self.left.evaluate_lines(**kwargs)(
-                line,
-            )
-            * self.right.evaluate_lines(**kwargs)(line)
-        )
+        return lambda line: self.left.evaluate_lines(**kwargs)(
+            line,
+        ) * self.right.evaluate_lines(**kwargs)(line)
 
     def __str__(self) -> str:
         return f"({self.left} * {self.right})"

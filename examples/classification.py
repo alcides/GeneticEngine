@@ -201,7 +201,7 @@ def evolve(
         minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
-        save_gen_to_csv=output_folder,
+        save_to_csv=output_folder,
     )
     (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf

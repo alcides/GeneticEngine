@@ -341,7 +341,7 @@ def evolve(fitness_function, output_folder, g, seed, mode):
         minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
-        save_gen_to_csv=(f"{output_folder}/run_seed={seed}", "all"),
+        save_to_csv=(f"{output_folder}/run_seed={seed}", "all"),
     )
     (b, bf, bp) = alg.evolve(verbose=2)
 

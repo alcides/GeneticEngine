@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import csv
 import time
 from typing import Any
 from typing import Callable
@@ -14,6 +13,9 @@ import geneticengine.algorithms.gp.generation_steps.cross_over as cross_over
 import geneticengine.algorithms.gp.generation_steps.mutation as mutation
 import geneticengine.algorithms.gp.generation_steps.selection as selection
 from geneticengine.algorithms.gp.callback import Callback
+from geneticengine.algorithms.gp.callback import PrintBestCallback
+from geneticengine.algorithms.gp.callback import ProgressCallback
+from geneticengine.algorithms.gp.csv_callback import CSVCallback
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
@@ -44,7 +46,7 @@ class GP:
         - target_fitness (Optional[float]): Sets a target fitness. When this fitness is reached, the algorithm stops running (default = None).
         - force_individual (Any): Allows the incorporation of an individual in the first population (default = None).
         - timer_stop_criteria (bool): If set to True, the algorithm is stopped after the time limit (60 seconds). Then the fittest individual is returned (default = False).
-        - save_gen_to_csv (Tuple[str, str]): If the first argument is not an empty string, for each generation all individuals and their fitnesses are written to the file [first_argument].csv. The second argument can be changed to only_best_individual if you only want to save the fittest individual (default = ("", "all")).
+        - save_to_csv (str): Saves a CSV file with the details of all the individuals of all generations.
         - callbacks (List[Callback]): The callbacks to define what is done with the returned prints from the algorithm (default = []).
         -----
         Default as given in A Field Guide to GP, p.17, by Poli and Mcphee:
@@ -100,7 +102,7 @@ class GP:
         seed: int = 123,
         # -----
         timer_stop_criteria: bool = False,  # TODO: This should later be generic
-        save_gen_to_csv: tuple[str, str] = ("", "all"),
+        save_to_csv: str = None,
         callbacks: list[Callback] = [],
     ):
         assert population_size > (n_elites + n_novelties + 1)
@@ -121,7 +123,6 @@ class GP:
         self.minimize = minimize
         self.target_fitness = target_fitness
         self.timer_stop_criteria = timer_stop_criteria
-        self.save_gen_to_csv = save_gen_to_csv
         self.callbacks = callbacks
         if hill_climbing:
             self.mutation = mutation.create_hill_climbing_mutation(
@@ -158,6 +159,10 @@ class GP:
             self.selection = lambda r, ls, n: [x for x in ls[:n]]
         self.force_individual = force_individual
 
+        if save_to_csv:
+            c = CSVCallback(save_to_csv)
+            self.callbacks.append(c)
+
     def create_individual(self, depth: int):
         genotype = self.representation.create_individual(
             r=self.random,
@@ -182,7 +187,7 @@ class GP:
         if (
             self.favor_less_deep_trees
         ):  # grammatical evolution does not have gengy_distance_to_term
-            return individual.genotype.gengy_distance_to_term * 10 ** -25
+            return individual.genotype.gengy_distance_to_term * 10**-25
         else:
             return 0
 
@@ -204,6 +209,11 @@ class GP:
             - fitness (float): The fitness of above individual.
             - phenotype (Any): The phenotype of the best individual.
         """
+        if verbose == 2:
+            self.callbacks.append(PrintBestCallback())
+        elif verbose == 1:
+            self.callbacks.append(ProgressCallback())
+
         # TODO: This is not ramped half and half
         population = self.init_population()
         if self.force_individual is not None:
@@ -242,36 +252,8 @@ class GP:
 
             time_gen = time.time() - start
             for cb in self.callbacks:
-                cb.process_iteration(gen + 1, population, time_gen)
+                cb.process_iteration(gen + 1, population, time=time_gen, gp=self)
 
-            if self.save_gen_to_csv[0] != "":
-                self.write_to_csv(
-                    self.save_gen_to_csv[0],
-                    population,
-                    (gen + 1),
-                    (time.time() - start),
-                    self.save_gen_to_csv[1],
-                )
-            if verbose == 2:
-                # self.printFitnesses(population, "G:" + str(gen))
-                print(f"Best population:{population[0]}.")
-            if verbose >= 1:
-                if not self.timer_stop_criteria:
-                    print(
-                        "BEST at",
-                        gen + 1,
-                        "/",
-                        self.number_of_generations,
-                        "is",
-                        round(self.evaluate(population[0]), 4),
-                    )
-                else:
-                    print(
-                        "BEST at",
-                        gen + 1,
-                        "is",
-                        round(self.evaluate(population[0]), 4),
-                    )
             if (
                 self.target_fitness is not None
                 and population[0].fitness == self.target_fitness
@@ -279,6 +261,8 @@ class GP:
                 break
             gen += 1
         self.final_population = population
+        for cb in self.callbacks:
+            cb.end_evolution()
         return (
             population[0],
             self.evaluate(population[0]),
@@ -292,57 +276,3 @@ class GP:
         return [
             self.create_individual(self.max_depth) for _ in range(self.population_size)
         ]
-
-    def printFitnesses(self, pop, prefix):
-        print(prefix)
-        for x in pop:
-            print(round(self.evaluate(x), 2), str(x))
-        print("---")
-
-        # "genotype_as_str",fitness_value,depth,number_of_the_generation,time_since_the_start_of_the_evolution
-
-    def write_to_csv(
-        self,
-        file_name,
-        population: list[Individual],
-        number_of_the_generation,
-        time_since_the_start_of_the_evolution,
-        writing_method,
-    ):
-        if number_of_the_generation == 1:
-            with open(f"{file_name}.csv", "w", newline="") as outfile:
-                writer = csv.writer(outfile)
-                writer.writerow(
-                    [
-                        "genotype_as_str",
-                        "fitness",
-                        "depth",
-                        "number_of_the_generation",
-                        "time_since_the_start_of_the_evolution",
-                        "seed",
-                    ],
-                )
-
-        csv_lines = list()
-        if writing_method == "only_best_individual":
-            population = [population[0]]
-        for ind in population:
-            genotype_as_str = str(ind.genotype)
-            fitness = str(ind.fitness)
-            if self.representation == treebased_representation:
-                depth = ind.genotype.gengy_distance_to_term
-            else:
-                depth = -1
-            csv_line = [
-                genotype_as_str,
-                fitness,
-                depth,
-                number_of_the_generation,
-                time_since_the_start_of_the_evolution,
-                self.seed,
-            ]
-            csv_lines.append(csv_line)
-
-        with open(f"{file_name}.csv", "a", newline="") as outfile:
-            writer = csv.writer(outfile)
-            writer.writerows(csv_lines)

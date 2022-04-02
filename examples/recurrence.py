@@ -66,7 +66,7 @@ def fitness_function(p):
         input = dataset[:i]
         r = p.evaluate(input)
         e = abs(r - dataset[i])
-        errors += e ** 2
+        errors += e**2
     return errors
 
 

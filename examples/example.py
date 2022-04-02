@@ -35,7 +35,7 @@ def fit(p):
 
 
 def target(x):
-    return x ** 2
+    return x**2
 
 
 # target = 234.5
