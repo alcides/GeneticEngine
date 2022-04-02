@@ -32,11 +32,15 @@ class SafeDiv(Number):
     right: Number
 
     def evaluate(self, **kwargs):
-        x = self.left.evaluate(**kwargs)
-        y = self.right.evaluate(**kwargs)
+        d1 = self.left.evaluate(**kwargs)
+        d2 = self.right.evaluate(**kwargs)
+        if d1.dtype == "O":
+            d1 = d1.astype(float)
+        if d2.dtype == "O":
+            d2 = d2.astype(float)
         try:
             with np.errstate(divide="ignore", invalid="ignore"):
-                return np.where(y == 0, np.ones_like(x), x / y)
+                return np.where(d2 == 0, np.ones_like(d1), d1 / d2)
         except ZeroDivisionError:
             # In this case we are trying to divide two constants, one of which is 0
             # Return a constant.
