@@ -32,7 +32,13 @@ class UnderTest(Root):
 
 
 class TestCallBack(Callback):
-    def process_iteration(self, generation: int, population, time: float):
+    def process_iteration(
+        self,
+        generation: int,
+        population,
+        time: float,
+        gp: GP,
+    ) -> None:
         for ind in population:
             x = ind.genotype
             assert isinstance(x, UnderTest)
