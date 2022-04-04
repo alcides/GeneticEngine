@@ -43,6 +43,9 @@ def random_int(r: Source) -> int:
 def random_float(r: Source) -> float:
     return r.random_float(-100, 100)
 
+def random_bool(r: Source) -> float:
+    return r.random_bool()
+
 
 T = TypeVar("T")
 
@@ -304,6 +307,11 @@ def expand_node(
         valf = random_float(r)
         SMTResolver.register_const(id, valf)
         receiver(valf)
+        return
+    elif starting_symbol is bool:
+        valb = random_bool(r)
+        SMTResolver.register_const(id, valb)
+        receiver(valb)
         return
     elif is_generic_list(starting_symbol):
         ctx = ctx.copy()
