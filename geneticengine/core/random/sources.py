@@ -20,9 +20,6 @@ class Source(ABC):
     def random_float(self, min: float, max: float) -> float:
         ...
 
-    def random_bool(self) -> float:
-        ...
-
     def choice(self, choices: List[T]) -> T:
         assert choices
         i = self.randint(0, len(choices) - 1)
@@ -56,6 +53,9 @@ class Source(ABC):
 
         return item
 
+    def random_bool(self) -> bool:
+        return self.choice([True, False])
+
 
 class RandomSource(Source):
     def __init__(self, seed: int = 0):
@@ -66,6 +66,3 @@ class RandomSource(Source):
 
     def random_float(self, min, max) -> float:
         return self.random.random() * (max - min) + min
-
-    def random_bool(self) -> float:
-        return bool(self.random.randint(0,1))
