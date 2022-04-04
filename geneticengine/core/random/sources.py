@@ -20,7 +20,7 @@ class Source(ABC):
     def random_float(self, min: float, max: float) -> float:
         ...
 
-    def random_bool(self, min: float, max: float) -> float:
+    def random_bool(self) -> float:
         ...
 
     def choice(self, choices: List[T]) -> T:
