@@ -28,10 +28,6 @@ from geneticengine.exceptions import GeneticEngineError
 from geneticengine.metahandlers.base import is_metahandler
 
 
-def random_bool(r: Source) -> int:
-    return r.choice([True, False])
-
-
 def random_int(r: Source) -> int:
     return r.randint(-(sys.maxsize - 1), sys.maxsize)
 
