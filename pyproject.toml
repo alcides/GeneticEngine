@@ -5,8 +5,8 @@ description = "Genetic Programming with Types and Grammars"
 authors = [
     {name = "Guilherme Espada", email = "gjespada@fc.ul.pt"},
     {name = "Leon Ingelse", email = "leoningelse@gmail.com"},
-    {name = "Paulo Santos", email = "pacsantos@fc.ul.pt"}, 
-    {name = "Pedro Barbosa", email = "psbarbosa@ciencias.ulisboa.pt"}, 
+    {name = "Paulo Santos", email = "pacsantos@fc.ul.pt"},
+    {name = "Pedro Barbosa", email = "psbarbosa@ciencias.ulisboa.pt"},
     {name = "Alcides Fonseca", email = "me@alcidesfonseca.com"}
 ]
 readme = "README.md"

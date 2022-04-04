@@ -1,12 +1,17 @@
+from __future__ import annotations
+
 from abc import ABC
 from dataclasses import dataclass
 from enum import Enum
-from typing import Annotated, List, Tuple
+from typing import Annotated
+from typing import List
+from typing import Tuple
+
+from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.metahandlers.lists import ListSizeBetween
-from geneticengine.algorithms.gp.gp import GP
-from geneticengine.algorithms.hill_climbing import HC
 
 map = """.###............................
 ...#............................
@@ -48,7 +53,7 @@ class Action(ABC):
 
 @dataclass
 class ActionBlock(Action):
-    actions: Annotated[List[Action], ListSizeBetween(2, 3)]
+    actions: Annotated[list[Action], ListSizeBetween(2, 3)]
 
 
 @dataclass
@@ -84,7 +89,7 @@ class Position(Enum):
     FOOD = 1
 
 
-def map_from_string(map_str: str) -> List[List[Position]]:
+def map_from_string(map_str: str) -> list[list[Position]]:
     return [
         [pos == "#" and Position.FOOD or Position.EMPTY for pos in line]
         for line in map_str.split("\n")
@@ -92,8 +97,9 @@ def map_from_string(map_str: str) -> List[List[Position]]:
 
 
 def next_pos(
-    pos: Tuple[int, int, Direction], map: List[List[Position]]
-) -> Tuple[int, int]:
+    pos: tuple[int, int, Direction],
+    map: list[list[Position]],
+) -> tuple[int, int]:
     masks = {
         Direction.EAST: (0, 1),
         Direction.SOUTH: (1, 0),
@@ -105,16 +111,16 @@ def next_pos(
     return (row, col)
 
 
-def food_in_front(pos: Tuple[int, int, Direction], map: List[List[Position]]) -> bool:
+def food_in_front(pos: tuple[int, int, Direction], map: list[list[Position]]) -> bool:
     (row, col) = next_pos(pos, map)
     return map[row][col] == Position.FOOD
 
 
 def simulate(a: Action, map_str: str) -> int:
-    next_instructions: List[Action] = [a]
+    next_instructions: list[Action] = [a]
     food_consumed = 0
     map = map_from_string(map_str)
-    current_pos: Tuple[int, int, Direction] = (
+    current_pos: tuple[int, int, Direction] = (
         0,
         0,
         Direction.EAST,
@@ -122,7 +128,8 @@ def simulate(a: Action, map_str: str) -> int:
     while next_instructions:
         current_instruction = next_instructions.pop(0)  # Default is -1
         if isinstance(
-            current_instruction, ActionBlock
+            current_instruction,
+            ActionBlock,
         ):  # ActionBlock contains list of action lists.
             for action in reversed(current_instruction.actions):
                 next_instructions = [action] + next_instructions

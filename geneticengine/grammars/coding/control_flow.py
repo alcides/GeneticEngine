@@ -1,13 +1,20 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from textwrap import indent
-from typing import Annotated, List, Callable, Any
-from geneticengine.grammars.coding.classes import Condition, Statement
+from typing import Annotated
+from typing import Any
+from typing import Callable
+from typing import List
+
+from geneticengine.grammars.coding.classes import Condition
+from geneticengine.grammars.coding.classes import Statement
 from geneticengine.metahandlers.ints import IntRange
 
 
 @dataclass
 class Code(Statement):
-    stmts: List[Statement]
+    stmts: list[Statement]
 
     def evaluate(self, **kwargs) -> float:
         x = kwargs.get("x", 1.0)
@@ -49,7 +56,8 @@ class ForLoop(Statement):
 
     def __str__(self):
         return "for i in range({}):\n{}".format(
-            self.iterationRange, indent(str(self.loopedCode), "\t")
+            self.iterationRange,
+            indent(str(self.loopedCode), "\t"),
         )
 
 
@@ -128,5 +136,10 @@ class IfThenElse(Statement):
 
     def __str__(self):
         return "if {}:\n{}\nelse:\n{}".format(
-            self.cond, indent(str(self.then), "\t"), indent(str(self.elze), "\t")
+            self.cond,
+            indent(str(self.then), "\t"),
+            indent(
+                str(self.elze),
+                "\t",
+            ),
         )

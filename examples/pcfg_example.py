@@ -1,11 +1,17 @@
+from __future__ import annotations
+
 from abc import ABC
-from typing import Annotated, List, NamedTuple, Protocol
+from typing import Annotated
+from typing import List
+from typing import NamedTuple
+from typing import Protocol
+
+from geneticengine.algorithms.gp.gp import GP
+from geneticengine.core.decorators import weight
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.lists import ListSizeBetween
-from geneticengine.algorithms.gp.gp import GP
-from geneticengine.core.decorators import weight
 
 
 class R(ABC):

@@ -1,10 +1,16 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Annotated, Callable, Any
+from typing import Annotated
+from typing import Any
+from typing import Callable
 
 from geneticengine.exceptions import GeneticEngineError
-from geneticengine.grammars.coding.classes import Expr, Statement, Number
-from geneticengine.metahandlers.vars import VarRange
+from geneticengine.grammars.coding.classes import Expr
+from geneticengine.grammars.coding.classes import Number
+from geneticengine.grammars.coding.classes import Statement
 from geneticengine.metahandlers.ints import IntRange
+from geneticengine.metahandlers.vars import VarRange
 
 
 @dataclass
@@ -67,7 +73,7 @@ class Plus(Number):
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
         return lambda line: self.left.evaluate_lines(**kwargs)(
-            line
+            line,
         ) + self.right.evaluate_lines(**kwargs)(line)
 
     def __str__(self) -> str:
@@ -84,7 +90,7 @@ class Mul(Number):
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
         return lambda line: self.left.evaluate_lines(**kwargs)(
-            line
+            line,
         ) * self.right.evaluate_lines(**kwargs)(line)
 
     def __str__(self) -> str:
@@ -107,8 +113,14 @@ class SafeDiv(Number):
         return d1 / self.keep_safe(d2)
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
-        d1 = lambda line: self.left.evaluate_lines(**kwargs)(line)
-        d2 = lambda line: self.keep_safe(self.right.evaluate_lines(**kwargs)(line))
+        def d1(line):
+            return self.left.evaluate_lines(**kwargs)(line)
+
+        def d2(line):
+            return self.keep_safe(
+                self.right.evaluate_lines(**kwargs)(line),
+            )
+
         return lambda line: d1(line) / d2(line)
 
     def __str__(self) -> str:
@@ -139,7 +151,7 @@ class Var(Number):
     def evaluate_lines(self, **kwargs):
         if not hasattr(self, "feature_indices"):
             raise GeneticEngineError(
-                "To use geneticengine.grammars.coding.expressions.Var.evaluate_lines, one must specify a Var.feature_indices dictionary."
+                "To use geneticengine.grammars.coding.expressions.Var.evaluate_lines, one must specify a Var.feature_indices dictionary.",
             )
         return lambda line: line[self.feature_indices[self.name]]
 
@@ -160,7 +172,7 @@ class XAssign(Statement):
         return lambda line: self.value.evaluate_lines(**kwargs)(line)
 
     def __str__(self):
-        return "x = {}".format(self.value)
+        return f"x = {self.value}"
 
 
 all_operators = [Max, Min, Abs, Plus, Mul, SafeDiv, Literal, Var, XAssign]

@@ -1,5 +1,9 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Callable, Any
+from typing import Any
+from typing import Callable
+
 from geneticengine.grammars.coding.classes import Condition
 
 
@@ -15,7 +19,7 @@ class And(Condition):
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], bool]:
         return lambda line: self.left.evaluate_lines(**kwargs)(
-            line
+            line,
         ) and self.right.evaluate_lines(**kwargs)(line)
 
     def __str__(self):
@@ -34,7 +38,7 @@ class Or(Condition):
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], bool]:
         return lambda line: self.left.evaluate_lines(**kwargs)(
-            line
+            line,
         ) or self.right.evaluate_lines(**kwargs)(line)
 
     def __str__(self):

@@ -1,4 +1,6 @@
 # Class extracted from PonyGE
+from __future__ import annotations
+
 import timeit
 import traceback
 
@@ -18,7 +20,7 @@ def inner(_it, _timer{init}):
 def time_regex_test_case(compiled_regex, test_case, iterations):
     """
     Execute and time a single regex on a single test case
-    
+
     :param compiled_regex:
     :param test_case:
     :param iterations:

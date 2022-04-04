@@ -1,7 +1,10 @@
+from __future__ import annotations
+
+import os
 from abc import ABC
 from dataclasses import dataclass
-import os
-from typing import Annotated, Any
+from typing import Annotated
+from typing import Any
 
 import numpy as np
 from sklearn.metrics import mean_squared_error
@@ -10,8 +13,8 @@ from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.grammatical_evolution import ge_representation
 from geneticengine.core.representations.tree.treebased import treebased_representation
-from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.floats import FloatRange
+from geneticengine.metahandlers.ints import IntRange
 
 # Load Dataset
 dataset = [
@@ -2927,7 +2930,7 @@ class Vectorial(ABC):
 
 
 @dataclass
-class Value(Scalar):     
+class Value(Scalar):
     value: Annotated[int, IntRange(-10, 10)]
 
     def __str__(self):
@@ -2939,7 +2942,7 @@ class ScalarVar(Scalar):
     index: Annotated[int, IntRange(0, 1)]
 
     def __str__(self):
-        return "line[{}]".format(self.index)
+        return f"line[{self.index}]"
 
 
 @dataclass
@@ -2947,7 +2950,7 @@ class VectorialVar(Vectorial):
     index: Annotated[int, IntRange(2, 3)]
 
     def __str__(self):
-        return "line[{}]".format(self.index)
+        return f"line[{self.index}]"
 
 
 @dataclass
@@ -2956,7 +2959,7 @@ class Add(Scalar):
     right: Scalar
 
     def __str__(self):
-        return "({} + {})".format(self.left, self.right)
+        return f"({self.left} + {self.right})"
 
 
 @dataclass
@@ -2964,7 +2967,7 @@ class Mean(Scalar):
     arr: Vectorial
 
     def __str__(self):
-        return "np.mean({})".format(self.arr)
+        return f"np.mean({self.arr})"
 
 
 @dataclass
@@ -2972,7 +2975,7 @@ class Max(Scalar):
     arr: Vectorial
 
     def __str__(self):
-        return "np.max({})".format(self.arr)
+        return f"np.max({self.arr})"
 
 
 @dataclass
@@ -2980,7 +2983,7 @@ class Min(Scalar):
     arr: Vectorial
 
     def __str__(self):
-        return "np.min({})".format(self.arr)
+        return f"np.min({self.arr})"
 
 
 @dataclass
@@ -2988,7 +2991,7 @@ class Sum(Scalar):
     arr: Vectorial
 
     def __str__(self):
-        return "np.sum({})".format(self.arr)
+        return f"np.sum({self.arr})"
 
 
 @dataclass
@@ -2996,7 +2999,7 @@ class Length(Scalar):
     arr: Vectorial
 
     def __str__(self):
-        return "len({})".format(self.arr)
+        return f"len({self.arr})"
 
 
 @dataclass
@@ -3005,7 +3008,7 @@ class ElementWiseSum(Vectorial):
     vector: Vectorial
 
     def __str__(self):
-        return "np.add({}, {})".format(self.scalar, self.vector)
+        return f"np.add({self.scalar}, {self.vector})"
 
 
 @dataclass
@@ -3014,7 +3017,7 @@ class ElementWiseSub(Vectorial):
     vector: Vectorial
 
     def __str__(self):
-        return "np.subtract({}, {})".format(self.scalar, self.vector)
+        return f"np.subtract({self.scalar}, {self.vector})"
 
 
 @dataclass
@@ -3022,7 +3025,7 @@ class CumulativeSum(Vectorial):
     arr: Vectorial
 
     def __str__(self):
-        return "np.cumsum({})".format(self.arr)
+        return f"np.cumsum({self.arr})"
 
 
 @dataclass
@@ -3031,7 +3034,7 @@ class CumulativeMean(Vectorial):
 
     def __str__(self):
         return "(lambda a: np.array([np.median(a[:i+1]) for i in range(len(a))]))({})".format(
-            self.arr
+            self.arr,
         )
 
 
@@ -3042,7 +3045,7 @@ class CumulativeMax(Vectorial):
     def __str__(self):
         return (
             "(lambda a: np.array([np.max(a[:i+1]) for i in range(len(a))]))({})".format(
-                self.arr
+                self.arr,
             )
         )
 
@@ -3054,7 +3057,7 @@ class CumulativeMin(Vectorial):
     def __str__(self):
         return (
             "(lambda a: np.array([np.min(a[:i+1]) for i in range(len(a))]))({})".format(
-                self.arr
+                self.arr,
             )
         )
 
@@ -3096,15 +3099,20 @@ def compile(p, line) -> Any:
 
 
 def fitness_function(n: Scalar):
-    regressor = lambda l: compile(n, l)
+    def regressor(l):
+        return compile(n, l)
+
     y_pred = [regressor(line) for line in dataset]
     y = [line[-1] for line in dataset]
-    r = mean_squared_error(y, y_pred) # should use our own from metrics, but left as such to align with pony
+    r = mean_squared_error(
+        y,
+        y_pred,
+    )  # should use our own from metrics, but left as such to align with pony
     return r
 
 
 def fitness_function_alternative(n: Scalar):
-    code = "lambda line: {}".format(str(n))
+    code = f"lambda line: {str(n)}"
     regressor = eval(code)
     y_pred = [regressor(line) for line in dataset]
     y = [line[-1] for line in dataset]
@@ -3114,29 +3122,28 @@ def fitness_function_alternative(n: Scalar):
 
 def preprocess():
     g = extract_grammar(
-            [
-                Value,#
-                ScalarVar,#
-                VectorialVar,#
-                Add,#
-                Mean,#
-                Max,#
-                Min,#
-                Sum,#
-                Length,#
-                ElementWiseSum,#
-                ElementWiseSub,#
-                CumulativeSum,#
-                # CumulativeMean,
-                CumulativeMax,#
-                CumulativeMin,#
-            ],
-            Scalar,
-        )
+        [
+            Value,  #
+            ScalarVar,  #
+            VectorialVar,  #
+            Add,  #
+            Mean,  #
+            Max,  #
+            Min,  #
+            Sum,  #
+            Length,  #
+            ElementWiseSum,  #
+            ElementWiseSub,  #
+            CumulativeSum,  #
+            # CumulativeMean,
+            CumulativeMax,  #
+            CumulativeMin,  #
+        ],
+        Scalar,
+    )
     print(g)
     return g
-    
-    
+
     # see fitness/vectorialgp.py for docs.
 
     # <p> ::= XXX_output_XXX = <s>
@@ -3152,12 +3159,18 @@ def preprocess():
     # <d> ::= GE_RANGE:10
 
 
-def evolve(g, seed, mode, representation='treebased_representation', output_folder=('','all')):
-    if representation == 'grammatical_evolution':
+def evolve(
+    g,
+    seed,
+    mode,
+    representation="treebased_representation",
+    output_folder=("", "all"),
+):
+    if representation == "grammatical_evolution":
         representation = ge_representation
     else:
         representation = treebased_representation
-    
+
     alg = GP(
         g,
         fitness_function,
@@ -3168,14 +3181,14 @@ def evolve(g, seed, mode, representation='treebased_representation', output_fold
         probability_crossover=0.75,
         probability_mutation=0.01,
         number_of_generations=30,
-        max_depth=14, # In grammar of PonyGE there is one redundant root node.
+        max_depth=14,  # In grammar of PonyGE there is one redundant root node.
         # max_init_depth=10,
         population_size=100,
         selection_method=("tournament", 2),
         n_elites=5,
-        #----------------
+        # ----------------
         timer_stop_criteria=mode,
-        save_gen_to_csv=output_folder
+        save_to_csv=output_folder,
     )
     (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf

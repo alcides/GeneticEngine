@@ -1,39 +1,63 @@
-import sys
+from __future__ import annotations
+
 import os
+import sys
 from abc import ABC
 from dataclasses import dataclass
-from typing import Annotated, Any, Callable, Tuple, Union
+from typing import Annotated
+from typing import Any
+from typing import Callable
+from typing import Tuple
+from typing import Union
+
 import numpy as np
 from sklearn.metrics import f1_score
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.decorators import abstract
-from geneticengine.core.representations.tree.treebased import treebased_representation
-from geneticengine.metahandlers.ints import IntRange
-from geneticengine.algorithms.gp.gp import GP
 
-from geneticengine.grammars.coding.logical_ops import And, Or, Not
-from geneticengine.grammars.coding.conditions import Equals, GreaterThan, LessThan
-from geneticengine.grammars.coding.classes import Expr, Condition, Number
+from geneticengine.algorithms.gp.gp import GP
+from geneticengine.core.decorators import abstract
+from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.grammars.coding.classes import Condition
+from geneticengine.grammars.coding.classes import Expr
+from geneticengine.grammars.coding.classes import Number
+from geneticengine.grammars.coding.conditions import Equals
+from geneticengine.grammars.coding.conditions import GreaterThan
+from geneticengine.grammars.coding.conditions import LessThan
+from geneticengine.grammars.coding.logical_ops import And
+from geneticengine.grammars.coding.logical_ops import Not
+from geneticengine.grammars.coding.logical_ops import Or
 from geneticengine.grammars.coding.numbers import Literal
+from geneticengine.metahandlers.ints import IntRange
 
 MATRIX_ROW_SIZE = 3
 MATRIX_COL_SIZE = 3
 
+
 def prepare_data(DATASET_NAME):
 
-    DATA_FILE_TRAIN = "examples/data/{}/Train.csv".format(DATASET_NAME)
-    DATA_FILE_TEST = "examples/data/{}/Test.csv".format(DATASET_NAME)
+    DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.csv"
+    DATA_FILE_TEST = f"examples/data/{DATASET_NAME}/Test.csv"
 
-    train = np.genfromtxt(DATA_FILE_TRAIN, skip_header=1, delimiter=",", dtype=int)
+    train = np.genfromtxt(
+        DATA_FILE_TRAIN,
+        skip_header=1,
+        delimiter=",",
+        dtype=int,
+    )
     Xtrain = train[:, :-1]
     Xtrain = Xtrain.reshape(train.shape[0], MATRIX_ROW_SIZE, MATRIX_COL_SIZE)
-    ytrain =train[:, -1]
+    ytrain = train[:, -1]
 
-    test = np.genfromtxt(DATA_FILE_TEST, skip_header=1, delimiter=",", dtype=int)
+    test = np.genfromtxt(
+        DATA_FILE_TEST,
+        skip_header=1,
+        delimiter=",",
+        dtype=int,
+    )
     Xtest = test[:, :-1]
     Xtest = Xtest.reshape(test.shape[0], MATRIX_ROW_SIZE, MATRIX_COL_SIZE)
-    ytest = test[:, -1] 
-    
+    ytest = test[:, -1]
+
     return Xtrain, Xtest, ytrain, ytest
 
 
@@ -50,6 +74,7 @@ class MatrixElement(Condition):
 class Matrix(ABC):
     pass
 
+
 @dataclass
 class MatrixElementsRow(Matrix):
     row: Annotated[int, IntRange(0, MATRIX_ROW_SIZE - 1)]
@@ -59,6 +84,7 @@ class MatrixElementsRow(Matrix):
     def __str__(self) -> str:
         return f"X[{self.row}, {self.col1} : {self.col2}]"
 
+
 @dataclass
 class MatrixElementsCol(Matrix):
     row1: Annotated[int, IntRange(0, MATRIX_ROW_SIZE)]
@@ -67,7 +93,8 @@ class MatrixElementsCol(Matrix):
 
     def __str__(self) -> str:
         return f"X[{self.row1} : {self.row2}, {self.col}]"
-    
+
+
 @dataclass
 class MatrixElementsCube(Matrix):
     row1: Annotated[int, IntRange(0, MATRIX_ROW_SIZE)]
@@ -78,24 +105,27 @@ class MatrixElementsCube(Matrix):
     def __str__(self) -> str:
         return f"X[{self.row1} : {self.row2}, {self.col1} : {self.col2}]"
 
+
 @dataclass
 class MatrixSum(Number):
     matrix: Matrix
 
-    def summing(self,matrix):
+    def summing(self, matrix):
         s = sum(matrix)
         if type(s) == int or type(s) == np.int32 or type(s) == np.int64:
             return s
         else:
             return sum(s)
-    
+
     def __str__(self) -> str:
         return f"(sum({self.matrix}))"
-    
+
+
 @dataclass
 class SumAll(Number):
     def __str__(self) -> str:
         return f"(sum(X))"
+
 
 def flat_sum(s):
     if isinstance(s, int):
@@ -105,7 +135,8 @@ def flat_sum(s):
     else:
         return sum(s)
 
-def evaluate(e: Union[Expr, Matrix, Number]) -> Callable[[Any], float]:
+
+def evaluate(e: Expr | Matrix | Number) -> Callable[[Any], float]:
 
     if isinstance(e, And):
         l = e.left
@@ -160,16 +191,16 @@ def evaluate(e: Union[Expr, Matrix, Number]) -> Callable[[Any], float]:
     elif isinstance(e, SumAll):
         return lambda line: flat_sum(line)
     elif isinstance(e, Equals):
-        ln : Number = e.left
-        rn : Number = e.right
+        ln: Number = e.left
+        rn: Number = e.right
         return lambda line: evaluate(ln)(line) == evaluate(rn)(line)
     elif isinstance(e, GreaterThan):
-        ln : Number = e.left
-        rn : Number = e.right
+        ln: Number = e.left
+        rn: Number = e.right
         return lambda line: evaluate(ln)(line) > evaluate(rn)(line)
     elif isinstance(e, LessThan):
-        ln : Number = e.left
-        rn : Number = e.right
+        ln: Number = e.left
+        rn: Number = e.right
         return lambda line: evaluate(ln)(line) < evaluate(rn)(line)
     elif isinstance(e, Literal):
         v = e.val
@@ -178,35 +209,122 @@ def evaluate(e: Union[Expr, Matrix, Number]) -> Callable[[Any], float]:
         raise NotImplementedError(str(e))
 
 
-
-
-def preprocess(output_folder,method):
-    '''
-        Options for methor are [standard], [row], [col], [row_col], [cube], [row_col_cube], [sum_all].
-    '''
-    if method == 'standard':
+def preprocess(output_folder, method):
+    """
+    Options for methor are [standard], [row], [col], [row_col], [cube], [row_col_cube], [sum_all].
+    """
+    if method == "standard":
         grammar = extract_grammar([And, Or, Not, MatrixElement], Condition)
-    elif method == 'row':
-        grammar = extract_grammar([And, Or, Not, MatrixElement, MatrixElementsRow, MatrixSum, Equals, GreaterThan, LessThan, Literal], Condition)
-    elif method == 'col':
-        grammar = extract_grammar([And, Or, Not, MatrixElement, MatrixElementsCol, MatrixSum, Equals, GreaterThan, LessThan, Literal], Condition)
-    elif method == 'row_col':
-        grammar = extract_grammar([And, Or, Not, MatrixElement, MatrixElementsRow, MatrixElementsCol, MatrixSum, Equals, GreaterThan, LessThan, Literal], Condition)
-    elif method == 'cube':
-        grammar = extract_grammar([And, Or, Not, MatrixElement, MatrixElementsCube, MatrixSum, Equals, GreaterThan, LessThan, Literal], Condition)
-    elif method == 'row_col_cube':
-        grammar = extract_grammar([And, Or, Not, MatrixElement, MatrixElementsRow, MatrixElementsCol, MatrixElementsCube, MatrixSum, Equals, GreaterThan, LessThan, Literal], Condition)
-    elif method == 'sum_all':
-        grammar = extract_grammar([And, Or, Not, MatrixElement, SumAll, Equals, GreaterThan, LessThan, Literal], Condition)
+    elif method == "row":
+        grammar = extract_grammar(
+            [
+                And,
+                Or,
+                Not,
+                MatrixElement,
+                MatrixElementsRow,
+                MatrixSum,
+                Equals,
+                GreaterThan,
+                LessThan,
+                Literal,
+            ],
+            Condition,
+        )
+    elif method == "col":
+        grammar = extract_grammar(
+            [
+                And,
+                Or,
+                Not,
+                MatrixElement,
+                MatrixElementsCol,
+                MatrixSum,
+                Equals,
+                GreaterThan,
+                LessThan,
+                Literal,
+            ],
+            Condition,
+        )
+    elif method == "row_col":
+        grammar = extract_grammar(
+            [
+                And,
+                Or,
+                Not,
+                MatrixElement,
+                MatrixElementsRow,
+                MatrixElementsCol,
+                MatrixSum,
+                Equals,
+                GreaterThan,
+                LessThan,
+                Literal,
+            ],
+            Condition,
+        )
+    elif method == "cube":
+        grammar = extract_grammar(
+            [
+                And,
+                Or,
+                Not,
+                MatrixElement,
+                MatrixElementsCube,
+                MatrixSum,
+                Equals,
+                GreaterThan,
+                LessThan,
+                Literal,
+            ],
+            Condition,
+        )
+    elif method == "row_col_cube":
+        grammar = extract_grammar(
+            [
+                And,
+                Or,
+                Not,
+                MatrixElement,
+                MatrixElementsRow,
+                MatrixElementsCol,
+                MatrixElementsCube,
+                MatrixSum,
+                Equals,
+                GreaterThan,
+                LessThan,
+                Literal,
+            ],
+            Condition,
+        )
+    elif method == "sum_all":
+        grammar = extract_grammar(
+            [
+                And,
+                Or,
+                Not,
+                MatrixElement,
+                SumAll,
+                Equals,
+                GreaterThan,
+                LessThan,
+                Literal,
+            ],
+            Condition,
+        )
     else:
-        raise NotImplementedError(f'Method ({method}) not implemented! Choose from: [standard], [row], [col], [row_col], [cube], [row_col_cube], [sum_all]')
+        raise NotImplementedError(
+            f"Method ({method}) not implemented! Choose from: [standard], [row], [col], [row_col], [cube], [row_col_cube], [sum_all]",
+        )
 
-    file1 = open(f"results/csvs/{output_folder}/grammar.txt","w")
+    file1 = open(f"results/csvs/{output_folder}/grammar.txt", "w")
     file1.write(str(grammar))
     file1.close()
-    
+
     print(grammar)
     return grammar
+
 
 def evolve(fitness_function, output_folder, g, seed, mode):
     alg = GP(
@@ -223,13 +341,13 @@ def evolve(fitness_function, output_folder, g, seed, mode):
         minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
-        save_gen_to_csv=(f'{output_folder}/run_seed={seed}','all'),
+        save_to_csv=(f"{output_folder}/run_seed={seed}", "all"),
     )
     (b, bf, bp) = alg.evolve(verbose=2)
 
     print("Best individual:", bp)
     print("Genetic Engine Train F1 score:", bf)
-    
+
     _clf = evaluate(bp)
     ypred = [_clf(line) for line in np.rollaxis(Xtest, 0)]
     print("GeneticEngine Test F1 score:", f1_score(ytest, ypred))
@@ -243,25 +361,25 @@ def evolve(fitness_function, output_folder, g, seed, mode):
 if __name__ == "__main__":
     args = sys.argv
     print(args)
-    output_folder = args[1] # 'GoL/grammar_col'
-    method = args[2] # 'col'
-    dataset_name = args[3] # 'GameOfLife'
+    output_folder = args[1]  # 'GoL/grammar_col'
+    method = args[2]  # 'col'
+    dataset_name = args[3]  # 'GameOfLife'
 
-    folder = f'./results/csvs/{output_folder}'
+    folder = f"./results/csvs/{output_folder}"
     # import IPython as ip
     # ip.embed()
     if not os.path.isdir(folder):
         os.mkdir(folder)
 
-    g = preprocess(output_folder,method)
-    
-    Xtrain, Xtest, ytrain, ytest = prepare_data(dataset_name)    
+    g = preprocess(output_folder, method)
+
+    Xtrain, Xtest, ytrain, ytest = prepare_data(dataset_name)
 
     def fitness_function(i: Condition):
         _clf = evaluate(i)
         ypred = [_clf(line) for line in np.rollaxis(Xtrain, 0)]
         return f1_score(ytrain, ypred)
-    
+
     for i in range(30):
         print(f"Run: {i}.")
         evolve(fitness_function, output_folder, g, i, False)
