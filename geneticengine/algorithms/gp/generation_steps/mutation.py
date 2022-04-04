@@ -1,8 +1,12 @@
-from typing import Callable, Type
+from __future__ import annotations
+
+from typing import Callable
+from typing import Type
+
 from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
-from geneticengine.core.grammar import Grammar
 
 
 def create_mutation(
@@ -14,7 +18,11 @@ def create_mutation(
     def mutation(individual: Individual):
         new_individual = Individual(
             genotype=representation.mutate_individual(
-                r, g, individual.genotype, max_depth, g.starting_symbol
+                r,
+                g,
+                individual.genotype,
+                max_depth,
+                g.starting_symbol,
             ),
             fitness=None,
         )
@@ -32,14 +40,23 @@ def create_hill_climbing_mutation(
     n_candidates: int = 5,
 ) -> Callable[[Individual], Individual]:
     def hill_climbing_mutation(individual: Individual):
-        creation_new_individual = lambda: Individual(
-            genotype=representation.mutate_individual(
-                r, g, individual.genotype, max_depth, g.starting_symbol
-            ),
-            fitness=None,
-        )
+        def creation_new_individual():
+            return Individual(
+                genotype=representation.mutate_individual(
+                    r,
+                    g,
+                    individual.genotype,
+                    max_depth,
+                    g.starting_symbol,
+                ),
+                fitness=None,
+            )
+
         new_individuals = [creation_new_individual() for _ in range(n_candidates)]
-        best_individual = min((new_individuals + [individual]), key=fitness_function)
+        best_individual = min(
+            (new_individuals + [individual]),
+            key=fitness_function,
+        )
         return best_individual
 
     return hill_climbing_mutation

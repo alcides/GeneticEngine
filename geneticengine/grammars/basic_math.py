@@ -1,39 +1,42 @@
-from abc import ABC
-from typing import Callable, Any
-from geneticengine.core.tree import TreeNode
-from geneticengine.metahandlers.ints import IntRange
-from geneticengine.metahandlers.vars import VarRange
+from __future__ import annotations
 
-from typing import Annotated
+from abc import ABC
 from dataclasses import dataclass
+from math import isnan
+from typing import Annotated
+from typing import Any
+from typing import Callable
 
 import numpy as np
-from math import isnan
 
+from geneticengine.core.tree import TreeNode
 from geneticengine.grammars.sgp import Number
+from geneticengine.metahandlers.ints import IntRange
+from geneticengine.metahandlers.vars import VarRange
 
 
 @dataclass
 class SafeDiv(Number):
-    '''
-    Safe Division object. If division fails because of a ZeroDivisionError, 1 is returned. 
-    
+    """
+    Safe Division object. If division fails because of a ZeroDivisionError, 1 is returned.
+
     Parameters:
         - left  (Number)
         - right (Number)
-        
+
     Returns when evaluated:
         left / right
-    '''
+    """
+
     left: Number
     right: Number
 
     def evaluate(self, **kwargs):
         d1 = self.left.evaluate(**kwargs)
         d2 = self.right.evaluate(**kwargs)
-        if d1.dtype == 'O':
+        if d1.dtype == "O":
             d1 = d1.astype(float)
-        if d2.dtype == 'O':
+        if d2.dtype == "O":
             d2 = d2.astype(float)
         try:
             with np.errstate(divide="ignore", invalid="ignore"):
@@ -49,15 +52,16 @@ class SafeDiv(Number):
 
 @dataclass
 class SafeSqrt(Number):
-    '''
-    Safe Square Root object. If the number is negative, the square root of the positive counterpart of the number is returned. 
-    
+    """
+    Safe Square Root object. If the number is negative, the square root of the positive counterpart of the number is returned.
+
     Parameters:
         - number (Number)
-        
+
     Returns when evaluated:
         np.sqrt(number)
-    '''
+    """
+
     number: Number
 
     def evaluate(self, **kwargs):
@@ -70,15 +74,16 @@ class SafeSqrt(Number):
 
 @dataclass
 class Sin(Number):
-    '''
+    """
     Standard Sinus object.
-    
+
     Parameters:
         - number (Number)
-        
+
     Returns when evaluated:
         np.sin(number)
-    '''
+    """
+
     number: Number
 
     def evaluate(self, **kwargs):
@@ -91,15 +96,16 @@ class Sin(Number):
 
 @dataclass
 class Tanh(Number):
-    '''
+    """
     Standard Hyperbolic Tangent object.
-    
+
     Parameters:
         - number (Number)
-        
+
     Returns when evaluated:
         np.tanh(number)
-    '''
+    """
+
     number: Number
 
     def evaluate(self, **kwargs):
@@ -112,15 +118,16 @@ class Tanh(Number):
 
 @dataclass
 class Exp(Number):
-    '''
+    """
     Standard Exponential object.
-    
+
     Parameters:
         - number (Number)
-        
+
     Returns when evaluated:
         np.exp(number)
-    '''
+    """
+
     number: Number
 
     def evaluate(self, **kwargs):
@@ -133,16 +140,17 @@ class Exp(Number):
 
 @dataclass
 class SafeLog(Number):
-    '''
-    Safe Logarithmic object. If the number is negative, the logarithm of the positive counterpart of the number + 1 is returned. 
-    
+    """
+    Safe Logarithmic object. If the number is negative, the logarithm of the positive counterpart of the number + 1 is returned.
+
     Parameters:
         - left  (Number)
         - right (Number)
-        
+
     Returns when evaluated:
         np.log(number)
-    '''
+    """
+
     number: Number
 
     def evaluate(self, **kwargs):

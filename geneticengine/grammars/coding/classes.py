@@ -1,6 +1,13 @@
+from __future__ import annotations
+
 from abc import ABC
 from dataclasses import dataclass
-from typing import Any, Callable, Generic, List, TypeVar, Union
+from typing import Any
+from typing import Callable
+from typing import Generic
+from typing import List
+from typing import TypeVar
+from typing import Union
 
 from geneticengine.core.decorators import abstract
 
@@ -36,7 +43,7 @@ class Condition(Expr[bool]):
 
 
 @abstract
-class NumberList(Expr[List[float]]):
+class NumberList(Expr[list[float]]):
     pass
 
 
@@ -53,4 +60,4 @@ class XAssign(Statement):
         return lambda line: self.value.evaluate_lines(**kwargs)(line)
 
     def __str__(self):
-        return "x = {}".format(self.value)
+        return f"x = {self.value}"

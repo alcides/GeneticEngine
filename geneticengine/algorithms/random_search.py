@@ -1,16 +1,19 @@
-from typing import Callable, Any, Type
+from __future__ import annotations
+
+from typing import Any
+from typing import Callable
+from typing import Type
+
+from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.api import Representation
-from geneticengine.core.representations.tree.treebased import (
-    treebased_representation,
-    relabel_nodes_of_trees,
-)
-from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.core.representations.tree.treebased import relabel_nodes_of_trees
+from geneticengine.core.representations.tree.treebased import treebased_representation
 
 
-class RandomSearch(object):
-    '''
+class RandomSearch:
+    """
     Random Search object. Main attribute: evolve
 
     Parameters:
@@ -18,15 +21,16 @@ class RandomSearch(object):
         - evaluation_function (Callable[[Any], float]): The fitness function. Should take in any valid individual and return a float. The default is that the higher the fitness, the more applicable is the solution to the problem. Turn on the parameter minimize to switch it around.
         - minimize (bool): When switch on, the fitness function is reversed, so that a higher result from the fitness function corresponds to a less fit solution (default = False).
         - representation (Representation): The individual representation used by the GP program. The default is treebased_representation.
-        - randomSource (Callable[[int], RandomSource]): The random source function used by the program. Should take in an integer, representing the seed, and return a RandomSource. 
+        - randomSource (Callable[[int], RandomSource]): The random source function used by the program. Should take in an integer, representing the seed, and return a RandomSource.
         - seed (int): The seed of the RandomSource (default = 123).
         - population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (n_elites + n_novelties + 1) must hold.
         - number_of_generations (int): Number of generations (default = 100).
         - max_depth (int): The maximum depth a tree can have (default = 15).
         - favor_less_deep_trees (bool): If set to True, this gives a tiny penalty to deeper trees to favor simpler trees (default = False).
         - force_individual (Any): Allows the incorporation of an individual in the first population (default = None).
-          
-    '''
+
+    """
+
     def __init__(
         self,
         grammar: Grammar,
@@ -36,13 +40,14 @@ class RandomSearch(object):
         population_size: int = 200,
         number_of_generations: int = 100,
         max_depth: int = 15,
-        favor_less_deep_trees: bool = False,  # now based on depth, maybe on number of nodes?
+        # now based on depth, maybe on number of nodes?
+        favor_less_deep_trees: bool = False,
         minimize: bool = False,
         force_individual: Any = None,
         seed: int = 123,
     ):
         assert population_size >= 1
-        
+
         self.grammar = grammar
         self.representation = representation
         self.evaluation_function = evaluation_function
@@ -57,7 +62,9 @@ class RandomSearch(object):
 
     def create_individual(self, depth: int):
         genotype = self.representation.create_individual(
-            r=self.random, g=self.grammar, depth=depth
+            r=self.random,
+            g=self.grammar,
+            depth=depth,
         )
         return Individual(
             genotype=genotype,
@@ -67,7 +74,8 @@ class RandomSearch(object):
     def evaluate(self, individual: Individual) -> float:
         if individual.fitness is None:
             phenotype = self.representation.genotype_to_phenotype(
-                self.grammar, individual.genotype
+                self.grammar,
+                individual.genotype,
             )
             individual.fitness = self.evaluation_function(phenotype)
         return individual.fitness
@@ -84,7 +92,8 @@ class RandomSearch(object):
         if self.force_individual is not None:
             best_ind = Individual(
                 genotype=relabel_nodes_of_trees(
-                    self.force_individual, self.grammar
+                    self.force_individual,
+                    self.grammar,
                 ),
                 fitness=None,
             )
@@ -97,7 +106,7 @@ class RandomSearch(object):
                     best = f
                     best_ind = i
             if verbose == 2:
-                print("Best population:{}.".format(best_ind))
+                print(f"Best population:{best_ind}.")
             if verbose >= 1:
                 print(
                     "BEST at",
@@ -112,6 +121,7 @@ class RandomSearch(object):
             best_ind,
             self.evaluate(best_ind),
             self.representation.genotype_to_phenotype(
-                self.grammar, best_ind.genotype
+                self.grammar,
+                best_ind.genotype,
             ),
         )

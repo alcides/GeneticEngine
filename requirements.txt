@@ -1,7 +1,7 @@
-numpy
-sklearn
 lark
-pytest
+numpy
 palettable
-z3-solver
 pandas
+pytest
+sklearn
+z3-solver

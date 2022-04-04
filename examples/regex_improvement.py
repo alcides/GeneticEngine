@@ -1,10 +1,10 @@
-from geneticengine.grammars.regex import *
+from __future__ import annotations
 
 from examples.regex_fitness.RegexEval import RegexEval
-
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.grammars.regex import *
 
 
 # Extracted from PonyGE
@@ -13,7 +13,8 @@ def fit(individual: RE):
     return regexeval.evaluate(individual)
 
 
-fitness_function = lambda x: fit(x)
+def fitness_function(x):
+    return fit(x)
 
 
 def preprocess():

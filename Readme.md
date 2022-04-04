@@ -33,14 +33,14 @@ GeneticEngine has been developed at [LASIGE](https://www.lasige.pt), [University
 How to use
 ----------
 
-To use GeneticEngine to solve a Genetic Programming problem, you need two things: 
+To use GeneticEngine to solve a Genetic Programming problem, you need two things:
 
 * Define the tree structure of the representation
 * Define a fitness function for each tree
 
 Let us address each step in order.
 
-Consider the example of Vectorial GP in [A Vectorial Approach to Genetic Programming](https://www.researchgate.net/publication/332309668_A_Vectorial_Approach_to_Genetic_Programming), in which values can be of type Element or type Vectorial. 
+Consider the example of Vectorial GP in [A Vectorial Approach to Genetic Programming](https://www.researchgate.net/publication/332309668_A_Vectorial_Approach_to_Genetic_Programming), in which values can be of type Element or type Vectorial.
 
 We will use the following dataset, in which the first two columns are scalars, the following two are vectorial, and the last one is the target value. We will apply regression to the data set.
 
@@ -69,7 +69,7 @@ The following snippets are taken from `exmaples/vectorialgp_example.py`, where t
 ### Step 1. Object-Oriented Representation
 
 Thus, we can create our class-based representation. We start by our generic types. These classes have no information, they are just used to represent the type of data.
-They must inherit from Abstract Base Class (ABC), which make these classes as abstract and not instantiable, unlike their child classes. 
+They must inherit from Abstract Base Class (ABC), which make these classes as abstract and not instantiable, unlike their child classes.
 
 ```python
 from abc import ABC
@@ -124,7 +124,7 @@ class Mean(Scalar):
     arr: Vectorial
 ```
 
-Mean is an example of an operation that converts a vectorial expression into a scalar one. 
+Mean is an example of an operation that converts a vectorial expression into a scalar one.
 
 ```python
 @dataclass
@@ -137,7 +137,7 @@ Similarly, CumulativeSum takes a vectorial expression (`arr`) and returns anothe
 The example we just wrote could have been written in a Grammar-Guided GP approach. In fact, we automate that translation:
 
 ```python
-g = extract_grammar([Value, ScalarVar, VectorialVar, Add, Mean, CumulativeSum], Scalar)
+g = extract_grammar([Value, ScalarVar, VectorialVar, Mean, CumulativeSum], Scalar)
 print("Grammar: {}.".format(repr(g)))
 ```
 

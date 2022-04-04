@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 def abstract(clazz):
     get_gengy(clazz)["abstract"] = True
     return clazz
