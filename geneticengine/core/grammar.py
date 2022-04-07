@@ -1,39 +1,56 @@
+from __future__ import annotations
+
 from abc import ABC
+from abc import ABCMeta
 from collections import defaultdict
-from typing import Any, Dict, List, Set, Type, Tuple
+from inspect import isclass
+from tracemalloc import start
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Set
+from typing import Tuple
+from typing import Type
 
-from geneticengine.core.utils import (
-    get_arguments,
-    get_generic_parameter,
-    is_abstract,
-    is_annotated,
-    is_generic_list,
-    is_terminal,
-    strip_annotations,
-)
+from geneticengine.core.utils import get_arguments
+from geneticengine.core.utils import get_generic_parameter
+from geneticengine.core.utils import get_generic_parameters
+from geneticengine.core.utils import is_abstract
+from geneticengine.core.utils import is_annotated
+from geneticengine.core.utils import is_generic
+from geneticengine.core.utils import is_generic_list
+from geneticengine.core.utils import is_terminal
+from geneticengine.core.utils import strip_annotations
 
 
-class Grammar(object):
+class Grammar:
     starting_symbol: type
-    alternatives: Dict[type, List[type]]
-    distanceToTerminal: Dict[Any, int]
-    all_nodes: Set[type]
-    recursive_prods: Set[type]
-    terminals: Set[
+    alternatives: dict[type, list[type]]
+    distanceToTerminal: dict[Any, int]
+    all_nodes: set[type]
+    recursive_prods: set[type]
+    terminals: set[
         type
     ]  # todo: both terminals and non_terminals can be obtained by checking if disttoterminal == or!= 0
-    non_terminals: Set[type]
-    abstract_dist_to_t: Dict[type, Dict[type, int]]
+    non_terminals: set[type]
+    abstract_dist_to_t: dict[type, dict[type, int]]
 
-    def __init__(self, starting_symbol) -> None:
-        self.alternatives: Dict[type, List[type]] = {}
+    def __init__(
+        self,
+        starting_symbol: type,
+        considered_subtypes: list[type] = None,
+    ) -> None:
+        self.alternatives: dict[type, list[type]] = {}
         self.starting_symbol = starting_symbol
         self.distanceToTerminal = {int: 1, str: 1, float: 1}
         self.all_nodes = set()
         self.recursive_prods = set()
         self.terminals = set()
         self.non_terminals = set()
-        self.abstract_dist_to_t = defaultdict(lambda: defaultdict(lambda: 1000000))
+        self.abstract_dist_to_t = defaultdict(
+            lambda: defaultdict(lambda: 1000000),
+        )
+        self.considered_subtypes = considered_subtypes or []
 
     def register_alternative(self, nonterminal: type, nodetype: type):
         """
@@ -42,7 +59,9 @@ class Grammar(object):
         """
         if not is_abstract(nonterminal):
             raise Exception(
-                f"Trying to register an alternative on a non-abstract class: {nonterminal} -> {nodetype}"
+                f"Trying to register an alternative on a non-abstract class: {nonterminal} -> {nodetype}\n"
+                f"You may have meant for {nonterminal.__name__} to be abstract. If so, decorate it with @abstract.\n"
+                f"(Found in geneticengine.core.decorators)"
             )
         if nonterminal not in self.alternatives:
             self.alternatives[nonterminal] = []
@@ -51,13 +70,23 @@ class Grammar(object):
     def register_type(self, ty: type):
         if ty in self.all_nodes:
             return
-        elif is_generic_list(ty) or is_annotated(ty):
-            self.register_type(get_generic_parameter(ty))
+        elif is_generic_list(ty):
+            gty = get_generic_parameter(ty)
+            self.register_type(gty)
+            return
+        elif is_annotated(ty):
+            gty = get_generic_parameter(ty)
+            self.register_type(gty)
+            return
+        elif is_generic(ty):
+            for p in get_generic_parameters(ty):
+                self.register_type(p)
             return
         self.all_nodes.add(ty)
 
         parent = ty.mro()[1]
         if parent not in [object, ABC]:
+            assert isinstance(parent, type)
             self.register_type(parent)
             self.register_alternative(parent, ty)
 
@@ -66,7 +95,12 @@ class Grammar(object):
             terminal = True
             for (arg, argt) in get_arguments(ty):
                 terminal = False
-                self.register_type(argt)
+                if isinstance(argt, type) or isinstance(argt, ABCMeta):
+                    self.register_type(argt)
+
+        for st in self.considered_subtypes:
+            if issubclass(st, ty):
+                self.register_type(st)
 
         if terminal:
             self.terminals.add(ty)
@@ -82,7 +116,9 @@ class Grammar(object):
             return n
 
         def format(x):
-            args = ", ".join([f"{a}: {wrap(at)}" for (a, at) in get_arguments(x)])
+            args = ", ".join(
+                [f"{a}: {wrap(at)}" for (a, at) in get_arguments(x)],
+            )
             return f"{x.__name__}({args})"
 
         prods = ";".join(
@@ -91,27 +127,32 @@ class Grammar(object):
                 + " -> "
                 + ("|".join([format(p) for p in self.alternatives[p]]))
                 for p in self.alternatives
-            ]
+            ],
         )
         return (
             f"Grammar<Starting={self.starting_symbol.__name__},Productions=[{prods}]>"
         )
 
-    def get_all_symbols(self) -> Tuple[Set[Type], Set[Type], Set[Type]]:
+    def get_all_symbols(self) -> tuple[set[type], set[type], set[type]]:
         """All symbols in the current grammar, including terminals"""
-        keys = set((k for k in self.alternatives.keys()))
-        sequence = set((v for vv in self.alternatives.values() for v in vv))
+        keys = {k for k in self.alternatives.keys()}
+        sequence = {v for vv in self.alternatives.values() for v in vv}
         return (keys, sequence, sequence.union(keys).union(self.all_nodes))
 
     def get_distance_to_terminal(self, ty: type) -> int:
         """Returns the current distance to terminal of a given type"""
-        if is_generic_list(ty):
-            ta = get_generic_parameter(ty)
-            return 1 + self.get_distance_to_terminal(ta)
-        elif is_annotated(ty):
+        if is_annotated(ty):
             ta = get_generic_parameter(ty)
             return self.get_distance_to_terminal(ta)
-        return self.distanceToTerminal[ty]
+        elif is_generic_list(ty):
+            ta = get_generic_parameter(ty)
+            return 1 + self.get_distance_to_terminal(ta)
+        elif is_generic(ty):
+            return 1 + max(
+                self.get_distance_to_terminal(t) for t in get_generic_parameters(ty)
+            )
+        else:
+            return self.distanceToTerminal[ty]
 
     def get_min_tree_depth(self):
         """Returns the minimum depth a tree must have"""
@@ -119,7 +160,10 @@ class Grammar(object):
 
     def get_max_node_depth(self):
         """Returns the maximum minimum depth a node can have"""
-        dist = lambda x: self.distanceToTerminal[x]
+
+        def dist(x):
+            return self.distanceToTerminal[x]
+
         return max(list(map(dist, self.all_nodes)))
 
     def preprocess(self):
@@ -129,9 +173,9 @@ class Grammar(object):
             self.distanceToTerminal[s] = 1000000
         changed = True
 
-        reachability: Dict[type, Set[type]] = defaultdict(lambda: set())
+        reachability: dict[type, set[type]] = defaultdict(lambda: set())
 
-        def process_reachability(src: type, dsts: List[type]):
+        def process_reachability(src: type, dsts: list[type]):
             src = strip_annotations(src)
             ch = False
             src_reach = reachability[src]
@@ -178,14 +222,13 @@ class Grammar(object):
                         args = get_arguments(sym)
                         assert args
                         val = max(
-                            [
-                                1 + self.get_distance_to_terminal(argt)
-                                for (_, argt) in args
-                            ]
+                            1 + self.get_distance_to_terminal(argt)
+                            for (_, argt) in args
                         )
 
                         changed |= process_reachability(
-                            sym, [argt for (_, argt) in args]
+                            sym,
+                            [argt for (_, argt) in args],
                         )
 
                 if val < old_val:
@@ -199,7 +242,10 @@ class Grammar(object):
                 pass
 
 
-def extract_grammar(nodes, starting_symbol):
+def extract_grammar(
+    considered_subtypes: list[type],
+    starting_symbol: type,
+):
     """
     The extract_grammar takes in all the productions of the grammar (nodes) and a starting symbol (starting_symbol). It goes through all the nodes and constructs a complete grammar that can then be used for search algorithms such as Genetic Programming and Hill Climbing.
 
@@ -211,10 +257,7 @@ def extract_grammar(nodes, starting_symbol):
         - The grammar
 
     """
-
-    g = Grammar(starting_symbol)
+    g = Grammar(starting_symbol, considered_subtypes)
     g.register_type(starting_symbol)
-    for n in nodes:
-        g.register_type(n)
     g.preprocess()
     return g

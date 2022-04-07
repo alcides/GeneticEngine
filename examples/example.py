@@ -1,13 +1,20 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from random import random
 from typing import Annotated
 
-from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.algorithms.random_search import RandomSearch
-from geneticengine.grammars.sgp import Plus, Literal, Number, Mul, SafeDiv, Var
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.grammars.sgp import Literal
+from geneticengine.grammars.sgp import Mul
+from geneticengine.grammars.sgp import Number
+from geneticengine.grammars.sgp import Plus
+from geneticengine.grammars.sgp import SafeDiv
+from geneticengine.grammars.sgp import Var
 from geneticengine.metahandlers.vars import VarRange
 
 Var.__init__.__annotations__["name"] = Annotated[str, VarRange("x")]
@@ -28,7 +35,7 @@ def fit(p):
 
 
 def target(x):
-    return x ** 2
+    return x**2
 
 
 # target = 234.5
@@ -67,7 +74,7 @@ alg_rs = RandomSearch(
     max_depth=5,
     number_of_generations=40,
     minimize=True,
-    favor_less_deep_trees=True
+    favor_less_deep_trees=True,
 )
 (b_rs, bf_rs, bp_rs) = alg_rs.evolve(verbose=1)
 

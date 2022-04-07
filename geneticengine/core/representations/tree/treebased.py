@@ -1,14 +1,14 @@
+from __future__ import annotations
+
 import sys
 from copy import deepcopy
-from typing import (
-    Any,
-    Dict,
-    Type,
-    TypeVar,
-    Tuple,
-    List,
-    Callable,
-)
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import List
+from typing import Tuple
+from typing import Type
+from typing import TypeVar
 
 import z3
 
@@ -16,24 +16,16 @@ from geneticengine.core.decorators import get_gengy
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
-from geneticengine.core.representations.tree.utils import (
-    relabel_nodes_of_trees,
-    relabel_nodes,
-)
+from geneticengine.core.representations.tree.utils import relabel_nodes
+from geneticengine.core.representations.tree.utils import relabel_nodes_of_trees
 from geneticengine.core.tree import TreeNode
-from geneticengine.core.utils import (
-    get_arguments,
-    is_generic_list,
-    get_generic_parameter,
-    build_finalizers,
-    is_abstract,
-)
+from geneticengine.core.utils import build_finalizers
+from geneticengine.core.utils import get_arguments
+from geneticengine.core.utils import get_generic_parameter
+from geneticengine.core.utils import is_abstract
+from geneticengine.core.utils import is_generic_list
 from geneticengine.exceptions import GeneticEngineError
 from geneticengine.metahandlers.base import is_metahandler
-
-
-def random_bool(r: Source) -> int:
-    return r.choice([True, False])
 
 
 def random_int(r: Source) -> int:
@@ -43,12 +35,20 @@ def random_int(r: Source) -> int:
 def random_float(r: Source) -> float:
     return r.random_float(-100, 100)
 
+def random_bool(r: Source) -> float:
+    return r.random_bool()
+
 
 T = TypeVar("T")
 
 
 def random_list(
-    r: Source, receiver, new_symbol, depth: int, ty: Type[List[T]], ctx: Dict[str, str]
+    r: Source,
+    receiver,
+    new_symbol,
+    depth: int,
+    ty: type[list[T]],
+    ctx: dict[str, str],
 ):
     inner_type = get_generic_parameter(ty)
     size = r.randint(0, depth - 1)
@@ -67,7 +67,7 @@ def apply_metahandler(
     receiver,
     new_symbol,
     depth: int,
-    ty: Type[Any],
+    ty: type[Any],
     context: dict[str, str],
 ) -> Any:
     """
@@ -78,13 +78,19 @@ def apply_metahandler(
     metahandler = ty.__metadata__[0]
     base_type = get_generic_parameter(ty)
     return metahandler.generate(
-        r, g, receiver, new_symbol, depth, base_type, context
+        r,
+        g,
+        receiver,
+        new_symbol,
+        depth,
+        base_type,
+        context,
     )  # todo: last argument
 
 
 # TODO: make non static
-class SMTResolver(object):
-    clauses: List[Any] = []
+class SMTResolver:
+    clauses: list[Any] = []
     receivers: dict[str, Callable] = {}
     types: dict[str, Callable] = {}
 
@@ -123,7 +129,12 @@ class SMTResolver(object):
 
         model = solver.model()
         for (name, recv) in SMTResolver.receivers.items():
-            evaled = model.eval(SMTResolver.types[name](name), model_completion=True)
+            evaled = model.eval(
+                SMTResolver.types[name](
+                    name,
+                ),
+                model_completion=True,
+            )
 
             recv(SMTResolver.get_type(evaled))
 
@@ -141,7 +152,7 @@ class SMTResolver(object):
             evaled = eval(str(evaled))
         else:
             raise NotImplementedError(
-                f"Don't know what to do with {type(evaled)} {evaled}"
+                f"Don't know what to do with {type(evaled)} {evaled}",
             )
         return evaled
 
@@ -156,16 +167,20 @@ def Grow(
     r: Source,
     g: Grammar,
     depth: int,
-    starting_symbol: Type[Any] = int,
+    starting_symbol: type[Any] = int,
 ):
-    def filter_choices(possible_choices: List[type], depth):
+    def filter_choices(possible_choices: list[type], depth):
         valid_productions = [
             vp for vp in possible_choices if g.get_distance_to_terminal(vp) <= depth
         ]
         return valid_productions
 
     def handle_symbol(
-        next_type, next_finalizer, depth: int, ident: str, ctx: Dict[str, str]
+        next_type,
+        next_finalizer,
+        depth: int,
+        ident: str,
+        ctx: dict[str, str],
     ):
         expand_node(
             r,
@@ -195,7 +210,7 @@ def PI_Grow(
     r: Source,
     g: Grammar,
     depth: int,
-    starting_symbol: Type[Any] = int,
+    starting_symbol: type[Any] = int,
 ):
     state = {}
 
@@ -206,7 +221,11 @@ def PI_Grow(
     nRecs = [0]
 
     def handle_symbol(
-        next_type, next_finalizer, depth: int, ident: str, ctx: Dict[str, str]
+        next_type,
+        next_finalizer,
+        depth: int,
+        ident: str,
+        ctx: dict[str, str],
     ):
         prodqueue.append((next_type, next_finalizer, depth, ident, ctx))
         if next_type in g.recursive_prods:
@@ -214,14 +233,14 @@ def PI_Grow(
 
     handle_symbol(starting_symbol, final_finalize, depth, "root", ctx={})
 
-    def filter_choices(possible_choices: List[type], depth):
+    def filter_choices(possible_choices: list[type], depth):
         valid_productions = [
             vp for vp in possible_choices if g.distanceToTerminal[vp] <= depth
         ]
         if (nRecs[0] == 0) and any(  # Are we the last recursive symbol?
             [
                 prod in g.recursive_prods for prod in valid_productions
-            ]  # Are there any  recursive symbols in our expansion?
+            ],  # Are there any  recursive symbols in our expansion?
         ):
             valid_productions = [
                 vp for vp in valid_productions if vp in g.recursive_prods
@@ -255,7 +274,7 @@ def random_node(
     r: Source,
     g: Grammar,
     max_depth: int,
-    starting_symbol: Type[Any] = None,
+    starting_symbol: type[Any] = None,
     method=PI_Grow,
 ):
     if starting_symbol is None:
@@ -281,7 +300,7 @@ def expand_node(
     depth,
     starting_symbol: type,
     id: str,
-    ctx: Dict[str, str],
+    ctx: dict[str, str],
 ) -> Any:
     """
     Creates a random node of a given type (starting_symbol)
@@ -291,8 +310,12 @@ def expand_node(
     if depth < g.get_distance_to_terminal(starting_symbol):
         raise GeneticEngineError(
             "There will be no depth sufficient for symbol {} in this grammar (provided: {}, required: {}).".format(
-                starting_symbol, depth, g.get_distance_to_terminal(starting_symbol)
-            )
+                starting_symbol,
+                depth,
+                g.get_distance_to_terminal(
+                    starting_symbol,
+                ),
+            ),
         )
 
     if starting_symbol is int:
@@ -305,6 +328,11 @@ def expand_node(
         SMTResolver.register_const(id, valf)
         receiver(valf)
         return
+    elif starting_symbol is bool:
+        valb = random_bool(r)
+        SMTResolver.register_const(id, valb)
+        receiver(valb)
+        return
     elif is_generic_list(starting_symbol):
         ctx = ctx.copy()
         ctx["_"] = id
@@ -313,15 +341,28 @@ def expand_node(
     elif is_metahandler(starting_symbol):
         ctx = ctx.copy()
         ctx["_"] = id
-        apply_metahandler(r, g, receiver, new_symbol, depth, starting_symbol, ctx)
+        apply_metahandler(
+            r,
+            g,
+            receiver,
+            new_symbol,
+            depth,
+            starting_symbol,
+            ctx,
+        )
         return
     else:
         if starting_symbol not in g.all_nodes:
-            raise GeneticEngineError(f"Symbol {starting_symbol} not in grammar rules.")
+            raise GeneticEngineError(
+                f"Symbol {starting_symbol} not in grammar rules.",
+            )
 
         if starting_symbol in g.alternatives:  # Alternatives
             compatible_productions = g.alternatives[starting_symbol]
-            valid_productions = filter_choices(compatible_productions, depth - 1)
+            valid_productions = filter_choices(
+                compatible_productions,
+                depth - 1,
+            )
             if not valid_productions:
                 raise GeneticEngineError(
                     "No productions for non-terminal node with type: {} in depth {} (minimum required: {}).".format(
@@ -331,9 +372,9 @@ def expand_node(
                             [
                                 (vp, g.distanceToTerminal[vp])
                                 for vp in compatible_productions
-                            ]
+                            ],
                         ),
-                    )
+                    ),
                 )
             if any(["weight" in get_gengy(p) for p in valid_productions]):
                 weights = [get_gengy(p).get("weight", 1.0) for p in valid_productions]
@@ -344,7 +385,7 @@ def expand_node(
         else:  # Normal production
             args = get_arguments(starting_symbol)
             ctx = ctx.copy()
-            l: List[Any] = []
+            l: list[Any] = []
             for argn, _ in args:
                 name = id + "_" + argn
                 ctx[argn] = name
@@ -357,7 +398,9 @@ def expand_node(
                 l.append(fn)
 
             fins = build_finalizers(
-                mk_save_init(starting_symbol, receiver), len(args), l
+                mk_save_init(starting_symbol, receiver),
+                len(args),
+                l,
             )
             for i, (argn, argt) in enumerate(args):
                 new_symbol(argt, fins[i], depth - 1, id + "_" + argn, ctx)
@@ -369,10 +412,10 @@ def random_individual(r: Source, g: Grammar, max_depth: int = 5) -> TreeNode:
     except:
         if g.get_min_tree_depth() == 1000000:
             raise GeneticEngineError(
-                f"Grammar's minimal tree depth is {g.get_min_tree_depth()}, which is the default tree depth. It's highly like that there are nodes of your grammar than cannot reach any terminal."
+                f"Grammar's minimal tree depth is {g.get_min_tree_depth()}, which is the default tree depth. It's highly like that there are nodes of your grammar than cannot reach any terminal.",
             )
         raise GeneticEngineError(
-            f"Cannot use complete grammar for individual creation. Max depth ({max_depth}) is smaller than grammar's minimal tree depth ({g.get_min_tree_depth()})."
+            f"Cannot use complete grammar for individual creation. Max depth ({max_depth}) is smaller than grammar's minimal tree depth ({g.get_min_tree_depth()}).",
         )
     ind = random_node(r, g, max_depth, g.starting_symbol)
     assert isinstance(ind, TreeNode)
@@ -380,7 +423,11 @@ def random_individual(r: Source, g: Grammar, max_depth: int = 5) -> TreeNode:
 
 
 def mutate_inner(
-    r: Source, g: Grammar, i: TreeNode, max_depth: int, ty: Type
+    r: Source,
+    g: Grammar,
+    i: TreeNode,
+    max_depth: int,
+    ty: type,
 ) -> TreeNode:
     if i.gengy_nodes > 0:
         c = r.randint(0, i.gengy_nodes - 1)
@@ -397,7 +444,13 @@ def mutate_inner(
                 if hasattr(child, "gengy_nodes"):
                     count = child.gengy_nodes
                     if c <= count:
-                        args[idx] = mutate_inner(r, g, child, max_depth, field_type)
+                        args[idx] = mutate_inner(
+                            r,
+                            g,
+                            child,
+                            max_depth,
+                            field_type,
+                        )
                         break
                     else:
                         c -= count
@@ -407,7 +460,11 @@ def mutate_inner(
 
 
 def mutate(
-    r: Source, g: Grammar, i: TreeNode, max_depth: int, target_type: Type
+    r: Source,
+    g: Grammar,
+    i: TreeNode,
+    max_depth: int,
+    target_type: type,
 ) -> Any:
     new_tree = mutate_inner(r, g, i, max_depth, target_type)
     relabeled_new_tree = relabel_nodes_of_trees(new_tree, g)
@@ -436,12 +493,17 @@ def find_in_tree(g: Grammar, ty: type, o: TreeNode, max_depth: int):
                     yield from filter(is_valid, vals)
 
 
-def get_height(n:TreeNode):
+def get_height(n: TreeNode):
     pass
 
 
 def tree_crossover_inner(
-    r: Source, g: Grammar, i: TreeNode, o: TreeNode, ty: Type, max_depth: int
+    r: Source,
+    g: Grammar,
+    i: TreeNode,
+    o: TreeNode,
+    ty: type,
+    max_depth: int,
 ) -> Any:
     if i.gengy_nodes > 0:
         c = r.randint(0, i.gengy_nodes - 1)
@@ -465,7 +527,12 @@ def tree_crossover_inner(
                     count = child.gengy_nodes
                     if c <= count:
                         args[idx] = tree_crossover_inner(
-                            r, g, child, o, field_type, max_depth
+                            r,
+                            g,
+                            child,
+                            o,
+                            field_type,
+                            max_depth,
                         )
                         break
                     else:
@@ -476,26 +543,53 @@ def tree_crossover_inner(
 
 
 def tree_crossover(
-    r: Source, g: Grammar, p1: TreeNode, p2: TreeNode, max_depth: int
-) -> Tuple[TreeNode, TreeNode]:
+    r: Source,
+    g: Grammar,
+    p1: TreeNode,
+    p2: TreeNode,
+    max_depth: int,
+) -> tuple[TreeNode, TreeNode]:
     """
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns two trees that are created by crossing over [p1] and [p2]. The first tree returned has [p1] as the base, and the second tree has [p2] as a base.
     """
-    new_tree1 = tree_crossover_inner(r, g, p1, p2, g.starting_symbol, max_depth)
+    new_tree1 = tree_crossover_inner(
+        r,
+        g,
+        p1,
+        p2,
+        g.starting_symbol,
+        max_depth,
+    )
     relabeled_new_tree1 = relabel_nodes_of_trees(new_tree1, g)
-    new_tree2 = tree_crossover_inner(r, g, p2, p1, g.starting_symbol, max_depth)
+    new_tree2 = tree_crossover_inner(
+        r,
+        g,
+        p2,
+        p1,
+        g.starting_symbol,
+        max_depth,
+    )
     relabeled_new_tree2 = relabel_nodes_of_trees(new_tree2, g)
     return relabeled_new_tree1, relabeled_new_tree2
 
 
 def tree_crossover_single_tree(
-    r: Source, g: Grammar, p1: TreeNode, p2: TreeNode, max_depth: int
+    r: Source,
+    g: Grammar,
+    p1: TreeNode,
+    p2: TreeNode,
+    max_depth: int,
 ) -> TreeNode:
     """
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns one tree that is created by crossing over [p1] and [p2]. The tree returned has [p1] as the base.
     """
     new_tree = tree_crossover_inner(
-        r, g, deepcopy(p1), deepcopy(p2), g.starting_symbol, max_depth
+        r,
+        g,
+        deepcopy(p1),
+        deepcopy(p2),
+        g.starting_symbol,
+        max_depth,
     )
     relabeled_new_tree = relabel_nodes_of_trees(new_tree, g)
     return relabeled_new_tree
@@ -506,13 +600,23 @@ class TreeBasedRepresentation(Representation[TreeNode]):
         return random_individual(r, g, depth)
 
     def mutate_individual(
-        self, r: Source, g: Grammar, ind: TreeNode, depth: int, ty: Type
+        self,
+        r: Source,
+        g: Grammar,
+        ind: TreeNode,
+        depth: int,
+        ty: type,
     ) -> TreeNode:
         return mutate(r, g, ind, depth, ty)
 
     def crossover_individuals(
-        self, r: Source, g: Grammar, i1: TreeNode, i2: TreeNode, max_depth: int
-    ) -> Tuple[TreeNode, TreeNode]:
+        self,
+        r: Source,
+        g: Grammar,
+        i1: TreeNode,
+        i2: TreeNode,
+        max_depth: int,
+    ) -> tuple[TreeNode, TreeNode]:
         return tree_crossover(r, g, i1, i2, max_depth)
 
     def genotype_to_phenotype(self, g: Grammar, genotype: TreeNode) -> TreeNode:

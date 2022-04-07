@@ -1,40 +1,46 @@
+from __future__ import annotations
+
 from abc import ABC
 from dataclasses import dataclass
 from functools import wraps
-from typing import (
-    Any,
-    Protocol,
-    Set,
-    Type,
-    Tuple,
-    List,
-    Callable,
-)
+from typing import Any
+from typing import Callable
+from typing import get_type_hints
+from typing import List
+from typing import Protocol
+from typing import Set
+from typing import Tuple
+from typing import Type
 
 from geneticengine.core.decorators import get_gengy
 
 
-def is_annotated(ty: Type[Any]):
+def is_annotated(ty: type[Any]):
     """Returns whether type is annotated with metadata."""
     return hasattr(ty, "__metadata__")
 
 
-def is_generic_list(ty: Type[Any]):
+def is_generic_list(ty: type[Any]):
     """Returns whether a type is List[T] for any T"""
     return hasattr(ty, "__origin__") and ty.__origin__ is list
 
 
-def get_generic_parameters(ty: Type[Any]) -> List[type]:
+def is_generic(ty: type[Any]):
+    """Returns whether a type is x[T] for any T"""
+    return hasattr(ty, "__origin__")
+
+
+def get_generic_parameters(ty: type[Any]) -> list[type]:
     """Annotated[T, <annotations>] or List[T], this function returns Dict[T,]"""
     return ty.__args__
 
 
-def get_generic_parameter(ty: Type[Any]) -> type:
+def get_generic_parameter(ty: type[Any]) -> type:
     """When given Annotated[T, <annotations>] or List[T], this function returns T"""
     return get_generic_parameters(ty)[0]
 
 
-def strip_annotations(ty: Type[Any]) -> type:
+def strip_annotations(ty: type[Any]) -> type:
     """When given Annotated[T, <annotations>] or List[T], this function recurses with T
     Otherwise, it returns the parameter unchanged.
     """
@@ -44,16 +50,30 @@ def strip_annotations(ty: Type[Any]) -> type:
         return ty
 
 
-def get_arguments(n) -> List[Tuple[str, type]]:
+def has_arguments(n: Any) -> bool:
+    """Returns whether a node has arguments or not"""
+    return (
+        hasattr(n, "__init__")
+        and hasattr(n.__init__, "__annotations__")
+        and len(n.__init__.__annotations__) > 0
+    )
+
+
+def get_arguments(n) -> list[tuple[str, type]]:
     """
     :param n: production
     :return: list((argname, argtype))
     """
     if hasattr(n, "__init__"):
         init = n.__init__
-        if hasattr(init, "__annotations__"):
-            args = init.__annotations__
-            return [(a, args[a]) for a in filter(lambda x: x != "return", args)]
+        import sys
+
+        args: dict[str, type] = get_type_hints(
+            init,
+            globalns=sys.modules[n.__module__].__dict__,
+            include_extras=True,
+        )
+        return [(a, args[a]) for a in filter(lambda x: x != "return", args)]
     return []
 
 
@@ -62,11 +82,11 @@ def is_abstract(t: type) -> bool:
     return t.mro()[1] in [ABC, Protocol] or get_gengy(t).get("abstract", False)
 
 
-def is_terminal(t: type, l: Set[type]) -> bool:
+def is_terminal(t: type, l: set[type]) -> bool:
     """Returns whether a node is a terminal or not, based on the list of non terminals in the grammar"""
     if is_annotated(t):
         return all([is_terminal(inner, l) for inner in get_generic_parameters(t)])
-    if not get_arguments(t):
+    if not has_arguments(t):
         return True
     return t not in l
 
@@ -75,8 +95,10 @@ def is_terminal(t: type, l: Set[type]) -> bool:
 
 
 def build_finalizers(
-    final_callback, n_args, per_callback: List[Callable[[Any], None]] = None
-) -> List[Any]:
+    final_callback,
+    n_args,
+    per_callback: list[Callable[[Any], None]] = None,
+) -> list[Any]:
     """
     Builds a set of functions that accumulate the arguments provided
     :param final_callback:
@@ -108,7 +130,9 @@ def build_finalizers(
                 # else:
                 #     print("%i prog %i" % (id, to_arrive[0]))
             else:
-                raise Exception("Received duplicate param on finalizer! i=%d" % i)
+                raise Exception(
+                    "Received duplicate param on finalizer! i=%d" % i,
+                )
 
         finalizers.append(fin)
 

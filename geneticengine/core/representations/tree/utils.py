@@ -1,17 +1,23 @@
-from collections import defaultdict
-from typing import Any, List, Set, Tuple, Dict
+from __future__ import annotations
 
+from collections import defaultdict
+from typing import Any
+from typing import Dict
+from typing import List
+from typing import Set
+from typing import Tuple
+
+from geneticengine.core.decorators import is_builtin
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.tree import TreeNode
-from geneticengine.core.utils import is_terminal, get_arguments, is_abstract
-from geneticengine.core.decorators import is_builtin
+from geneticengine.core.utils import get_arguments
+from geneticengine.core.utils import is_abstract
+from geneticengine.core.utils import is_terminal
 
 
-def relabel_nodes(
-    i: TreeNode, g: Grammar
-) -> Tuple[int, int, Dict[type, List[Any]]]:
+def relabel_nodes(i: TreeNode, g: Grammar) -> tuple[int, int, dict[type, list[Any]]]:
     non_terminals = g.non_terminals
-    children: List[Any]
+    children: list[Any]
     if getattr(i, "gengy_labeled", False):
         return i.gengy_nodes, i.gengy_distance_to_term, i.gengy_types_this_way
     if is_terminal(type(i), non_terminals):
@@ -26,7 +32,10 @@ def relabel_nodes(
     else:
         if not hasattr(i, "gengy_init_values"):
             breakpoint()
-        children = [(typ[1], i.gengy_init_values[idx]) for idx, typ in enumerate(get_arguments(i))]
+        children = [
+            (typ[1], i.gengy_init_values[idx])
+            for idx, typ in enumerate(get_arguments(i))
+        ]
     assert children
     number_of_nodes = 1
     distance_to_term = 1
@@ -35,7 +44,13 @@ def relabel_nodes(
     for t, c in children:
         # print(f"{t=}, {c=}")
         nodes, dist, thisway = relabel_nodes(c, g)
-        abs_adjust = 0 if not is_abstract(t) else g.abstract_dist_to_t[t][type(c)]
+        abs_adjust = (
+            0
+            if not is_abstract(
+                t,
+            )
+            else g.abstract_dist_to_t[t][type(c)]
+        )
         number_of_nodes += abs_adjust + nodes
         distance_to_term = max(distance_to_term, dist + abs_adjust + 1)
         for (k, v) in thisway.items():

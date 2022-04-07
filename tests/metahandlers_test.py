@@ -1,22 +1,24 @@
+from __future__ import annotations
+
 from abc import ABC
-
 from dataclasses import dataclass
-from typing import Annotated, List, Tuple
+from typing import Annotated
+from typing import List
+from typing import Tuple
+
+import numpy as np
+
+from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
-
-from geneticengine.core.grammar import Grammar, extract_grammar
-
 from geneticengine.core.representations.tree.treebased import random_node
-
-from geneticengine.metahandlers.ints import IntRange, IntervalRange
-
 from geneticengine.metahandlers.floats import FloatRange
-
+from geneticengine.metahandlers.ints import IntervalRange
+from geneticengine.metahandlers.ints import IntRange
+from geneticengine.metahandlers.lists import ListSizeBetween
+from geneticengine.metahandlers.strings import WeightedStringHandler
 from geneticengine.metahandlers.vars import VarRange
 
-from geneticengine.metahandlers.lists import ListSizeBetween
-
-from geneticengine.metahandlers.strings import WeightedStringHandler
 
 class Root(ABC):
     pass
@@ -24,17 +26,24 @@ class Root(ABC):
 
 @dataclass
 class IntRangeM(Root):
-    x: Annotated[int, IntRange(9, 10)]
+    x: Annotated[int, IntRange[9, 10]]
+
 
 @dataclass
 class IntervalRangeM(Root):
-    x: Annotated[Tuple[int], IntervalRange(minimum_length=5, 
-                                          maximum_length=10, 
-                                          maximum_top_limit=100)]
-    
+    x: Annotated[
+        tuple[int, int],
+        IntervalRange(
+            minimum_length=5,
+            maximum_length=10,
+            maximum_top_limit=100,
+        ),
+    ]
+
+
 @dataclass
 class FloatRangeM(Root):
-    x: Annotated[float, FloatRange(9.0, 10.0)]
+    x: Annotated[float, FloatRange[9.0, 10.0]]
 
 
 @dataclass
@@ -44,27 +53,35 @@ class VarRangeM(Root):
 
 @dataclass
 class ListRangeM(Root):
-    x: Annotated[List[int], ListSizeBetween(3, 4)]
+    x: Annotated[list[int], ListSizeBetween[3, 4]]
 
 
 @dataclass
 class WeightedStringHandlerM(Root):
-    import numpy as np
-    
-    x: Annotated[str,
-                 WeightedStringHandler(
-                     np.array([[-0.01, 0.0425531914894, 0.01, 0.937446808511],
-                               [0.97, 0.01, 0.01, 0.01],
-                               [0.0212765957447, 0.01, 0.958723404255, 0.01],
-                               [
-                                   0.106382978723, 0.0212765957447,
-                                   0.787234042553, 0.0851063829787
-                               ], [0.533191489362, 0.01, 0.01, 0.446808510638]]
-                              ), ['A', 'C', 'G', 'T'])]
+
+    x: Annotated[
+        str,
+        WeightedStringHandler(
+            np.array(
+                [
+                    [-0.01, 0.0425531914894, 0.01, 0.937446808511],
+                    [0.97, 0.01, 0.01, 0.01],
+                    [0.0212765957447, 0.01, 0.958723404255, 0.01],
+                    [
+                        0.106382978723,
+                        0.0212765957447,
+                        0.787234042553,
+                        0.0851063829787,
+                    ],
+                    [0.533191489362, 0.01, 0.01, 0.446808510638],
+                ],
+            ),
+            ["A", "C", "G", "T"],
+        ),
+    ]
 
 
-class TestMetaHandler(object):
-
+class TestMetaHandler:
     def test_int(self):
         r = RandomSource(seed=1)
         g: Grammar = extract_grammar([IntRangeM], Root)
@@ -96,7 +113,7 @@ class TestMetaHandler(object):
         assert isinstance(n, ListRangeM)
         assert 3 <= len(n.x) <= 4
         assert isinstance(n, Root)
-        
+
     def test_weightedstrings(self):
         r = RandomSource(seed=1)
         g: Grammar = extract_grammar([WeightedStringHandlerM], Root)
@@ -104,15 +121,13 @@ class TestMetaHandler(object):
         assert isinstance(n, WeightedStringHandlerM)
         assert all(_x in ["A", "C", "G", "T"] for _x in n.x)
         assert isinstance(n, Root)
-    
+
     def test_intervalrange(self):
         r = RandomSource(seed=1)
         g: Grammar = extract_grammar([IntervalRangeM], Root)
-       
+
         n = random_node(r, g, 4, Root)
-        
-        print(n)
-   
+
         assert isinstance(n, IntervalRangeM)
         assert 5 < n.x[1] - n.x[0] < 10 and n.x[1] < 100
         assert isinstance(n, Root)

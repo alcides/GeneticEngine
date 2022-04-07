@@ -1,23 +1,32 @@
+from __future__ import annotations
+
 import os
 from abc import ABC
 from dataclasses import dataclass
-from typing import Annotated, Any, Callable, Tuple
+from typing import Annotated
+from typing import Any
+from typing import Callable
+from typing import Tuple
+
 import numpy as np
 from sklearn.metrics import f1_score
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.tree.treebased import treebased_representation
-from geneticengine.core.representations.grammatical_evolution import ge_representation
-from geneticengine.metahandlers.ints import IntRange
-from geneticengine.algorithms.gp.gp import GP
 
-from geneticengine.grammars.coding.logical_ops import And, Or, Not
-from geneticengine.grammars.coding.classes import Expr, Condition, Number
+from geneticengine.algorithms.gp.gp import GP
+from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.representations.grammatical_evolution import ge_representation
+from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.grammars.coding.classes import Condition
+from geneticengine.grammars.coding.classes import Expr
+from geneticengine.grammars.coding.classes import Number
+from geneticengine.grammars.coding.logical_ops import And
+from geneticengine.grammars.coding.logical_ops import Not
+from geneticengine.grammars.coding.logical_ops import Or
+from geneticengine.metahandlers.ints import IntRange
 
 DATASET_NAME = "GameOfLife"
-DATA_FILE_TRAIN = "examples/data/{}/Train.csv".format(DATASET_NAME)
-DATA_FILE_TEST = "examples/data/{}/Test.csv".format(DATASET_NAME)
-OUTPUT_FOLDER = 'GoL/grammar_standard'
-
+DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.csv"
+DATA_FILE_TEST = f"examples/data/{DATASET_NAME}/Test.csv"
+OUTPUT_FOLDER = "GoL/grammar_standard"
 
 
 train = np.genfromtxt(DATA_FILE_TRAIN, skip_header=1, delimiter=",")
@@ -29,6 +38,7 @@ test = np.genfromtxt(DATA_FILE_TEST, skip_header=1, delimiter=",")
 Xtest = test[:, :-1]
 Xtest = Xtest.reshape(test.shape[0], 3, 3)
 ytest = test[:, -1]
+
 
 @dataclass
 class MatrixElement(Condition):
@@ -65,17 +75,25 @@ def fitness_function(i: Expr):
     ypred = [_clf(line) for line in np.rollaxis(Xtrain, 0)]
     return f1_score(ytrain, ypred)
 
+
 def preprocess():
-    grammar = extract_grammar([And, Or, Not, MatrixElement], Condition)
+    grammar = extract_grammar(Condition, globals(), [And, Or, Not, MatrixElement])
     print(grammar)
     return grammar
 
-def evolve(g, seed, mode, representation='treebased_representation', output_folder=('','all')):
-    if representation == 'grammatical_evolution':
+
+def evolve(
+    g,
+    seed,
+    mode,
+    representation="treebased_representation",
+    output_folder=("", "all"),
+):
+    if representation == "grammatical_evolution":
         representation = ge_representation
     else:
         representation = treebased_representation
-    
+
     alg = GP(
         g,
         fitness_function,
@@ -90,11 +108,11 @@ def evolve(g, seed, mode, representation='treebased_representation', output_fold
         population_size=100,
         selection_method=("tournament", 2),
         n_elites=5,
-        #----------------
+        # ----------------
         minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
-        save_gen_to_csv=output_folder,
+        save_to_csv=output_folder,
     )
     (b, bf, bp) = alg.evolve(verbose=1)
 
@@ -106,7 +124,6 @@ def evolve(g, seed, mode, representation='treebased_representation', output_fold
     print("GeneticEngine Test F1 score:", f1_score(ytest, ypred))
 
     return b, bf
-
 
 
 if __name__ == "__main__":

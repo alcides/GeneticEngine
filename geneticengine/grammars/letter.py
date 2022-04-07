@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 import string
 from abc import ABC
@@ -6,13 +8,13 @@ from typing import Annotated
 
 from geneticengine.core.decorators import abstract
 from geneticengine.metahandlers.vars import VarRange
-'''
-Auxiliary lists of letters
-'''
-lower_vowel = ['a', 'e', 'i', 'o', 'u']
-upper_vowel = ['A', 'E', 'I', 'O', 'U']
-lower_consonant = list(re.sub('a|e|i|o|u', '', string.ascii_lowercase))
-upper_consonant = list(re.sub('A|E|I|O|U', '', string.ascii_uppercase))
+
+
+# Auxiliary lists of letters
+lower_vowel = ["a", "e", "i", "o", "u"]
+upper_vowel = ["A", "E", "I", "O", "U"]
+lower_consonant = list(re.sub("a|e|i|o|u", "", string.ascii_lowercase))
+upper_consonant = list(re.sub("A|E|I|O|U", "", string.ascii_uppercase))
 
 
 # string :: letter | letter string

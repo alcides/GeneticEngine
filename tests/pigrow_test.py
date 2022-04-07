@@ -1,10 +1,15 @@
+from __future__ import annotations
+
 from abc import ABC
 from dataclasses import dataclass
-from typing import Annotated, List
+from typing import Annotated
+from typing import List
 
+from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.grammar import Grammar, extract_grammar
-from geneticengine.core.representations.tree.treebased import PI_Grow, random_node
+from geneticengine.core.representations.tree.treebased import PI_Grow
+from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.lists import ListSizeBetween
 
@@ -20,8 +25,8 @@ class Leaf(Root):
 
 @dataclass
 class A(Root):
-    y: List[Annotated[int, IntRange(7, 9)]]
-    z: Annotated[List[Root], ListSizeBetween(2, 3)]
+    y: list[Annotated[int, IntRange(7, 9)]]
+    z: Annotated[list[Root], ListSizeBetween(2, 3)]
 
 
 @dataclass
@@ -36,10 +41,10 @@ class Middle(Root):
 
 @dataclass
 class ConcreteList(Root):
-    xs: List[int]
+    xs: list[int]
 
 
-class TestPIGrow(object):
+class TestPIGrow:
     def test_root(self):
         r = RandomSource(seed=1)
         g: Grammar = extract_grammar([Concrete], Root)
@@ -49,7 +54,7 @@ class TestPIGrow(object):
 
     def test_leaf(self):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar([Leaf], Concrete)
+        g: Grammar = extract_grammar([Leaf], Root)
         x = random_node(r, g, 4, Leaf, method=PI_Grow)
         assert isinstance(x, Leaf)
         assert isinstance(x, Root)
@@ -71,9 +76,7 @@ class TestPIGrow(object):
 
     def test_middle_has_right_distance_to_term(self):
         @dataclass
-        class RootHolder(
-            object
-        ):  # a holder is needed to know the true height, because choosing consumes height
+        class RootHolder:  # a holder is needed to know the true height, because choosing consumes height
             root: Root
 
         r = RandomSource(seed=1)
