@@ -1,7 +1,7 @@
 #!/bin/bash
 export PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}."
 
-PYTHON_BINARY=python
+PYTHON_BINARY=python3
 
 
 
