@@ -209,7 +209,7 @@ def evaluate(e: Expr | Matrix | Number) -> Callable[[Any], float]:
         raise NotImplementedError(str(e))
 
 
-def preprocess(output_folder, method):
+def preprocess(method):
     """
     Options for methor are [standard], [row], [col], [row_col], [cube], [row_col_cube], [sum_all].
     """
@@ -318,15 +318,11 @@ def preprocess(output_folder, method):
             f"Method ({method}) not implemented! Choose from: [standard], [row], [col], [row_col], [cube], [row_col_cube], [sum_all]",
         )
 
-    file1 = open(f"results/csvs/{output_folder}/grammar.txt", "w")
-    file1.write(str(grammar))
-    file1.close()
-
     print(grammar)
     return grammar
 
 
-def evolve(fitness_function, output_folder, g, seed, mode):
+def evolve(fitness_function, g, seed, mode):
     alg = GP(
         g,
         fitness_function,
@@ -341,7 +337,6 @@ def evolve(fitness_function, output_folder, g, seed, mode):
         minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
-        save_to_csv=(f"{output_folder}/run_seed={seed}", "all"),
     )
     (b, bf, bp) = alg.evolve(verbose=2)
 
@@ -361,17 +356,10 @@ def evolve(fitness_function, output_folder, g, seed, mode):
 if __name__ == "__main__":
     args = sys.argv
     print(args)
-    output_folder = args[1]  # 'GoL/grammar_col'
-    method = args[2]  # 'col'
-    dataset_name = args[3]  # 'GameOfLife'
+    method = args[1]  # 'col'
+    dataset_name = args[2]  # 'GameOfLife'
 
-    folder = f"./results/csvs/{output_folder}"
-    # import IPython as ip
-    # ip.embed()
-    if not os.path.isdir(folder):
-        os.mkdir(folder)
-
-    g = preprocess(output_folder, method)
+    g = preprocess(method)
 
     Xtrain, Xtest, ytrain, ytest = prepare_data(dataset_name)
 
@@ -382,4 +370,4 @@ if __name__ == "__main__":
 
     for i in range(30):
         print(f"Run: {i}.")
-        evolve(fitness_function, output_folder, g, i, False)
+        evolve(fitness_function, g, i, False)

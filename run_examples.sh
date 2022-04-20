@@ -16,7 +16,7 @@ function run_example {
 
 run_example examples/example.py
 run_example examples/pymax.py # Works in PonyGE
-#run_example examples/vectorialgp_example.py
+# run_example examples/vectorialgp_example.py
 run_example examples/regression.py # Works in PonyGE
 run_example examples/classification.py # Works in PonyGE
 run_example examples/santafe.py

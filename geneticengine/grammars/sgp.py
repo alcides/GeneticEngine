@@ -86,32 +86,6 @@ class Mul(Number):
         return f"({self.left} * {self.right})"
 
 
-@dataclass
-class SafeDiv(Number):
-    """
-    Safe Division object. If the right variable is 0, it is modified to 0.00001, to circumvent division by 0.
-
-    Parameters:
-        - left  (Number)
-        - right (Number)
-
-    Returns when evaluated:
-        left / right
-    """
-
-    left: Number
-    right: Number
-
-    def evaluate(self, **kwargs):
-        d1 = self.left.evaluate(**kwargs)
-        d2 = self.right.evaluate(**kwargs)
-        if d2 == 0:
-            return 0.00001
-        return d1 / d2
-
-    def __str__(self) -> str:
-        return f"({self.left}/{self.right})"
-
 
 @dataclass
 class Literal(Number):

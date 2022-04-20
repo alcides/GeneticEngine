@@ -41,7 +41,7 @@ if __name__ == "__main__":
         representation=treebased_representation,
         max_depth=10,
         population_size=1000,
-        number_of_generations=1,
+        number_of_generations=10,
         minimize=False,
     )
     (b, bf, bp) = alg.evolve(verbose=1)

@@ -5,7 +5,7 @@ from abc import ABCMeta
 from collections import defaultdict
 from inspect import isclass
 from tracemalloc import start
-from typing import Any
+from typing import Any, Generic
 from typing import Dict
 from typing import List
 from typing import Set
@@ -85,7 +85,7 @@ class Grammar:
         self.all_nodes.add(ty)
 
         parent = ty.mro()[1]
-        if parent not in [object, ABC]:
+        if parent not in [object, ABC, Generic]:
             assert isinstance(parent, type)
             self.register_type(parent)
             self.register_alternative(parent, ty)

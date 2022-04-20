@@ -177,7 +177,6 @@ def evolve(
     seed,
     mode,
     representation="treebased_representation",
-    output_folder=("", "all"),
 ):
     if representation == "grammatical_evolution":
         representation = ge_representation
@@ -201,7 +200,6 @@ def evolve(
         minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
-        save_to_csv=output_folder,
     )
     (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf
