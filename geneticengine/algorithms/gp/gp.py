@@ -9,6 +9,8 @@ from typing import Optional
 from typing import Tuple
 from typing import Union
 
+from pathos.multiprocessing import ProcessingPool as Pool
+
 import geneticengine.algorithms.gp.generation_steps.cross_over as cross_over
 import geneticengine.algorithms.gp.generation_steps.mutation as mutation
 import geneticengine.algorithms.gp.generation_steps.selection as selection
@@ -48,6 +50,7 @@ class GP:
         - force_individual (Any): Allows the incorporation of an individual in the first population (default = None).
         - timer_stop_criteria (bool): If set to True, the algorithm is stopped after the time limit (60 seconds). Then the fittest individual is returned (default = False).
         - save_to_csv (str): Saves a CSV file with the details of all the individuals of all generations.
+        - parallel_evaluation (bool): If set to True, the fitness of the individuals is evaluated in parallel. (default = False).
         - callbacks (List[Callback]): The callbacks to define what is done with the returned prints from the algorithm (default = []).
         -----
         Default as given in A Field Guide to GP, p.17, by Poli and Mcphee:
@@ -103,6 +106,7 @@ class GP:
         seed: int = 123,
         # -----
         timer_stop_criteria: bool = False,  # TODO: This should later be generic
+        parallel_evaluation: bool = True,
         save_to_csv: str = None,
         callbacks: list[Callback] = [],
     ):
@@ -159,6 +163,7 @@ class GP:
         else:
             self.selection = lambda r, ls, n: [x for x in ls[:n]]
         self.force_individual = force_individual
+        self.parallel_evaluation = parallel_evaluation
 
         if save_to_csv:
             c = CSVCallback(save_to_csv)
@@ -227,7 +232,15 @@ class GP:
                 ),
                 fitness=None,
             )
-        population = sorted(population, key=self.keyfitness())
+        if self.parallel_evaluation:
+            pool = Pool()
+            population_fitness = pool.map(self.evaluate, population)
+            fitnesses = {id(p): fit for p, fit in zip(population, population_fitness)}
+            pool.close()
+            pool.join()
+            population = sorted(population, key=lambda x: fitnesses[id(x)])
+        else:
+            population = sorted(population, key=self.keyfitness())
 
         gen = 0
         start = time.time()
