@@ -9,7 +9,7 @@ authors = [
     {name = "Pedro Barbosa", email = "psbarbosa@ciencias.ulisboa.pt"},
     {name = "Alcides Fonseca", email = "me@alcidesfonseca.com"}
 ]
-readme = "README.md"
+readme = "Readme.md"
 requires-python = "~=3.9"
 
 [project.urls]
