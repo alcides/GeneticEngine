@@ -309,23 +309,3 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
 
         return y_pred
 
-
-DATASET_NAME = "Banknote"
-DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.csv"
-DATA_FILE_TEST = f"examples/data/{DATASET_NAME}/Test.csv"
-
-bunch = pd.read_csv(DATA_FILE_TRAIN, delimiter=" ")
-target = bunch.y
-data = bunch.drop(["y"], axis=1)
-
-print("GP Classifier")
-model = GeneticProgrammingClassifier()
-model.fit(data, target)
-print(model.predict(data.iloc[0:5]))
-print(target.iloc[0:5].values)
-
-print("HC Classifier")
-model = HillClimbingClassifier()
-model.fit(data, target)
-print(model.predict(data.iloc[0:5]))
-print(target.iloc[0:5].values)
