@@ -30,6 +30,7 @@ from geneticengine.grammars.sgp import Var
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import f1_score
 from geneticengine.metrics import mse
+from geneticengine.off_the_shelf.sympy_compatible import fix_all
 
 
 class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
@@ -162,6 +163,7 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
 
         best_ind, fitness, phenotype = model.evolve(verbose=1)
         self.evolved_phenotype = phenotype
+        self.sympy_compatible_phenotype = fix_all(str(phenotype))
 
     def predict(self, X):
         """
@@ -279,6 +281,7 @@ class HillClimbingRegressor(BaseEstimator, TransformerMixin):
 
         best_ind, fitness, phenotype = model.evolve(verbose=1)
         self.evolved_phenotype = phenotype
+        self.sympy_compatible_phenotype = fix_all(str(phenotype))
 
     def predict(self, X):
         """
