@@ -103,6 +103,7 @@ class GP:
         seed: int = 123,
         # -----
         timer_stop_criteria: bool = False,  # TODO: This should later be generic
+        timer_limit: int = 60,
         save_to_csv: str = None,
         callbacks: list[Callback] = [],
     ):
@@ -124,6 +125,7 @@ class GP:
         self.minimize = minimize
         self.target_fitness = target_fitness
         self.timer_stop_criteria = timer_stop_criteria
+        self.timer_limit = timer_limit
         self.callbacks = callbacks
         if hill_climbing:
             self.mutation = mutation.create_hill_climbing_mutation(
@@ -233,7 +235,7 @@ class GP:
         start = time.time()
 
         while (not self.timer_stop_criteria and gen < self.number_of_generations) or (
-            self.timer_stop_criteria and (time.time() - start) < 60
+            self.timer_stop_criteria and (time.time() - start) < self.timer_limit
         ):
             npop = self.novelty(self.n_novelties)
             npop.extend(self.elitism(population, self.keyfitness()))
