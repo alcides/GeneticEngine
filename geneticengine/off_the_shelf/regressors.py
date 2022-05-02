@@ -116,7 +116,7 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
             feature_names = list(X.columns.values)
             data = X.values
         else:
-            feature_names = [f"x{i}" for i in range(X.values.shape[1])]
+            feature_names = [f"x{i}" for i in range(X.shape[1])]
             data = X
         feature_indices = {}
         for i, n in enumerate(feature_names):
@@ -243,7 +243,7 @@ class HillClimbingRegressor(BaseEstimator, TransformerMixin):
             feature_names = list(X.columns.values)
             data = X.values
         else:
-            feature_names = [f"x{i}" for i in range(X.values.shape[1])]
+            feature_names = [f"x{i}" for i in range(X.shape[1])]
             data = X
         feature_indices = {}
         for i, n in enumerate(feature_names):
