@@ -115,7 +115,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
             feature_names = list(X.columns.values)
             data = X.values
         else:
-            feature_names = [f"x{i}" for i in range(data.values.shape[1])]
+            feature_names = [f"x{i}" for i in range(X.values.shape[1])]
             data = X
         feature_indices = {}
         for i, n in enumerate(feature_names):
@@ -244,7 +244,7 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
             feature_names = list(X.columns.values)
             data = X.values
         else:
-            feature_names = [f"x{i}" for i in range(data.values.shape[1])]
+            feature_names = [f"x{i}" for i in range(X.values.shape[1])]
             data = X
         feature_indices = {}
         for i, n in enumerate(feature_names):
