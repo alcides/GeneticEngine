@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from dataclasses import dataclass
 from math import isinf
 from typing import Annotated
@@ -177,7 +178,7 @@ def evolve(
     seed,
     mode,
     representation="treebased_representation",
-    output_folder=("", "all"),
+    save_file="classification_evolution.csv",
 ):
     if representation == "grammatical_evolution":
         representation = ge_representation
@@ -188,20 +189,10 @@ def evolve(
         g,
         fitness_function,
         representation=representation,
-        # As in PonyGE2:
-        probability_crossover=0.75,
-        probability_mutation=0.01,
-        number_of_generations=50,
-        max_depth=15,
-        # max_init_depth=10,
-        population_size=500,
         selection_method=("tournament", 2),
-        n_elites=5,
-        # ----------------
         minimize=False,
-        seed=seed,
         timer_stop_criteria=mode,
-        save_to_csv=output_folder,
+        args=sys.argv,
     )
     (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import os
+import sys
 from dataclasses import dataclass
 
 from geneticengine.algorithms.gp.gp import GP
@@ -72,7 +72,7 @@ def evolve(
     seed,
     mode,
     representation="treebased_representation",
-    output_folder=("", "all"),
+    output_file="pymax_evolution.csv",
 ):
     if representation == "grammatical_evolution":
         representation = ge_representation
@@ -83,15 +83,11 @@ def evolve(
         g,
         fitness_function,
         representation=representation,
-        # max_depth=13,
-        # population_size=1,
-        # number_of_generations=1,
         minimize=False,
-        seed=seed,
         timer_stop_criteria=mode,
-        save_to_csv=output_folder,
+        args=sys.argv,
     )
-    (b, bf, bp) = alg.evolve(verbose=2)
+    (b, bf, bp) = alg.evolve()
     return b, bf
 
 
@@ -99,4 +95,4 @@ if __name__ == "__main__":
     g = preprocess()
     bf, b = evolve(g, 0, False)
     print(b)
-    print(f"With fitness: {bf}")
+    print(f"Final fitness: {bf}")

@@ -326,7 +326,7 @@ def preprocess(output_folder, method):
     return grammar
 
 
-def evolve(fitness_function, output_folder, g, seed, mode):
+def evolve(fitness_function, g, mode):
     alg = GP(
         g,
         fitness_function,
@@ -339,11 +339,10 @@ def evolve(fitness_function, output_folder, g, seed, mode):
         # probability_mutation=0.01,
         # selection_method=("tournament", 2),
         minimize=False,
-        seed=seed,
         timer_stop_criteria=mode,
-        save_to_csv=(f"{output_folder}/run_seed={seed}", "all"),
+        args=sys.argv,
     )
-    (b, bf, bp) = alg.evolve(verbose=2)
+    (b, bf, bp) = alg.evolve()
 
     print("Best individual:", bp)
     print("Genetic Engine Train F1 score:", bf)
@@ -380,6 +379,4 @@ if __name__ == "__main__":
         ypred = [_clf(line) for line in np.rollaxis(Xtrain, 0)]
         return f1_score(ytrain, ypred)
 
-    for i in range(30):
-        print(f"Run: {i}.")
-        evolve(fitness_function, output_folder, g, i, False)
+    evolve(fitness_function, g, False)

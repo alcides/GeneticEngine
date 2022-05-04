@@ -1,13 +1,13 @@
 #!/bin/bash
 export PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}."
 
-PYTHON_BINARY=python
+PYTHON_BINARY=python3
 
-
+ARGS="--population_size 10 --generations 10 --verbose 0"
 
 function run_example {
     printf "Running $1..."
-    $PYTHON_BINARY $1 > /dev/null && echo "(done)" || echo "(failed)"
+    $PYTHON_BINARY $1 $ARGS > /dev/null && echo "(done)" || echo "(failed)"
 
 }
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
@@ -67,7 +68,8 @@ def evaluate(e: Expr) -> Callable[[Any], float]:
         c = e.column
         return lambda line: line[r, c]
     else:
-        raise NotImplementedError(str(e))
+        print(type(e), isinstance(e, MatrixElement))
+        raise NotImplementedError(str(e), type(e))
 
 
 def fitness_function(i: Expr):
@@ -77,17 +79,15 @@ def fitness_function(i: Expr):
 
 
 def preprocess():
-    grammar = extract_grammar(Condition, globals(), [And, Or, Not, MatrixElement])
+    grammar = extract_grammar([And, Or, Not, MatrixElement], Condition)
     print(grammar)
     return grammar
 
 
 def evolve(
     g,
-    seed,
     mode,
     representation="treebased_representation",
-    output_folder=("", "all"),
 ):
     if representation == "grammatical_evolution":
         representation = ge_representation
@@ -100,19 +100,11 @@ def evolve(
         representation=representation,
         # favor_less_deep_trees=True,
         # As in PonyGE2:
-        probability_crossover=0.75,
-        probability_mutation=0.01,
-        number_of_generations=50,
-        max_depth=15,
-        # max_init_depth=10,
-        population_size=100,
         selection_method=("tournament", 2),
-        n_elites=5,
         # ----------------
         minimize=False,
-        seed=seed,
         timer_stop_criteria=mode,
-        save_to_csv=output_folder,
+        args=sys.argv,
     )
     (b, bf, bp) = alg.evolve(verbose=1)
 

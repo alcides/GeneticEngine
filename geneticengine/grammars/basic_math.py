@@ -34,9 +34,9 @@ class SafeDiv(Number):
     def evaluate(self, **kwargs):
         d1 = self.left.evaluate(**kwargs)
         d2 = self.right.evaluate(**kwargs)
-        if d1.dtype == "O":
+        if hasattr(d1, "dtype") and d1.dtype == "O":
             d1 = d1.astype(float)
-        if d2.dtype == "O":
+        if hasattr(d2, "dtype") and d2.dtype == "O":
             d2 = d2.astype(float)
         try:
             with np.errstate(divide="ignore", invalid="ignore"):
