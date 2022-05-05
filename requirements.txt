@@ -1,4 +1,4 @@
--e git+https://github.com/anivegesana/dill.git@enums#egg=dill
+dill
 lark
 numpy
 palettable
