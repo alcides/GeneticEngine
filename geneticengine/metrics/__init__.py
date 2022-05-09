@@ -116,3 +116,14 @@ def rmse(y_pred, y_gt):
     """
 
     return np.sqrt(np.mean(np.square(y_pred - y_gt)))
+
+
+def r2(y_pred, y_gt):
+    """
+    Find the theory at https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html#sklearn.linear_model.LinearRegression.score
+    """
+
+    u = ((y_gt - y_pred)**2).sum()
+    v = ((y_gt - y_gt.mean()) ** 2).sum()
+    
+    return 1 - (u / v)

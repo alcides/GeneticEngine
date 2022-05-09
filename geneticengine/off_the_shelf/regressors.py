@@ -27,8 +27,7 @@ from geneticengine.grammars.sgp import Number
 from geneticengine.grammars.sgp import Plus
 from geneticengine.grammars.sgp import Var
 from geneticengine.metahandlers.vars import VarRange
-from geneticengine.metrics import f1_score
-from geneticengine.metrics import mse
+from geneticengine.metrics import f1_score, mse, r2
 from geneticengine.off_the_shelf.sympy_compatible import fix_all
 
 
@@ -142,7 +141,7 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
             fitness = mse(
                 y_pred,
                 y,
-            )  # mse is used in PonyGE, as the error metric is not None!
+            )
             if isinf(fitness) or np.isnan(fitness):
                 fitness = 100000000
             return fitness
@@ -190,6 +189,11 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
         y_pred = self.evolved_phenotype.evaluate(**variables)
 
         return y_pred
+    
+    def score(self, X, y):
+        y_pred = self.predict(X)
+                
+        return r2(y_pred,y)
 
 
 class HillClimbingRegressor(BaseEstimator, TransformerMixin):
