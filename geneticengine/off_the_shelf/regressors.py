@@ -60,7 +60,7 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
         nodes: list[type[Number]] = None,
         representation: Representation = treebased_representation,
         population_size: int = 200,
-        n_elites: int = 5,  # Shouldn't this be a percentage of population size?
+        n_elites: int = 5,
         n_novelties: int = 10,
         number_of_generations: int = 100,
         max_depth: int = 15,
@@ -72,6 +72,8 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
         probability_mutation: float = 0.01,
         probability_crossover: float = 0.9,
         # -----
+        timer_stop_criteria: bool = False,
+        timer_limit: int = 60
     ):
         if nodes is None:
             nodes = [
@@ -102,6 +104,8 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
         self.number_of_generations = number_of_generations
         self.probability_mutation = probability_mutation
         self.probability_crossover = probability_crossover
+        self.timer_stop_criteria = timer_stop_criteria
+        self.timer_limit = timer_limit
 
     def fit(self, X, y):
         """
@@ -159,6 +163,8 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
             probability_crossover=self.probability_crossover,
             hill_climbing=self.hill_climbing,
             seed=self.seed,
+            timer_stop_criteria=self.timer_stop_criteria,
+            timer_limit=self.timer_limit,
         )
 
         best_ind, fitness, phenotype = model.evolve(verbose=1)
