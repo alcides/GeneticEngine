@@ -1,4 +1,5 @@
 from __future__ import annotations
+from math import isinf
 
 from typing import Annotated
 from typing import Any
@@ -16,13 +17,14 @@ from geneticengine.grammars.basic_math import SafeLog
 from geneticengine.grammars.basic_math import SafeSqrt
 from geneticengine.grammars.basic_math import Sin
 from geneticengine.grammars.basic_math import Tanh
+from geneticengine.grammars.basic_math import SafeDiv
 from geneticengine.grammars.sgp import Literal
 from geneticengine.grammars.sgp import Mul
 from geneticengine.grammars.sgp import Number
 from geneticengine.grammars.sgp import Plus
-from geneticengine.grammars.sgp import SafeDiv
 from geneticengine.grammars.sgp import Var
 from geneticengine.metahandlers.vars import VarRange
+from geneticengine.metrics import mse
 
 # Load Dataset
 bunch: Any = load_diabetes()
@@ -56,6 +58,7 @@ def evolve(g, seed):
     return b, bf
 
 
+
 def fitness_function(n: Number):
     X = bunch.data
     y = bunch.target
@@ -66,7 +69,11 @@ def fitness_function(n: Number):
         variables[x] = X[:, i]
 
     y_pred = n.evaluate(**variables)
-    return mean_squared_error(y, y_pred, squared=False)
+    # mse is used in PonyGE, as the error metric is not None!
+    fitness = mse(y_pred, y)
+    if isinf(fitness) or np.isnan(fitness):
+        fitness = 100000000
+    return fitness
 
 
 if __name__ == "__main__":

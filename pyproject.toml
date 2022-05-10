@@ -1,6 +1,6 @@
 [project]
 name = "GeneticEngine"
-version = "0.0.8"
+version = "0.0.15"
 description = "Genetic Programming with Types and Grammars"
 authors = [
     {name = "Guilherme Espada", email = "gjespada@fc.ul.pt"},
@@ -9,7 +9,7 @@ authors = [
     {name = "Pedro Barbosa", email = "psbarbosa@ciencias.ulisboa.pt"},
     {name = "Alcides Fonseca", email = "me@alcidesfonseca.com"}
 ]
-readme = "README.md"
+readme = "Readme.md"
 requires-python = "~=3.9"
 
 [project.urls]

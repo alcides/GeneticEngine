@@ -72,7 +72,6 @@ def evolve(
     seed,
     mode,
     representation="treebased_representation",
-    output_file="pymax_evolution.csv",
 ):
     if representation == "grammatical_evolution":
         representation = ge_representation
@@ -83,11 +82,13 @@ def evolve(
         g,
         fitness_function,
         representation=representation,
+        max_depth=13,
+        population_size=25,
+        number_of_generations=10,
         minimize=False,
         timer_stop_criteria=mode,
-        args=sys.argv,
     )
-    (b, bf, bp) = alg.evolve()
+    (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf
 
 

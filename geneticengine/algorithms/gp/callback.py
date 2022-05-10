@@ -23,7 +23,8 @@ class ProgressCallback(Callback):
     """Prints the number of the generation"""
 
     def process_iteration(self, generation: int, population, time: float, gp):
-        print(f"[{self.__class__}] Generation {generation}. Time {time}")
+        fitness = round(gp.evaluate(population[0]), 4)
+        print(f"[{self.__class__}] Generation {generation}. Time {time}. Best fitness: {fitness}")
 
 
 class PrintBestCallback(Callback):

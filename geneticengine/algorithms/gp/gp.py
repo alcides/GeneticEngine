@@ -51,9 +51,9 @@ class GP:
         - hill_climbing (bool): Allows the user to change the standard mutation operations to the hill-climbing mutation operation, in which an individual is mutated to 5 different new individuals, after which the best is chosen to survive (default = False).
         - target_fitness (Optional[float]): Sets a target fitness. When this fitness is reached, the algorithm stops running (default = None).
         - force_individual (Any): Allows the incorporation of an individual in the first population (default = None).
-        - timer_stop_criteria (bool): If set to True, the algorithm is stopped after the time limit (60 seconds). Then the fittest individual is returned (default = False).
+        - timer_stop_criteria (bool): If set to True, the algorithm is stopped after the time limit (default = 60 seconds). Then the fittest individual is returned (default = False).
+        - timer_limit (int): The time limit of the timer.
         - save_to_csv (str): Saves a CSV file with the details of all the individuals of all generations.
-        - parallel_evaluation (bool): If set to True, the fitness of the individuals is evaluated in parallel. (default = False).
         - callbacks (List[Callback]): The callbacks to define what is done with the returned prints from the algorithm (default = []).
         -----
         Default as given in A Field Guide to GP, p.17, by Poli and Mcphee:
@@ -110,6 +110,7 @@ class GP:
         # -----
         timer_stop_criteria: bool = False,  # TODO: This should later be generic
         parallel_evaluation: bool = True,
+        timer_limit: int = 60,
         save_to_csv: str = None,
         verbose: int = 0,
         callbacks: list[Callback] = [],
@@ -129,6 +130,7 @@ class GP:
         self.minimize = minimize
         self.target_fitness = target_fitness
         self.timer_stop_criteria = timer_stop_criteria
+        self.timer_limit = timer_limit
         self.callbacks = callbacks
 
         self.n_elites = n_elites
@@ -283,7 +285,7 @@ class GP:
         start = time.time()
 
         while (not self.timer_stop_criteria and gen < self.number_of_generations) or (
-            self.timer_stop_criteria and (time.time() - start) < 60
+            self.timer_stop_criteria and (time.time() - start) < self.timer_limit
         ):
             npop = self.novelty(self.n_novelties)
             npop.extend(self.elitism(population, self.keyfitness()))

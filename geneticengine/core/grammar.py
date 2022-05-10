@@ -5,7 +5,7 @@ from abc import ABCMeta
 from collections import defaultdict
 from inspect import isclass
 from tracemalloc import start
-from typing import Any
+from typing import Any, Generic
 from typing import Dict
 from typing import List
 from typing import Set
@@ -57,6 +57,12 @@ class Grammar:
         Register a production A->B
         Call multiple times with same A to register many possible alternatives.
         """
+        if not is_abstract(nonterminal):
+            raise Exception(
+                f"Trying to register an alternative on a non-abstract class: {nonterminal} -> {nodetype}\n"
+                f"You may have meant for {nonterminal.__name__} to be abstract. If so, decorate it with @abstract.\n"
+                f"(Found in geneticengine.core.decorators)"
+            )
         if nonterminal not in self.alternatives:
             self.alternatives[nonterminal] = []
         self.alternatives[nonterminal].append(nodetype)
@@ -79,7 +85,7 @@ class Grammar:
         self.all_nodes.add(ty)
 
         parent = ty.mro()[1]
-        if parent not in [object, ABC]:
+        if parent not in [object, ABC, Generic]:
             assert isinstance(parent, type)
             self.register_type(parent)
             self.register_alternative(parent, ty)

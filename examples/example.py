@@ -10,11 +10,11 @@ from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.algorithms.random_search import RandomSearch
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.grammars.basic_math import SafeDiv
 from geneticengine.grammars.sgp import Literal
 from geneticengine.grammars.sgp import Mul
 from geneticengine.grammars.sgp import Number
 from geneticengine.grammars.sgp import Plus
-from geneticengine.grammars.sgp import SafeDiv
 from geneticengine.grammars.sgp import Var
 from geneticengine.metahandlers.vars import VarRange
 

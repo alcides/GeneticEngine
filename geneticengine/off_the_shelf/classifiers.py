@@ -29,6 +29,7 @@ from geneticengine.grammars.sgp import Plus
 from geneticengine.grammars.sgp import Var
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import f1_score
+from geneticengine.off_the_shelf.sympy_compatible import fix_all
 
 
 class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
@@ -114,7 +115,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
             feature_names = list(X.columns.values)
             data = X.values
         else:
-            feature_names = [f"x{i}" for i in range(data.values.shape[1])]
+            feature_names = [f"x{i}" for i in range(X.shape[1])]
             data = X
         feature_indices = {}
         for i, n in enumerate(feature_names):
@@ -162,6 +163,8 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
 
         best_ind, fitness, phenotype = model.evolve(verbose=1)
         self.evolved_phenotype = phenotype
+        self.sympy_compatible_phenotype = fix_all(str(phenotype))
+        
 
     def predict(self, X):
         """
@@ -241,7 +244,7 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
             feature_names = list(X.columns.values)
             data = X.values
         else:
-            feature_names = [f"x{i}" for i in range(data.values.shape[1])]
+            feature_names = [f"x{i}" for i in range(X.shape[1])]
             data = X
         feature_indices = {}
         for i, n in enumerate(feature_names):
@@ -283,6 +286,7 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
 
         best_ind, fitness, phenotype = model.evolve(verbose=1)
         self.evolved_phenotype = phenotype
+        self.sympy_compatible_phenotype = fix_all(str(phenotype))
 
     def predict(self, X):
         """
@@ -305,23 +309,3 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
 
         return y_pred
 
-
-DATASET_NAME = "Banknote"
-DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.csv"
-DATA_FILE_TEST = f"examples/data/{DATASET_NAME}/Test.csv"
-
-bunch = pd.read_csv(DATA_FILE_TRAIN, delimiter=" ")
-target = bunch.y
-data = bunch.drop(["y"], axis=1)
-
-print("GP Classifier")
-model = GeneticProgrammingClassifier()
-model.fit(data, target)
-print(model.predict(data.iloc[0:5]))
-print(target.iloc[0:5].values)
-
-print("HC Classifier")
-model = HillClimbingClassifier()
-model.fit(data, target)
-print(model.predict(data.iloc[0:5]))
-print(target.iloc[0:5].values)

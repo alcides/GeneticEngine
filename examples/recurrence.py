@@ -78,9 +78,9 @@ if __name__ == "__main__":
         minimize=True,
         max_depth=10,
         number_of_generations=100,
-        population_size=10,
+        population_size=20,
         probability_mutation=0.5,
         probability_crossover=0.4,
     )
-    (_, fitness, explanation) = gp.evolve()
+    (_, fitness, explanation) = gp.evolve(verbose=1)
     print(fitness, explanation)

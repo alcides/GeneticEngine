@@ -123,7 +123,7 @@ def evolve(g, seed, mode, representation):
         g,
         fitness_function,
         representation=representation,
-        number_of_generations=50,
+        number_of_generations=5,
         minimize=True,
         seed=seed,
         max_depth=17,

@@ -178,7 +178,6 @@ def evolve(
     seed,
     mode,
     representation="treebased_representation",
-    save_file="classification_evolution.csv",
 ):
     if representation == "grammatical_evolution":
         representation = ge_representation
@@ -192,7 +191,6 @@ def evolve(
         selection_method=("tournament", 2),
         minimize=False,
         timer_stop_criteria=mode,
-        args=sys.argv,
     )
     (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf

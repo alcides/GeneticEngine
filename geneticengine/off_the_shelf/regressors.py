@@ -30,6 +30,8 @@ from geneticengine.grammars.sgp import Var
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import f1_score
 from geneticengine.metrics import mse
+from geneticengine.metrics import r2
+from geneticengine.off_the_shelf.sympy_compatible import fix_all
 
 
 class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
@@ -59,7 +61,7 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
         nodes: list[type[Number]] = None,
         representation: Representation = treebased_representation,
         population_size: int = 200,
-        n_elites: int = 5,  # Shouldn't this be a percentage of population size?
+        n_elites: int = 5,
         n_novelties: int = 10,
         number_of_generations: int = 100,
         max_depth: int = 15,
@@ -71,6 +73,8 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
         probability_mutation: float = 0.01,
         probability_crossover: float = 0.9,
         # -----
+        timer_stop_criteria: bool = False,
+        timer_limit: int = 60,
     ):
         if nodes is None:
             nodes = [
@@ -101,6 +105,8 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
         self.number_of_generations = number_of_generations
         self.probability_mutation = probability_mutation
         self.probability_crossover = probability_crossover
+        self.timer_stop_criteria = timer_stop_criteria
+        self.timer_limit = timer_limit
 
     def fit(self, X, y):
         """
@@ -115,7 +121,7 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
             feature_names = list(X.columns.values)
             data = X.values
         else:
-            feature_names = [f"x{i}" for i in range(data.values.shape[1])]
+            feature_names = [f"x{i}" for i in range(X.shape[1])]
             data = X
         feature_indices = {}
         for i, n in enumerate(feature_names):
@@ -138,7 +144,7 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
             fitness = mse(
                 y_pred,
                 y,
-            )  # mse is used in PonyGE, as the error metric is not None!
+            )
             if isinf(fitness) or np.isnan(fitness):
                 fitness = 100000000
             return fitness
@@ -158,10 +164,13 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
             probability_crossover=self.probability_crossover,
             hill_climbing=self.hill_climbing,
             seed=self.seed,
+            timer_stop_criteria=self.timer_stop_criteria,
+            timer_limit=self.timer_limit,
         )
 
         best_ind, fitness, phenotype = model.evolve(verbose=0)
         self.evolved_phenotype = phenotype
+        self.sympy_compatible_phenotype = fix_all(str(phenotype))
 
     def predict(self, X):
         """
@@ -183,6 +192,11 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
         y_pred = self.evolved_phenotype.evaluate(**variables)
 
         return y_pred
+
+    def score(self, X, y):
+        y_pred = self.predict(X)
+
+        return r2(y_pred, y)
 
 
 class HillClimbingRegressor(BaseEstimator, TransformerMixin):
@@ -241,7 +255,7 @@ class HillClimbingRegressor(BaseEstimator, TransformerMixin):
             feature_names = list(X.columns.values)
             data = X.values
         else:
-            feature_names = [f"x{i}" for i in range(data.values.shape[1])]
+            feature_names = [f"x{i}" for i in range(X.shape[1])]
             data = X
         feature_indices = {}
         for i, n in enumerate(feature_names):
@@ -279,6 +293,7 @@ class HillClimbingRegressor(BaseEstimator, TransformerMixin):
 
         best_ind, fitness, phenotype = model.evolve(verbose=1)
         self.evolved_phenotype = phenotype
+        self.sympy_compatible_phenotype = fix_all(str(phenotype))
 
     def predict(self, X):
         """
@@ -300,25 +315,3 @@ class HillClimbingRegressor(BaseEstimator, TransformerMixin):
         y_pred = self.evolved_phenotype.evaluate(**variables)
 
         return y_pred
-
-
-DATASET_NAME = "Vladislavleva4"
-DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.txt"
-DATA_FILE_TEST = f"examples/data/{DATASET_NAME}/Test.txt"
-
-bunch = pd.read_csv(DATA_FILE_TRAIN, delimiter="\t")
-target = bunch.response
-data = bunch.drop(["response"], axis=1)
-
-
-print("GP Regressor")
-model = GeneticProgrammingRegressor()
-model.fit(data, target)
-print(model.predict(data.iloc[0:5]))
-print(target.iloc[0:5].values)
-
-print("HC Regressor")
-model = HillClimbingRegressor()
-model.fit(data, target)
-print(model.predict(data.iloc[0:5]))
-print(target.iloc[0:5].values)

@@ -3,7 +3,6 @@ lark
 numpy
 palettable
 pandas
-pathos
 pytest
 sklearn
 z3-solver

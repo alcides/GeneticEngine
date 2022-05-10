@@ -104,7 +104,6 @@ def evolve(
         # ----------------
         minimize=False,
         timer_stop_criteria=mode,
-        args=sys.argv,
     )
     (b, bf, bp) = alg.evolve(verbose=1)
 
