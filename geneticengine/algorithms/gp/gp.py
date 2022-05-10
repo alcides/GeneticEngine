@@ -11,7 +11,7 @@ from typing import Optional
 from typing import Tuple
 from typing import Union
 
-from pathos.multiprocessing import ProcessingPool as Pool
+from pathos.multiprocessing import ProcessingPool as Pool  # type: ignore
 
 import geneticengine.algorithms.gp.generation_steps.cross_over as cross_over
 import geneticengine.algorithms.gp.generation_steps.mutation as mutation
