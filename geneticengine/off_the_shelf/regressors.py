@@ -160,7 +160,7 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
             seed=self.seed,
         )
 
-        best_ind, fitness, phenotype = model.evolve(verbose=1)
+        best_ind, fitness, phenotype = model.evolve(verbose=0)
         self.evolved_phenotype = phenotype
 
     def predict(self, X):
