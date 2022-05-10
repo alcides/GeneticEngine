@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import platform
 import time
 from multiprocessing import cpu_count
 from typing import Any
@@ -274,7 +275,7 @@ class GP:
                 ),
                 fitness=None,
             )
-        if self.parallel_evaluation:
+        if self.parallel_evaluation and (platform.system() in ["Linux", "Darwin"]):
             self.parallel_evaluate(population)
         population = sorted(population, key=self.keyfitness())
 
