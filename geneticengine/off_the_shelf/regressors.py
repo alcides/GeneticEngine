@@ -8,7 +8,8 @@ from typing import Type
 
 import numpy as np
 import pandas as pd
-from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.base import BaseEstimator
+from sklearn.base import TransformerMixin
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.hill_climbing import HC
@@ -27,7 +28,9 @@ from geneticengine.grammars.sgp import Number
 from geneticengine.grammars.sgp import Plus
 from geneticengine.grammars.sgp import Var
 from geneticengine.metahandlers.vars import VarRange
-from geneticengine.metrics import f1_score, mse, r2
+from geneticengine.metrics import f1_score
+from geneticengine.metrics import mse
+from geneticengine.metrics import r2
 from geneticengine.off_the_shelf.sympy_compatible import fix_all
 
 
@@ -65,13 +68,14 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
         favor_less_deep_trees: bool = True,
         hill_climbing: bool = False,
         seed: int = 123,
+        metric: str = "mse",
         # -----
         # As given in A Field Guide to GP, p.17, by Poli and Mcphee
         probability_mutation: float = 0.01,
         probability_crossover: float = 0.9,
         # -----
         timer_stop_criteria: bool = False,
-        timer_limit: int = 60
+        timer_limit: int = 60,
     ):
         if nodes is None:
             nodes = [
@@ -104,6 +108,12 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
         self.probability_crossover = probability_crossover
         self.timer_stop_criteria = timer_stop_criteria
         self.timer_limit = timer_limit
+        if metric == "r2":
+            self.metric = r2
+            self.minimise = False
+        else:
+            self.metric = mse
+            self.minimise = True
 
     def fit(self, X, y):
         """
@@ -138,9 +148,9 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
                 variables[x] = data[:, i]
             y_pred = n.evaluate(**variables)
 
-            fitness = mse(
+            fitness = self.metric(
                 y_pred,
-                y,
+                target,
             )
             if isinf(fitness) or np.isnan(fitness):
                 fitness = 100000000
@@ -149,7 +159,7 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
         model = GP(
             grammar=self.grammar,
             evaluation_function=fitness_function,
-            minimize=True,
+            minimize=self.minimise,
             representation=self.representation,
             population_size=self.population_size,
             n_elites=self.n_elites,
@@ -165,7 +175,7 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
             timer_limit=self.timer_limit,
         )
 
-        best_ind, fitness, phenotype = model.evolve(verbose=1)
+        best_ind, fitness, phenotype = model.evolve(verbose=0)
         self.evolved_phenotype = phenotype
         self.sympy_compatible_phenotype = fix_all(str(phenotype))
 
@@ -189,11 +199,11 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
         y_pred = self.evolved_phenotype.evaluate(**variables)
 
         return y_pred
-    
+
     def score(self, X, y):
         y_pred = self.predict(X)
-                
-        return r2(y_pred,y)
+
+        return r2(y_pred, y)
 
 
 class HillClimbingRegressor(BaseEstimator, TransformerMixin):
@@ -226,6 +236,7 @@ class HillClimbingRegressor(BaseEstimator, TransformerMixin):
         number_of_generations: int = 100,
         max_depth: int = 15,
         seed: int = 123,
+        metric: str = "mse",
     ):
         assert Var in nodes
 
@@ -238,6 +249,12 @@ class HillClimbingRegressor(BaseEstimator, TransformerMixin):
         self.population_size = population_size
         self.max_depth = max_depth
         self.number_of_generations = number_of_generations
+        if metric == "r2":
+            self.metric = r2
+            self.minimise = False
+        else:
+            self.metric = mse
+            self.minimise = True
 
     def fit(self, X, y):
         """
@@ -272,7 +289,10 @@ class HillClimbingRegressor(BaseEstimator, TransformerMixin):
                 variables[x] = data[:, i]
             y_pred = n.evaluate(**variables)
 
-            fitness = mse(y_pred, y)
+            fitness = self.metric(
+                y_pred,
+                target,
+            )
             if isinf(fitness) or np.isnan(fitness):
                 fitness = 100000000
             return fitness
@@ -280,7 +300,7 @@ class HillClimbingRegressor(BaseEstimator, TransformerMixin):
         model = HC(
             g=self.grammar,
             evaluation_function=fitness_function,
-            minimize=True,
+            minimize=self.minimise,
             representation=self.representation,
             population_size=self.population_size,
             number_of_generations=self.number_of_generations,
@@ -288,7 +308,7 @@ class HillClimbingRegressor(BaseEstimator, TransformerMixin):
             seed=self.seed,
         )
 
-        best_ind, fitness, phenotype = model.evolve(verbose=1)
+        best_ind, fitness, phenotype = model.evolve(verbose=0)
         self.evolved_phenotype = phenotype
         self.sympy_compatible_phenotype = fix_all(str(phenotype))
 
@@ -312,4 +332,3 @@ class HillClimbingRegressor(BaseEstimator, TransformerMixin):
         y_pred = self.evolved_phenotype.evaluate(**variables)
 
         return y_pred
-

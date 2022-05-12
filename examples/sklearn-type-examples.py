@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 import pandas as pd
 
-
-from geneticengine.off_the_shelf.classifiers import GeneticProgrammingClassifier, HillClimbingClassifier
-from geneticengine.off_the_shelf.regressors import GeneticProgrammingRegressor, HillClimbingRegressor
+from geneticengine.off_the_shelf.classifiers import GeneticProgrammingClassifier
+from geneticengine.off_the_shelf.classifiers import HillClimbingClassifier
+from geneticengine.off_the_shelf.regressors import GeneticProgrammingRegressor
+from geneticengine.off_the_shelf.regressors import HillClimbingRegressor
 
 # ===================================
 # Classifiers
@@ -42,7 +45,7 @@ target = bunch.response
 data = bunch.drop(["response"], axis=1)
 
 print("GP Regressor")
-model = GeneticProgrammingRegressor()
+model = GeneticProgrammingRegressor(metric="r2")
 model.fit(data, target)
 print(model.predict(data.iloc[0:5]))
 print(target.iloc[0:5].values)
