@@ -109,12 +109,7 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
         self.probability_crossover = probability_crossover
         self.timer_stop_criteria = timer_stop_criteria
         self.timer_limit = timer_limit
-        if metric == "r2":
-            self.metric = r2
-            self.minimise = False
-        else:
-            self.metric = mse
-            self.minimise = True
+        self.metric = metric
 
     def fit(self, X, y):
         """
@@ -142,6 +137,13 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
         self.feature_names = feature_names
         self.feature_indices = feature_indices
 
+        if self.metric == "r2":
+            metric = r2
+            minimise = False
+        else:
+            metric = mse
+            minimise = True
+
         def fitness_function(n: Number):
             variables = {}
             for x in feature_names:
@@ -149,7 +151,7 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
                 variables[x] = data[:, i]
             y_pred = n.evaluate(**variables)
 
-            fitness = self.metric(
+            fitness = metric(
                 y_pred,
                 target,
             )
@@ -160,7 +162,7 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
         model = GP(
             grammar=self.grammar,
             evaluation_function=fitness_function,
-            minimize=self.minimise,
+            minimize=minimise,
             representation=self.representation,
             population_size=self.population_size,
             n_elites=self.n_elites,
