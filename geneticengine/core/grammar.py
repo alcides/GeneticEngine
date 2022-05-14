@@ -5,8 +5,9 @@ from abc import ABCMeta
 from collections import defaultdict
 from inspect import isclass
 from tracemalloc import start
-from typing import Any, Generic
+from typing import Any
 from typing import Dict
+from typing import Generic
 from typing import List
 from typing import Set
 from typing import Tuple
@@ -61,7 +62,7 @@ class Grammar:
             raise Exception(
                 f"Trying to register an alternative on a non-abstract class: {nonterminal} -> {nodetype}\n"
                 f"You may have meant for {nonterminal.__name__} to be abstract. If so, decorate it with @abstract.\n"
-                f"(Found in geneticengine.core.decorators)"
+                f"(Found in geneticengine.core.decorators)",
             )
         if nonterminal not in self.alternatives:
             self.alternatives[nonterminal] = []
@@ -95,8 +96,9 @@ class Grammar:
             terminal = True
             for (arg, argt) in get_arguments(ty):
                 terminal = False
-                if isinstance(argt, type) or isinstance(argt, ABCMeta):
-                    self.register_type(argt)
+                # TODO Disable by Alcides! Needs testing
+                # if isinstance(argt, type) or isinstance(argt, ABCMeta):
+                self.register_type(argt)
 
         for st in self.considered_subtypes:
             if issubclass(st, ty):
