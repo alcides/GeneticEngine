@@ -32,7 +32,7 @@ def random_individual(
     depth: int = 5,
     starting_symbol: Any = None,
 ) -> Genotype:
-    nodes = [str(node) for node in g.all_nodes]
+    nodes: list(str) = [str(node) for node in g.all_nodes]
     for node in g.all_nodes:
         arguments = get_arguments(node)
         for _, arg in arguments:
