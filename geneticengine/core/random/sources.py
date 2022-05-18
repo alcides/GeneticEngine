@@ -74,7 +74,6 @@ class Source(ABC):
         prod: str = None,
     ):
         inner_type = get_generic_parameter(ty)
-        print(1)
         size = self.randint(0, depth - 1, prod)
         fins = build_finalizers(lambda *x: receiver(list(x)), size)
         ident = ctx["_"]

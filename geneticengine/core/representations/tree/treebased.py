@@ -289,24 +289,31 @@ def expand_node(
         )
 
     if starting_symbol is int:
-        val = r.randint(0, 100, "int")
+        val = r.randint(0, 100, str(starting_symbol))
         SMTResolver.register_const(id, val)
         receiver(val)
         return
     elif starting_symbol is float:
-        valf = r.random_float(-100, 100, "float")
+        valf = r.random_float(-100, 100, str(starting_symbol))
         SMTResolver.register_const(id, valf)
         receiver(valf)
         return
     elif starting_symbol is bool:
-        valb = r.random_bool("bool")
+        valb = r.random_bool(str(starting_symbol))
         SMTResolver.register_const(id, valb)
         receiver(valb)
         return
     elif is_generic_list(starting_symbol):
         ctx = ctx.copy()
         ctx["_"] = id
-        r.random_list(receiver, new_symbol, depth, starting_symbol, ctx, "list")
+        r.random_list(
+            receiver,
+            new_symbol,
+            depth,
+            starting_symbol,
+            ctx,
+            str(starting_symbol),
+        )
         return
     elif is_metahandler(starting_symbol):
         ctx = ctx.copy()

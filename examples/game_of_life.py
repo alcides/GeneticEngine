@@ -13,8 +13,10 @@ from sklearn.metrics import f1_score
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.grammatical_evolution import ge_representation
-from geneticengine.core.representations.structured_grammatical_evolution import (
+from geneticengine.core.representations.grammatical_evolution.ge import (
+    ge_representation,
+)
+from geneticengine.core.representations.grammatical_evolution.structured_ge import (
     sge_representation,
 )
 from geneticengine.core.representations.tree.treebased import treebased_representation
@@ -94,7 +96,7 @@ def evolve(
     if representation == "ge":
         representation = ge_representation
     elif representation == "sge":
-        representation = ge_representation
+        representation = sge_representation
     else:
         representation = treebased_representation
 
@@ -131,6 +133,6 @@ def evolve(
 
 if __name__ == "__main__":
     g = preprocess()
-    bf, b = evolve(g, 0, False)
+    bf, b = evolve(g, 0, False, "sge")
     print(b)
     print(f"With fitness: {bf}")

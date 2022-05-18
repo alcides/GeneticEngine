@@ -8,7 +8,7 @@ from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.algorithms.random_search import RandomSearch
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.structured_grammatical_evolution import (
+from geneticengine.core.representations.grammatical_evolution.structured_ge import (
     sge_representation,
 )
 from geneticengine.core.representations.tree.treebased import treebased_representation
@@ -47,7 +47,7 @@ def target(x):
 alg_gp = GP(
     g,
     fit,
-    representation=sge_representation,
+    representation=treebased_representation,
     population_size=150,
     max_depth=5,
     number_of_generations=10,
@@ -61,7 +61,7 @@ alg_gp = GP(
 alg_hc = HC(
     g,
     evaluation_function=fit,
-    representation=sge_representation,
+    representation=treebased_representation,
     population_size=150,
     max_depth=5,
     number_of_generations=10,
@@ -72,7 +72,7 @@ alg_hc = HC(
 alg_rs = RandomSearch(
     g,
     evaluation_function=fit,
-    representation=sge_representation,
+    representation=treebased_representation,
     population_size=150,
     max_depth=5,
     number_of_generations=40,

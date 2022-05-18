@@ -10,8 +10,10 @@ from examples.progsys.utils import get_data
 from examples.progsys.utils import import_embedded
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.grammatical_evolution import ge_representation
-from geneticengine.core.representations.structured_grammatical_evolution import (
+from geneticengine.core.representations.grammatical_evolution.ge import (
+    ge_representation,
+)
+from geneticengine.core.representations.grammatical_evolution.structured_ge import (
     sge_representation,
 )
 from geneticengine.core.representations.tree.treebased import treebased_representation

@@ -15,6 +15,7 @@ from geneticengine.core.representations.tree.treebased import Grow
 from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.core.tree import TreeNode
 from geneticengine.core.utils import get_arguments
+from geneticengine.core.utils import is_generic
 from geneticengine.core.utils import strip_annotations
 
 LIST_SIZE = 100
@@ -34,7 +35,9 @@ def random_individual(
     nodes = [str(node) for node in g.all_nodes]
     for node in g.all_nodes:
         arguments = get_arguments(node)
-        for k, arg in arguments:
+        for _, arg in arguments:
+            if is_generic(arg):
+                nodes.append(str(arg))
             base_type = str(strip_annotations(arg))
             if base_type not in nodes:
                 nodes.append(base_type)
