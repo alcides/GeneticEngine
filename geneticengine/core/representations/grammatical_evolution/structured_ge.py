@@ -23,7 +23,7 @@ LIST_SIZE = 100
 
 @dataclass
 class Genotype:
-    dna: dict[str, list[type]]
+    dna: dict[str, list[int]]
 
 
 def random_individual(
@@ -81,8 +81,8 @@ def crossover(
 
 
 class StructuredListWrapper(Source):
-    dna: dict[str, list[int]]  # type: ignore
-    indexes: dict[str, int]  # type: ignore
+    dna: dict[str, list[int]]
+    indexes: dict[str, int]
 
     def __init__(self, dna):
         self.dna = dna
