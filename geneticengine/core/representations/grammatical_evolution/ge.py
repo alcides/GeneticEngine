@@ -61,7 +61,7 @@ class ListWrapper(Source):
         return v % (max - min + 1) + min
 
     def random_float(self, min, max, prod) -> float:
-        k = self.randint(1, 100000000)
+        k = self.randint(1, 100000000, prod)
         return 1 * (max - min) / k + min
 
 
