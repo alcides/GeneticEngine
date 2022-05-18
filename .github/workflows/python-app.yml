@@ -25,7 +25,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install flake8 pytest mypy
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-        pip install -e .
     - name: Lint with mypy
       run: |
         mypy geneticengine
@@ -38,3 +37,6 @@ jobs:
     - name: Test with pytest
       run: |
         pytest
+    - name: Check install
+      run: |
+        pip install -e .
