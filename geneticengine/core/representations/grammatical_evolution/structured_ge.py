@@ -81,8 +81,8 @@ def crossover(
 
 
 class StructuredListWrapper(Source):
-    dna: dict[str, list[int]]
-    indexes: dict[str, int]
+    dna: dict[type, list[int]]
+    indexes: dict[type, type]
 
     def __init__(self, dna):
         self.dna = dna
@@ -91,12 +91,12 @@ class StructuredListWrapper(Source):
             indexes[k] = 0
         self.indexes = indexes
 
-    def randint(self, min, max, prod: str) -> int:
+    def randint(self, min: int, max: int, prod: str = None) -> int:
         self.indexes[prod] = (self.indexes[prod] + 1) % len(self.dna[prod])
         v = self.dna[prod][self.indexes[prod]]
         return v % (max - min + 1) + min
 
-    def random_float(self, min, max, prod: str) -> float:
+    def random_float(self, min: float, max: float, prod: str = None) -> float:
         k = self.randint(1, 100000000, prod)
         return 1 * (max - min) / k + min
 
