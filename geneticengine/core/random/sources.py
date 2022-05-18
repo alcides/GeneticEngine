@@ -17,13 +17,13 @@ class Source(ABC):
     def __init__(self, seed: int = 0):
         ...
 
-    def randint(self, min: int, max: int, prod: str = None) -> int:
+    def randint(self, min: int, max: int, prod: str = "") -> int:
         ...
 
-    def random_float(self, min: float, max: float, prod: str = None) -> float:
+    def random_float(self, min: float, max: float, prod: str = "") -> float:
         ...
 
-    def choice(self, choices: list[T], prod: str = None) -> T:
+    def choice(self, choices: list[T], prod: str = "") -> T:
         assert choices
         i = self.randint(0, len(choices) - 1, prod)
         return choices[i]
@@ -32,7 +32,7 @@ class Source(ABC):
         self,
         choices: list[T],
         weights: list[float],
-        prod: str = None,
+        prod: str = "",
     ) -> T:
         acc_weights = list(accumulate(weights))
         total = acc_weights[-1] + 0.0
@@ -61,7 +61,7 @@ class Source(ABC):
 
         return item
 
-    def random_bool(self, prod: str = None) -> bool:
+    def random_bool(self, prod: str = "") -> bool:
         return self.choice([True, False], prod)
 
     def random_list(
@@ -71,7 +71,7 @@ class Source(ABC):
         depth: int,
         ty: type[list[T]],
         ctx: dict[str, str],
-        prod: str = None,
+        prod: str = "",
     ):
         inner_type = get_generic_parameter(ty)
         size = self.randint(0, depth - 1, prod)
@@ -88,8 +88,8 @@ class RandomSource(Source):
     def __init__(self, seed: int = 0):
         self.random = random.Random(seed)
 
-    def randint(self, min, max, prod: str = None) -> int:
+    def randint(self, min, max, prod: str = "") -> int:
         return self.random.randint(min, max)
 
-    def random_float(self, min, max, prod: str = None) -> float:
+    def random_float(self, min, max, prod: str = "") -> float:
         return self.random.random() * (max - min) + min
