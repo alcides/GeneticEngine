@@ -52,12 +52,12 @@ def crossover(
 
 @dataclass
 class ListWrapper(Source):
-    list: list[int]
+    dna: list[int]
     index: int = 0
 
     def randint(self, min, max) -> int:
-        self.index = (self.index + 1) % len(self.list)
-        v = self.list[self.index]
+        self.index = (self.index + 1) % len(self.dna)
+        v = self.dna[self.index]
         return v % (max - min + 1) + min
 
     def random_float(self, min, max) -> float:
