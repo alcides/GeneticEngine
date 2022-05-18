@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Dict
 from typing import List
 from typing import Protocol
 from typing import Tuple
@@ -42,9 +42,9 @@ def random_individual(
             if base_type not in nodes:
                 nodes.append(base_type)
 
-    dna = dict()
-    for node in nodes:
-        dna[node] = [r.randint(0, 10000) for _ in range(LIST_SIZE)]
+    dna: Dict[str, List[int]] = dict()
+    for nodestr in nodes:
+        dna[nodestr] = [r.randint(0, 10000) for _ in range(LIST_SIZE)]
 
     return Genotype(dna)
 
