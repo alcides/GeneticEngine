@@ -28,37 +28,7 @@ from geneticengine.exceptions import GeneticEngineError
 from geneticengine.metahandlers.base import is_metahandler
 
 
-def random_int(r: Source) -> int:
-    return r.randint(-(sys.maxsize - 1), sys.maxsize)
-
-
-def random_float(r: Source) -> float:
-    return r.random_float(-100, 100)
-
-def random_bool(r: Source) -> float:
-    return r.random_bool()
-
-
 T = TypeVar("T")
-
-
-def random_list(
-    r: Source,
-    receiver,
-    new_symbol,
-    depth: int,
-    ty: type[list[T]],
-    ctx: dict[str, str],
-):
-    inner_type = get_generic_parameter(ty)
-    size = r.randint(0, depth - 1)
-    fins = build_finalizers(lambda *x: receiver(list(x)), size)
-    ident = ctx["_"]
-    for i, fin in enumerate(fins):
-        nctx = ctx.copy()
-        nident = ident + "_" + str(i)
-        nctx["_"] = nident
-        new_symbol(inner_type, fin, depth - 1, nident, nctx)
 
 
 def apply_metahandler(
@@ -319,24 +289,24 @@ def expand_node(
         )
 
     if starting_symbol is int:
-        val = random_int(r)
+        val = r.randint(0, 100, "int")
         SMTResolver.register_const(id, val)
         receiver(val)
         return
     elif starting_symbol is float:
-        valf = random_float(r)
+        valf = r.random_float(-100, 100, "float")
         SMTResolver.register_const(id, valf)
         receiver(valf)
         return
     elif starting_symbol is bool:
-        valb = random_bool(r)
+        valb = r.random_bool("bool")
         SMTResolver.register_const(id, valb)
         receiver(valb)
         return
     elif is_generic_list(starting_symbol):
         ctx = ctx.copy()
         ctx["_"] = id
-        random_list(r, receiver, new_symbol, depth, starting_symbol, ctx)
+        r.random_list(receiver, new_symbol, depth, starting_symbol, ctx, "list")
         return
     elif is_metahandler(starting_symbol):
         ctx = ctx.copy()
@@ -378,9 +348,13 @@ def expand_node(
                 )
             if any(["weight" in get_gengy(p) for p in valid_productions]):
                 weights = [get_gengy(p).get("weight", 1.0) for p in valid_productions]
-                rule = r.choice_weighted(valid_productions, weights)
+                rule = r.choice_weighted(
+                    valid_productions,
+                    weights,
+                    str(starting_symbol),
+                )
             else:
-                rule = r.choice(valid_productions)
+                rule = r.choice(valid_productions, str(starting_symbol))
             new_symbol(rule, receiver, depth - 1, id, ctx)
         else:  # Normal production
             args = get_arguments(starting_symbol)
