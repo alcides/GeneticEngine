@@ -14,11 +14,15 @@ from geneticengine.core.representations.api import Representation
 from geneticengine.core.representations.tree.treebased import Grow
 from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.core.tree import TreeNode
+from geneticengine.core.utils import get_arguments
+from geneticengine.core.utils import strip_annotations
+
+LIST_SIZE = 100
 
 
 @dataclass
 class Genotype:
-    dna: list[int]
+    dna: dict[str, list[type]]
 
 
 def random_individual(
@@ -27,14 +31,29 @@ def random_individual(
     depth: int = 5,
     starting_symbol: Any = None,
 ) -> Genotype:
-    return Genotype([r.randint(0, 10000) for _ in range(256)])
+    nodes = [str(node) for node in g.all_nodes]
+    for node in g.all_nodes:
+        arguments = get_arguments(node)
+        for k, arg in arguments:
+            base_type = str(strip_annotations(arg))
+            if base_type not in nodes:
+                nodes.append(base_type)
+
+    dna = dict()
+    for node in nodes:
+        dna[node] = [r.randint(0, 10000) for _ in range(LIST_SIZE)]
+
+    return Genotype(dna)
 
 
 def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
-    rindex = r.randint(0, 255)
-    clone = [i for i in ind.dna]
+    rkey = r.choice(list(ind.dna.keys()))
+    dna = ind.dna
+    clone = [i for i in dna[rkey]]
+    rindex = r.randint(0, len(dna[rkey])) - 1
     clone[rindex] = r.randint(0, 10000)
-    return Genotype(clone)
+    dna[rkey] = clone
+    return Genotype(dna)
 
 
 def crossover(
@@ -44,33 +63,47 @@ def crossover(
     p2: Genotype,
     max_depth: int,
 ) -> tuple[Genotype, Genotype]:
-    rindex = r.randint(0, 255)
-    c1 = p1.dna[:rindex] + p2.dna[rindex:]
-    c2 = p2.dna[:rindex] + p1.dna[rindex:]
+    keys = p1.dna.keys()
+    mask = [(k, r.random_bool()) for k in keys]
+    c1 = dict()
+    c2 = dict()
+    for k, b in mask:
+        if b:
+            c1[k] = p1.dna[k]
+            c2[k] = p2.dna[k]
+        else:
+            c1[k] = p2.dna[k]
+            c2[k] = p1.dna[k]
     return (Genotype(c1), Genotype(c2))
 
 
-@dataclass
-class ListWrapper(Source):
-    dna: list[int]
-    index: int = 0
+class StructuredListWrapper(Source):
+    dna: dict[str, list[int]]
+    indexes: dict[str, int]
 
-    def randint(self, min, max, prod) -> int:
-        self.index = (self.index + 1) % len(self.dna)
-        v = self.dna[self.index]
+    def __init__(self, dna):
+        self.dna = dna
+        indexes = dict()
+        for k in dna.keys():
+            indexes[k] = 0
+        self.indexes = indexes
+
+    def randint(self, min, max, prod: str) -> int:
+        self.indexes[prod] = (self.indexes[prod] + 1) % len(self.dna[prod])
+        v = self.dna[prod][self.indexes[prod]]
         return v % (max - min + 1) + min
 
-    def random_float(self, min, max, prod) -> float:
-        k = self.randint(1, 100000000)
+    def random_float(self, min, max, prod: str) -> float:
+        k = self.randint(1, 100000000, prod)
         return 1 * (max - min) / k + min
 
 
 def create_tree(g: Grammar, ind: Genotype, depth: int) -> TreeNode:
-    rand: Source = ListWrapper(ind.dna)
+    rand: Source = StructuredListWrapper(ind.dna)
     return random_node(rand, g, depth, g.starting_symbol, method=Grow)
 
 
-class GrammaticalEvolutionRepresentation(Representation[Genotype]):
+class StructuredGrammaticalEvolutionRepresentation(Representation[Genotype]):
     depth: int
 
     def create_individual(self, r: Source, g: Grammar, depth: int) -> Genotype:
@@ -101,4 +134,4 @@ class GrammaticalEvolutionRepresentation(Representation[Genotype]):
         return create_tree(g, genotype, self.depth)
 
 
-ge_representation = GrammaticalEvolutionRepresentation()
+sge_representation = StructuredGrammaticalEvolutionRepresentation()

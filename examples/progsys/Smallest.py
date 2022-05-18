@@ -9,6 +9,9 @@ from examples.progsys.utils import import_embedded
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.grammatical_evolution import ge_representation
+from geneticengine.core.representations.structured_grammatical_evolution import (
+    sge_representation,
+)
 from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.grammars.coding.classes import Number
 from geneticengine.grammars.coding.classes import Statement
@@ -115,8 +118,10 @@ def preprocess():
 
 
 def evolve(g, seed, mode, representation):
-    if representation == "grammatical_evolution":
+    if representation == "ge":
         representation = ge_representation
+    elif representation == "sge":
+        representation = sge_representation
     else:
         representation = treebased_representation
     alg = GP(
@@ -137,6 +142,6 @@ def evolve(g, seed, mode, representation):
 
 if __name__ == "__main__":
     g = preprocess()
-    bf, b = evolve(g, 0, False, "treebased_representation")
+    bf, b = evolve(g, 0, False)
     print(b)
     print(f"With fitness: {bf}")

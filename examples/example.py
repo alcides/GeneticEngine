@@ -8,12 +8,15 @@ from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.algorithms.random_search import RandomSearch
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.representations.structured_grammatical_evolution import (
+    sge_representation,
+)
 from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.grammars.basic_math import SafeDiv
 from geneticengine.grammars.sgp import Literal
 from geneticengine.grammars.sgp import Mul
 from geneticengine.grammars.sgp import Number
 from geneticengine.grammars.sgp import Plus
-from geneticengine.grammars.basic_math import SafeDiv
 from geneticengine.grammars.sgp import Var
 from geneticengine.metahandlers.vars import VarRange
 
@@ -44,7 +47,7 @@ def target(x):
 alg_gp = GP(
     g,
     fit,
-    representation=treebased_representation,
+    representation=sge_representation,
     population_size=150,
     max_depth=5,
     number_of_generations=10,
@@ -58,7 +61,7 @@ alg_gp = GP(
 alg_hc = HC(
     g,
     evaluation_function=fit,
-    representation=treebased_representation,
+    representation=sge_representation,
     population_size=150,
     max_depth=5,
     number_of_generations=10,
@@ -69,7 +72,7 @@ alg_hc = HC(
 alg_rs = RandomSearch(
     g,
     evaluation_function=fit,
-    representation=treebased_representation,
+    representation=sge_representation,
     population_size=150,
     max_depth=5,
     number_of_generations=40,

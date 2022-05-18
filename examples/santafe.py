@@ -10,6 +10,9 @@ from typing import Tuple
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.representations.structured_grammatical_evolution import (
+    sge_representation,
+)
 from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.metahandlers.lists import ListSizeBetween
 
@@ -167,7 +170,7 @@ def evolve(g, seed, mode):
     alg_gp = GP(
         g,
         lambda p: simulate(p, map),
-        representation=treebased_representation,
+        representation=sge_representation,
         minimize=False,
         max_depth=40,
         number_of_generations=50,

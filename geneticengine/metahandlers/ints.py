@@ -34,7 +34,7 @@ class IntRange(MetaHandlerGenerator):
         base_type,
         context: dict[str, str],
     ):
-        rec(r.randint(self.min, self.max))
+        rec(r.randint(self.min, self.max, str(base_type)))
 
     def __class_getitem__(self, args):
         return IntRange(*args)
