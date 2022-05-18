@@ -59,7 +59,7 @@ def evolve(
         # As in PonyGE2:
         probability_crossover=0.75,
         probability_mutation=0.01,
-        number_of_generations=50,
+        number_of_generations=0,
         max_depth=15,
         # max_init_depth=10,
         population_size=500,
@@ -76,6 +76,6 @@ def evolve(
 
 if __name__ == "__main__":
     g = preprocess()
-    bf, b = evolve(g, 0, False, "sge")
+    bf, b = evolve(g, 0, False)
     print(b)
     print(f"With fitness: {bf}")

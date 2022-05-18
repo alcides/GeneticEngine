@@ -133,6 +133,6 @@ def evolve(
 
 if __name__ == "__main__":
     g = preprocess()
-    bf, b = evolve(g, 0, False, "sge")
+    bf, b = evolve(g, 0, False)
     print(b)
     print(f"With fitness: {bf}")
