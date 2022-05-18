@@ -81,8 +81,8 @@ def crossover(
 
 
 class StructuredListWrapper(Source):
-    dna: dict[type, list[int]]
-    indexes: dict[type, type]
+    dna: dict[str, list[int]]  # type: ignore
+    indexes: dict[str, int]  # type: ignore
 
     def __init__(self, dna):
         self.dna = dna
