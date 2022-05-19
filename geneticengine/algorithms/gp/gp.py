@@ -53,6 +53,7 @@ class GP:
         - force_individual (Any): Allows the incorporation of an individual in the first population (default = None).
         - timer_stop_criteria (bool): If set to True, the algorithm is stopped after the time limit (default = 60 seconds). Then the fittest individual is returned (default = False).
         - timer_limit (int): The time limit of the timer.
+        - parallel_evaluation (bool): Whether or not to use parallel computation. Currently, it only works on macOS and Linux. Notice that not all examples are fit to use parallel computation (default = False).
         - save_to_csv (str): Saves a CSV file with the details of all the individuals of all generations.
         - callbacks (List[Callback]): The callbacks to define what is done with the returned prints from the algorithm (default = []).
         -----
@@ -109,8 +110,8 @@ class GP:
         seed: int = 123,
         # -----
         timer_stop_criteria: bool = False,  # TODO: This should later be generic
-        parallel_evaluation: bool = False,
         timer_limit: int = 60,
+        parallel_evaluation: bool = False,
         save_to_csv: str = None,
         verbose: int = 0,
         callbacks: list[Callback] = [],
