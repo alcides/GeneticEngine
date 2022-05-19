@@ -11,7 +11,7 @@ from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
-from geneticengine.core.representations.tree.treebased import PI_Grow
+from geneticengine.core.representations.tree.treebased import Grow
 from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.core.tree import TreeNode
 
@@ -52,22 +52,22 @@ def crossover(
 
 @dataclass
 class ListWrapper(Source):
-    list: list[int]
+    dna: list[int]
     index: int = 0
 
-    def randint(self, min, max) -> int:
-        self.index = (self.index + 1) % len(self.list)
-        v = self.list[self.index]
+    def randint(self, min: int, max: int, prod: str = "") -> int:
+        self.index = (self.index + 1) % len(self.dna)
+        v = self.dna[self.index]
         return v % (max - min + 1) + min
 
-    def random_float(self, min, max) -> float:
-        k = self.randint(1, 100000000)
+    def random_float(self, min: float, max: float, prod: str = "") -> float:
+        k = self.randint(1, 100000000, prod)
         return 1 * (max - min) / k + min
 
 
 def create_tree(g: Grammar, ind: Genotype, depth: int) -> TreeNode:
     rand: Source = ListWrapper(ind.dna)
-    return random_node(rand, g, depth, g.starting_symbol, method=PI_Grow)
+    return random_node(rand, g, depth, g.starting_symbol, method=Grow)
 
 
 class GrammaticalEvolutionRepresentation(Representation[Genotype]):

@@ -10,6 +10,9 @@ from typing import Tuple
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.representations.grammatical_evolution.structured_ge import (
+    sge_representation,
+)
 from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.metahandlers.lists import ListSizeBetween
 

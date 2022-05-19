@@ -14,7 +14,12 @@ from sklearn.metrics import f1_score
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.grammatical_evolution import ge_representation
+from geneticengine.core.representations.grammatical_evolution.ge import (
+    ge_representation,
+)
+from geneticengine.core.representations.grammatical_evolution.structured_ge import (
+    sge_representation,
+)
 from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.grammars.coding.classes import Condition
 from geneticengine.grammars.coding.classes import Expr
@@ -89,15 +94,17 @@ def evolve(
     mode,
     representation="treebased_representation",
 ):
-    if representation == "grammatical_evolution":
+    if representation == "ge":
         representation = ge_representation
+    elif representation == "sge":
+        representation = sge_representation
     else:
         representation = treebased_representation
 
     alg = GP(
         g,
         fitness_function,
-        representation=representation,
+        representation=sge_representation,
         # favor_less_deep_trees=True,
         # As in PonyGE2:
         selection_method=("tournament", 2),

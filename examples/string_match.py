@@ -4,7 +4,12 @@ import os
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.grammatical_evolution import ge_representation
+from geneticengine.core.representations.grammatical_evolution.ge import (
+    ge_representation,
+)
+from geneticengine.core.representations.grammatical_evolution.structured_ge import (
+    sge_representation,
+)
 from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.grammars.letter import *
 
@@ -40,8 +45,10 @@ def evolve(
     mode,
     representation="treebased_representation",
 ):
-    if representation == "grammatical_evolution":
+    if representation == "ge":
         representation = ge_representation
+    elif representation == "sge":
+        representation = sge_representation
     else:
         representation = treebased_representation
 
@@ -52,7 +59,7 @@ def evolve(
         # As in PonyGE2:
         probability_crossover=0.75,
         probability_mutation=0.01,
-        number_of_generations=50,
+        number_of_generations=0,
         max_depth=15,
         # max_init_depth=10,
         population_size=500,

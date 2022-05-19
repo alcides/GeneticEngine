@@ -45,7 +45,7 @@ class WeightedStringHandler(MetaHandlerGenerator):
     ):
         out = ""
         for row in self.probability_matrix:
-            out += r.choice_weighted(self.alphabet, row)
+            out += r.choice_weighted(self.alphabet, row, str(base_type))
         rec(out)
 
     def __repr__(self):

@@ -11,7 +11,12 @@ from sklearn.metrics import mean_squared_error
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.grammatical_evolution import ge_representation
+from geneticengine.core.representations.grammatical_evolution.ge import (
+    ge_representation,
+)
+from geneticengine.core.representations.grammatical_evolution.structured_ge import (
+    sge_representation,
+)
 from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.metahandlers.floats import FloatRange
 from geneticengine.metahandlers.ints import IntRange
@@ -3167,6 +3172,8 @@ def evolve(
 ):
     if representation == "grammatical_evolution":
         representation = ge_representation
+    elif representation == "sge":
+        representation = sge_representation
     else:
         representation = treebased_representation
 
