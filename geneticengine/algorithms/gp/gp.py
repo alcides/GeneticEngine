@@ -15,6 +15,7 @@ try:
     )  # pyright: reportMissingImports=false
     from dill import register  # pyright: reportMissingImports=false
     from pickle import _Pickler as StockPickler
+    from abc import ABCMeta
 
     @register(ABCMeta)
     def save_abc(pickler, obj):

@@ -33,7 +33,7 @@ class ListSizeBetween(MetaHandlerGenerator):
         ctx: dict[str, str],
     ):
         base_type = base_type.__args__[0]
-        size = r.randint(self.min, self.max)
+        size = r.randint(self.min, self.max, str(base_type))
         fins = build_finalizers(lambda *x: rec(list(x)), size)
         ident = ctx["_"]
         for i, fin in enumerate(fins):

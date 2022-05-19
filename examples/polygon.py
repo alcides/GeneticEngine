@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from abc import ABC
 from abc import ABCMeta
 from dataclasses import dataclass
@@ -35,7 +36,7 @@ def load_image(path: str):
     return {"img": img, "width": w, "height": h, "cv2": img2}
 
 
-root_image = load_image("/Users/alcides/Desktop/marta/m4.JPG")  # load original image
+root_image = load_image(sys.args[0])  # load original image
 
 
 @dataclass

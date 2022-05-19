@@ -5,7 +5,12 @@ from dataclasses import dataclass
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.grammatical_evolution import ge_representation
+from geneticengine.core.representations.grammatical_evolution.ge import (
+    ge_representation,
+)
+from geneticengine.core.representations.grammatical_evolution.structured_ge import (
+    sge_representation,
+)
 from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.grammars.coding.classes import Expr
 from geneticengine.grammars.coding.classes import Statement
@@ -73,8 +78,10 @@ def evolve(
     mode,
     representation="treebased_representation",
 ):
-    if representation == "grammatical_evolution":
+    if representation == "ge":
         representation = ge_representation
+    elif representation == "sge":
+        representation = sge_representation
     else:
         representation = treebased_representation
 

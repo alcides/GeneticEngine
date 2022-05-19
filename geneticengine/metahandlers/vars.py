@@ -39,7 +39,7 @@ class VarRange(MetaHandlerGenerator):
         base_type,
         context: dict[str, str],
     ):
-        rec(r.choice(self.options))
+        rec(r.choice(self.options, str(base_type)))
 
     def __repr__(self):
         return str(self.options)

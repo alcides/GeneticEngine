@@ -34,7 +34,7 @@ class FloatRange(MetaHandlerGenerator):
         base_type,
         context: dict[str, str],
     ):
-        rec(r.random_float(self.min, self.max))
+        rec(r.random_float(self.min, self.max, str(base_type)))
 
     def __class_getitem__(self, args):
         return FloatRange(*args)
