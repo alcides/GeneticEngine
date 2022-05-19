@@ -9,6 +9,21 @@ from typing import Optional
 from typing import Tuple
 from typing import Union
 
+try:
+    from pathos.multiprocessing import (
+        ProcessingPool as Pool,
+    )  # pyright: reportMissingImports=false
+    from dill import register  # pyright: reportMissingImports=false
+    from pickle import _Pickler as StockPickler
+
+    @register(ABCMeta)
+    def save_abc(pickler, obj):
+        StockPickler.save_type(pickler, obj)
+
+    default_parallel = True
+except:
+    default_parallel = False
+
 import geneticengine.algorithms.gp.generation_steps.cross_over as cross_over
 import geneticengine.algorithms.gp.generation_steps.mutation as mutation
 import geneticengine.algorithms.gp.generation_steps.selection as selection
@@ -49,6 +64,7 @@ class GP:
         - timer_stop_criteria (bool): If set to True, the algorithm is stopped after the time limit (default = 60 seconds). Then the fittest individual is returned (default = False).
         - timer_limit (int): The time limit of the timer.
         - save_to_csv (str): Saves a CSV file with the details of all the individuals of all generations.
+        - parallel_evaluation (bool): If set to True, the fitness of the individuals is evaluated in parallel. (default = False).
         - callbacks (List[Callback]): The callbacks to define what is done with the returned prints from the algorithm (default = []).
         -----
         Default as given in A Field Guide to GP, p.17, by Poli and Mcphee:
@@ -106,6 +122,7 @@ class GP:
         timer_stop_criteria: bool = False,  # TODO: This should later be generic
         timer_limit: int = 60,
         save_to_csv: str = None,
+        parallel_evaluation: bool = default_parallel,
         callbacks: list[Callback] = [],
     ):
         assert population_size > (n_elites + n_novelties + 1)
@@ -162,6 +179,7 @@ class GP:
         else:
             self.selection = lambda r, ls, n: [x for x in ls[:n]]
         self.force_individual = force_individual
+        self.parallel_evaluation = parallel_evaluation
 
         if save_to_csv:
             c = CSVCallback(save_to_csv)
@@ -173,10 +191,7 @@ class GP:
             g=self.grammar,
             depth=depth,
         )
-        return Individual(
-            genotype=genotype,
-            fitness=None,
-        )
+        return Individual(genotype=genotype)
 
     def evaluate(self, individual: Individual) -> float:
         if individual.fitness is None:
@@ -184,6 +199,7 @@ class GP:
                 self.grammar,
                 individual.genotype,
             )
+            individual.phenotype = phenotype
             individual.fitness = self.evaluation_function(phenotype)
         return individual.fitness
 
@@ -228,7 +244,6 @@ class GP:
                     self.force_individual,
                     self.grammar,
                 ),
-                fitness=None,
             )
         population = sorted(population, key=self.keyfitness())
 
@@ -254,7 +269,15 @@ class GP:
                 npop.append(p2)
 
             population = npop
-            population = sorted(population, key=self.keyfitness())
+            if self.parallel_evaluation:
+                with Pool(len(population)) as pool:
+                    population_fitness = pool.map(self.evaluate, population)
+                    fitnesses = {
+                        id(p): fit for p, fit in zip(population, population_fitness)
+                    }
+                    population = sorted(population, key=lambda x: fitnesses[id(x)])
+            else:
+                population = sorted(population, key=self.keyfitness())
 
             time_gen = time.time() - start
             for cb in self.callbacks:
