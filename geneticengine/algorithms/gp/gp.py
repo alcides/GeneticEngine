@@ -109,7 +109,7 @@ class GP:
         seed: int = 123,
         # -----
         timer_stop_criteria: bool = False,  # TODO: This should later be generic
-        parallel_evaluation: bool = True,
+        parallel_evaluation: bool = False,
         timer_limit: int = 60,
         save_to_csv: str = None,
         verbose: int = 0,
