@@ -34,10 +34,10 @@ class SafeDiv(Number):
     def evaluate(self, **kwargs):
         d1 = self.left.evaluate(**kwargs)
         d2 = self.right.evaluate(**kwargs)
-        if hasattr(d1,"dtype"):
+        if hasattr(d1, "dtype"):
             if d1.dtype == "O":
                 d1 = d1.astype(float)
-        if hasattr(d2,"dtype"):
+        if hasattr(d2, "dtype"):
             if d2.dtype == "O":
                 d2 = d2.astype(float)
         try:

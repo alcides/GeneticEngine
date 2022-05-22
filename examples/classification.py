@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from dataclasses import dataclass
 from math import isinf
 from typing import Annotated
@@ -194,18 +195,8 @@ def evolve(
         g,
         fitness_function,
         representation=representation,
-        # As in PonyGE2:
-        probability_crossover=0.75,
-        probability_mutation=0.01,
-        number_of_generations=50,
-        max_depth=15,
-        # max_init_depth=10,
-        population_size=500,
         selection_method=("tournament", 2),
-        n_elites=5,
-        # ----------------
         minimize=False,
-        seed=seed,
         timer_stop_criteria=mode,
     )
     (b, bf, bp) = alg.evolve(verbose=1)

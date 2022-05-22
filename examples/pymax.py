@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import os
+import sys
 from dataclasses import dataclass
 
 from geneticengine.algorithms.gp.gp import GP
@@ -93,7 +93,6 @@ def evolve(
         population_size=25,
         number_of_generations=10,
         minimize=False,
-        seed=seed,
         timer_stop_criteria=mode,
     )
     (b, bf, bp) = alg.evolve(verbose=1)
@@ -104,4 +103,4 @@ if __name__ == "__main__":
     g = preprocess()
     bf, b = evolve(g, 0, False)
     print(b)
-    print(f"With fitness: {bf}")
+    print(f"Final fitness: {bf}")

@@ -335,10 +335,9 @@ def evolve(fitness_function, g, seed, mode):
         # probability_mutation=0.01,
         # selection_method=("tournament", 2),
         minimize=False,
-        seed=seed,
         timer_stop_criteria=mode,
     )
-    (b, bf, bp) = alg.evolve(verbose=2)
+    (b, bf, bp) = alg.evolve()
 
     print("Best individual:", bp)
     print("Genetic Engine Train F1 score:", bf)

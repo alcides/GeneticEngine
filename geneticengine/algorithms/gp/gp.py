@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import platform
 import time
+from multiprocessing import cpu_count
 from typing import Any
 from typing import Callable
 from typing import List
@@ -8,6 +10,8 @@ from typing import NoReturn
 from typing import Optional
 from typing import Tuple
 from typing import Union
+
+from pathos.multiprocessing import ProcessingPool as Pool  # type: ignore
 
 import geneticengine.algorithms.gp.generation_steps.cross_over as cross_over
 import geneticengine.algorithms.gp.generation_steps.mutation as mutation
@@ -18,6 +22,7 @@ from geneticengine.algorithms.gp.callback import PrintBestCallback
 from geneticengine.algorithms.gp.callback import ProgressCallback
 from geneticengine.algorithms.gp.csv_callback import CSVCallback
 from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.algorithms.gp.optparser import parse_args
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.api import Representation
@@ -48,6 +53,7 @@ class GP:
         - force_individual (Any): Allows the incorporation of an individual in the first population (default = None).
         - timer_stop_criteria (bool): If set to True, the algorithm is stopped after the time limit (default = 60 seconds). Then the fittest individual is returned (default = False).
         - timer_limit (int): The time limit of the timer.
+        - parallel_evaluation (bool): Whether or not to use parallel computation. Currently, it only works on macOS and Linux. Notice that not all examples are fit to use parallel computation (default = False).
         - save_to_csv (str): Saves a CSV file with the details of all the individuals of all generations.
         - callbacks (List[Callback]): The callbacks to define what is done with the returned prints from the algorithm (default = []).
         -----
@@ -105,8 +111,11 @@ class GP:
         # -----
         timer_stop_criteria: bool = False,  # TODO: This should later be generic
         timer_limit: int = 60,
+        parallel_evaluation: bool = False,
         save_to_csv: str = None,
+        verbose: int = 0,
         callbacks: list[Callback] = [],
+        args: list[str] = None,
     ):
         assert population_size > (n_elites + n_novelties + 1)
 
@@ -115,25 +124,41 @@ class GP:
         self.evaluation_function = evaluation_function
         self.random = randomSource(seed)
         self.seed = seed
+        self.verbose = verbose
         self.population_size = population_size
-        self.elitism = selection.create_elitism(n_elites)
         self.max_depth = max_depth
         self.favor_less_deep_trees = favor_less_deep_trees
-        self.novelty = selection.create_novelties(
-            self.create_individual,
-            max_depth=max_depth,
-        )
         self.minimize = minimize
         self.target_fitness = target_fitness
         self.timer_stop_criteria = timer_stop_criteria
         self.timer_limit = timer_limit
         self.callbacks = callbacks
+
+        self.n_elites = n_elites
+        self.n_novelties = n_novelties
+        self.number_of_generations = number_of_generations
+        self.probability_mutation = probability_mutation
+        self.probability_crossover = probability_crossover
+        self.force_individual = force_individual
+        self.parallel_evaluation = parallel_evaluation
+
+        if args:
+            (options, args) = parse_args(args)
+            for opt, value in options.__dict__.items():
+                self.__setattr__(opt, value)
+
+        self.elitism = selection.create_elitism(self.n_elites)
+        self.novelty = selection.create_novelties(
+            self.create_individual,
+            max_depth=self.max_depth,
+        )
+
         if hill_climbing:
             self.mutation = mutation.create_hill_climbing_mutation(
                 self.random,
                 self.representation,
                 self.grammar,
-                max_depth,
+                self.max_depth,
                 self.keyfitness(),
                 5,
             )
@@ -142,18 +167,15 @@ class GP:
                 self.random,
                 self.representation,
                 self.grammar,
-                max_depth,
+                self.max_depth,
             )
         self.cross_over = cross_over.create_cross_over(
             self.random,
             self.representation,
             self.grammar,
-            max_depth,
+            self.max_depth,
         )
-        self.n_novelties = n_novelties
-        self.number_of_generations = number_of_generations
-        self.probability_mutation = probability_mutation
-        self.probability_crossover = probability_crossover
+
         if selection_method[0] == "tournament":
             self.selection = selection.create_tournament(
                 selection_method[1],
@@ -161,11 +183,21 @@ class GP:
             )
         else:
             self.selection = lambda r, ls, n: [x for x in ls[:n]]
-        self.force_individual = force_individual
 
         if save_to_csv:
             c = CSVCallback(save_to_csv)
             self.callbacks.append(c)
+
+    def __getstate__(self):
+        """Return state values to be pickled."""
+        state = self.__dict__.copy()
+        del state["callbacks"]
+        return state
+
+    def __setstate__(self, state):
+        """Restore state from the unpickled state values."""
+        self.__dict__.update(state)
+        self.callbacks = []
 
     def create_individual(self, depth: int):
         genotype = self.representation.create_individual(
@@ -195,13 +227,27 @@ class GP:
         else:
             return 0
 
+    def parallel_evaluate(self, individuals: list[Individual]) -> list[float]:
+        with Pool(processes=cpu_count()) as pool:
+            ev_f = self.evaluation_function
+
+            def ev(individual):
+                if individual.fitness is None:
+                    phenotype = self.representation.genotype_to_phenotype(
+                        self.grammar,
+                        individual.genotype,
+                    )
+                    individual.ftiness = ev_f(phenotype)
+
+            return pool.map(self.evaluate, individuals)
+
     def keyfitness(self):
         if self.minimize:
             return lambda x: self.evaluate(x) + self.fitness_correction_for_depth(x)
         else:
             return lambda x: -self.evaluate(x) - self.fitness_correction_for_depth(x)
 
-    def evolve(self, verbose=1) -> tuple[Individual, float, Any]:
+    def evolve(self, **kwargs) -> tuple[Individual, float, Any]:
         """
         The main function of the GP object. This function runs the GP algorithm over the set number of generations, evolving better solutions
 
@@ -213,11 +259,13 @@ class GP:
             - fitness (float): The fitness of above individual.
             - phenotype (Any): The phenotype of the best individual.
         """
-        if verbose > 2:
+        if "verbose" in kwargs:
+            self.verbose = kwargs["verbose"]
+        if self.verbose > 2:
             self.callbacks.append(DebugCallback())
-        if verbose > 1:
+        if self.verbose > 1:
             self.callbacks.append(PrintBestCallback())
-        if verbose > 0:
+        if self.verbose == 1:
             self.callbacks.append(ProgressCallback())
 
         # TODO: This is not ramped half and half
@@ -230,6 +278,8 @@ class GP:
                 ),
                 fitness=None,
             )
+        if self.parallel_evaluation and (platform.system() in ["Linux", "Darwin"]):
+            self.parallel_evaluate(population)
         population = sorted(population, key=self.keyfitness())
 
         gen = 0
