@@ -48,7 +48,7 @@ def preprocess():
     return extract_grammar([Plus, Mul, SafeDiv, Literal, Var], Number)
 
 
-def evolve(g, seed, mode, representation):
+def evolve(g, seed, mode, representation=""):
     if representation == "ge":
         representation = ge_representation
     elif representation == "sge":
