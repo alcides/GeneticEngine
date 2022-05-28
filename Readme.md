@@ -29,7 +29,6 @@ GeneticEngine has been developed at [LASIGE](https://www.lasige.pt), [University
 * [Pedro Barbosa](https://www.lasige.di.fc.ul.pt/user/661)
 
 
-
 How to use
 ----------
 
@@ -284,3 +283,16 @@ def fitness_function_alternative(n: Scalar):
 ```
 
 In this example, the `translate` function converts the tree into Python code, and in the beginning of the `fitness_function_alternative` function, we use eval to convert that code string into a callable function.
+
+Acknowledgements
+----------------
+
+This work was supported by Fundação para a Ciência e Tecnologia (FCT) through:
+
+* the LASIGE Research Unit (ref. UIDB/00408/2020 and UIDP/00408/2020)
+* Pedro Barbosa PhD fellowship (SFRH/BD/137062/2018) 
+* Guilherme Espada PhD fellowship (UI/BD/151179/2021)
+* Paulo Santos CMU|Portugal PhD fellowship (SFRH/BD/151469/2021)
+* CMU|Portugal CAMELOT project (LISBOA-01-0247-FEDER-045915)
+* FCT Exploratory project RAP (EXPL/CCI-COM/1306/2021)
+
