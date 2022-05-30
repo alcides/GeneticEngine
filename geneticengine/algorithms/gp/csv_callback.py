@@ -33,6 +33,7 @@ class CSVCallback(Callback):
                 "genotype_as_str",
                 "fitness",
                 "depth",
+                "nodes",
                 "number_of_the_generation",
                 "time_since_the_start_of_the_evolution",
                 "seed",
@@ -47,10 +48,15 @@ class CSVCallback(Callback):
                 depth = ind.genotype.gengy_distance_to_term
             else:
                 depth = -1
+            if hasattr(ind.genotype, "gengy_nodes"):
+                nodes = ind.genotype.gengy_nodes
+            else:
+                nodes = -1
             row = [
                 ind.genotype,
                 ind.fitness,
                 depth,
+                nodes,
                 generation,
                 self.cumulative_time,
                 gp.seed,
