@@ -73,7 +73,8 @@ class Grammar:
                 # Raise a warning if there are annotated elements, but no __init__ method.
                 d = {x[0]: x[1] for x in inspect.getmembers(c)}
                 if (
-                    d["__annotations__"]
+                    hasattr(d, "__annotations__")
+                    and d["__annotations__"]
                     and d["__init__"].__qualname__ == "object.__init__"
                 ):
                     warnings.warn(
