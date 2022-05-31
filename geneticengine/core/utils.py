@@ -12,6 +12,8 @@ from typing import Set
 from typing import Tuple
 from typing import Type
 
+import inspect
+
 from geneticengine.core.decorators import get_gengy
 
 
@@ -89,6 +91,11 @@ def is_terminal(t: type, l: set[type]) -> bool:
     if not has_arguments(t):
         return True
     return t not in l
+
+
+def all_init_arguments_typed(t: type) -> bool:
+    d = inspect.getfullargspec(t.__init__)
+    return all(x in d.annotations for x in d.args[1:])  # starts with self
 
 
 # debug_fin = [0]

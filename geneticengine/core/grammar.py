@@ -12,7 +12,10 @@ from typing import Set
 from typing import Tuple
 from typing import Type
 
-from geneticengine.core.utils import get_arguments
+from geneticengine.core.utils import (
+    all_init_arguments_typed,
+    get_arguments,
+)
 from geneticengine.core.utils import get_generic_parameter
 from geneticengine.core.utils import get_generic_parameters
 from geneticengine.core.utils import is_abstract
@@ -21,6 +24,10 @@ from geneticengine.core.utils import is_generic
 from geneticengine.core.utils import is_generic_list
 from geneticengine.core.utils import is_terminal
 from geneticengine.core.utils import strip_annotations
+
+
+class InvalidGrammarException(Exception):
+    pass
 
 
 class Grammar:
@@ -51,6 +58,17 @@ class Grammar:
             lambda: defaultdict(lambda: 1000000),
         )
         self.considered_subtypes = considered_subtypes or []
+
+        self.validate()
+
+    def validate(self):
+        for c in self.considered_subtypes:
+            if is_abstract(c) or all_init_arguments_typed(c):
+                continue
+            else:
+                raise InvalidGrammarException(
+                    f"Type {c} is not abstract nor has a type-annotated constructor"
+                )
 
     def register_alternative(self, nonterminal: type, nodetype: type):
         """

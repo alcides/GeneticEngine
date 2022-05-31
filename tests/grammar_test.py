@@ -2,10 +2,12 @@ from __future__ import annotations
 
 from abc import ABC
 from dataclasses import dataclass
+from logging import raiseExceptions
 from typing import Annotated
 from typing import List
 from typing import Type
 from unittest import skip
+import pytest
 
 from scipy import rand
 
@@ -41,6 +43,11 @@ class Rec(Root):
 @dataclass
 class RecAlt(Root):
     l: Leaf
+
+
+class Useless(Root):
+    def __init__(self, a):
+        pass  # a does not have a type
 
 
 def contains_type(t, ty: type):
@@ -110,3 +117,7 @@ class TestGrammar:
 
         nx = gp.mutation(Individual(x))
         assert nx.genotype.depth > x.depth
+
+    def test_invalid_node(self):
+        with pytest.raises(Exception):
+            g: Grammar = extract_grammar([Leaf, Rec, Useless], Root)
