@@ -213,6 +213,16 @@ class GP:
             - fitness (float): The fitness of above individual.
             - phenotype (Any): The phenotype of the best individual.
         """
+        self.callbacks = [
+            cb
+            for cb in self.callbacks
+            if type(cb)
+            not in [
+                type(DebugCallback()),
+                type(PrintBestCallback()),
+                type(ProgressCallback()),
+            ]
+        ]
         if verbose > 2:
             self.callbacks.append(DebugCallback())
         if verbose > 1:
