@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 from abc import ABC
 from dataclasses import dataclass
 from functools import wraps
@@ -11,8 +12,6 @@ from typing import Protocol
 from typing import Set
 from typing import Tuple
 from typing import Type
-
-import inspect
 
 from geneticengine.core.decorators import get_gengy
 
@@ -98,7 +97,7 @@ def all_init_arguments_typed(t: type) -> bool:
     return all(x in d.annotations for x in d.args[1:])  # starts with self
 
 
-# debug_fin = [0]
+# debug_fin
 
 
 def build_finalizers(
