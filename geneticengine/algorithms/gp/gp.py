@@ -106,7 +106,7 @@ class GP:
         timer_stop_criteria: bool = False,  # TODO: This should later be generic
         timer_limit: int = 60,
         save_to_csv: str = None,
-        callbacks: list[Callback] = [],
+        callbacks: list[Callback] = None,
     ):
         assert population_size > (n_elites + n_novelties + 1)
 
@@ -127,7 +127,10 @@ class GP:
         self.target_fitness = target_fitness
         self.timer_stop_criteria = timer_stop_criteria
         self.timer_limit = timer_limit
-        self.callbacks = callbacks
+        if callbacks:
+            self.callbacks = callbacks
+        else:
+            self.callbacks = []
         if hill_climbing:
             self.mutation = mutation.create_hill_climbing_mutation(
                 self.random,
