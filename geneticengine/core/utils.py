@@ -93,6 +93,8 @@ def is_terminal(t: type, l: set[type]) -> bool:
 
 
 def all_init_arguments_typed(t: type) -> bool:
+    if not hasattr(t, "__init__"):
+        return False
     d = inspect.getfullargspec(t.__init__)
     return all(x in d.annotations for x in d.args[1:])  # starts with self
 
