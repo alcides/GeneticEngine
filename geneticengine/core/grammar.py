@@ -5,17 +5,16 @@ from abc import ABCMeta
 from collections import defaultdict
 from inspect import isclass
 from tracemalloc import start
-from typing import Any, Generic
+from typing import Any
 from typing import Dict
+from typing import Generic
 from typing import List
 from typing import Set
 from typing import Tuple
 from typing import Type
 
-from geneticengine.core.utils import (
-    all_init_arguments_typed,
-    get_arguments,
-)
+from geneticengine.core.utils import all_init_arguments_typed
+from geneticengine.core.utils import get_arguments
 from geneticengine.core.utils import get_generic_parameter
 from geneticengine.core.utils import get_generic_parameters
 from geneticengine.core.utils import is_abstract
@@ -27,6 +26,8 @@ from geneticengine.core.utils import strip_annotations
 
 
 class InvalidGrammarException(Exception):
+    """Exception to be raised when a passed node is neither abstract nor typed."""
+
     pass
 
 
@@ -67,7 +68,7 @@ class Grammar:
                 continue
             else:
                 raise InvalidGrammarException(
-                    f"Type {c} is not abstract nor has a type-annotated constructor"
+                    f"Type {c} is not abstract nor has a type-annotated constructor",
                 )
 
     def register_alternative(self, nonterminal: type, nodetype: type):
@@ -79,7 +80,7 @@ class Grammar:
             raise Exception(
                 f"Trying to register an alternative on a non-abstract class: {nonterminal} -> {nodetype}\n"
                 f"You may have meant for {nonterminal.__name__} to be abstract. If so, decorate it with @abstract.\n"
-                f"(Found in geneticengine.core.decorators)"
+                f"(Found in geneticengine.core.decorators)",
             )
         if nonterminal not in self.alternatives:
             self.alternatives[nonterminal] = []
