@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import inspect
+import warnings
 from abc import ABC
 from abc import ABCMeta
 from collections import defaultdict
@@ -17,6 +19,7 @@ from geneticengine.core.utils import all_init_arguments_typed
 from geneticengine.core.utils import get_arguments
 from geneticengine.core.utils import get_generic_parameter
 from geneticengine.core.utils import get_generic_parameters
+from geneticengine.core.utils import has_arguments
 from geneticengine.core.utils import is_abstract
 from geneticengine.core.utils import is_annotated
 from geneticengine.core.utils import is_generic
@@ -64,8 +67,20 @@ class Grammar:
 
     def validate(self):
         for c in self.considered_subtypes:
-            if is_abstract(c) or all_init_arguments_typed(c):
+            if is_abstract(c):
                 continue
+            elif all_init_arguments_typed(c):
+                # Raise a warning if there are annotated elements, but no __init__ method.
+                d = {x[0]: x[1] for x in inspect.getmembers(c)}
+                if (
+                    d["__annotations__"]
+                    and d["__init__"].__qualname__ == "object.__init__"
+                ):
+                    warnings.warn(
+                        f"Warning: class {c} looks like it should be a dataclass, but isn't.",
+                    )
+                else:
+                    continue
             else:
                 raise InvalidGrammarException(
                     f"Type {c} is not abstract nor has a type-annotated constructor",
