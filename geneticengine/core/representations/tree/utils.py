@@ -25,7 +25,6 @@ def relabel_nodes(i: TreeNode, g: Grammar) -> tuple[int, int, dict[type, list[An
     types_this_way = defaultdict(lambda: [])
     types_this_way[type(i)] = [i]
     if is_terminal(type(i), non_terminals) and (not isinstance(i, list)):
-        # not isinstance(i, list) shouldn't be necessary. It is necessary now as lists are considered terminals.
         if not is_builtin(type(i)):
             i.gengy_labeled = True
             i.gengy_distance_to_term = 1
