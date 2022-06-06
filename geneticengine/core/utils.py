@@ -85,6 +85,7 @@ def is_abstract(t: type) -> bool:
 
 def is_terminal(t: type, l: set[type]) -> bool:
     """Returns whether a node is a terminal or not, based on the list of non terminals in the grammar"""
+    # This function doesn't work correctly. When a production is a list of production, this function recognises it as a terminal, even though it shouldn't
     if is_annotated(t):
         return all([is_terminal(inner, l) for inner in get_generic_parameters(t)])
     if not has_arguments(t):
