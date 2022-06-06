@@ -53,7 +53,7 @@ class VarRangeM(Root):
 
 @dataclass
 class ListRangeM(Root):
-    x: Annotated[list[int], ListSizeBetween[3, 4]]
+    x: Annotated[list[IntRangeM], ListSizeBetween[3, 4]]
 
 
 @dataclass
@@ -108,8 +108,8 @@ class TestMetaHandler:
 
     def test_list(self):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar([ListRangeM], Root)
-        n = random_node(r, g, 4, Root)
+        g: Grammar = extract_grammar([ListRangeM, IntRangeM], Root)
+        n = random_node(r, g, 4, ListRangeM)
         assert isinstance(n, ListRangeM)
         assert 3 <= len(n.x) <= 4
         assert isinstance(n, Root)

@@ -41,7 +41,7 @@ class Middle(Root):
 
 @dataclass
 class ConcreteList(Root):
-    xs: list[int]
+    xs: list[Root]
 
 
 class TestPIGrow:
@@ -68,7 +68,7 @@ class TestPIGrow:
 
     def test_list(self):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar([ConcreteList], Root)
+        g: Grammar = extract_grammar([ConcreteList, Concrete], Root)
         x = random_node(r, g, 6, Root, method=PI_Grow)
         assert isinstance(x, ConcreteList)
         assert isinstance(x.xs, list)
