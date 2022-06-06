@@ -33,7 +33,6 @@ def relabel_nodes(i: TreeNode, g: Grammar) -> tuple[int, int, dict[type, list[An
             i.gengy_types_this_way = {type(i): [i]}
         return 0, 1, {type(i): [i]}
     elif isinstance(i, list):
-        print("instance is list!")
         children = i
         for child in children:
             if not hasattr(child, "gengy_init_values"):
