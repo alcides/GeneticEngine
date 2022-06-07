@@ -106,6 +106,7 @@ class GP:
         timer_stop_criteria: bool = False,  # TODO: This should later be generic
         timer_limit: int = 60,
         save_to_csv: str = None,
+        save_genotype_as_string: bool = True,
         callbacks: list[Callback] = None,
     ):
         assert population_size > (n_elites + n_novelties + 1)
@@ -167,7 +168,10 @@ class GP:
         self.force_individual = force_individual
 
         if save_to_csv:
-            c = CSVCallback(save_to_csv)
+            c = CSVCallback(
+                save_to_csv,
+                save_genotype_as_string=save_genotype_as_string,
+            )
             self.callbacks.append(c)
 
     def create_individual(self, depth: int):
