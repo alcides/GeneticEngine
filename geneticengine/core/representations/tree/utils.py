@@ -32,36 +32,16 @@ def relabel_nodes(i: TreeNode, g: Grammar) -> tuple[int, int, dict[type, list[An
             i.gengy_nodes = 1
             i.gengy_types_this_way = {type(i): [i]}
         return 0, 1, {type(i): [i]}
-    elif isinstance(i, list):
-        children = i
-        for child in children:
-            if not hasattr(child, "gengy_init_values"):
-                breakpoint()
-            childs = [
-                (typ[1], child.gengy_init_values[idx])
-                for idx, typ in enumerate(get_arguments(child))
-            ]
-            for t, c in childs:
-                # print(f"{t=}, {c=}")
-                nodes, dist, thisway = relabel_nodes(c, g)
-                abs_adjust = (
-                    0
-                    if not is_abstract(
-                        t,
-                    )
-                    else g.abstract_dist_to_t[t][type(c)]
-                )
-                number_of_nodes += abs_adjust + nodes
-                distance_to_term = max(distance_to_term, dist + abs_adjust + 1)
-                for (k, v) in thisway.items():
-                    types_this_way[k].extend(v)
     else:
-        if not hasattr(i, "gengy_init_values"):
-            breakpoint()
-        children = [
-            (typ[1], i.gengy_init_values[idx])
-            for idx, typ in enumerate(get_arguments(i))
-        ]
+        if isinstance(i, list):
+            children = [(type(obj), obj) for obj in i]
+        else:
+            if not hasattr(i, "gengy_init_values"):
+                breakpoint()
+            children = [
+                (typ[1], i.gengy_init_values[idx])
+                for idx, typ in enumerate(get_arguments(i))
+            ]
         assert children
         for t, c in children:
             # print(f"{t=}, {c=}")
