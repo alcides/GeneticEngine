@@ -251,27 +251,8 @@ class Grammar:
                                         changed = True
                         changed |= process_reachability(sym, prods)
                 else:
-                    if is_terminal(sym, self.non_terminals) and (
-                        not isinstance(sym, list)
-                    ):
-                        # not isinstance(i, list) shouldn't be necessary. It is necessary now as lists are considered terminals.
+                    if is_terminal(sym, self.non_terminals):
                         val = 1
-                    elif isinstance(sym, list):
-                        for s in sym:
-                            args = get_arguments(sym)
-                            assert args
-                            val = max(
-                                val,
-                                max(
-                                    1 + self.get_distance_to_terminal(argt)
-                                    for (_, argt) in args
-                                ),
-                            )
-
-                            changed |= process_reachability(
-                                sym,
-                                [argt for (_, argt) in args],
-                            )
                     else:
                         args = get_arguments(sym)
                         assert args
