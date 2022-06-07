@@ -49,6 +49,7 @@ class GP:
         - timer_stop_criteria (bool): If set to True, the algorithm is stopped after the time limit (default = 60 seconds). Then the fittest individual is returned (default = False).
         - timer_limit (int): The time limit of the timer.
         - save_to_csv (str): Saves a CSV file with the details of all the individuals of all generations.
+        - save_genotype_as_string (bool): Turn this off if you don't want to safe all the genotypes as strings. This saves memory and a bit of time.
         - callbacks (List[Callback]): The callbacks to define what is done with the returned prints from the algorithm (default = []).
         -----
         Default as given in A Field Guide to GP, p.17, by Poli and Mcphee:
