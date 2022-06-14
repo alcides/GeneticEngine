@@ -27,6 +27,7 @@ from geneticengine.grammars.sgp import Mul
 from geneticengine.grammars.sgp import Number
 from geneticengine.grammars.sgp import Plus
 from geneticengine.grammars.sgp import Var
+from geneticengine.metahandlers.floats import FloatList
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import f1_score
@@ -129,6 +130,7 @@ class MinusOne(Literal):
 
 
 literals = [
+    Literal,
     MinusOne,
     MinusPointOne,
     MinusPointtOne,
@@ -140,9 +142,21 @@ literals = [
 ]
 
 
+@dataclass
+class Literal2(Number):
+    val: Annotated[float, FloatList([-1, -0.1, -0.01, -0.001, 1, 0.1, 0.01, 0.001])]
+
+    def evaluate(self, **kwargs):
+        return self.val
+
+    def __str__(self) -> str:
+        return str(self.val)
+
+
 def preprocess():
     return extract_grammar(
-        [Plus, Mul, SafeDiv, Literal, Var, SafeSqrt, SafeLog] + literals,
+        [Plus, Mul, SafeDiv, Literal2, Var, SafeSqrt, SafeLog],
+        # [Plus, Mul, SafeDiv, Var, SafeSqrt, SafeLog] + literals,
         Number,
     )
 
