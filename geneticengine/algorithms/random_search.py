@@ -1,9 +1,15 @@
 from __future__ import annotations
 
+import time
 from typing import Any
 from typing import Callable
 from typing import Type
 
+from geneticengine.algorithms.gp.callback import Callback
+from geneticengine.algorithms.gp.callback import DebugCallback
+from geneticengine.algorithms.gp.callback import PrintBestCallback
+from geneticengine.algorithms.gp.callback import ProgressCallback
+from geneticengine.algorithms.gp.csv_callback import CSVCallback
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
@@ -28,7 +34,8 @@ class RandomSearch:
         - max_depth (int): The maximum depth a tree can have (default = 15).
         - favor_less_deep_trees (bool): If set to True, this gives a tiny penalty to deeper trees to favor simpler trees (default = False).
         - force_individual (Any): Allows the incorporation of an individual in the first population (default = None).
-
+        - save_to_csv (str): Saves a CSV file with the details of all the individuals of all generations.
+        - callbacks (List[Callback]): The callbacks to define what is done with the returned prints from the algorithm (default = []).
     """
 
     def __init__(
@@ -45,6 +52,9 @@ class RandomSearch:
         minimize: bool = False,
         force_individual: Any = None,
         seed: int = 123,
+        save_to_csv: str = None,
+        save_genotype_as_string: bool = True,
+        callbacks: list[Callback] = None,
     ):
         assert population_size >= 1
 
@@ -59,6 +69,16 @@ class RandomSearch:
         self.minimize = minimize
         self.number_of_generations = number_of_generations
         self.force_individual = force_individual
+        if callbacks:
+            self.callbacks = callbacks
+        else:
+            self.callbacks = []
+        if save_to_csv:
+            c = CSVCallback(
+                save_to_csv,
+                save_genotype_as_string=save_genotype_as_string,
+            )
+            self.callbacks.append(c)
 
     def create_individual(self, depth: int):
         genotype = self.representation.create_individual(
@@ -87,6 +107,23 @@ class RandomSearch:
             return lambda x: -self.evaluate(x)
 
     def evolve(self, verbose=1):
+        self.callbacks = [
+            cb
+            for cb in self.callbacks
+            if type(cb)
+            not in [
+                type(DebugCallback()),
+                type(PrintBestCallback()),
+                type(ProgressCallback()),
+            ]
+        ]
+        if verbose > 2:
+            self.callbacks.append(DebugCallback())
+        if verbose > 1:
+            self.callbacks.append(PrintBestCallback())
+        if verbose > 0:
+            self.callbacks.append(ProgressCallback())
+
         best = None
         best_ind = None
         if self.force_individual is not None:
@@ -99,24 +136,23 @@ class RandomSearch:
             )
             best = self.keyfitness()(best_ind)
         for gen in range(self.number_of_generations):
-            for _ in range(self.population_size):
-                i = self.create_individual(15)
-                f = self.keyfitness()(i)
+            start = time.time()
+            population = [
+                self.create_individual(self.max_depth)
+                for _ in range(self.population_size)
+            ]
+            for ind in population:
+                f = self.keyfitness()(ind)
                 if (best == None) or (f < best):
                     best = f
-                    best_ind = i
-            if verbose == 2:
-                print(f"Best population:{best_ind}.")
-            if verbose >= 1:
-                print(
-                    "BEST at",
-                    gen + 1,
-                    "/",
-                    self.number_of_generations,
-                    "is",
-                    round(best, 2),
-                )
+                    best_ind = ind
 
+            time_gen = time.time() - start
+            for cb in self.callbacks:
+                cb.process_iteration(gen + 1, population, time=time_gen, gp=self)
+
+        for cb in self.callbacks:
+            cb.end_evolution()
         return (
             best_ind,
             self.evaluate(best_ind),
