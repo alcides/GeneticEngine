@@ -35,6 +35,7 @@ class RandomSearch:
         - favor_less_deep_trees (bool): If set to True, this gives a tiny penalty to deeper trees to favor simpler trees (default = False).
         - force_individual (Any): Allows the incorporation of an individual in the first population (default = None).
         - save_to_csv (str): Saves a CSV file with the details of all the individuals of all generations.
+        - save_genotype_as_string (bool): Turn this off if you don't want to safe all the genotypes as strings. This saves memory and a bit of time.
         - callbacks (List[Callback]): The callbacks to define what is done with the returned prints from the algorithm (default = []).
     """
 
