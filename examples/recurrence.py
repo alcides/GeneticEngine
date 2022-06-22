@@ -3,15 +3,9 @@ from __future__ import annotations
 from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
-from typing import List
 
-import numpy as np
-from scipy import rand
-
-from geneticengine.algorithms.gp.callback import DebugCallback
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.random.sources import RandomSource
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.vars import VarRange
 

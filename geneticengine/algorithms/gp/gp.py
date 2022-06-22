@@ -3,20 +3,16 @@ from __future__ import annotations
 import time
 from typing import Any
 from typing import Callable
-from typing import List
 from typing import NoReturn
-from typing import Optional
-from typing import Tuple
-from typing import Union
 
 import geneticengine.algorithms.gp.generation_steps.cross_over as cross_over
 import geneticengine.algorithms.gp.generation_steps.mutation as mutation
 import geneticengine.algorithms.gp.generation_steps.selection as selection
-from geneticengine.algorithms.gp.callback import Callback
-from geneticengine.algorithms.gp.callback import DebugCallback
-from geneticengine.algorithms.gp.callback import PrintBestCallback
-from geneticengine.algorithms.gp.callback import ProgressCallback
-from geneticengine.algorithms.gp.csv_callback import CSVCallback
+from geneticengine.algorithms.callbacks.callback import Callback
+from geneticengine.algorithms.callbacks.callback import DebugCallback
+from geneticengine.algorithms.callbacks.callback import PrintBestCallback
+from geneticengine.algorithms.callbacks.callback import ProgressCallback
+from geneticengine.algorithms.callbacks.csv_callback import CSVCallback
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource

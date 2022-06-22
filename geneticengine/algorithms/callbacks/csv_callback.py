@@ -3,7 +3,7 @@ from __future__ import annotations
 import csv
 from typing import Callable
 
-from geneticengine.algorithms.gp.callback import Callback
+from geneticengine.algorithms.callbacks.callback import Callback
 from geneticengine.algorithms.gp.individual import Individual
 
 
@@ -33,13 +33,13 @@ class CSVCallback(Callback):
         if self.save_genotype_as_string:
             self.writer.writerow(
                 [
-                    "genotype_as_str",
                     "fitness",
                     "depth",
                     "nodes",
                     "number_of_the_generation",
                     "time_since_the_start_of_the_evolution",
                     "seed",
+                    "genotype_as_str",
                 ],
             )
         else:
@@ -68,13 +68,13 @@ class CSVCallback(Callback):
                 nodes = -1
             if self.save_genotype_as_string:
                 row = [
-                    ind.genotype,
                     ind.fitness,
                     depth,
                     nodes,
                     generation,
                     self.cumulative_time,
                     gp.seed,
+                    ind.genotype,
                 ]
             else:
                 row = [

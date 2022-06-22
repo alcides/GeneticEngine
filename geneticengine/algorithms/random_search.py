@@ -5,11 +5,11 @@ from typing import Any
 from typing import Callable
 from typing import Type
 
-from geneticengine.algorithms.gp.callback import Callback
-from geneticengine.algorithms.gp.callback import DebugCallback
-from geneticengine.algorithms.gp.callback import PrintBestCallback
-from geneticengine.algorithms.gp.callback import ProgressCallback
-from geneticengine.algorithms.gp.csv_callback import CSVCallback
+from geneticengine.algorithms.callbacks.callback import Callback
+from geneticengine.algorithms.callbacks.callback import DebugCallback
+from geneticengine.algorithms.callbacks.callback import PrintBestCallback
+from geneticengine.algorithms.callbacks.callback import ProgressCallback
+from geneticengine.algorithms.callbacks.csv_callback import CSVCallback
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource

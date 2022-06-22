@@ -3,12 +3,11 @@ from __future__ import annotations
 from abc import ABC
 from dataclasses import dataclass
 
-from geneticengine.algorithms.gp.callback import Callback
+from geneticengine.algorithms.callbacks.callback import Callback
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.tree.treebased import random_node
 
 
 class Root(ABC):

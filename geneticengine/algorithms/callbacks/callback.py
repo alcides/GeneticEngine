@@ -24,7 +24,9 @@ class ProgressCallback(Callback):
 
     def process_iteration(self, generation: int, population, time: float, gp):
         fitness = round(gp.evaluate(population[0]), 4)
-        print(f"[{self.__class__}] Generation {generation}. Time {time}. Best fitness: {fitness}")
+        print(
+            f"[{self.__class__}] Generation {generation}. Time {time}. Best fitness: {fitness}",
+        )
 
 
 class PrintBestCallback(Callback):
