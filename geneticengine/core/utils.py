@@ -16,6 +16,14 @@ from typing import Type
 from geneticengine.core.decorators import get_gengy
 
 
+def has_annotated_mutation(ty: type[Any]):
+    """Returns whether type has an annotated mutation within metadata."""
+    if hasattr(ty, "__metadata__"):
+        if hasattr(ty.__metadata__[0], "mutate"):
+            return True
+    return False
+
+
 def is_annotated(ty: type[Any]):
     """Returns whether type is annotated with metadata."""
     return hasattr(ty, "__metadata__")

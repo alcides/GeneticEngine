@@ -14,7 +14,7 @@ from geneticengine.core.representations.grammatical_evolution.structured_ge impo
     sge_representation,
 )
 from geneticengine.core.representations.tree.treebased import treebased_representation
-from geneticengine.metahandlers.lists import ListSizeBetween
+from geneticengine.metahandlers.lists import ListSizeBetweenSpecialMutation
 
 map = """.###............................
 ...#............................
@@ -56,7 +56,7 @@ class Action(ABC):
 
 @dataclass
 class ActionBlock(Action):
-    actions: Annotated[list[Action], ListSizeBetween(2, 3)]
+    actions: Annotated[list[Action], ListSizeBetweenSpecialMutation(2, 3)]
 
 
 @dataclass
