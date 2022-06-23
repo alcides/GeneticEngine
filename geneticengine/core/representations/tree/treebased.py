@@ -16,7 +16,8 @@ from geneticengine.core.decorators import get_gengy
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
-from geneticengine.core.representations.tree.utils import relabel_nodes, GengyList
+from geneticengine.core.representations.tree.utils import GengyList
+from geneticengine.core.representations.tree.utils import relabel_nodes
 from geneticengine.core.representations.tree.utils import relabel_nodes_of_trees
 from geneticengine.core.tree import TreeNode
 from geneticengine.core.utils import build_finalizers
@@ -441,19 +442,20 @@ def mutate_inner(
                         if args_with_specific_mutation[kdx]
                     ][mutation_choice]
                     args = list(i.gengy_init_values)
-                    args[index] = (
-                        arg_to_be_mutated[1]
-                        .__metadata__[0]
-                        .mutate(
-                            r,
-                            g,
-                            random_node,
-                            max_depth - 1,
-                            ty,
-                            method=Grow,
-                            current_list=args[index],
+                    if hasattr(arg_to_be_mutated[1], "__metadata__"):
+                        args[index] = (
+                            arg_to_be_mutated[1]
+                            .__metadata__[0]
+                            .mutate(
+                                r,
+                                g,
+                                random_node,
+                                max_depth - 1,
+                                ty,
+                                method=Grow,
+                                current_list=args[index],
+                            )
                         )
-                    )
                     return mk_save_init(type(i), lambda x: x)(*args)
 
             replacement = random_node(r, g, max_depth, ty, method=Grow)
