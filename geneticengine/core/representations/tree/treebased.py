@@ -473,8 +473,6 @@ def find_in_tree(g: Grammar, ty: type, o: TreeNode, max_depth: int):
 
                 return depth <= max_depth
 
-            if not isinstance(ty, type):
-                raise NotImplementedError("")
             if ty in t.__bases__:
                 vals = o.gengy_types_this_way[t]
                 if vals:
