@@ -437,24 +437,20 @@ def mutate_inner(
                     pass  # Replace whole node
                 else:
                     (index, arg_to_be_mutated) = [
-                        (kdx, arg)
+                        (kdx, arg[1])
                         for kdx, arg in enumerate(get_arguments(i))
                         if args_with_specific_mutation[kdx]
                     ][mutation_choice]
                     args = list(i.gengy_init_values)
-                    if hasattr(arg_to_be_mutated[1], "__metadata__"):
-                        args[index] = (
-                            arg_to_be_mutated[1]
-                            .__metadata__[0]
-                            .mutate(
-                                r,
-                                g,
-                                random_node,
-                                max_depth - 1,
-                                ty,
-                                method=Grow,
-                                current_list=args[index],
-                            )
+                    if hasattr(arg_to_be_mutated, "__metadata__"):
+                        args[index] = arg_to_be_mutated.__metadata__[0].mutate(
+                            r,
+                            g,
+                            random_node,
+                            max_depth - 1,
+                            ty,
+                            method=Grow,
+                            current_list=args[index],
                         )
                     return mk_save_init(type(i), lambda x: x)(*args)
 
