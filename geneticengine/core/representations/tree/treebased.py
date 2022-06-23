@@ -451,7 +451,7 @@ def mutate_inner(
                             ty,
                             method=Grow,
                             current_list=args[index],
-                        )
+                        )  # type: ignore
                     return mk_save_init(type(i), lambda x: x)(*args)
 
             replacement = random_node(r, g, max_depth, ty, method=Grow)
