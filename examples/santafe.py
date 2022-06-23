@@ -193,6 +193,7 @@ if __name__ == "__main__":
         representation=treebased_representation,
         minimize=False,
         max_depth=40,
+        probability_mutation=0.5,
         number_of_generations=50,
         population_size=150,
         n_novelties=10,

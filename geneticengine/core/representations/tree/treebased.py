@@ -24,6 +24,7 @@ from geneticengine.core.utils import get_arguments
 from geneticengine.core.utils import get_generic_parameter
 from geneticengine.core.utils import is_abstract
 from geneticengine.core.utils import is_generic_list
+from geneticengine.core.utils import strip_annotations
 from geneticengine.exceptions import GeneticEngineError
 from geneticengine.metahandlers.base import is_metahandler
 
@@ -420,7 +421,7 @@ def mutate_inner(
                 max_depth -= g.abstract_dist_to_t[ty][type(i)]
             max_depth -= 1
             args = list(i.gengy_init_values)
-            for idx, (field, field_type) in enumerate(get_arguments(i)):
+            for idx, (_, field_type) in enumerate(get_arguments(i)):
                 child = args[idx]
                 if hasattr(child, "gengy_nodes"):
                     count = child.gengy_nodes
@@ -435,6 +436,21 @@ def mutate_inner(
                         break
                     else:
                         c -= count
+                elif isinstance(child, list):
+                    for jdx, ch in enumerate(child):
+                        count = ch.gengy_nodes
+                        if c <= count:
+                            child[jdx] = mutate_inner(
+                                r,
+                                g,
+                                ch,
+                                max_depth,
+                                strip_annotations(field_type),
+                            )
+                            break
+                        else:
+                            c -= count
+                    args[idx] = child
             return mk_save_init(type(i), lambda x: x)(*args)
     else:
         return random_node(r, g, max_depth, ty, method=Grow)
