@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import weakref
 from collections import defaultdict
 from typing import Any
 from typing import Dict
@@ -13,6 +14,16 @@ from geneticengine.core.tree import TreeNode
 from geneticengine.core.utils import get_arguments
 from geneticengine.core.utils import is_abstract
 from geneticengine.core.utils import is_terminal
+
+
+class GengyList(list):
+    def __init__(self, typ, vals):
+        super().__init__(vals)
+        self.typ = typ
+        self.gengy_init_values = vals
+
+    def new_like(self, *newargs):
+        return GengyList(self.typ, newargs)
 
 
 def relabel_nodes(i: TreeNode, g: Grammar) -> tuple[int, int, dict[type, list[Any]]]:
@@ -57,11 +68,10 @@ def relabel_nodes(i: TreeNode, g: Grammar) -> tuple[int, int, dict[type, list[An
             for (k, v) in thisway.items():
                 types_this_way[k].extend(v)
 
-    if not isinstance(i, list):
-        i.gengy_labeled = True
-        i.gengy_distance_to_term = distance_to_term
-        i.gengy_nodes = number_of_nodes
-        i.gengy_types_this_way = types_this_way
+    i.gengy_labeled = True
+    i.gengy_distance_to_term = distance_to_term
+    i.gengy_nodes = number_of_nodes
+    i.gengy_types_this_way = types_this_way
     return number_of_nodes, distance_to_term, types_this_way
 
 

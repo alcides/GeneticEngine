@@ -8,6 +8,7 @@ from typing import TypeVar
 
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import Source
+from geneticengine.core.representations.tree.utils import GengyList
 from geneticengine.core.utils import build_finalizers
 from geneticengine.metahandlers.base import MetaHandlerGenerator
 
@@ -34,7 +35,7 @@ class ListSizeBetween(MetaHandlerGenerator):
     ):
         base_type = base_type.__args__[0]
         size = r.randint(self.min, self.max, str(base_type))
-        fins = build_finalizers(lambda *x: rec(list(x)), size)
+        fins = build_finalizers(lambda *x: rec(GengyList(base_type, x)), size)
         ident = ctx["_"]
         for i, fin in enumerate(fins):
             nctx = ctx.copy()

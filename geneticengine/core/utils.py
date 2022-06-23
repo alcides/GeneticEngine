@@ -4,7 +4,7 @@ import inspect
 from abc import ABC
 from dataclasses import dataclass
 from functools import wraps
-from typing import Any
+from typing import Any, TYPE_CHECKING
 from typing import Callable
 from typing import get_type_hints
 from typing import List
@@ -14,6 +14,10 @@ from typing import Tuple
 from typing import Type
 
 from geneticengine.core.decorators import get_gengy
+
+if TYPE_CHECKING:
+    from geneticengine.core.representations.tree.utils import GengyList
+    from geneticengine.core.tree import TreeNode
 
 
 def is_annotated(ty: type[Any]):
@@ -60,7 +64,7 @@ def has_arguments(n: Any) -> bool:
     )
 
 
-def get_arguments(n) -> list[tuple[str, type]]:
+def get_arguments(n: TreeNode) -> list[tuple[str, type]]:
     """
     :param n: production
     :return: list((argname, argtype))
@@ -75,7 +79,8 @@ def get_arguments(n) -> list[tuple[str, type]]:
             include_extras=True,
         )
         return [(a, args[a]) for a in filter(lambda x: x != "return", args)]
-    return []
+    elif isinstance(n, GengyList):
+        return [(f"{i}", n.typ) for i in range(len(n))]
 
 
 def is_abstract(t: type) -> bool:

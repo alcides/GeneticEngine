@@ -16,7 +16,7 @@ from geneticengine.core.decorators import get_gengy
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
-from geneticengine.core.representations.tree.utils import relabel_nodes
+from geneticengine.core.representations.tree.utils import relabel_nodes, GengyList
 from geneticengine.core.representations.tree.utils import relabel_nodes_of_trees
 from geneticengine.core.tree import TreeNode
 from geneticengine.core.utils import build_finalizers
@@ -27,7 +27,6 @@ from geneticengine.core.utils import is_generic_list
 from geneticengine.core.utils import strip_annotations
 from geneticengine.exceptions import GeneticEngineError
 from geneticengine.metahandlers.base import is_metahandler
-
 
 T = TypeVar("T")
 
@@ -253,7 +252,14 @@ def random_node(
     return method(r, g, max_depth, starting_symbol)
 
 
-def mk_save_init(starting_symbol: Callable, receiver: Callable):
+def mk_save_init(starting_symbol: Any, receiver: Callable):
+    if isinstance(starting_symbol, type):
+        pass
+    elif isinstance(starting_symbol, GengyList):
+        starting_symbol = starting_symbol.new_like
+    else:
+        starting_symbol = type(starting_symbol)
+
     def fin_recv(*x):
         built = starting_symbol(*x)
         built.gengy_init_values = x
@@ -436,22 +442,7 @@ def mutate_inner(
                         break
                     else:
                         c -= count
-                elif isinstance(child, list):
-                    for jdx, ch in enumerate(child):
-                        count = ch.gengy_nodes
-                        if c <= count:
-                            child[jdx] = mutate_inner(
-                                r,
-                                g,
-                                ch,
-                                max_depth,
-                                strip_annotations(field_type),
-                            )
-                            break
-                        else:
-                            c -= count
-                    args[idx] = child
-            return mk_save_init(type(i), lambda x: x)(*args)
+            return mk_save_init(i, lambda x: x)(*args)
     else:
         return random_node(r, g, max_depth, ty, method=Grow)
 
@@ -488,10 +479,6 @@ def find_in_tree(g: Grammar, ty: type, o: TreeNode, max_depth: int):
                 vals = o.gengy_types_this_way[t]
                 if vals:
                     yield from filter(is_valid, vals)
-
-
-def get_height(n: TreeNode):
-    pass
 
 
 def tree_crossover_inner(
@@ -534,7 +521,7 @@ def tree_crossover_inner(
                         break
                     else:
                         c -= count
-            return mk_save_init(type(i), lambda x: x)(*args)
+            return mk_save_init(i, lambda x: x)(*args)
     else:
         return i
 
