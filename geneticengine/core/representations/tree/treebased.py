@@ -22,7 +22,9 @@ from geneticengine.core.tree import TreeNode
 from geneticengine.core.utils import build_finalizers
 from geneticengine.core.utils import get_arguments
 from geneticengine.core.utils import get_generic_parameter
+from geneticengine.core.utils import has_annotated_mutation
 from geneticengine.core.utils import is_abstract
+from geneticengine.core.utils import is_annotated
 from geneticengine.core.utils import is_generic_list
 from geneticengine.core.utils import strip_annotations
 from geneticengine.exceptions import GeneticEngineError
@@ -420,6 +422,40 @@ def mutate_inner(
     if i.gengy_nodes > 0:
         c = r.randint(0, i.gengy_nodes - 1)
         if c == 0:
+            # If Metahandler mutation exists, the mutation process is different
+            args_with_specific_mutation = [
+                has_annotated_mutation(arg[1]) for arg in get_arguments(i)
+            ]
+            if any(args_with_specific_mutation):
+                mutation_possibilities = len(args_with_specific_mutation)
+                mutation_choice = r.randint(
+                    0,
+                    mutation_possibilities,
+                )  # including 0 so that the whole node can also be replaced
+                if mutation_choice == mutation_possibilities:
+                    pass  # Replace whole node
+                else:
+                    (index, arg_to_be_mutated) = [
+                        (kdx, arg)
+                        for kdx, arg in enumerate(get_arguments(i))
+                        if args_with_specific_mutation[kdx]
+                    ][mutation_choice]
+                    args = list(i.gengy_init_values)
+                    args[index] = (
+                        arg_to_be_mutated[1]
+                        .__metadata__[0]
+                        .mutate(
+                            r,
+                            g,
+                            random_node,
+                            max_depth - 1,
+                            ty,
+                            method=Grow,
+                            current_list=args[index],
+                        )
+                    )
+                    return mk_save_init(type(i), lambda x: x)(*args)
+
             replacement = random_node(r, g, max_depth, ty, method=Grow)
             return replacement
         else:
