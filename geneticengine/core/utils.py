@@ -12,8 +12,21 @@ from typing import Protocol
 from typing import Set
 from typing import Tuple
 from typing import Type
+from typing import TYPE_CHECKING
 
 from geneticengine.core.decorators import get_gengy
+
+if TYPE_CHECKING:
+    from geneticengine.core.representations.tree.utils import GengyList
+    from geneticengine.core.tree import TreeNode
+
+
+def has_annotated_mutation(ty: type[Any]):
+    """Returns whether type has an annotated mutation within metadata."""
+    if hasattr(ty, "__metadata__"):
+        if hasattr(ty.__metadata__[0], "mutate"):
+            return True
+    return False
 
 
 def is_annotated(ty: type[Any]):
@@ -75,6 +88,8 @@ def get_arguments(n) -> list[tuple[str, type]]:
             include_extras=True,
         )
         return [(a, args[a]) for a in filter(lambda x: x != "return", args)]
+    elif isinstance(n, GengyList):
+        return [(f"{i}", n.typ) for i in range(len(n))]
     return []
 
 

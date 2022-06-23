@@ -7,6 +7,7 @@ from typing import Any
 from typing import List
 from typing import TypeVar
 
+from geneticengine.core.representations.tree.utils import GengyList
 from geneticengine.core.utils import build_finalizers
 from geneticengine.core.utils import get_generic_parameter
 
@@ -75,7 +76,7 @@ class Source(ABC):
     ):
         inner_type = get_generic_parameter(ty)
         size = self.randint(0, depth - 1, prod)
-        fins = build_finalizers(lambda *x: receiver(list(x)), size)
+        fins = build_finalizers(lambda *x: receiver(GengyList(inner_type, x)), size)
         ident = ctx["_"]
         for i, fin in enumerate(fins):
             nctx = ctx.copy()

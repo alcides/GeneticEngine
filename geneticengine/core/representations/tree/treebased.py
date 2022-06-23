@@ -16,17 +16,20 @@ from geneticengine.core.decorators import get_gengy
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
+from geneticengine.core.representations.tree.utils import GengyList
 from geneticengine.core.representations.tree.utils import relabel_nodes
 from geneticengine.core.representations.tree.utils import relabel_nodes_of_trees
 from geneticengine.core.tree import TreeNode
 from geneticengine.core.utils import build_finalizers
 from geneticengine.core.utils import get_arguments
 from geneticengine.core.utils import get_generic_parameter
+from geneticengine.core.utils import has_annotated_mutation
 from geneticengine.core.utils import is_abstract
+from geneticengine.core.utils import is_annotated
 from geneticengine.core.utils import is_generic_list
+from geneticengine.core.utils import strip_annotations
 from geneticengine.exceptions import GeneticEngineError
 from geneticengine.metahandlers.base import is_metahandler
-
 
 T = TypeVar("T")
 
@@ -252,7 +255,14 @@ def random_node(
     return method(r, g, max_depth, starting_symbol)
 
 
-def mk_save_init(starting_symbol: Callable, receiver: Callable):
+def mk_save_init(starting_symbol: Any, receiver: Callable):
+    if isinstance(starting_symbol, type):
+        pass
+    elif isinstance(starting_symbol, GengyList):
+        starting_symbol = starting_symbol.new_like
+    else:
+        starting_symbol = type(starting_symbol)
+
     def fin_recv(*x):
         built = starting_symbol(*x)
         built.gengy_init_values = x
@@ -413,6 +423,37 @@ def mutate_inner(
     if i.gengy_nodes > 0:
         c = r.randint(0, i.gengy_nodes - 1)
         if c == 0:
+            # If Metahandler mutation exists, the mutation process is different
+            args_with_specific_mutation = [
+                has_annotated_mutation(arg[1]) for arg in get_arguments(i)
+            ]
+            if any(args_with_specific_mutation):
+                mutation_possibilities = len(args_with_specific_mutation)
+                mutation_choice = r.randint(
+                    0,
+                    mutation_possibilities,
+                )  # including 0 so that the whole node can also be replaced
+                if mutation_choice == mutation_possibilities:
+                    pass  # Replace whole node
+                else:
+                    (index, arg_to_be_mutated) = [
+                        (kdx, arg[1])
+                        for kdx, arg in enumerate(get_arguments(i))
+                        if args_with_specific_mutation[kdx]
+                    ][mutation_choice]
+                    args = list(i.gengy_init_values)
+                    if hasattr(arg_to_be_mutated, "__metadata__"):
+                        args[index] = arg_to_be_mutated.__metadata__[0].mutate(  # type: ignore
+                            r,
+                            g,
+                            random_node,
+                            max_depth - 1,
+                            ty,
+                            method=Grow,
+                            current_list=args[index],
+                        )
+                    return mk_save_init(type(i), lambda x: x)(*args)
+
             replacement = random_node(r, g, max_depth, ty, method=Grow)
             return replacement
         else:
@@ -420,7 +461,7 @@ def mutate_inner(
                 max_depth -= g.abstract_dist_to_t[ty][type(i)]
             max_depth -= 1
             args = list(i.gengy_init_values)
-            for idx, (field, field_type) in enumerate(get_arguments(i)):
+            for idx, (_, field_type) in enumerate(get_arguments(i)):
                 child = args[idx]
                 if hasattr(child, "gengy_nodes"):
                     count = child.gengy_nodes
@@ -435,7 +476,7 @@ def mutate_inner(
                         break
                     else:
                         c -= count
-            return mk_save_init(type(i), lambda x: x)(*args)
+            return mk_save_init(i, lambda x: x)(*args)
     else:
         return random_node(r, g, max_depth, ty, method=Grow)
 
@@ -466,16 +507,10 @@ def find_in_tree(g: Grammar, ty: type, o: TreeNode, max_depth: int):
 
                 return depth <= max_depth
 
-            if not isinstance(ty, type):
-                raise NotImplementedError("")
             if ty in t.__bases__:
                 vals = o.gengy_types_this_way[t]
                 if vals:
                     yield from filter(is_valid, vals)
-
-
-def get_height(n: TreeNode):
-    pass
 
 
 def tree_crossover_inner(
@@ -518,7 +553,7 @@ def tree_crossover_inner(
                         break
                     else:
                         c -= count
-            return mk_save_init(type(i), lambda x: x)(*args)
+            return mk_save_init(i, lambda x: x)(*args)
     else:
         return i
 
