@@ -443,7 +443,7 @@ def mutate_inner(
                     ][mutation_choice]
                     args = list(i.gengy_init_values)
                     if hasattr(arg_to_be_mutated, "__metadata__"):
-                        args[index] = arg_to_be_mutated.__metadata__[0].mutate(
+                        args[index] = arg_to_be_mutated.__metadata__[0].mutate(  # type: ignore
                             r,
                             g,
                             random_node,
@@ -451,7 +451,7 @@ def mutate_inner(
                             ty,
                             method=Grow,
                             current_list=args[index],
-                        )  # type: ignore
+                        )
                     return mk_save_init(type(i), lambda x: x)(*args)
 
             replacement = random_node(r, g, max_depth, ty, method=Grow)
