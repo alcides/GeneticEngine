@@ -82,6 +82,7 @@ def get_arguments(n) -> list[tuple[str, type]]:
         return [(a, args[a]) for a in filter(lambda x: x != "return", args)]
     elif isinstance(n, GengyList):
         return [(f"{i}", n.typ) for i in range(len(n))]
+    return []
 
 
 def is_abstract(t: type) -> bool:
