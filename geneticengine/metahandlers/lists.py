@@ -72,7 +72,7 @@ class ListSizeBetweenSpecialMutation(MetaHandlerGenerator):
     ):
         base_type = base_type.__args__[0]
         size = r.randint(self.min, self.max, str(base_type))
-        fins = build_finalizers(lambda *x: rec(list(x)), size)
+        fins = build_finalizers(lambda *x: rec(GengyList(base_type, x)), size)
         ident = ctx["_"]
         for i, fin in enumerate(fins):
             nctx = ctx.copy()
@@ -106,7 +106,7 @@ class ListSizeBetweenSpecialMutation(MetaHandlerGenerator):
             return current_list
 
     def __class_getitem__(self, args):
-        return ListSizeBetween(*args)
+        return ListSizeBetweenSpecialMutation(*args)
 
     def __repr__(self):
-        return f"ListSizeBetween[{self.min}...{self.max}]"
+        return f"ListSizeBetweenSpecialMutation[{self.min}...{self.max}]"
