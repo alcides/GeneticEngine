@@ -4,7 +4,7 @@ import inspect
 from abc import ABC
 from dataclasses import dataclass
 from functools import wraps
-from typing import Any, TYPE_CHECKING
+from typing import Any
 from typing import Callable
 from typing import get_type_hints
 from typing import List
@@ -12,6 +12,7 @@ from typing import Protocol
 from typing import Set
 from typing import Tuple
 from typing import Type
+from typing import TYPE_CHECKING
 
 from geneticengine.core.decorators import get_gengy
 
@@ -64,7 +65,7 @@ def has_arguments(n: Any) -> bool:
     )
 
 
-def get_arguments(n: TreeNode) -> list[tuple[str, type]]:
+def get_arguments(n) -> list[tuple[str, type]]:
     """
     :param n: production
     :return: list((argname, argtype))
