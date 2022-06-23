@@ -15,45 +15,9 @@ from geneticengine.metahandlers.base import MetaHandlerGenerator
 
 class ListSizeBetween(MetaHandlerGenerator):
     """
-    ListSizeBetween(a,b) restricts lists to be of length between a and b.
+    ListSizeBetween(a,b) restricts lists to be of length between a and b and implements a special list mutation.
     The list of options can be dynamically altered before the grammar extraction (Set.__annotations__["set"] = Annotated[List[Type], ListSizeBetween(c,d)].
-    """
-
-    def __init__(self, min, max):
-        self.min = min
-        self.max = max
-
-    def generate(
-        self,
-        r: Source,
-        g: Grammar,
-        rec,
-        new_symbol,
-        depth: int,
-        base_type,
-        ctx: dict[str, str],
-    ):
-        base_type = base_type.__args__[0]
-        size = r.randint(self.min, self.max, str(base_type))
-        fins = build_finalizers(lambda *x: rec(GengyList(base_type, x)), size)
-        ident = ctx["_"]
-        for i, fin in enumerate(fins):
-            nctx = ctx.copy()
-            nident = ident + "_" + str(i)
-            nctx["_"] = nident
-            new_symbol(base_type, fin, depth - 1, nident, nctx)
-
-    def __class_getitem__(self, args):
-        return ListSizeBetween(*args)
-
-    def __repr__(self):
-        return f"ListSizeBetween[{self.min}...{self.max}]"
-
-
-class ListSizeBetweenSpecialMutation(MetaHandlerGenerator):
-    """
-    ListSizeBetween(a,b) restricts lists to be of length between a and b.
-    The list of options can be dynamically altered before the grammar extraction (Set.__annotations__["set"] = Annotated[List[Type], ListSizeBetween(c,d)].
+    The special list mutation entails three different alterations to the list in question: deletion of a random element; addition of a random element; and replacement of a random element.
     """
 
     def __init__(self, min, max):
@@ -106,7 +70,44 @@ class ListSizeBetweenSpecialMutation(MetaHandlerGenerator):
             return current_list
 
     def __class_getitem__(self, args):
-        return ListSizeBetweenSpecialMutation(*args)
+        return ListSizeBetween(*args)
 
     def __repr__(self):
-        return f"ListSizeBetweenSpecialMutation[{self.min}...{self.max}]"
+        return f"ListSizeBetween[{self.min}...{self.max}]"
+
+
+class ListSizeBetweenWithoutListMutation(MetaHandlerGenerator):
+    """
+    ListSizeBetweenWithoutListMutation(a,b) restricts lists to be of length between a and b.
+    The list of options can be dynamically altered before the grammar extraction (Set.__annotations__["set"] = Annotated[List[Type], ListSizeBetweenWithoutListMutation(c,d)].
+    """
+
+    def __init__(self, min, max):
+        self.min = min
+        self.max = max
+
+    def generate(
+        self,
+        r: Source,
+        g: Grammar,
+        rec,
+        new_symbol,
+        depth: int,
+        base_type,
+        ctx: dict[str, str],
+    ):
+        base_type = base_type.__args__[0]
+        size = r.randint(self.min, self.max, str(base_type))
+        fins = build_finalizers(lambda *x: rec(GengyList(base_type, x)), size)
+        ident = ctx["_"]
+        for i, fin in enumerate(fins):
+            nctx = ctx.copy()
+            nident = ident + "_" + str(i)
+            nctx["_"] = nident
+            new_symbol(base_type, fin, depth - 1, nident, nctx)
+
+    def __class_getitem__(self, args):
+        return ListSizeBetweenWithoutListMutation(*args)
+
+    def __repr__(self):
+        return f"ListSizeBetweenWithoutListMutation[{self.min}...{self.max}]"
