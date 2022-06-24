@@ -76,10 +76,10 @@ class ListSizeBetween(MetaHandlerGenerator):
         return f"ListSizeBetween[{self.min}...{self.max}]"
 
 
-class ListSizeBetweenWithoutListMutation(MetaHandlerGenerator):
+class ListSizeBetweenWithoutListOperations(MetaHandlerGenerator):
     """
-    ListSizeBetweenWithoutListMutation(a,b) restricts lists to be of length between a and b.
-    The list of options can be dynamically altered before the grammar extraction (Set.__annotations__["set"] = Annotated[List[Type], ListSizeBetweenWithoutListMutation(c,d)].
+    ListSizeBetweenWithoutListOperations(a,b) restricts lists to be of length between a and b.
+    The list of options can be dynamically altered before the grammar extraction (Set.__annotations__["set"] = Annotated[List[Type], ListSizeBetweenWithoutListOperations(c,d)].
     """
 
     def __init__(self, min, max):
@@ -107,7 +107,7 @@ class ListSizeBetweenWithoutListMutation(MetaHandlerGenerator):
             new_symbol(base_type, fin, depth - 1, nident, nctx)
 
     def __class_getitem__(self, args):
-        return ListSizeBetweenWithoutListMutation(*args)
+        return ListSizeBetweenWithoutListOperations(*args)
 
     def __repr__(self):
-        return f"ListSizeBetweenWithoutListMutation[{self.min}...{self.max}]"
+        return f"ListSizeBetweenWithoutListOperations[{self.min}...{self.max}]"
