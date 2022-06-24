@@ -555,9 +555,6 @@ def tree_crossover_inner(
                         current_node=args[index],
                     )
                     return mk_save_init(type(i), lambda x: x)(*args)
-                import IPython as ip
-
-                ip.embed()
             if options:
                 replacement = r.choice(options)
             if replacement is None:

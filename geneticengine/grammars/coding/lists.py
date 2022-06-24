@@ -133,8 +133,3 @@ class Var(NumberList):
 
     def __str__(self) -> str:
         return self.name
-
-
-# import geneticengine.grammars.coding.numbers as numbers
-# import IPython as ip
-# ip.embed()

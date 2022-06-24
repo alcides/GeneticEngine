@@ -37,8 +37,6 @@ DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.csv"
 DATA_FILE_TEST = f"examples/data/{DATASET_NAME}/Test.csv"
 
 bunch = pd.read_csv(DATA_FILE_TRAIN, delimiter=" ")
-# import IPython as ip
-# ip.embed()
 target = bunch.y
 data = bunch.drop(["y"], axis=1)
 
