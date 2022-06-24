@@ -67,26 +67,35 @@ class ListSizeBetween(MetaHandlerGenerator):
         self,
         r: Source,
         g: Grammar,
-        random_node,
-        depth: int,
-        base_type,
-        method,
+        options,
+        arg,
         current_node,
     ):
-        mutation_method = r.randint(0, 2)
-        if (mutation_method == 0) and (len(current_node) != self.min):  # del
-            element_to_be_deleted = r.randint(0, len(current_node) - 1)
-            current_node.remove(current_node[element_to_be_deleted])
+        if not options:
             return current_node
-        elif (mutation_method == 1) and (len(current_node) != self.max):  # add
-            new_element = random_node(r, g, depth, base_type, method=method)
-            current_node.append(new_element)
-            return current_node
-        else:  # replace
-            element_to_be_replaced = r.randint(0, len(current_node) - 1)
-            new_element = random_node(r, g, depth, base_type, method=method)
-            current_node[element_to_be_replaced] = new_element
-            return current_node
+        crossover_method = 0  # r.randint(0, 1)
+        n_elements_replaced = r.randint(1, len(current_node) - 1)
+        big_enough_options = [
+            getattr(o, arg)
+            for o in options
+            if len(getattr(o, arg)) >= n_elements_replaced
+        ]
+        while not big_enough_options:
+            big_enough_options = [o for o in options if len(o) >= n_elements_replaced]
+            n_elements_replaced = r.randint(0, n_elements_replaced - 1)
+        option = big_enough_options[r.randint(0, len(big_enough_options) - 1)]
+
+        if crossover_method == 0:  # cut beginning
+            new_node = (
+                option[0:n_elements_replaced] + current_node[n_elements_replaced:]
+            )
+            return new_node
+        else:  # cut end
+            new_node = (
+                current_node[0:n_elements_replaced]
+                + option[n_elements_replaced : len(current_node)]
+            )
+            return new_node
 
     def __class_getitem__(self, args):
         return ListSizeBetween(*args)
