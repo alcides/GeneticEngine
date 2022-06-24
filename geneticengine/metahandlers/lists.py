@@ -1,11 +1,5 @@
 from __future__ import annotations
 
-from typing import Any
-from typing import Callable
-from typing import Dict
-from typing import Type
-from typing import TypeVar
-
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.tree.utils import GengyList
@@ -52,22 +46,47 @@ class ListSizeBetween(MetaHandlerGenerator):
         depth: int,
         base_type,
         method,
-        current_list,
+        current_node,
     ):
         mutation_method = r.randint(0, 2)
-        if (mutation_method == 0) and (len(current_list) != self.min):  # del
-            element_to_be_deleted = r.randint(0, len(current_list) - 1)
-            current_list.remove(current_list[element_to_be_deleted])
-            return current_list
-        elif (mutation_method == 1) and (len(current_list) != self.max):  # add
+        if (mutation_method == 0) and (len(current_node) != self.min):  # del
+            element_to_be_deleted = r.randint(0, len(current_node) - 1)
+            current_node.remove(current_node[element_to_be_deleted])
+            return current_node
+        elif (mutation_method == 1) and (len(current_node) != self.max):  # add
             new_element = random_node(r, g, depth, base_type, method=method)
-            current_list.append(new_element)
-            return current_list
+            current_node.append(new_element)
+            return current_node
         else:  # replace
-            element_to_be_replaced = r.randint(0, len(current_list) - 1)
+            element_to_be_replaced = r.randint(0, len(current_node) - 1)
             new_element = random_node(r, g, depth, base_type, method=method)
-            current_list[element_to_be_replaced] = new_element
-            return current_list
+            current_node[element_to_be_replaced] = new_element
+            return current_node
+
+    def crossover(
+        self,
+        r: Source,
+        g: Grammar,
+        random_node,
+        depth: int,
+        base_type,
+        method,
+        current_node,
+    ):
+        mutation_method = r.randint(0, 2)
+        if (mutation_method == 0) and (len(current_node) != self.min):  # del
+            element_to_be_deleted = r.randint(0, len(current_node) - 1)
+            current_node.remove(current_node[element_to_be_deleted])
+            return current_node
+        elif (mutation_method == 1) and (len(current_node) != self.max):  # add
+            new_element = random_node(r, g, depth, base_type, method=method)
+            current_node.append(new_element)
+            return current_node
+        else:  # replace
+            element_to_be_replaced = r.randint(0, len(current_node) - 1)
+            new_element = random_node(r, g, depth, base_type, method=method)
+            current_node[element_to_be_replaced] = new_element
+            return current_node
 
     def __class_getitem__(self, args):
         return ListSizeBetween(*args)
