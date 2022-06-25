@@ -555,17 +555,13 @@ def tree_crossover_inner(
                         if args_with_specific_crossover[kdx]
                     ][crossover_choice]
                     args = list(i.gengy_init_values)
-                    args[index] = (
-                        arg_to_be_crossovered[1]
-                        .__metadata__[0]
-                        .crossover(  # type: ignore
-                            r,
-                            g,
-                            options,
-                            arg_to_be_crossovered[0],
-                            ty,
-                            current_node=args[index],
-                        )
+                    args[index] = arg_to_be_mutated.__metadata__[0].crossover(  # type: ignore
+                        r,
+                        g,
+                        options,
+                        arg_to_be_crossovered[0],
+                        ty,
+                        current_node=args[index],
                     )
                     return mk_save_init(type(i), lambda x: x)(*args)
 
