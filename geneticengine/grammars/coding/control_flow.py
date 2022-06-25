@@ -7,14 +7,16 @@ from typing import Any
 from typing import Callable
 from typing import List
 
+from geneticengine.core.representations.tree.utils import GengyList
 from geneticengine.grammars.coding.classes import Condition
 from geneticengine.grammars.coding.classes import Statement
 from geneticengine.metahandlers.ints import IntRange
+from geneticengine.metahandlers.lists import ListSizeBetween
 
 
 @dataclass
 class Code(Statement):
-    stmts: list[Statement]
+    stmts: Annotated[list[Statement], ListSizeBetween(1, 10)]
 
     def evaluate(self, **kwargs) -> float:
         x = kwargs.get("x", 1.0)
