@@ -350,9 +350,6 @@ def evolve(fitness_function, g, seed, mode):
     return b, bf
 
 
-# import IPython as ip
-# ip.embed()
-
 if __name__ == "__main__":
     args = sys.argv
     print(args)

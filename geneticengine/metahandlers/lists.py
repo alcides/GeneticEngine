@@ -1,11 +1,5 @@
 from __future__ import annotations
 
-from typing import Any
-from typing import Callable
-from typing import Dict
-from typing import Type
-from typing import TypeVar
-
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.tree.utils import GengyList
@@ -52,22 +46,57 @@ class ListSizeBetween(MetaHandlerGenerator):
         depth: int,
         base_type,
         method,
-        current_list,
+        current_node,
     ):
         mutation_method = r.randint(0, 2)
-        if (mutation_method == 0) and (len(current_list) != self.min):  # del
-            element_to_be_deleted = r.randint(0, len(current_list) - 1)
-            current_list.remove(current_list[element_to_be_deleted])
-            return current_list
-        elif (mutation_method == 1) and (len(current_list) != self.max):  # add
+        if (mutation_method == 0) and (len(current_node) != self.min):  # del
+            element_to_be_deleted = r.randint(0, len(current_node) - 1)
+            current_node.remove(current_node[element_to_be_deleted])
+            return current_node
+        elif (mutation_method == 1) and (len(current_node) != self.max):  # add
             new_element = random_node(r, g, depth, base_type, method=method)
-            current_list.append(new_element)
-            return current_list
+            current_node.append(new_element)
+            return current_node
         else:  # replace
-            element_to_be_replaced = r.randint(0, len(current_list) - 1)
+            element_to_be_replaced = r.randint(0, len(current_node) - 1)
             new_element = random_node(r, g, depth, base_type, method=method)
-            current_list[element_to_be_replaced] = new_element
-            return current_list
+            current_node[element_to_be_replaced] = new_element
+            return current_node
+
+    def crossover(
+        self,
+        r: Source,
+        g: Grammar,
+        options,
+        arg,
+        base_type,
+        current_node,
+    ):
+        if not options:
+            return current_node
+        crossover_method = r.randint(0, 1)
+        n_elements_replaced = r.randint(1, len(current_node) - 1)
+        big_enough_options = [
+            getattr(o, arg)
+            for o in options
+            if len(getattr(o, arg)) >= n_elements_replaced
+        ]
+        while not big_enough_options:
+            big_enough_options = [o for o in options if len(o) >= n_elements_replaced]
+            n_elements_replaced = r.randint(0, n_elements_replaced - 1)
+        option = big_enough_options[r.randint(0, len(big_enough_options) - 1)]
+
+        if crossover_method == 0:  # cut beginning
+            new_node = (
+                option[0:n_elements_replaced] + current_node[n_elements_replaced:]
+            )
+            return GengyList(base_type, new_node)
+        else:  # cut end
+            new_node = (
+                current_node[0:n_elements_replaced]
+                + option[n_elements_replaced : len(current_node)]
+            )
+            return GengyList(base_type, new_node)
 
     def __class_getitem__(self, args):
         return ListSizeBetween(*args)
@@ -76,10 +105,10 @@ class ListSizeBetween(MetaHandlerGenerator):
         return f"ListSizeBetween[{self.min}...{self.max}]"
 
 
-class ListSizeBetweenWithoutListMutation(MetaHandlerGenerator):
+class ListSizeBetweenWithoutListOperations(MetaHandlerGenerator):
     """
-    ListSizeBetweenWithoutListMutation(a,b) restricts lists to be of length between a and b.
-    The list of options can be dynamically altered before the grammar extraction (Set.__annotations__["set"] = Annotated[List[Type], ListSizeBetweenWithoutListMutation(c,d)].
+    ListSizeBetweenWithoutListOperations(a,b) restricts lists to be of length between a and b.
+    The list of options can be dynamically altered before the grammar extraction (Set.__annotations__["set"] = Annotated[List[Type], ListSizeBetweenWithoutListOperations(c,d)].
     """
 
     def __init__(self, min, max):
@@ -107,7 +136,7 @@ class ListSizeBetweenWithoutListMutation(MetaHandlerGenerator):
             new_symbol(base_type, fin, depth - 1, nident, nctx)
 
     def __class_getitem__(self, args):
-        return ListSizeBetweenWithoutListMutation(*args)
+        return ListSizeBetweenWithoutListOperations(*args)
 
     def __repr__(self):
-        return f"ListSizeBetweenWithoutListMutation[{self.min}...{self.max}]"
+        return f"ListSizeBetweenWithoutListOperations[{self.min}...{self.max}]"

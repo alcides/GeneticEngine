@@ -23,6 +23,7 @@ from geneticengine.core.tree import TreeNode
 from geneticengine.core.utils import build_finalizers
 from geneticengine.core.utils import get_arguments
 from geneticengine.core.utils import get_generic_parameter
+from geneticengine.core.utils import has_annotated_crossover
 from geneticengine.core.utils import has_annotated_mutation
 from geneticengine.core.utils import is_abstract
 from geneticengine.core.utils import is_annotated
@@ -70,7 +71,6 @@ class SMTResolver:
     @staticmethod
     def add_clause(claus, recs: dict[str, Callable]):
         SMTResolver.clauses.extend(claus)
-        # print(recs)
         for k, v in recs.items():
             SMTResolver.receivers[k] = v
 
@@ -222,7 +222,6 @@ def PI_Grow(
         return valid_productions
 
     while prodqueue:
-        # print(nRecs[0])
         next_type, next_finalizer, depth, ident, ctx = r.pop_random(prodqueue)
         if next_type in g.recursive_prods:
             nRecs[0] -= 1
@@ -383,8 +382,6 @@ def expand_node(
 
                 def fn(val, name=name):
                     pass
-                    # print(f"{name}={val}")
-                    # SMTResolver.register_const(name, val)
 
                 l.append(fn)
 
@@ -442,16 +439,15 @@ def mutate_inner(
                         if args_with_specific_mutation[kdx]
                     ][mutation_choice]
                     args = list(i.gengy_init_values)
-                    if hasattr(arg_to_be_mutated, "__metadata__"):
-                        args[index] = arg_to_be_mutated.__metadata__[0].mutate(  # type: ignore
-                            r,
-                            g,
-                            random_node,
-                            max_depth - 1,
-                            ty,
-                            method=Grow,
-                            current_list=args[index],
-                        )
+                    args[index] = arg_to_be_mutated.__metadata__[0].mutate(  # type: ignore
+                        r,
+                        g,
+                        random_node,
+                        max_depth - 1,
+                        ty,
+                        method=Grow,
+                        current_node=args[index],
+                    )
                     return mk_save_init(type(i), lambda x: x)(*args)
 
             replacement = random_node(r, g, max_depth, ty, method=Grow)
@@ -513,6 +509,19 @@ def find_in_tree(g: Grammar, ty: type, o: TreeNode, max_depth: int):
                     yield from filter(is_valid, vals)
 
 
+def find_in_tree_exact(g: Grammar, ty: type, o: TreeNode, max_depth: int):
+    if hasattr(o, "gengy_types_this_way"):
+
+        vals = o.gengy_types_this_way[ty]
+        if vals:
+
+            def is_valid(node):
+                _, depth, _ = relabel_nodes(node, g)
+                return depth <= max_depth
+
+            yield from filter(is_valid, vals)
+
+
 def tree_crossover_inner(
     r: Source,
     g: Grammar,
@@ -525,6 +534,41 @@ def tree_crossover_inner(
         c = r.randint(0, i.gengy_nodes - 1)
         if c == 0:
             replacement = None
+            args_with_specific_crossover = [
+                has_annotated_crossover(arg[1]) for arg in get_arguments(i)
+            ]
+            if any(args_with_specific_crossover):
+                crossover_possibilities = len(args_with_specific_crossover)
+                crossover_choice = r.randint(
+                    0,
+                    crossover_possibilities,
+                )  # including 0 so that the whole node can also be replaced
+                options = list(find_in_tree_exact(g, type(i), o, max_depth))
+                if crossover_choice == crossover_possibilities or (
+                    not options
+                ):  # make sure there are options!
+                    pass  # Replace whole node
+                else:
+                    (index, arg_to_be_crossovered) = [
+                        (kdx, arg)
+                        for kdx, arg in enumerate(get_arguments(i))
+                        if args_with_specific_crossover[kdx]
+                    ][crossover_choice]
+                    args = list(i.gengy_init_values)
+                    args[index] = (
+                        arg_to_be_crossovered[1]
+                        .__metadata__[0]  # type: ignore
+                        .crossover(
+                            r,
+                            g,
+                            options,
+                            arg_to_be_crossovered[0],
+                            ty,
+                            current_node=args[index],
+                        )
+                    )
+                    return mk_save_init(type(i), lambda x: x)(*args)
+
             options = list(find_in_tree(g, ty, o, max_depth))
             if options:
                 replacement = r.choice(options)
