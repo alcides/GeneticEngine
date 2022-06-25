@@ -537,7 +537,7 @@ def tree_crossover_inner(
             args_with_specific_crossover = [
                 has_annotated_crossover(arg[1]) for arg in get_arguments(i)
             ]
-            if any(args_with_specific_crossover) and False:
+            if any(args_with_specific_crossover):
                 crossover_possibilities = len(args_with_specific_crossover)
                 crossover_choice = r.randint(
                     0,
@@ -563,6 +563,7 @@ def tree_crossover_inner(
                             g,
                             options,
                             arg_to_be_crossovered[0],
+                            ty,
                             current_node=args[index],
                         )
                     )

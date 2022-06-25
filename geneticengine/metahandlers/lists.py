@@ -69,6 +69,7 @@ class ListSizeBetween(MetaHandlerGenerator):
         g: Grammar,
         options,
         arg,
+        base_type,
         current_node,
     ):
         if not options:
@@ -89,13 +90,13 @@ class ListSizeBetween(MetaHandlerGenerator):
             new_node = (
                 option[0:n_elements_replaced] + current_node[n_elements_replaced:]
             )
-            return new_node
+            return GengyList(base_type, new_node)
         else:  # cut end
             new_node = (
                 current_node[0:n_elements_replaced]
                 + option[n_elements_replaced : len(current_node)]
             )
-            return new_node
+            return GengyList(base_type, new_node)
 
     def __class_getitem__(self, args):
         return ListSizeBetween(*args)
