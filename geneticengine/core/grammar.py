@@ -132,6 +132,12 @@ class Grammar:
                 terminal = False
                 if isinstance(argt, type) or isinstance(argt, ABCMeta):
                     self.register_type(argt)
+                if is_annotated(argt):
+                    gen = get_generic_parameter(argt)
+                    if is_generic_list(gen):
+                        self.register_type(get_generic_parameter(gen))
+                    else:
+                        self.register_type(gen)
 
         for st in self.considered_subtypes:
             if issubclass(st, ty):
