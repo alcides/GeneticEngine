@@ -50,13 +50,17 @@ map = """.###............................
 ................................"""
 
 
+class ActionMain(ABC):
+    pass
+
+
 class Action(ABC):
     pass
 
 
 @dataclass
-class ActionBlock(Action):
-    actions: Annotated[list[Action], ListSizeBetween(2, 3)]
+class ActionBlock(ActionMain):
+    actions: Annotated[list[Action], ListSizeBetween(2, 30)]
 
 
 @dataclass
@@ -163,7 +167,7 @@ def simulate(a: Action, map_str: str) -> int:
 
 
 def preprocess():
-    return extract_grammar([ActionBlock, IfFood, Move, Right, Left], Action)
+    return extract_grammar([ActionBlock, Action, IfFood, Move, Right, Left], ActionMain)
 
 
 def evolve(g, seed, mode):
