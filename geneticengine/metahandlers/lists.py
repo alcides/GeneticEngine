@@ -54,12 +54,12 @@ class ListSizeBetween(MetaHandlerGenerator):
             current_node.remove(current_node[element_to_be_deleted])
             return current_node
         elif (mutation_method == 1) and (len(current_node) != self.max):  # add
-            new_element = random_node(r, g, depth, base_type, method=method)
+            new_element = random_node(r, g, depth, base_type.__args__[0], method=method)
             current_node.append(new_element)
             return current_node
         else:  # replace
             element_to_be_replaced = r.randint(0, len(current_node) - 1)
-            new_element = random_node(r, g, depth, base_type, method=method)
+            new_element = random_node(r, g, depth, base_type.__args__[0], method=method)
             current_node[element_to_be_replaced] = new_element
             return current_node
 
@@ -69,7 +69,7 @@ class ListSizeBetween(MetaHandlerGenerator):
         g: Grammar,
         options,
         arg,
-        base_type,
+        list_type,
         current_node,
     ):
         if not options:
@@ -90,13 +90,13 @@ class ListSizeBetween(MetaHandlerGenerator):
             new_node = (
                 option[0:n_elements_replaced] + current_node[n_elements_replaced:]
             )
-            return GengyList(base_type, new_node)
+            return GengyList(list_type, new_node)
         else:  # cut end
             new_node = (
                 current_node[0:n_elements_replaced]
                 + option[n_elements_replaced : len(current_node)]
             )
-            return GengyList(base_type, new_node)
+            return GengyList(list_type, new_node)
 
     def __class_getitem__(self, args):
         return ListSizeBetween(*args)

@@ -444,7 +444,7 @@ def mutate_inner(
                         g,
                         random_node,
                         max_depth - 1,
-                        ty,
+                        get_generic_parameter(arg_to_be_mutated),
                         method=Grow,
                         current_node=args[index],
                     )
