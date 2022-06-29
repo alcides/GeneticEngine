@@ -82,7 +82,9 @@ class ListSizeBetween(MetaHandlerGenerator):
             if len(getattr(o, arg)) >= n_elements_replaced
         ]
         while not big_enough_options:
-            n_elements_replaced = r.randint(0, n_elements_replaced - 1)
+            if n_elements_replaced == 1:
+                return GengyList(list_type, current_node)
+            n_elements_replaced = r.randint(1, n_elements_replaced - 1)
             big_enough_options = [
                 getattr(o, arg)
                 for o in options
