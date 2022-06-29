@@ -72,7 +72,7 @@ class ListSizeBetween(MetaHandlerGenerator):
         list_type,
         current_node,
     ):
-        if not options:
+        if not options or (len(current_node) < 2):
             return current_node
         crossover_method = r.randint(0, 1)
         n_elements_replaced = r.randint(1, len(current_node) - 1)
