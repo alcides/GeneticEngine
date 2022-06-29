@@ -82,8 +82,12 @@ class ListSizeBetween(MetaHandlerGenerator):
             if len(getattr(o, arg)) >= n_elements_replaced
         ]
         while not big_enough_options:
-            big_enough_options = [o for o in options if len(o) >= n_elements_replaced]
             n_elements_replaced = r.randint(0, n_elements_replaced - 1)
+            big_enough_options = [
+                getattr(o, arg)
+                for o in options
+                if len(getattr(o, arg)) >= n_elements_replaced
+            ]
         option = big_enough_options[r.randint(0, len(big_enough_options) - 1)]
 
         if crossover_method == 0:  # cut beginning
