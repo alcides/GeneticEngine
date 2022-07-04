@@ -95,6 +95,8 @@ class GP:
         probability_crossover: float = 0.9,
         # -----
         hill_climbing: bool = False,
+        specific_type_mutation: type = None,
+        specific_type_crossover: type = None,
         minimize: bool = False,
         target_fitness: float | None = None,
         force_individual: Any = None,
@@ -137,6 +139,7 @@ class GP:
                 max_depth,
                 self.keyfitness(),
                 5,
+                specific_type=specific_type_mutation,
             )
         else:
             self.mutation = mutation.create_mutation(
@@ -144,12 +147,14 @@ class GP:
                 self.representation,
                 self.grammar,
                 max_depth,
+                specific_type=specific_type_mutation,
             )
         self.cross_over = cross_over.create_cross_over(
             self.random,
             self.representation,
             self.grammar,
             max_depth,
+            specific_type=specific_type_crossover,
         )
         self.n_novelties = n_novelties
         self.number_of_generations = number_of_generations

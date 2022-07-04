@@ -26,6 +26,7 @@ class Representation(Generic[g]):
         ind: g,
         depth: int,
         ty: type,
+        specific_type: type = None,
     ) -> g:
         ...
 
@@ -36,6 +37,7 @@ class Representation(Generic[g]):
         i1: g,
         i2: g,
         int,
+        specific_type: type = None,
     ) -> tuple[g, g]:
         ...
 

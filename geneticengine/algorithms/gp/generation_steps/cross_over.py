@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Callable
+from typing import Optional
 from typing import Tuple
 
 from geneticengine.algorithms.gp.individual import Individual
@@ -14,6 +15,7 @@ def create_cross_over(
     representation: Representation,
     g: Grammar,
     max_depth: int,
+    specific_type: type | None = None,
 ) -> Callable[[Individual, Individual], tuple[Individual, Individual]]:
     def cross_over_double(
         individual1: Individual,
@@ -25,6 +27,7 @@ def create_cross_over(
             individual1.genotype,
             individual2.genotype,
             max_depth,
+            specific_type=specific_type,
         )
         individual1 = Individual(g1)
         individual2 = Individual(g2)

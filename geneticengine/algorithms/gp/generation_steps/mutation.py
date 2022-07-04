@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Callable
+from typing import Optional
 from typing import Type
 
 from geneticengine.algorithms.gp.individual import Individual
@@ -14,6 +15,7 @@ def create_mutation(
     representation: Representation,
     g: Grammar,
     max_depth: int,
+    specific_type: type | None = None,
 ) -> Callable[[Individual], Individual]:
     def mutation(individual: Individual):
         new_individual = Individual(
@@ -23,6 +25,7 @@ def create_mutation(
                 individual.genotype,
                 max_depth,
                 g.starting_symbol,
+                specific_type=specific_type,
             ),
             fitness=None,
         )
@@ -38,6 +41,7 @@ def create_hill_climbing_mutation(
     max_depth: int,
     fitness_function: Callable[[Individual], float],
     n_candidates: int = 5,
+    specific_type: type = None,
 ) -> Callable[[Individual], Individual]:
     def hill_climbing_mutation(individual: Individual):
         def creation_new_individual():
@@ -48,6 +52,7 @@ def create_hill_climbing_mutation(
                     individual.genotype,
                     max_depth,
                     g.starting_symbol,
+                    specific_type=specific_type,
                 ),
                 fitness=None,
             )

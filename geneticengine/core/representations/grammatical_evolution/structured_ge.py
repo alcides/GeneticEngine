@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any
+from typing import Dict
 from typing import List
 from typing import Protocol
 from typing import Tuple
@@ -42,7 +43,7 @@ def random_individual(
             if base_type not in nodes:
                 nodes.append(base_type)
 
-    dna: Dict[str, List[int]] = dict()
+    dna: dict[str, list[int]] = dict()
     for nodestr in nodes:
         dna[nodestr] = [r.randint(0, 10000) for _ in range(LIST_SIZE)]
 
@@ -120,6 +121,7 @@ class StructuredGrammaticalEvolutionRepresentation(Representation[Genotype]):
         ind: Genotype,
         depth: int,
         ty: type,
+        specific_type: type = None,
     ) -> Genotype:
         return mutate(r, g, ind, depth)
 
@@ -130,6 +132,7 @@ class StructuredGrammaticalEvolutionRepresentation(Representation[Genotype]):
         i1: Genotype,
         i2: Genotype,
         depth: int,
+        specific_type: type = None,
     ) -> tuple[Genotype, Genotype]:
         return crossover(r, g, i1, i2, depth)
 

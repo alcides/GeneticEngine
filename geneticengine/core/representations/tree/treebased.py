@@ -6,6 +6,7 @@ from typing import Any
 from typing import Callable
 from typing import Dict
 from typing import List
+from typing import Optional
 from typing import Tuple
 from typing import Type
 from typing import TypeVar
@@ -416,10 +417,11 @@ def mutate_inner(
     i: TreeNode,
     max_depth: int,
     ty: type,
+    force_mutate: bool = False,
 ) -> TreeNode:
     if i.gengy_nodes > 0:
         c = r.randint(0, i.gengy_nodes - 1)
-        if c == 0:
+        if c == 0 or force_mutate:
             # If Metahandler mutation exists, the mutation process is different
             args_with_specific_mutation = [
                 has_annotated_mutation(arg[1]) for arg in get_arguments(i)
@@ -428,27 +430,24 @@ def mutate_inner(
                 mutation_possibilities = len(args_with_specific_mutation)
                 mutation_choice = r.randint(
                     0,
-                    mutation_possibilities,
-                )  # including 0 so that the whole node can also be replaced
-                if mutation_choice == mutation_possibilities:
-                    pass  # Replace whole node
-                else:
-                    (index, arg_to_be_mutated) = [
-                        (kdx, arg[1])
-                        for kdx, arg in enumerate(get_arguments(i))
-                        if args_with_specific_mutation[kdx]
-                    ][mutation_choice]
-                    args = list(i.gengy_init_values)
-                    args[index] = arg_to_be_mutated.__metadata__[0].mutate(  # type: ignore
-                        r,
-                        g,
-                        random_node,
-                        max_depth - 1,
-                        get_generic_parameter(arg_to_be_mutated),
-                        method=Grow,
-                        current_node=args[index],
-                    )
-                    return mk_save_init(type(i), lambda x: x)(*args)
+                    mutation_possibilities - 1,
+                )
+                (index, arg_to_be_mutated) = [
+                    (kdx, arg[1])
+                    for kdx, arg in enumerate(get_arguments(i))
+                    if args_with_specific_mutation[kdx]
+                ][mutation_choice]
+                args = list(i.gengy_init_values)
+                args[index] = arg_to_be_mutated.__metadata__[0].mutate(  # type: ignore
+                    r,
+                    g,
+                    random_node,
+                    max_depth - 1,
+                    get_generic_parameter(arg_to_be_mutated),
+                    method=Grow,
+                    current_node=args[index],
+                )
+                return mk_save_init(type(i), lambda x: x)(*args)
 
             replacement = random_node(r, g, max_depth, ty, method=Grow)
             return replacement
@@ -477,13 +476,78 @@ def mutate_inner(
         return random_node(r, g, max_depth, ty, method=Grow)
 
 
+def mutate_specific_type_inner(
+    r: Source,
+    g: Grammar,
+    i: TreeNode,
+    max_depth: int,
+    ty: type,
+    specific_type: type,
+    n: int,
+) -> TreeNode:
+    if n == 1 and type(i) == specific_type:
+        return mutate_inner(r, g, i, max_depth, ty, force_mutate=True)
+    else:
+        args = list(i.gengy_init_values)
+        for idx, (_, field_type) in enumerate(get_arguments(i)):
+            child = args[idx]
+            n_options = len(
+                list(find_in_tree_exact(g, specific_type, child, max_depth)),
+            )
+            if n_options <= n:
+                args[idx] = mutate_specific_type_inner(
+                    r,
+                    g,
+                    child,
+                    max_depth,
+                    ty,
+                    specific_type,
+                    n,
+                )
+            else:
+                n -= n_options
+        return mk_save_init(i, lambda x: x)(*args)
+
+
+def mutate_specific_type(
+    r: Source,
+    g: Grammar,
+    i: TreeNode,
+    max_depth: int,
+    target_type: type,
+    specific_type: type,
+) -> TreeNode:
+    ch = r.randint(0, 2)
+    n_options = len(list(find_in_tree_exact(g, specific_type, i, max_depth)))
+    if ch == 0 or n_options == 0:
+        new_tree = mutate_inner(r, g, i, max_depth, target_type)
+        relabeled_new_tree = relabel_nodes_of_trees(new_tree, g)
+        return relabeled_new_tree
+    else:
+        n = r.randint(1, n_options)
+        new_tree = mutate_specific_type_inner(
+            r,
+            g,
+            i,
+            max_depth,
+            target_type,
+            specific_type,
+            n,
+        )
+        relabeled_new_tree = relabel_nodes_of_trees(new_tree, g)
+        return relabeled_new_tree
+
+
 def mutate(
     r: Source,
     g: Grammar,
     i: TreeNode,
     max_depth: int,
     target_type: type,
+    specific_type: type | None = None,
 ) -> Any:
+    if specific_type:
+        return mutate_specific_type(r, g, i, max_depth, target_type, specific_type)
     new_tree = mutate_inner(r, g, i, max_depth, target_type)
     relabeled_new_tree = relabel_nodes_of_trees(new_tree, g)
     return relabeled_new_tree
@@ -527,12 +591,13 @@ def tree_crossover_inner(
     g: Grammar,
     i: TreeNode,
     o: TreeNode,
-    ty: type,
     max_depth: int,
+    ty: type,
+    force_crossover: bool = False,
 ) -> Any:
     if i.gengy_nodes > 0:
         c = r.randint(0, i.gengy_nodes - 1)
-        if c == 0:
+        if c == 0 or force_crossover:
             replacement = None
             args_with_specific_crossover = [
                 has_annotated_crossover(arg[1]) for arg in get_arguments(i)
@@ -541,12 +606,10 @@ def tree_crossover_inner(
                 crossover_possibilities = len(args_with_specific_crossover)
                 crossover_choice = r.randint(
                     0,
-                    crossover_possibilities,
-                )  # including 0 so that the whole node can also be replaced
+                    crossover_possibilities - 1,
+                )
                 options = list(find_in_tree_exact(g, type(i), o, max_depth))
-                if crossover_choice == crossover_possibilities or (
-                    not options
-                ):  # make sure there are options!
+                if not options:
                     pass  # Replace whole node
                 else:
                     (index, arg_to_be_crossovered) = [
@@ -591,8 +654,8 @@ def tree_crossover_inner(
                             g,
                             child,
                             o,
-                            field_type,
                             max_depth,
+                            field_type,
                         )
                         break
                     else:
@@ -602,33 +665,110 @@ def tree_crossover_inner(
         return i
 
 
+def tree_crossover_specific_type_inner(
+    r: Source,
+    g: Grammar,
+    i: TreeNode,
+    o: TreeNode,
+    max_depth: int,
+    ty: type,
+    specific_type: type,
+    n: int,
+) -> TreeNode:
+    if n == 1 and type(i) == specific_type:
+        return tree_crossover_inner(r, g, i, o, max_depth, ty, force_crossover=True)
+    else:
+        args = list(i.gengy_init_values)
+        for idx, (_, field_type) in enumerate(get_arguments(i)):
+            child = args[idx]
+            n_options = len(
+                list(find_in_tree_exact(g, specific_type, child, max_depth)),
+            )
+            if n_options <= n:
+                args[idx] = tree_crossover_specific_type_inner(
+                    r,
+                    g,
+                    child,
+                    o,
+                    max_depth,
+                    ty,
+                    specific_type,
+                    n,
+                )
+            else:
+                n -= n_options
+        return mk_save_init(i, lambda x: x)(*args)
+
+
+def tree_crossover_specific_type(
+    r: Source,
+    g: Grammar,
+    i: TreeNode,
+    o: TreeNode,
+    max_depth: int,
+    target_type: type,
+    specific_type: type,
+) -> TreeNode:
+    ch = r.randint(0, 1)
+    n_options_i = len(list(find_in_tree_exact(g, specific_type, i, max_depth)))
+    n_options_o = len(list(find_in_tree_exact(g, specific_type, o, max_depth)))
+    if ch == 0 or n_options_i == 0 or n_options_o == 0:
+        new_tree = tree_crossover_inner(r, g, i, o, max_depth, target_type)
+        relabeled_new_tree = relabel_nodes_of_trees(new_tree, g)
+        return relabeled_new_tree
+    else:
+        n = r.randint(1, n_options_i)
+        new_tree = tree_crossover_specific_type_inner(
+            r,
+            g,
+            i,
+            o,
+            max_depth,
+            target_type,
+            specific_type,
+            n,
+        )
+        relabeled_new_tree = relabel_nodes_of_trees(new_tree, g)
+        return relabeled_new_tree
+
+
 def tree_crossover(
     r: Source,
     g: Grammar,
     p1: TreeNode,
     p2: TreeNode,
     max_depth: int,
+    specific_type: type | None = None,
 ) -> tuple[TreeNode, TreeNode]:
     """
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns two trees that are created by crossing over [p1] and [p2]. The first tree returned has [p1] as the base, and the second tree has [p2] as a base.
     """
-    new_tree1 = tree_crossover_inner(
-        r,
-        g,
-        p1,
-        p2,
-        g.starting_symbol,
-        max_depth,
-    )
+    if specific_type:
+        new_tree1 = tree_crossover_specific_type(
+            r,
+            g,
+            p1,
+            p2,
+            max_depth,
+            g.starting_symbol,
+            specific_type,
+        )
+    else:
+        new_tree1 = tree_crossover_inner(r, g, p1, p2, max_depth, g.starting_symbol)
     relabeled_new_tree1 = relabel_nodes_of_trees(new_tree1, g)
-    new_tree2 = tree_crossover_inner(
-        r,
-        g,
-        p2,
-        p1,
-        g.starting_symbol,
-        max_depth,
-    )
+
+    if specific_type:
+        new_tree2 = tree_crossover_specific_type(
+            r,
+            g,
+            p2,
+            p1,
+            max_depth,
+            g.starting_symbol,
+            specific_type,
+        )
+    else:
+        new_tree2 = tree_crossover_inner(r, g, p2, p1, max_depth, g.starting_symbol)
     relabeled_new_tree2 = relabel_nodes_of_trees(new_tree2, g)
     return relabeled_new_tree1, relabeled_new_tree2
 
@@ -666,8 +806,9 @@ class TreeBasedRepresentation(Representation[TreeNode]):
         ind: TreeNode,
         depth: int,
         ty: type,
+        specific_type: type = None,
     ) -> TreeNode:
-        return mutate(r, g, ind, depth, ty)
+        return mutate(r, g, ind, depth, ty, specific_type)
 
     def crossover_individuals(
         self,
@@ -676,8 +817,9 @@ class TreeBasedRepresentation(Representation[TreeNode]):
         i1: TreeNode,
         i2: TreeNode,
         max_depth: int,
+        specific_type: type = None,
     ) -> tuple[TreeNode, TreeNode]:
-        return tree_crossover(r, g, i1, i2, max_depth)
+        return tree_crossover(r, g, i1, i2, max_depth, specific_type)
 
     def genotype_to_phenotype(self, g: Grammar, genotype: TreeNode) -> TreeNode:
         return genotype
