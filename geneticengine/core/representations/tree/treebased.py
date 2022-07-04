@@ -773,28 +773,6 @@ def crossover(
     return relabeled_new_tree1, relabeled_new_tree2
 
 
-def crossover_single_tree(
-    r: Source,
-    g: Grammar,
-    p1: TreeNode,
-    p2: TreeNode,
-    max_depth: int,
-) -> TreeNode:
-    """
-    Given the two input trees [p1] and [p2], the grammar and the random source, this function returns one tree that is created by crossing over [p1] and [p2]. The tree returned has [p1] as the base.
-    """
-    new_tree = crossover_inner(
-        r,
-        g,
-        deepcopy(p1),
-        deepcopy(p2),
-        g.starting_symbol,
-        max_depth,
-    )
-    relabeled_new_tree = relabel_nodes_of_trees(new_tree, g)
-    return relabeled_new_tree
-
-
 class TreeBasedRepresentation(Representation[TreeNode]):
     def create_individual(self, r: Source, g: Grammar, depth: int) -> TreeNode:
         return random_individual(r, g, depth)
