@@ -74,7 +74,6 @@ class ListSizeBetween(MetaHandlerGenerator):
     ):
         if not options or (len(current_node) < 2):
             return current_node
-        crossover_method = r.randint(0, 1)
         n_elements_replaced = r.randint(1, len(current_node) - 1)
         big_enough_options = [
             getattr(o, arg)
@@ -92,17 +91,9 @@ class ListSizeBetween(MetaHandlerGenerator):
             ]
         option = big_enough_options[r.randint(0, len(big_enough_options) - 1)]
 
-        if crossover_method == 0:  # cut beginning
-            new_node = (
-                option[0:n_elements_replaced] + current_node[n_elements_replaced:]
-            )
-            return GengyList(list_type, new_node)
-        else:  # cut end
-            new_node = (
-                current_node[0:n_elements_replaced]
-                + option[n_elements_replaced : len(current_node)]
-            )
-            return GengyList(list_type, new_node)
+        # Always cut beginning as we do double crossovers, first using one tree as the current node, and then the second tree as current node.
+        new_node = option[0:n_elements_replaced] + current_node[n_elements_replaced:]
+        return GengyList(list_type, new_node)
 
     def __class_getitem__(self, args):
         return ListSizeBetween(*args)
