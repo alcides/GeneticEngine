@@ -170,24 +170,6 @@ def preprocess():
     return extract_grammar([ActionBlock, Action, IfFood, Move, Right, Left], ActionMain)
 
 
-def evolve(g, seed, mode):
-    alg_gp = GP(
-        g,
-        lambda p: simulate(p, map),
-        representation=treebased_representation,
-        minimize=False,
-        max_depth=40,
-        number_of_generations=50,
-        population_size=150,
-        n_novelties=10,
-        seed=seed,
-        n_elites=10,
-        timer_stop_criteria=mode,
-    )
-    (b_gp, bf_gp, bp_gp) = alg_gp.evolve(verbose=1)
-    return b_gp, bf_gp
-
-
 if __name__ == "__main__":
     g = preprocess()
     print(f"Grammar: {repr(g)}")
