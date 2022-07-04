@@ -4,11 +4,13 @@ from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
+from geneticengine.core.representations.tree.treebased import (
+    crossover as tree_crossover,
+)
 from geneticengine.core.representations.tree.treebased import Grow
 from geneticengine.core.representations.tree.treebased import mutate
 from geneticengine.core.representations.tree.treebased import PI_Grow
 from geneticengine.core.representations.tree.treebased import random_node
-from geneticengine.core.representations.tree.treebased import tree_crossover
 
 
 @abstract

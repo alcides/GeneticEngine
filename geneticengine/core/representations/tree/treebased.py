@@ -586,7 +586,7 @@ def find_in_tree_exact(g: Grammar, ty: type, o: TreeNode, max_depth: int):
             yield from filter(is_valid, vals)
 
 
-def tree_crossover_inner(
+def crossover_inner(
     r: Source,
     g: Grammar,
     i: TreeNode,
@@ -649,7 +649,7 @@ def tree_crossover_inner(
                 if hasattr(child, "gengy_nodes"):
                     count = child.gengy_nodes
                     if c <= count:
-                        args[idx] = tree_crossover_inner(
+                        args[idx] = crossover_inner(
                             r,
                             g,
                             child,
@@ -665,7 +665,7 @@ def tree_crossover_inner(
         return i
 
 
-def tree_crossover_specific_type_inner(
+def crossover_specific_type_inner(
     r: Source,
     g: Grammar,
     i: TreeNode,
@@ -676,7 +676,7 @@ def tree_crossover_specific_type_inner(
     n: int,
 ) -> TreeNode:
     if n == 1 and type(i) == specific_type:
-        return tree_crossover_inner(r, g, i, o, max_depth, ty, force_crossover=True)
+        return crossover_inner(r, g, i, o, max_depth, ty, force_crossover=True)
     else:
         args = list(i.gengy_init_values)
         for idx, (_, field_type) in enumerate(get_arguments(i)):
@@ -685,7 +685,7 @@ def tree_crossover_specific_type_inner(
                 list(find_in_tree_exact(g, specific_type, child, max_depth)),
             )
             if n_options <= n:
-                args[idx] = tree_crossover_specific_type_inner(
+                args[idx] = crossover_specific_type_inner(
                     r,
                     g,
                     child,
@@ -700,7 +700,7 @@ def tree_crossover_specific_type_inner(
         return mk_save_init(i, lambda x: x)(*args)
 
 
-def tree_crossover_specific_type(
+def crossover_specific_type(
     r: Source,
     g: Grammar,
     i: TreeNode,
@@ -713,12 +713,12 @@ def tree_crossover_specific_type(
     n_options_i = len(list(find_in_tree_exact(g, specific_type, i, max_depth)))
     n_options_o = len(list(find_in_tree_exact(g, specific_type, o, max_depth)))
     if ch == 0 or n_options_i == 0 or n_options_o == 0:
-        new_tree = tree_crossover_inner(r, g, i, o, max_depth, target_type)
+        new_tree = crossover_inner(r, g, i, o, max_depth, target_type)
         relabeled_new_tree = relabel_nodes_of_trees(new_tree, g)
         return relabeled_new_tree
     else:
         n = r.randint(1, n_options_i)
-        new_tree = tree_crossover_specific_type_inner(
+        new_tree = crossover_specific_type_inner(
             r,
             g,
             i,
@@ -732,7 +732,7 @@ def tree_crossover_specific_type(
         return relabeled_new_tree
 
 
-def tree_crossover(
+def crossover(
     r: Source,
     g: Grammar,
     p1: TreeNode,
@@ -744,7 +744,7 @@ def tree_crossover(
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns two trees that are created by crossing over [p1] and [p2]. The first tree returned has [p1] as the base, and the second tree has [p2] as a base.
     """
     if specific_type:
-        new_tree1 = tree_crossover_specific_type(
+        new_tree1 = crossover_specific_type(
             r,
             g,
             p1,
@@ -754,11 +754,11 @@ def tree_crossover(
             specific_type,
         )
     else:
-        new_tree1 = tree_crossover_inner(r, g, p1, p2, max_depth, g.starting_symbol)
+        new_tree1 = crossover_inner(r, g, p1, p2, max_depth, g.starting_symbol)
     relabeled_new_tree1 = relabel_nodes_of_trees(new_tree1, g)
 
     if specific_type:
-        new_tree2 = tree_crossover_specific_type(
+        new_tree2 = crossover_specific_type(
             r,
             g,
             p2,
@@ -768,12 +768,12 @@ def tree_crossover(
             specific_type,
         )
     else:
-        new_tree2 = tree_crossover_inner(r, g, p2, p1, max_depth, g.starting_symbol)
+        new_tree2 = crossover_inner(r, g, p2, p1, max_depth, g.starting_symbol)
     relabeled_new_tree2 = relabel_nodes_of_trees(new_tree2, g)
     return relabeled_new_tree1, relabeled_new_tree2
 
 
-def tree_crossover_single_tree(
+def crossover_single_tree(
     r: Source,
     g: Grammar,
     p1: TreeNode,
@@ -783,7 +783,7 @@ def tree_crossover_single_tree(
     """
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns one tree that is created by crossing over [p1] and [p2]. The tree returned has [p1] as the base.
     """
-    new_tree = tree_crossover_inner(
+    new_tree = crossover_inner(
         r,
         g,
         deepcopy(p1),
@@ -819,7 +819,7 @@ class TreeBasedRepresentation(Representation[TreeNode]):
         max_depth: int,
         specific_type: type = None,
     ) -> tuple[TreeNode, TreeNode]:
-        return tree_crossover(r, g, i1, i2, max_depth, specific_type)
+        return crossover(r, g, i1, i2, max_depth, specific_type)
 
     def genotype_to_phenotype(self, g: Grammar, genotype: TreeNode) -> TreeNode:
         return genotype
