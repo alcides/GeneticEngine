@@ -45,7 +45,7 @@ def create_elitism(
         population = sorted(population, key=fitness)
         elites: list[Individual] = list()
         i = 0
-        while len(elites) < n_elites and i <= len(population):
+        while len(elites) < n_elites and i < len(population):
             if population[i] not in elites:
                 elites.append(population[i])
             i += 1
