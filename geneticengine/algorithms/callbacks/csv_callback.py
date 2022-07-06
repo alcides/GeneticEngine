@@ -14,6 +14,8 @@ class CSVCallback(Callback):
         self,
         filename: str = None,
         filter_population: Callable[[list[Individual]], list[Individual]] = lambda x: x,
+        test_data: Callable[[Individual], float] = None,
+        only_record_best_ind: bool = True,
         save_genotype_as_string: bool = True,
     ):
         if filename is None:
@@ -21,6 +23,8 @@ class CSVCallback(Callback):
         self.filename = filename
         self.filter_population = filter_population
         self.cumulative_time = 0.0
+        self.test_data = test_data
+        self.only_record_best_ind = only_record_best_ind
         self.save_genotype_as_string = save_genotype_as_string
         self.write_header()
 
@@ -30,32 +34,24 @@ class CSVCallback(Callback):
     def write_header(self):
         self.outfile = open(f"{self.filename}", "w", newline="")
         self.writer = csv.writer(self.outfile)
+        row = [
+            "fitness",
+            "depth",
+            "nodes",
+            "number_of_the_generation",
+            "time_since_the_start_of_the_evolution",
+            "seed",
+        ]
+        if self.test_data:
+            row.append("test_fitness")
         if self.save_genotype_as_string:
-            self.writer.writerow(
-                [
-                    "fitness",
-                    "depth",
-                    "nodes",
-                    "number_of_the_generation",
-                    "time_since_the_start_of_the_evolution",
-                    "seed",
-                    "genotype_as_str",
-                ],
-            )
-        else:
-            self.writer.writerow(
-                [
-                    "fitness",
-                    "depth",
-                    "nodes",
-                    "number_of_the_generation",
-                    "time_since_the_start_of_the_evolution",
-                    "seed",
-                ],
-            )
+            row.append("genotype_as_str")
+        self.writer.writerow(row)
 
     def process_iteration(self, generation: int, population, time: float, gp):
         pop = self.filter_population(population)
+        if self.only_record_best_ind:
+            pop = pop[0 : self.only_record_best_ind]
         self.cumulative_time = self.cumulative_time + time
         for ind in pop:
             if hasattr(ind.genotype, "gengy_distance_to_term"):
@@ -66,23 +62,16 @@ class CSVCallback(Callback):
                 nodes = ind.genotype.gengy_nodes
             else:
                 nodes = -1
+            row = [
+                ind.fitness,
+                depth,
+                nodes,
+                generation,
+                self.cumulative_time,
+                gp.seed,
+            ]
+            if self.test_data:
+                row.append(self.test_data(ind))
             if self.save_genotype_as_string:
-                row = [
-                    ind.fitness,
-                    depth,
-                    nodes,
-                    generation,
-                    self.cumulative_time,
-                    gp.seed,
-                    ind.genotype,
-                ]
-            else:
-                row = [
-                    ind.fitness,
-                    depth,
-                    nodes,
-                    generation,
-                    self.cumulative_time,
-                    gp.seed,
-                ]
+                row.append(ind.genotype)
             self.writer.writerow([str(x) for x in row])

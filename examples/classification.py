@@ -9,6 +9,7 @@ from typing import Callable
 
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.decorators import abstract
@@ -167,10 +168,37 @@ def preprocess():
 # <idx> ::= 0 | 1 | 2 | 3
 # <c> ::= -1.0 | -0.1 | -0.01 | -0.001 | 0.001 | 0.01 | 0.1 | 1.0
 
+X_train, X_test, y_train, y_test = train_test_split(
+    data.values,
+    target.values,
+    test_size=0.75,
+)
+
 
 def fitness_function(n: Number):
-    X = data.values
-    y = target.values
+    X = X_train
+    y = y_train
+
+    variables = {}
+    for x in feature_names:
+        i = feature_indices[x]
+        variables[x] = X[:, i]
+    y_pred = n.evaluate(**variables)
+
+    if type(y_pred) in [np.float64, int, float]:
+        """If n does not use variables, the output will be scalar."""
+        y_pred = np.full(len(y), y_pred)
+    if y_pred.shape != (len(y),):
+        return -100000000
+    fitness = f1_score(y_pred, y)
+    if isinf(fitness):
+        fitness = -100000000
+    return fitness
+
+
+def fitness_test_function(n: Number):
+    X = X_test
+    y = y_test
 
     variables = {}
     for x in feature_names:
@@ -219,6 +247,8 @@ def evolve(
         minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
+        # save_to_csv='bla.csv',
+        # test_data=fitness_test_function
     )
     (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf

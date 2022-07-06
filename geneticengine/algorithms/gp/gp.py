@@ -4,6 +4,7 @@ import time
 from typing import Any
 from typing import Callable
 from typing import NoReturn
+from typing import Optional
 
 import geneticengine.algorithms.gp.generation_steps.cross_over as cross_over
 import geneticengine.algorithms.gp.generation_steps.mutation as mutation
@@ -104,8 +105,12 @@ class GP:
         # -----
         timer_stop_criteria: bool = False,  # TODO: This should later be generic
         timer_limit: int = 60,
+        # -----
         save_to_csv: str = None,
         save_genotype_as_string: bool = True,
+        test_data: Callable[[Any], float] = None,
+        only_record_best_inds: int | None = 1,
+        # -----
         callbacks: list[Callback] = None,
     ):
         assert population_size > (n_elites + n_novelties + 1)
@@ -170,8 +175,21 @@ class GP:
         self.force_individual = force_individual
 
         if save_to_csv:
+            if test_data:
+
+                def test_evaluate(individual: Individual) -> float:
+                    phenotype = representation.genotype_to_phenotype(
+                        grammar,
+                        individual.genotype,
+                    )
+                    test_fitness = test_data(phenotype)
+                    return test_fitness
+
+                self.test_data = test_evaluate
             c = CSVCallback(
                 save_to_csv,
+                test_data=self.test_data,
+                only_record_best_ind=only_record_best_inds,
                 save_genotype_as_string=save_genotype_as_string,
             )
             self.callbacks.append(c)
