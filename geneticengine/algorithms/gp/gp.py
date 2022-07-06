@@ -46,12 +46,17 @@ class GP:
         - timer_stop_criteria (bool): If set to True, the algorithm is stopped after the time limit (default = 60 seconds). Then the fittest individual is returned (default = False).
         - timer_limit (int): The time limit of the timer.
         - save_to_csv (str): Saves a CSV file with the details of all the individuals of all generations.
+        - test_data (Any): Give test data (format: (X_test, y_test)) to test the individuals on test data during training and save that to the csv (default = None).
+        - only_record_best_inds (int : None): Specify the number of indivduals to be recorded and saved to the csv files (default = 1).
         - save_genotype_as_string (bool): Turn this off if you don't want to safe all the genotypes as strings. This saves memory and a bit of time.
         - callbacks (List[Callback]): The callbacks to define what is done with the returned prints from the algorithm (default = []).
         -----
         Default as given in A Field Guide to GP, p.17, by Poli and Mcphee:
         - probability_mutation (float): probability that an individual is mutated (default = 0.01).
         - probability_crossover (float): probability that an individual is chosen for cross-over (default = 0.9).
+        - either_mut_or_cro (float | None): Switch evolution style to do either a mutation or a crossover. The given float defines the chance of a mutation. Otherwise a crossover is performed. (default = None),
+        - specific_type_mutation (type): Specify a type that is given preference when mutation occurs (default = None),
+        - specific_type_crossover (type): Specify a type that is given preference when crossover occurs (default = None),
         -----
 
     """
@@ -94,10 +99,11 @@ class GP:
         # As given in A Field Guide to GP, p.17, by Poli and Mcphee
         probability_mutation: float = 0.01,
         probability_crossover: float = 0.9,
-        # -----
+        either_mut_or_cro: float | None = None,
         hill_climbing: bool = False,
         specific_type_mutation: type = None,
         specific_type_crossover: type = None,
+        # -----
         minimize: bool = False,
         target_fitness: float | None = None,
         force_individual: Any = None,
@@ -165,6 +171,7 @@ class GP:
         self.number_of_generations = number_of_generations
         self.probability_mutation = probability_mutation
         self.probability_crossover = probability_crossover
+        self.either_mut_or_cro = either_mut_or_cro
         if selection_method[0] == "tournament":
             self.selection = selection.create_tournament(
                 selection_method[1],
@@ -280,17 +287,31 @@ class GP:
             npop = self.novelty(self.n_novelties)
             npop.extend(self.elitism(population, self.keyfitness()))
             spotsLeft = self.population_size - len(npop)
-            for _ in range(spotsLeft // 2):
-                candidates = self.selection(self.random, population, 2)
-                (p1, p2) = candidates[0], candidates[1]
-                if self.random.randint(0, 100) < self.probability_crossover * 100:
-                    (p1, p2) = self.cross_over(p1, p2)
-                if self.random.randint(0, 100) < self.probability_mutation * 100:
-                    p1 = self.mutation(p1)
-                if self.random.randint(0, 100) < self.probability_mutation * 100:
-                    p2 = self.mutation(p2)
-                npop.append(p1)
-                npop.append(p2)
+            while spotsLeft > 0:
+                if self.either_mut_or_cro:
+                    if self.random.random_float(0, 1) < self.either_mut_or_cro:
+                        candidate = self.selection(self.random, population, 1)
+                        p1 = self.mutation(candidate[0])
+                        npop.append(p1)
+                        spotsLeft -= 1
+                    else:
+                        candidates = self.selection(self.random, population, 2)
+                        (p1, p2) = self.cross_over(candidates[0], candidates[1])
+                        npop.append(p1)
+                        npop.append(p2)
+                        spotsLeft -= 2
+                else:
+                    candidates = self.selection(self.random, population, 2)
+                    (p1, p2) = candidates[0], candidates[1]
+                    if self.random.randint(0, 100) < self.probability_crossover * 100:
+                        (p1, p2) = self.cross_over(p1, p2)
+                    if self.random.randint(0, 100) < self.probability_mutation * 100:
+                        p1 = self.mutation(p1)
+                    if self.random.randint(0, 100) < self.probability_mutation * 100:
+                        p2 = self.mutation(p2)
+                    npop.append(p1)
+                    npop.append(p2)
+                    spotsLeft -= 2
 
             population = npop
             population = sorted(population, key=self.keyfitness())

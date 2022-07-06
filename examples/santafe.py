@@ -184,6 +184,7 @@ if __name__ == "__main__":
         population_size=150,
         specific_type_mutation=ActionBlock,
         specific_type_crossover=ActionBlock,
+        either_mut_or_cro=0.5,
         n_novelties=10,
         n_elites=10,
     )
