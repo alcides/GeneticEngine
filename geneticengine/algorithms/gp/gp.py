@@ -183,10 +183,11 @@ class GP:
                         grammar,
                         individual.genotype,
                     )
-                    test_fitness = test_data(phenotype)
+                    test_fitness = test_data(phenotype)  # type: ignore
                     return test_fitness
 
                 self.test_data = test_evaluate
+
             c = CSVCallback(
                 save_to_csv,
                 test_data=self.test_data,
