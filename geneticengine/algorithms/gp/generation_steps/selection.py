@@ -43,7 +43,7 @@ def create_elitism(
         fitness: Callable[[Individual], float],
     ) -> list[Individual]:
         population = sorted(population, key=fitness)
-        elites = list()
+        elites: list[Individual] = list()
         i = 0
         while len(elites) < n_elites and i <= len(population):
             if population[i] not in elites:
