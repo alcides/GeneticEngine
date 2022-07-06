@@ -175,7 +175,8 @@ class GP:
         self.force_individual = force_individual
 
         if save_to_csv:
-            if test_data:
+            self.test_data = test_data
+            if self.test_data:
 
                 def test_evaluate(individual: Individual) -> float:
                     phenotype = representation.genotype_to_phenotype(
