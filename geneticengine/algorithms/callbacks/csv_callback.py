@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 from typing import Callable
+from typing import Optional
 
 from geneticengine.algorithms.callbacks.callback import Callback
 from geneticengine.algorithms.gp.individual import Individual
@@ -15,7 +16,7 @@ class CSVCallback(Callback):
         filename: str = None,
         filter_population: Callable[[list[Individual]], list[Individual]] = lambda x: x,
         test_data: Callable[[Individual], float] = None,
-        only_record_best_ind: bool = True,
+        only_record_best_ind: int | None = 1,
         save_genotype_as_string: bool = True,
     ):
         if filename is None:
