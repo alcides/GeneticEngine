@@ -48,7 +48,7 @@ class ListSizeBetween(MetaHandlerGenerator):
         method,
         current_node,
     ):
-        mutation_method = r.randint(0, 2)
+        mutation_method = r.randint(0, 1)
         if (mutation_method == 0) and (len(current_node) != self.min):  # del
             element_to_be_deleted = r.randint(0, len(current_node) - 1)
             current_node.remove(current_node[element_to_be_deleted])
