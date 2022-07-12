@@ -240,15 +240,16 @@ def evolve(
         number_of_generations=50,
         max_depth=15,
         # max_init_depth=10,
-        population_size=500,
+        population_size=50,
         selection_method=("tournament", 2),
-        n_elites=5,
+        n_elites=1,
         # ----------------
         minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
         # save_to_csv='bla.csv',
-        # test_data=fitness_test_function
+        # test_data=fitness_test_function,
+        # only_record_best_inds=None,
     )
     (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf
