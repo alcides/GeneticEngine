@@ -4,4 +4,5 @@ palettable
 pandas
 pytest
 sklearn
+threadpoolctl==3.1.0
 z3-solver
