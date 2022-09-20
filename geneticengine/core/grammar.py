@@ -50,10 +50,11 @@ class Grammar:
         self,
         starting_symbol: type,
         considered_subtypes: list[type] = None,
+        ponyge_depthing: bool = False,
     ) -> None:
         self.alternatives: dict[type, list[type]] = {}
         self.starting_symbol = starting_symbol
-        self.distanceToTerminal = {int: 1, str: 1, float: 1}
+        self.distanceToTerminal = {int: 0, str: 0, float: 0}
         self.all_nodes = set()
         self.recursive_prods = set()
         self.terminals = set()
@@ -62,6 +63,7 @@ class Grammar:
             lambda: defaultdict(lambda: 1000000),
         )
         self.considered_subtypes = considered_subtypes or []
+        self.ponyge_depthing = ponyge_depthing
 
         self.validate()
 
@@ -187,9 +189,9 @@ class Grammar:
             return self.get_distance_to_terminal(ta)
         elif is_generic_list(ty):
             ta = get_generic_parameter(ty)
-            return 1 + self.get_distance_to_terminal(ta)
+            return int(self.ponyge_depthing) + self.get_distance_to_terminal(ta)
         elif is_generic(ty):
-            return 1 + max(
+            return int(self.ponyge_depthing) + max(
                 self.get_distance_to_terminal(t) for t in get_generic_parameters(ty)
             )
         else:
@@ -239,7 +241,11 @@ class Grammar:
                     if sym in self.alternatives:
                         prods = self.alternatives[sym]
                         for prod in prods:
-                            val = min(val, 1 + self.distanceToTerminal[prod])
+                            val = min(
+                                val,
+                                int(self.ponyge_depthing)
+                                + self.distanceToTerminal[prod],
+                            )
                             old = self.abstract_dist_to_t[sym][prod]
                             if 1 < old:
                                 self.abstract_dist_to_t[sym][prod] = 1
@@ -258,7 +264,12 @@ class Grammar:
                         changed |= process_reachability(sym, prods)
                 else:
                     if is_terminal(sym, self.non_terminals):
-                        val = 1
+                        if (
+                            sym == int or sym == float or sym == str
+                        ) and not self.ponyge_depthing:
+                            val = 0
+                        else:
+                            val = 1
                     else:
                         args = get_arguments(sym)
                         assert args

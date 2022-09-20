@@ -339,6 +339,10 @@ def expand_node(
         )
         return
     else:
+        extra_depth = 1
+        if is_abstract(starting_symbol) and not g.ponyge_depthing:
+            extra_depth = 0
+
         if starting_symbol not in g.all_nodes:
             raise GeneticEngineError(
                 f"Symbol {starting_symbol} not in grammar rules.",
@@ -348,7 +352,7 @@ def expand_node(
             compatible_productions = g.alternatives[starting_symbol]
             valid_productions = filter_choices(
                 compatible_productions,
-                depth - 1,
+                depth - extra_depth,
             )
             if not valid_productions:
                 raise GeneticEngineError(
@@ -372,7 +376,7 @@ def expand_node(
                 )
             else:
                 rule = r.choice(valid_productions, str(starting_symbol))
-            new_symbol(rule, receiver, depth - 1, id, ctx)
+            new_symbol(rule, receiver, depth - extra_depth, id, ctx)
         else:  # Normal production
             args = get_arguments(starting_symbol)
             ctx = ctx.copy()
@@ -392,7 +396,7 @@ def expand_node(
                 l,
             )
             for i, (argn, argt) in enumerate(args):
-                new_symbol(argt, fins[i], depth - 1, id + "_" + argn, ctx)
+                new_symbol(argt, fins[i], depth - extra_depth, id + "_" + argn, ctx)
 
 
 def random_individual(r: Source, g: Grammar, max_depth: int = 5) -> TreeNode:
@@ -452,7 +456,7 @@ def mutate_inner(
             replacement = random_node(r, g, max_depth, ty, method=Grow)
             return replacement
         else:
-            if is_abstract(ty):
+            if is_abstract(ty) and g.ponyge_depthing:
                 max_depth -= g.abstract_dist_to_t[ty][type(i)]
             max_depth -= 1
             args = list(i.gengy_init_values)
@@ -562,7 +566,7 @@ def find_in_tree(g: Grammar, ty: type, o: TreeNode, max_depth: int):
             def is_valid(node):
                 _, depth, _ = relabel_nodes(node, g)
 
-                if is_abs:
+                if is_abs and g.ponyge_depthing:
                     depth += g.abstract_dist_to_t[ty][t]
 
                 return depth <= max_depth
@@ -640,7 +644,7 @@ def crossover_inner(
 
             return replacement
         else:
-            if is_abstract(ty):
+            if is_abstract(ty) and g.ponyge_depthing:
                 max_depth -= g.abstract_dist_to_t[ty][type(i)]
             max_depth -= 1
             args = list(i.gengy_init_values)
