@@ -49,8 +49,8 @@ class Grammar:
     def __init__(
         self,
         starting_symbol: type,
+        ponyge_depthing: bool,
         considered_subtypes: list[type] = None,
-        ponyge_depthing: bool = False,
     ) -> None:
         self.alternatives: dict[type, list[type]] = {}
         self.starting_symbol = starting_symbol
@@ -297,6 +297,7 @@ class Grammar:
 def extract_grammar(
     considered_subtypes: list[type],
     starting_symbol: type,
+    ponyge_depthing: bool = False,
 ):
     """
     The extract_grammar takes in all the productions of the grammar (nodes) and a starting symbol (starting_symbol). It goes through all the nodes and constructs a complete grammar that can then be used for search algorithms such as Genetic Programming and Hill Climbing.
@@ -309,7 +310,7 @@ def extract_grammar(
         - The grammar
 
     """
-    g = Grammar(starting_symbol, considered_subtypes)
+    g = Grammar(starting_symbol, ponyge_depthing, considered_subtypes)
     g.register_type(starting_symbol)
     g.preprocess()
     return g
