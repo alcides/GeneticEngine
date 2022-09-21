@@ -157,6 +157,7 @@ def preprocess():
         [Plus, Mul, SafeDiv, Literal2, Var, SafeSqrt, SafeLog],
         # [Plus, Mul, SafeDiv, Var, SafeSqrt, SafeLog] + literals,
         Number,
+        # ponyge_depthing=True
     )
 
 
