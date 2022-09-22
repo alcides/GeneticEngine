@@ -5,27 +5,34 @@ from typing import Callable
 from typing import List
 
 from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.core.problems import Problem
+from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.random.sources import RandomSource
 
 
 def create_tournament(
     tournament_size: int,
-    minimize=False,
+    problem: Problem,
 ) -> Callable[[RandomSource, list[Individual], int], list[Individual]]:
+    assert isinstance(problem, SingleObjectiveProblem)
+
     def tournament(
         r: RandomSource,
         population: list[Individual],
         n_winners: int,
     ) -> list[Individual]:
+        assert isinstance(problem, SingleObjectiveProblem)
         winners = []
         for _ in range(n_winners):
             candidates = [r.choice(population) for _ in range(tournament_size)]
             winner = candidates[0]
             assert winner.fitness is not None
+            assert isinstance(winner.fitness, float)
             for o in candidates[1:]:
                 assert o.fitness is not None
-                if (o.fitness > winner.fitness and not minimize) or (
-                    o.fitness < winner.fitness and minimize
+                assert isinstance(o.fitness, float)
+                if (o.fitness > winner.fitness and not problem.minimize) or (
+                    o.fitness < winner.fitness and problem.minimize
                 ):
                     winner = o
             winners.append(winner)

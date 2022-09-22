@@ -16,6 +16,12 @@ from geneticengine.algorithms.callbacks.callback import ProgressCallback
 from geneticengine.algorithms.callbacks.csv_callback import CSVCallback
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.core.grammar import Grammar
+from geneticengine.core.problems import FitnessType
+from geneticengine.core.problems import MultiObjectiveProblem
+from geneticengine.core.problems import Problem
+from geneticengine.core.problems import process_problem
+from geneticengine.core.problems import SingleObjectiveProblem
+from geneticengine.core.problems import wrap_depth
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.api import Representation
 from geneticengine.core.representations.tree.treebased import relabel_nodes_of_trees
@@ -84,8 +90,16 @@ class GP:
     def __init__(
         self,
         grammar: Grammar,
-        evaluation_function: Callable[[Any], float],
         representation: Representation = treebased_representation,
+        # These classes should be replaced by the problem alone.
+        problem: Problem = None,
+        evaluation_function: Callable[
+            [Any],
+            float,
+        ] = None,  # DEPRECATE in the next version
+        minimize: bool = False,  # DEPRECATE in the next version
+        target_fitness: float | None = None,  # DEPRECATE in the next version
+        favor_less_deep_trees: bool = False,  # DEPRECATE in the next version
         randomSource: Callable[[int], RandomSource] = RandomSource,
         population_size: int = 200,
         n_elites: int = 5,  # Shouldn't this be a percentage of population size?
@@ -93,7 +107,6 @@ class GP:
         number_of_generations: int = 100,
         max_depth: int = 15,
         # now based on depth, maybe on number of nodes?
-        favor_less_deep_trees: bool = False,
         selection_method: tuple[str, int] = ("tournament", 5),
         # -----
         # As given in A Field Guide to GP, p.17, by Poli and Mcphee
@@ -104,8 +117,6 @@ class GP:
         specific_type_mutation: type = None,
         specific_type_crossover: type = None,
         # -----
-        minimize: bool = False,
-        target_fitness: float | None = None,
         force_individual: Any = None,
         seed: int = 123,
         # -----
@@ -121,9 +132,13 @@ class GP:
     ):
         assert population_size > (n_elites + n_novelties + 1)
 
+        self.problem: Problem = wrap_depth(
+            process_problem(problem, evaluation_function, minimize, target_fitness),
+            favor_less_deep_trees,
+        )
+
         self.grammar = grammar
         self.representation = representation
-        self.evaluation_function = evaluation_function
         self.random = randomSource(seed)
         self.seed = seed
         self.population_size = population_size
@@ -134,8 +149,6 @@ class GP:
             self.create_individual,
             max_depth=max_depth,
         )
-        self.minimize = minimize
-        self.target_fitness = target_fitness
         self.timer_stop_criteria = timer_stop_criteria
         self.timer_limit = timer_limit
         if callbacks:
@@ -175,7 +188,7 @@ class GP:
         if selection_method[0] == "tournament":
             self.selection = selection.create_tournament(
                 selection_method[1],
-                self.minimize,
+                self.problem,
             )
         else:
             self.selection = lambda r, ls, n: [x for x in ls[:n]]
@@ -214,30 +227,22 @@ class GP:
             fitness=None,
         )
 
-    def evaluate(self, individual: Individual) -> float:
+    def evaluate(self, individual: Individual) -> FitnessType:
         if individual.fitness is None:
             phenotype = self.representation.genotype_to_phenotype(
                 self.grammar,
                 individual.genotype,
             )
-            individual.fitness = self.evaluation_function(phenotype)
+            individual.fitness = self.problem.evaluate(phenotype)
         return individual.fitness
 
-    def fitness_correction_for_depth(self, individual: Individual) -> float:
-        if (
-            self.favor_less_deep_trees
-        ):  # grammatical evolution does not have gengy_distance_to_term
-            return individual.genotype.gengy_distance_to_term * 10**-25
-        else:
-            return 0
-
     def keyfitness(self):
-        if self.minimize:
-            return lambda x: self.evaluate(x) + self.fitness_correction_for_depth(x)
+        if self.problem.minimize:
+            return lambda x: self.evaluate(x)
         else:
-            return lambda x: -self.evaluate(x) - self.fitness_correction_for_depth(x)
+            return lambda x: -self.evaluate(x)
 
-    def evolve(self, verbose=1) -> tuple[Individual, float, Any]:
+    def evolve(self, verbose=1) -> tuple[Individual, FitnessType, Any]:
         """
         The main function of the GP object. This function runs the GP algorithm over the set number of generations, evolving better solutions
 
@@ -320,13 +325,11 @@ class GP:
             for cb in self.callbacks:
                 cb.process_iteration(gen + 1, population, time=time_gen, gp=self)
 
-            if (
-                self.target_fitness is not None
-                and population[0].fitness == self.target_fitness
-            ):
+            if self.problem.solved(population[0].fitness):
                 break
             gen += 1
         self.final_population = population
+
         for cb in self.callbacks:
             cb.end_evolution()
         return (
