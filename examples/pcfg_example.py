@@ -9,6 +9,7 @@ from typing import Protocol
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.decorators import weight
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.lists import ListSizeBetween
@@ -37,8 +38,12 @@ if __name__ == "__main__":
     g = extract_grammar([A, B, C], R)
     alg = GP(
         g,
-        lambda x: 1,
         representation=treebased_representation,
+        problem=SingleObjectiveProblem(
+            minimize=False,
+            fitness_function=lambda x: 1,
+            target_fitness=None,
+        ),
         max_depth=10,
         population_size=1000,
         number_of_generations=10,

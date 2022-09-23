@@ -8,6 +8,7 @@ from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.algorithms.random_search import RandomSearch
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.structured_ge import (
     sge_representation,
 )
@@ -46,8 +47,12 @@ def target(x):
 
 alg_gp = GP(
     g,
-    fit,
     representation=treebased_representation,
+    problem=SingleObjectiveProblem(
+        minimize=True,
+        fitness_function=fit,
+        target_fitness=None,
+    ),
     population_size=150,
     max_depth=5,
     number_of_generations=10,

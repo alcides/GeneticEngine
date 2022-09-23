@@ -12,6 +12,7 @@ import pandas as pd
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.ge import (
     ge_representation,
 )
@@ -22,8 +23,8 @@ from geneticengine.core.representations.tree.treebased import treebased_represen
 from geneticengine.grammars.basic_math import SafeDiv
 from geneticengine.grammars.basic_math import SafeLog
 from geneticengine.grammars.basic_math import SafeSqrt
-from geneticengine.grammars.sgp import Minus
 from geneticengine.grammars.sgp import Literal
+from geneticengine.grammars.sgp import Minus
 from geneticengine.grammars.sgp import Mul
 from geneticengine.grammars.sgp import Number
 from geneticengine.grammars.sgp import Plus
@@ -59,7 +60,7 @@ class Exponentiation(Number):
         d1 = self.baseNumber.evaluate(**kwargs)
         d2 = self.powerNumber.evaluate(**kwargs)
         try:
-            return b1 ** b2
+            return b1**b2
         except:
             return 1.0
         return
@@ -106,9 +107,12 @@ def evolve(
 ):
     alg = GP(
         g,
-        fitness_function,
         representation=treebased_representation,
-        minimize=True,
+        problem=SingleObjectiveProblem(
+            minimize=True,
+            fitness_function=fitness_function,
+            target_fitness=None,
+        ),
         # As in PonyGE2:
         probability_crossover=0.75,
         probability_mutation=0.01,

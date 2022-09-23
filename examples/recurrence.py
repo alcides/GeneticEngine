@@ -6,6 +6,7 @@ from typing import Annotated
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.vars import VarRange
 
@@ -68,7 +69,11 @@ if __name__ == "__main__":
     g = extract_grammar([Op, Access, Literal], Node)
     gp = GP(
         grammar=g,
-        evaluation_function=fitness_function,
+        problem=SingleObjectiveProblem(
+            minimize=True,
+            fitness_function=fitness_function,
+            target_fitness=None,
+        ),
         minimize=True,
         max_depth=10,
         number_of_generations=100,

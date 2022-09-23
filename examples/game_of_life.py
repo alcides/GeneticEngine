@@ -13,6 +13,7 @@ from sklearn.metrics import f1_score
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.ge import (
     ge_representation,
 )
@@ -29,8 +30,8 @@ from geneticengine.grammars.coding.logical_ops import Or
 from geneticengine.metahandlers.ints import IntRange
 
 DATASET_NAME = "GameOfLife"
-DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.csv"
-DATA_FILE_TEST = f"examples/data/{DATASET_NAME}/Test.csv"
+DATA_FILE_TRAIN = f"data/{DATASET_NAME}/Train.csv"
+DATA_FILE_TEST = f"data/{DATASET_NAME}/Test.csv"
 OUTPUT_FOLDER = "GoL/grammar_standard"
 
 
@@ -102,8 +103,12 @@ def evolve(
 
     alg = GP(
         g,
-        fitness_function,
         representation=sge_representation,
+        problem=SingleObjectiveProblem(
+            minimize=False,
+            fitness_function=fitness_function,
+            target_fitness=None,
+        ),
         # favor_less_deep_trees=True,
         # As in PonyGE2:
         probability_crossover=0.75,
@@ -115,7 +120,6 @@ def evolve(
         selection_method=("tournament", 2),
         n_elites=5,
         # ----------------
-        minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
     )

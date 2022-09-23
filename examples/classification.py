@@ -14,6 +14,7 @@ from sklearn.model_selection import train_test_split
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.ge import (
     ge_representation,
 )
@@ -34,8 +35,8 @@ from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import f1_score
 
 DATASET_NAME = "Banknote"
-DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.csv"
-DATA_FILE_TEST = f"examples/data/{DATASET_NAME}/Test.csv"
+DATA_FILE_TRAIN = f"data/{DATASET_NAME}/Train.csv"
+DATA_FILE_TEST = f"data/{DATASET_NAME}/Test.csv"
 
 bunch = pd.read_csv(DATA_FILE_TRAIN, delimiter=" ")
 target = bunch.y
@@ -232,8 +233,12 @@ def evolve(
 
     alg = GP(
         g,
-        fitness_function,
         representation=representation,
+        problem=SingleObjectiveProblem(
+            minimize=False,
+            fitness_function=fitness_function,
+            target_fitness=None,
+        ),
         # As in PonyGE2:
         probability_crossover=0.75,
         probability_mutation=0.01,
@@ -244,7 +249,6 @@ def evolve(
         selection_method=("tournament", 2),
         n_elites=1,
         # ----------------
-        minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
         # save_to_csv='bla.csv',

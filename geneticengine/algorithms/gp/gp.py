@@ -70,6 +70,7 @@ class GP:
     # reason for union with noreturn in evaluation function, elitism and elitism: https://stackoverflow.com/questions/51811024/mypy-type-checking-on-callable-thinks-that-member-variable-is-a-method
     grammar: Grammar
     representation: Representation[Any]
+    problem: Problem
     evaluation_function: NoReturn | Callable[[Any], float]
     random: RandomSource
     population_size: int
@@ -83,7 +84,6 @@ class GP:
     mutation: (NoReturn | Callable[[Individual], Individual])
     max_depth: int
     novelty: NoReturn | Callable[[int], list[Individual]]
-    minimize: bool
     final_population: list[Individual]
     callbacks: list[Callback]
 

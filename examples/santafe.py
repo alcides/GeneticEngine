@@ -10,6 +10,7 @@ from typing import Tuple
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.structured_ge import (
     sge_representation,
 )
@@ -175,9 +176,12 @@ if __name__ == "__main__":
     print(f"Grammar: {repr(g)}")
     alg_gp = GP(
         g,
-        lambda p: simulate(p, map),
         representation=treebased_representation,
-        minimize=False,
+        problem=SingleObjectiveProblem(
+            minimize=False,
+            fitness_function=lambda p: simulate(p, map),
+            target_fitness=None,
+        ),
         max_depth=40,
         probability_mutation=0.5,
         number_of_generations=50,
