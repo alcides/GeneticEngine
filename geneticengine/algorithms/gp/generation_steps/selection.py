@@ -7,6 +7,7 @@ from typing import List
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.core.problems import Problem
 from geneticengine.core.problems import SingleObjectiveProblem
+from geneticengine.core.problems import MultiObjectiveProblem
 from geneticengine.core.random.sources import RandomSource
 
 
@@ -95,55 +96,51 @@ cases = [[2, 2, 4, 8], [3, 1, 3, 4], [9, 2, 1, 1]]
 
 
 def create_lexicase(
-    minimize: True,
+    problem: Problem,
 ) -> Callable[[RandomSource, list[Individual], int], list[Individual]]:
+    assert isinstance(problem, MultiObjectiveProblem)
     def lexicase(
         r: RandomSource,
         population: list[Individual],
         n_winners: int,
 
     ) -> list[Individual]:
+        assert isinstance(problem, MultiObjectiveProblem)
         candidates = population.copy()
-        n_cases = len(fitness(population[0]))
+        assert isinstance(candidate[0].fitness, list[float])
+        n_cases = len(candidate[0].fitness)
         cases = r.shuffle(list(range(n_cases)))
-
-        #assert
         winners = []
 
         for _ in range(n_winners):
-            #assuming that there is not equal individuals in the population (not the best option)
-            #candidates = [x for x in population.copy() if x not in winners]
             candidates_to_check = candidates.copy()
-
+            
             while len(candidates_to_check) > 1 and len(case) > 0:
                 new_candidates = list()
                 c = cases[0]
                 min_max_value = 0
-
                 for i in range(len(candidates_to_check)):
                     checking_candidate = candidates_to_check[i]
                     check_value = checking_candidate.fitness[c]
-
                     if not new_candidates:
                         min_max_value = check_value
                         new_candidates.append(checking_candidate)
-
-                    elif ((check_value < min_max_value and minimize)
-                            or (check_value > min_max_value and not minimize)):
+                    elif ((check_value < min_max_value and problem.minimize[c])
+                            or (check_value > min_max_value and not problem.minimize[c])):
                         new_candidates.clear()
                         min_max_value = check_value
                         new_candidates.append(checking_candidate)
-
                     elif check_value == min_max_value:
                         new_candidates.append(checking_candidate)
 
                 candidates_to_check = new_candidates.copy()
                 cases.remove(c)
-
+                
             winner = r.choice(candidates_to_check) if len(
                 candidates_to_check) > 1 else candidates_to_check[0]
+            assert isinstance(winner.fitness, list[float])
             winners.append(winner)
             candidates.remove(winner)
-
         return winners
+    
     return lexicase
