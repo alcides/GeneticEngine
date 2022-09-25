@@ -107,6 +107,8 @@ class GP:
         number_of_generations: int = 100,
         max_depth: int = 15,
         # now based on depth, maybe on number of nodes?
+        # selection-method is a tuple because tournament selection needs to receive the tournament size
+        # but lexicase does not need a tuple
         selection_method: tuple[str, int] = ("tournament", 5),
         # -----
         # As given in A Field Guide to GP, p.17, by Poli and Mcphee
@@ -188,6 +190,10 @@ class GP:
         if selection_method[0] == "tournament":
             self.selection = selection.create_tournament(
                 selection_method[1],
+                self.problem,
+            )
+        elif selection_method[0] == "lexicase":
+            self.selection = selection.create_lexicase(
                 self.problem,
             )
         else:
