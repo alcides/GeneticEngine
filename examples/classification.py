@@ -263,14 +263,15 @@ def evolve(
         representation = sge_representation
     else:
         representation = treebased_representation
-    """problem=SingleObjectiveProblem(
+    """
+    problem=SingleObjectiveProblem(
             minimize=False,
             fitness_function=fitness_function,
             target_fitness=None,
     )"""
-    minimizelist = list()
-    for _ in range(len(data.values.tolist())):
-        minimizelist.append(False)
+
+    minimizelist = [False for _ in data.values.tolist()]
+
     alg = GP(
         g,
         representation=representation,
@@ -282,7 +283,7 @@ def evolve(
         probability_crossover=0.75,
         probability_mutation=0.01,
         number_of_generations=50,
-        max_depth=15,
+        max_depth=8,
         # max_init_depth=10,
         population_size=50,
         selection_method=("lexicase", 2),
