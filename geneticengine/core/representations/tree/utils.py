@@ -27,6 +27,10 @@ class GengyList(list):
 
 
 def relabel_nodes(i: TreeNode, g: Grammar) -> tuple[int, int, dict[type, list[Any]]]:
+    """
+    Recomputes all the nodes, depth and distance_to_term in the tree.\n
+    Returns the number of nodes, distance to terminal (depth) and typed this way.
+    """
     non_terminals = g.non_terminals
     children: list[Any]
     if getattr(i, "gengy_labeled", False):
