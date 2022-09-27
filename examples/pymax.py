@@ -97,7 +97,6 @@ def evolve(
         max_depth=13,
         population_size=25,
         number_of_generations=10,
-        minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
     )

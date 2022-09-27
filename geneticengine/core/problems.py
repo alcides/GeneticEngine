@@ -94,8 +94,11 @@ def process_problem(
 
 
 def wrap_depth(p: Problem, favor_less_deep_trees: bool = False):
-    assert isinstance(p, SingleObjectiveProblem)
-    if favor_less_deep_trees:
-        return wrap_depth_minimization(p)
+    if isinstance(p, SingleObjectiveProblem):
+        if favor_less_deep_trees:
+            return wrap_depth_minimization(p)
+        else:
+            return p
     else:
+        assert isinstance(p, MultiObjectiveProblem)
         return p

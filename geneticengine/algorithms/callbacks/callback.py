@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from abc import ABC
 
+from geneticengine.core.problems import MultiObjectiveProblem
+from geneticengine.core.problems import SingleObjectiveProblem
+
 
 class Callback(ABC):
     def process_iteration(self, generation: int, population, time: float, gp):
@@ -23,10 +26,19 @@ class ProgressCallback(Callback):
     """Prints the number of the generation"""
 
     def process_iteration(self, generation: int, population, time: float, gp):
-        fitness = round(gp.evaluate(population[0]), 4)
-        print(
-            f"[{self.__class__}] Generation {generation}. Time {time}. Best fitness: {fitness}",
-        )
+        if isinstance(gp.problem, SingleObjectiveProblem):
+            fitness = round(gp.evaluate(population[0]), 4)
+            print(
+                f"[{self.__class__}] Generation {generation}. Time {time}. Best fitness: {fitness}",
+            )
+
+        elif isinstance(gp.problem, MultiObjectiveProblem):
+            list_of_fitness = [
+                round(fitness, 4) for fitness in gp.evaluate(population[0])
+            ]
+            print(
+                f"[{self.__class__}] Generation {generation}. Time {time}. List of fitness: {list_of_fitness}",
+            )
 
 
 class PrintBestCallback(Callback):

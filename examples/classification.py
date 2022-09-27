@@ -14,6 +14,7 @@ from sklearn.model_selection import train_test_split
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.problems import MultiObjectiveProblem
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.ge import (
     ge_representation,
@@ -197,6 +198,38 @@ def fitness_function(n: Number):
     return fitness
 
 
+def fitness_function_lexicase(n: Number):
+    y = target.values
+    cases = []  # list of problems
+    cases = data.values.tolist()  # list of rows, each row is a list of values
+
+    fitnesses = list()
+
+    for c in cases:
+        variables = {}
+        for x in feature_names:
+            i = feature_indices[x]
+            variables[x] = c[i]
+
+        y_pred = n.evaluate(**variables)
+
+        if type(y_pred) in [np.float64, int, float]:
+            """If n does not use variables, the output will be scalar."""
+            y_pred = np.full(len(y), y_pred)
+
+        # not sure about this one, cause it should return a list
+        if y_pred.shape != (len(y),):
+            fitness = -100000000
+        else:
+            fitness = f1_score(y_pred, y)
+            if isinf(fitness):
+                fitness = -100000000
+
+        fitnesses.append(fitness)
+
+    return fitnesses
+
+
 def fitness_test_function(n: Number):
     X = X_test
     y = y_test
@@ -230,14 +263,20 @@ def evolve(
         representation = sge_representation
     else:
         representation = treebased_representation
-
-    alg = GP(
-        g,
-        representation=representation,
-        problem=SingleObjectiveProblem(
+    """problem=SingleObjectiveProblem(
             minimize=False,
             fitness_function=fitness_function,
             target_fitness=None,
+    )"""
+    minimizelist = list()
+    for _ in range(len(data.values.tolist())):
+        minimizelist.append(False)
+    alg = GP(
+        g,
+        representation=representation,
+        problem=MultiObjectiveProblem(
+            minimize=minimizelist,
+            fitness_function=fitness_function_lexicase,
         ),
         # As in PonyGE2:
         probability_crossover=0.75,
@@ -246,7 +285,7 @@ def evolve(
         max_depth=15,
         # max_init_depth=10,
         population_size=50,
-        selection_method=("tournament", 2),
+        selection_method=("lexicase", 2),
         n_elites=1,
         # ----------------
         seed=seed,

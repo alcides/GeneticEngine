@@ -127,7 +127,10 @@ class GP:
         # -----
         save_to_csv: str = None,
         save_genotype_as_string: bool = True,
-        test_data: Callable[[Any], float] = None,
+        test_data: Callable[
+            [Any],
+            float,
+        ] = None,  # TODO: Should be part of Problem Class  [LEON]
         only_record_best_inds: int | None = 1,
         # -----
         callbacks: list[Callback] = None,

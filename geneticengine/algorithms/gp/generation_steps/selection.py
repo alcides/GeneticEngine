@@ -5,9 +5,9 @@ from typing import Callable
 from typing import List
 
 from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.core.problems import MultiObjectiveProblem
 from geneticengine.core.problems import Problem
 from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.problems import MultiObjectiveProblem
 from geneticengine.core.random.sources import RandomSource
 
 
@@ -72,50 +72,27 @@ def create_novelties(
     return novelties
 
 
-"""
-We have a population
-And we have a list cases that we have to shuffle
-
-Then in a While loop we verify if the population is greater than 1 
-and if we have at least one case. 
-
-if that's true we take a look at the the first element of cases list and 
-we check which individuals in the population have the best error value, and "discard" the others of that population
-After the while loop we check the length of our population, if it has only one element returns that element, otherwise returns a random element"""
-
-"""
-pool    1   2   3   4
-------------------------
-case1   2   2   4   8       
-case2   3   1   3   4
-case3   9   2   1   1
-
-population = [1, 2, 3, 4]
-cases = [[2, 2, 4, 8], [3, 1, 3, 4], [9, 2, 1, 1]]
-"""
-
-
 def create_lexicase(
     problem: Problem,
 ) -> Callable[[RandomSource, list[Individual], int], list[Individual]]:
     assert isinstance(problem, MultiObjectiveProblem)
+
     def lexicase(
         r: RandomSource,
         population: list[Individual],
         n_winners: int,
-
     ) -> list[Individual]:
         assert isinstance(problem, MultiObjectiveProblem)
         candidates = population.copy()
-        assert isinstance(candidate[0].fitness, list[float])
-        n_cases = len(candidate[0].fitness)
+        # assert isinstance(candidates[0].fitness, list[float])
+        n_cases = len(candidates[0].fitness)
         cases = r.shuffle(list(range(n_cases)))
         winners = []
 
         for _ in range(n_winners):
             candidates_to_check = candidates.copy()
-            
-            while len(candidates_to_check) > 1 and len(case) > 0:
+
+            while len(candidates_to_check) > 1 and len(cases) > 0:
                 new_candidates = list()
                 c = cases[0]
                 min_max_value = 0
@@ -125,8 +102,9 @@ def create_lexicase(
                     if not new_candidates:
                         min_max_value = check_value
                         new_candidates.append(checking_candidate)
-                    elif ((check_value < min_max_value and problem.minimize[c])
-                            or (check_value > min_max_value and not problem.minimize[c])):
+                    elif (check_value < min_max_value and problem.minimize[c]) or (
+                        check_value > min_max_value and not problem.minimize[c]
+                    ):
                         new_candidates.clear()
                         min_max_value = check_value
                         new_candidates.append(checking_candidate)
@@ -135,12 +113,15 @@ def create_lexicase(
 
                 candidates_to_check = new_candidates.copy()
                 cases.remove(c)
-                
-            winner = r.choice(candidates_to_check) if len(
-                candidates_to_check) > 1 else candidates_to_check[0]
-            assert isinstance(winner.fitness, list[float])
+
+            winner = (
+                r.choice(candidates_to_check)
+                if len(candidates_to_check) > 1
+                else candidates_to_check[0]
+            )
+            # assert isinstance(winner.fitness, list[float])
             winners.append(winner)
             candidates.remove(winner)
         return winners
-    
+
     return lexicase
