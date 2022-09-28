@@ -11,6 +11,9 @@ from sklearn.metrics import mean_squared_error
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
+    dsge_representation,
+)
 from geneticengine.core.representations.grammatical_evolution.ge import (
     ge_representation,
 )
@@ -3174,6 +3177,8 @@ def evolve(
         representation = ge_representation
     elif representation == "sge":
         representation = sge_representation
+    elif representation == "dsge":
+        representation = dsge_representation
     else:
         representation = treebased_representation
 
@@ -3201,6 +3206,6 @@ def evolve(
 
 if __name__ == "__main__":
     g = preprocess()
-    bf, b = evolve(g, 0, False)
+    bf, b = evolve(g, 0, False, "dsge")
     print(b)
     print(f"With fitness: {bf}")
