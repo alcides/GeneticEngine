@@ -88,7 +88,7 @@ def random_individual(
         for nodestr in nodes:
             dna[nodestr] = list()
         dna[left_overs] = [
-            r.randint(0, MAX_RAND_INT) for _ in range(50)
+            r.randint(0, MAX_RAND_INT) for _ in range(1000)
         ]  # Necessary to source from when a production rule runs out of genes.
         current_genotype = Genotype(dna, left_overs)
     assert type(current_genotype) == Genotype
@@ -176,6 +176,37 @@ def random_individual(
     return current_genotype
 
 
+def random_individual_simple(
+    r: Source,
+    g: Grammar,
+    starting_symbol: Any,
+    current_genotype: Genotype = None,
+    max_depth: int = 5,
+) -> Genotype:  # In this method we let the random source use the left_overs to fill up the individual
+    if current_genotype == None:
+        left_overs = "left_overs"
+        nodes = [str(node) for node in g.all_nodes]
+        for node in g.all_nodes:
+            arguments = get_arguments(node)
+            for _, arg in arguments:
+                if is_generic(arg):
+                    nodes.append(str(arg))
+                base_type = str(strip_annotations(arg))
+                if base_type not in nodes:
+                    nodes.append(base_type)
+
+        dna: dict[str, list[int]] = dict()
+        for nodestr in nodes:
+            dna[nodestr] = list()
+        dna[left_overs] = [
+            r.randint(0, MAX_RAND_INT) for _ in range(1000)
+        ]  # Necessary to source from when a production rule runs out of genes.
+        current_genotype = Genotype(dna, left_overs)
+
+    assert type(current_genotype) == Genotype
+    return current_genotype
+
+
 def create_individual(
     r: Source,
     g: Grammar,
@@ -186,6 +217,7 @@ def create_individual(
     if not starting_symbol:
         starting_symbol = g.starting_symbol
 
+    return random_individual_simple(r, g, starting_symbol, current_genotype, max_depth)
     return random_individual(r, g, starting_symbol, current_genotype, max_depth)
 
 
