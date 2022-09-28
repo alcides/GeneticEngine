@@ -126,7 +126,7 @@ def random_individual(
     elif is_generic_list(starting_symbol):
         new_type = get_generic_parameter(starting_symbol)
         list_length = r.randint(1, MAX_RAND_LIST_SIZE)
-        current_genotype.register_production(val, int)
+        current_genotype.register_production(list_length, int)
         for _ in range(list_length):
             current_genotype = random_individual(
                 r,
