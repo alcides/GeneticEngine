@@ -114,7 +114,7 @@ def random_individual(
             )
         else:
             prod = r.choice(valid_productions)
-        prod_index = productions.index(prod)
+        prod_index = valid_productions.index(prod)
         current_genotype.register_production(prod_index, starting_symbol)
         current_genotype = random_individual(
             r,
