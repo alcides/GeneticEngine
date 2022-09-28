@@ -68,12 +68,10 @@ def assert_depth_error(max_depth, g, starting_symbol):
 def random_individual(
     r: Source,
     g: Grammar,
+    starting_symbol: Any,
     current_genotype: Genotype = None,
     max_depth: int = 5,
-    starting_symbol: Any = None,
-) -> Genotype:  # This whole method seems cumbersome. Why not just create an empty genotype and let it be source through when mapping from genotype to phenotype?
-    if starting_symbol == None:
-        starting_symbol = g.starting_symbol
+) -> Genotype:  # This whole method seems cumbersome. Why not just create an empty genotype and let it be sourced through when mapping from genotype to phenotype?
     if current_genotype == None:
         left_overs = "left_overs"
         nodes = [str(node) for node in g.all_nodes]
@@ -121,9 +119,9 @@ def random_individual(
         current_genotype = random_individual(
             r,
             g,
+            prod,
             current_genotype,
             max_depth - 1,
-            starting_symbol=prod,
         )  # TODO: PonyGE depthing applied
     elif is_generic_list(starting_symbol):
         new_type = get_generic_parameter(starting_symbol)
@@ -133,9 +131,9 @@ def random_individual(
             current_genotype = random_individual(
                 r,
                 g,
+                new_type,
                 current_genotype,
                 max_depth - 1,
-                starting_symbol=new_type,
             )
     elif is_metahandler(
         starting_symbol,
@@ -145,18 +143,18 @@ def random_individual(
             current_genotype = random_individual(
                 r,
                 g,
+                new_type,
                 current_genotype,
                 max_depth,
-                starting_symbol=new_type,
             )
         else:
             new_type = strip_annotations(starting_symbol)
             current_genotype = random_individual(
                 r,
                 g,
+                new_type,
                 current_genotype,
                 max_depth,
-                starting_symbol=new_type,
             )
     else:
         assert_depth_error(max_depth, g, starting_symbol)
@@ -170,12 +168,25 @@ def random_individual(
             current_genotype = random_individual(
                 r,
                 g,
+                argt,
                 current_genotype,
                 max_depth - 1,
-                starting_symbol=argt,
             )
 
     return current_genotype
+
+
+def create_individual(
+    r: Source,
+    g: Grammar,
+    starting_symbol: Any = None,
+    current_genotype: Genotype = None,
+    max_depth: int = 5,
+) -> Genotype:
+    if not starting_symbol:
+        starting_symbol = g.starting_symbol
+
+    return random_individual(r, g, starting_symbol, current_genotype, max_depth)
 
 
 def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
@@ -257,7 +268,7 @@ class DynamicStructuredGrammaticalEvolutionRepresentation(Representation[Genotyp
 
     def create_individual(self, r: Source, g: Grammar, depth: int) -> Genotype:
         self.depth = depth
-        return random_individual(r, g, max_depth=depth)
+        return create_individual(r, g, max_depth=depth)
 
     def mutate_individual(
         self,
