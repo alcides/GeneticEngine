@@ -55,7 +55,7 @@ dataset = [
 At the root of our expression, we are looking for an element (because we are doing regression), but not all variables are elements — some are vectorial. To translate vectorial variables to elements, we can use some functions (mean, max, min, etc...). Some other functions convert vectorial into vectorial variables (such as cumulative sum).
 
 
-### Step 0 Instalation
+### Step 0 Installation
 
 You can install the dependencies from the requirements.txt file.
 
