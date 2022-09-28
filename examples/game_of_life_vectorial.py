@@ -390,4 +390,4 @@ if __name__ == "__main__":
 
     for i in range(1):
         print(f"Run: {i}.")
-        evolve(fitness_function, g, i, False)
+        evolve(fitness_function, g, i, False, "dsge")

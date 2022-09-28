@@ -213,7 +213,7 @@ def evolve(
 if __name__ == "__main__":
     g = preprocess()
     print(f"Grammar: {repr(g)}")
-    (b_gp, bf_gp) = evolve(lambda p: simulate(p, map), g, 123, False)
+    (b_gp, bf_gp) = evolve(lambda p: simulate(p, map), g, 123, False, "dsge")
 
     alg_hc = HC(
         g,

@@ -217,7 +217,7 @@ def create_individual(
     if not starting_symbol:
         starting_symbol = g.starting_symbol
 
-    return random_individual_simple(r, g, starting_symbol, current_genotype, max_depth)
+    # return random_individual_simple(r, g, starting_symbol, current_genotype, max_depth)
     return random_individual(r, g, starting_symbol, current_genotype, max_depth)
 
 
