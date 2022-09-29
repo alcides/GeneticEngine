@@ -80,9 +80,16 @@ def f1_score(y_pred, y_gt, binary=False):
 
     n_positives = len(y_pred[y_pred == 1])
 
-    fp = sum((y_pred[y_pred == 1] - y_gt[y_pred == 1]) / 2)
+    # not sure if its right
+    if y_gt.ndim == 1:
+        fp = sum((y_pred[y_pred == 1] - y_gt[y_pred == 1]) / 2)
+        fn = abs(sum((y_pred[y_pred == -1] - y_gt[y_pred == -1]) / 2))
+
+    elif y_gt.ndim == 0:
+        fp = sum((y_pred[y_pred == 1] - y_gt) / 2)
+        fn = abs(sum((y_pred[y_pred == -1] - y_gt) / 2))
+
     tp = n_positives - fp
-    fn = abs(sum((y_pred[y_pred == -1] - y_gt[y_pred == -1]) / 2))
 
     denom = tp + ((fn + fp) / 2)
     if denom == 0:
@@ -123,7 +130,7 @@ def r2(y_pred, y_gt):
     Find the theory at https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html#sklearn.linear_model.LinearRegression.score
     """
 
-    u = ((y_gt - y_pred)**2).sum()
+    u = ((y_gt - y_pred) ** 2).sum()
     v = ((y_gt - y_gt.mean()) ** 2).sum()
-    
+
     return 1 - (u / v)

@@ -28,24 +28,27 @@ class ProgressCallback(Callback):
     def process_iteration(self, generation: int, population, time: float, gp):
         if isinstance(gp.problem, SingleObjectiveProblem):
             fitness = round(gp.evaluate(population[0]), 4)
-            print(
-                f"[{self.__class__}] Generation {generation}. Time {time}. Best fitness: {fitness}",
-            )
-
         elif isinstance(gp.problem, MultiObjectiveProblem):
-            list_of_fitness = [
-                round(fitness, 4) for fitness in gp.evaluate(population[0])
-            ]
-            print(
-                f"[{self.__class__}] Generation {generation}. Time {time}. List of fitness: {list_of_fitness}",
-            )
+            fitness = [round(fitness, 4) for fitness in gp.evaluate(population[0])]
+            if len(fitness) > 10:
+                fitness = sum(fitness) / len(fitness)
+
+        print(
+            f"[{self.__class__}] Generation {generation}. Time {time}. Best fitness: {fitness}",
+        )
 
 
 class PrintBestCallback(Callback):
     """Prints the number of the generation"""
 
     def process_iteration(self, generation: int, population, time: float, gp):
-        fitness = round(gp.evaluate(population[0]), 4)
+        if isinstance(gp.problem, SingleObjectiveProblem):
+            fitness = round(gp.evaluate(population[0]), 4)
+        elif isinstance(gp.problem, MultiObjectiveProblem):
+            fitness = [round(fitness, 4) for fitness in gp.evaluate(population[0])]
+            if len(fitness) > 10:
+                fitness = sum(fitness) / len(fitness)
+
         if not gp.timer_stop_criteria:
             print(
                 f"[{self.__class__}] Generation {generation} / {gp.number_of_generations}. Time {time}",
