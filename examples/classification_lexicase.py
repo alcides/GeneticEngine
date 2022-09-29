@@ -185,7 +185,7 @@ def fitness_function_lexicase(n: Number):
         if y_pred.shape != (y[cases.index(c)],):
             fitness = -100000000
         else:
-            # Leon told me to use y[index of case] instead of y, had to change f1_score function in order to work with o dimensional array
+            # Leon told me to use y[index of case] instead of y, had to change f1_score function in order to work with 0 dimensional array
             fitness = f1_score(y_pred, y[cases.index(c)])
             if isinf(fitness):
                 fitness = -100000000
