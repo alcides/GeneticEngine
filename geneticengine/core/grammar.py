@@ -155,7 +155,7 @@ class Grammar:
             if hasattr(n, "__name__"):
                 return n.__name__
             if hasattr(n, "__metadata__"):
-                return n.__metadata__[0]
+                return f"{n.__metadata__[0]} of {wrap(strip_annotations(n))}"
             return n
 
         def format(x):
