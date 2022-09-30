@@ -3187,7 +3187,7 @@ def evolve(
         probability_crossover=0.75,
         probability_mutation=0.01,
         number_of_generations=30,
-        max_depth=14,  # In grammar of PonyGE there is one redundant root node.
+        max_depth=10,  # In grammar of PonyGE there is one redundant root node.
         # max_init_depth=10,
         population_size=100,
         selection_method=("tournament", 2),
