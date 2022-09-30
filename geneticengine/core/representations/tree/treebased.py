@@ -339,16 +339,16 @@ def expand_node(
         )
         return
     else:
-        extra_depth = 1
-        if is_abstract(starting_symbol) and not g.ponyge_depthing:
-            extra_depth = 0
-
         if starting_symbol not in g.all_nodes:
             raise GeneticEngineError(
                 f"Symbol {starting_symbol} not in grammar rules.",
             )
 
         if starting_symbol in g.alternatives:  # Alternatives
+            extra_depth = 0
+            if is_abstract(starting_symbol) and g.ponyge_depthing:
+                extra_depth = 1
+
             compatible_productions = g.alternatives[starting_symbol]
             valid_productions = filter_choices(
                 compatible_productions,
@@ -358,7 +358,7 @@ def expand_node(
                 raise GeneticEngineError(
                     "No productions for non-terminal node with type: {} in depth {} (minimum required: {}).".format(
                         starting_symbol,
-                        depth,
+                        depth - extra_depth,
                         str(
                             [
                                 (vp, g.distanceToTerminal[vp])
@@ -396,7 +396,7 @@ def expand_node(
                 l,
             )
             for i, (argn, argt) in enumerate(args):
-                new_symbol(argt, fins[i], depth - extra_depth, id + "_" + argn, ctx)
+                new_symbol(argt, fins[i], depth - 1, id + "_" + argn, ctx)
 
 
 def random_individual(r: Source, g: Grammar, max_depth: int = 5) -> TreeNode:
