@@ -155,7 +155,10 @@ class Grammar:
             if hasattr(n, "__name__"):
                 return n.__name__
             if hasattr(n, "__metadata__"):
-                return f"{n.__metadata__[0]} of {wrap(strip_annotations(n))}"
+                if is_generic_list(get_generic_parameter(n)):
+                    return f"{n.__metadata__[0]} of {wrap(strip_annotations(n))}"
+                else:
+                    return f"{n.__metadata__[0]}"
             return n
 
         def format(x):
