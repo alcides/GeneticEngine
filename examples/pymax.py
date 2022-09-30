@@ -89,7 +89,7 @@ def evolve(
         g,
         fitness_function,
         representation=representation,
-        max_depth=13,
+        max_depth=8,
         population_size=25,
         number_of_generations=10,
         minimize=False,
