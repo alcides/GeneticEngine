@@ -84,7 +84,7 @@ def create_lexicase(
     ) -> list[Individual]:
         assert isinstance(problem, MultiObjectiveProblem)
         candidates = population.copy()
-        # assert isinstance(candidates[0].fitness, list[float])
+        assert isinstance(candidates[0].fitness, list[float])
         n_cases = len(candidates[0].fitness)
         cases = r.shuffle(list(range(n_cases)))
         winners = []
@@ -98,6 +98,7 @@ def create_lexicase(
                 min_max_value = 0
                 for i in range(len(candidates_to_check)):
                     checking_candidate = candidates_to_check[i]
+
                     check_value = checking_candidate.fitness[c]
                     if not new_candidates:
                         min_max_value = check_value
@@ -119,7 +120,7 @@ def create_lexicase(
                 if len(candidates_to_check) > 1
                 else candidates_to_check[0]
             )
-            # assert isinstance(winner.fitness, list[float])
+            assert isinstance(winner.fitness, list[float])
             winners.append(winner)
             candidates.remove(winner)
         return winners
