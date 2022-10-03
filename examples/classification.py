@@ -8,11 +8,11 @@ from typing import Annotated
 from typing import Any
 from typing import Callable
 
-import global_vars as gv
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
+import examples.global_vars as gv
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
@@ -220,10 +220,9 @@ def fitness_test_function(n: Number):
 
 
 def evolve(
-    g,
     seed,
     mode,
-    csv_file: str = None,
+    save_to_csv: str = None,
     representation="treebased_representation",
 ):
     if representation == "ge":
@@ -233,6 +232,7 @@ def evolve(
     else:
         representation = treebased_representation
 
+    g = preprocess()
     alg = GP(
         g,
         fitness_function,
@@ -248,51 +248,8 @@ def evolve(
         minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
-        save_to_csv=csv_file,
+        save_to_csv=save_to_csv,
         save_genotype_as_string=False,
     )
     (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf
-
-
-if __name__ == "__main__":
-    parser = ArgumentParser()
-    parser.add_argument(
-        "-irc",
-        "--ind-rep-comparison",
-        dest="ind_rep_comparison",
-        action="store_const",
-        const=True,
-        default=False,
-    )
-    args = parser.parse_args()
-    if args.ind_rep_comparison:
-        parser.add_argument(
-            "-t",
-            "--time",
-            dest="time",
-            action="store_const",
-            const=True,
-            default=False,
-        )
-        parser.add_argument("-s", "--seed", dest="seed", type="int")
-        parser.add_argument(
-            "-r",
-            "--representation",
-            dest="representation",
-            type=str,
-            default="",
-        )
-        timed = args.time
-        rep = args.representation
-        seed = args.seed
-        mode = "generations"
-        if timed:
-            mode = "time"
-        file_name = os.path.basename(__file__).split(".")[0]
-        dest_file = f"results/{mode}/{file_name}/{rep}/{seed}.csv"
-
-        g = preprocess()
-        b, bf = evolve(g, seed, timed, csv_file=dest_file, representation=rep)
-        print(bf)
-        print(f"With fitness: {b}")
