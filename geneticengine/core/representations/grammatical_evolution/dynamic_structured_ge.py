@@ -23,10 +23,12 @@ MAX_RAND_INT = 100000
 MAX_RAND_LIST_SIZE = 10
 
 
+LEFTOVER_KEY = "$leftovers"
+
+
 @dataclass
 class Genotype:
     dna: dict[str, list[int]]
-    left_overs: str
 
     def register_production(self, prod_index: int, starting_symbol):
         if str(starting_symbol) in self.dna.keys():
@@ -73,7 +75,6 @@ def random_individual(
     max_depth: int = 5,
 ) -> Genotype:  # This whole method seems cumbersome. Why not just create an empty genotype and let it be sourced through when mapping from genotype to phenotype?
     if current_genotype == None:
-        left_overs = "left_overs"
         nodes = [str(node) for node in g.all_nodes]
         for node in g.all_nodes:
             arguments = get_arguments(node)
@@ -87,10 +88,10 @@ def random_individual(
         dna: dict[str, list[int]] = dict()
         for nodestr in nodes:
             dna[nodestr] = list()
-        dna[left_overs] = [
+        dna[LEFTOVER_KEY] = [
             r.randint(0, MAX_RAND_INT) for _ in range(1000)
         ]  # Necessary to source from when a production rule runs out of genes.
-        current_genotype = Genotype(dna, left_overs)
+        current_genotype = Genotype(dna)
     assert type(current_genotype) == Genotype
 
     if starting_symbol in [int, float, str, bool]:
@@ -184,7 +185,6 @@ def random_individual_simple(
     max_depth: int = 5,
 ) -> Genotype:  # In this method we let the random source use the left_overs to fill up the individual
     if current_genotype == None:
-        left_overs = "left_overs"
         nodes = [str(node) for node in g.all_nodes]
         for node in g.all_nodes:
             arguments = get_arguments(node)
@@ -198,10 +198,10 @@ def random_individual_simple(
         dna: dict[str, list[int]] = dict()
         for nodestr in nodes:
             dna[nodestr] = list()
-        dna[left_overs] = [
+        dna[LEFTOVER_KEY] = [
             r.randint(0, MAX_RAND_INT) for _ in range(1000)
         ]  # Necessary to source from when a production rule runs out of genes.
-        current_genotype = Genotype(dna, left_overs)
+        current_genotype = Genotype(dna)
 
     assert type(current_genotype) == Genotype
     return current_genotype
@@ -228,7 +228,7 @@ def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
     rindex = r.randint(0, len(dna[rkey]) - 1)
     clone[rindex] = r.randint(0, MAX_RAND_INT)
     dna[rkey] = clone
-    return Genotype(dna, ind.left_overs)
+    return Genotype(dna)
 
 
 def crossover(
@@ -249,7 +249,7 @@ def crossover(
         else:
             c1[k] = p2.dna[k]
             c2[k] = p1.dna[k]
-    return (Genotype(c1, p1.left_overs), Genotype(c2, p2.left_overs))
+    return (Genotype(c1), Genotype(c2))
 
 
 class DynamicStructuredListWrapper(Source):
@@ -275,11 +275,11 @@ class DynamicStructuredListWrapper(Source):
         if self.indexes[prod] >= len(
             self.ind.dna[prod],
         ):  # We don't have a wrapper function, but we add elements to each list when there are no genes left. These are sourced from the "left_overs" in the dna.
-            self.indexes[self.ind.left_overs] = (
-                self.indexes[self.ind.left_overs] + 1
-            ) % len(self.ind.dna[self.ind.left_overs])
+            self.indexes[LEFTOVER_KEY] = (self.indexes[LEFTOVER_KEY] + 1) % len(
+                self.ind.dna[LEFTOVER_KEY],
+            )
             self.ind.register_production(
-                self.ind.dna[self.ind.left_overs][self.indexes[self.ind.left_overs]],
+                self.ind.dna[LEFTOVER_KEY][self.indexes[LEFTOVER_KEY]],
                 prod,
             )
         v = self.ind.dna[prod][self.indexes[prod] - 1]
