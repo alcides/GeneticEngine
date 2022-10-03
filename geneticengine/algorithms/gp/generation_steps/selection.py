@@ -93,7 +93,7 @@ def create_lexicase(
             candidates_to_check = candidates.copy()
 
             while len(candidates_to_check) > 1 and len(cases) > 0:
-                new_candidates = list()
+                new_candidates: list[Individual] = list()
                 c = cases[0]
                 min_max_value = 0
                 for i in range(len(candidates_to_check)):
