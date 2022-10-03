@@ -8,6 +8,7 @@ from typing import Any
 from typing import Callable
 from typing import Tuple
 
+import global_vars as gv
 import numpy as np
 from sklearn.metrics import f1_score
 
@@ -88,9 +89,9 @@ def preprocess():
 
 
 def evolve(
-    g,
     seed,
     mode,
+    save_to_csv: str = None,
     representation="treebased_representation",
 ):
     if representation == "ge":
@@ -100,39 +101,24 @@ def evolve(
     else:
         representation = treebased_representation
 
+    g = preprocess()
     alg = GP(
         g,
         fitness_function,
-        representation=sge_representation,
-        # favor_less_deep_trees=True,
-        # As in PonyGE2:
-        probability_crossover=0.75,
-        probability_mutation=0.01,
-        number_of_generations=50,
-        max_depth=15,
-        # max_init_depth=10,
-        population_size=100,
-        selection_method=("tournament", 2),
-        n_elites=5,
+        representation=representation,
+        probability_crossover=gv.PROBABILITY_CROSSOVER,
+        probability_mutation=gv.PROBABILITY_MUTATION,
+        number_of_generations=gv.NUMBER_OF_GENERATIONS,
+        max_depth=gv.MAX_DEPTH,
+        population_size=gv.POPULATION_SIZE,
+        selection_method=gv.SELECTION_METHOD,
+        n_elites=gv.N_ELITES,
         # ----------------
         minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
+        save_to_csv=save_to_csv,
+        save_genotype_as_string=False,
     )
     (b, bf, bp) = alg.evolve(verbose=1)
-
-    print("Best individual:", bp)
-    print("Genetic Engine Train F1 score:", bf)
-
-    _clf = evaluate(bp)
-    ypred = [_clf(line) for line in np.rollaxis(Xtest, 0)]
-    print("GeneticEngine Test F1 score:", f1_score(ytest, ypred))
-
     return b, bf
-
-
-if __name__ == "__main__":
-    g = preprocess()
-    bf, b = evolve(g, 0, False)
-    print(b)
-    print(f"With fitness: {bf}")

@@ -4,6 +4,8 @@ from typing import Annotated
 from typing import Any
 from typing import Callable
 
+import global_vars as gv
+
 from examples.progsys.utils import get_data
 from examples.progsys.utils import import_embedded
 from geneticengine.algorithms.gp.gp import GP
@@ -22,6 +24,7 @@ from geneticengine.grammars.coding.numbers import Plus
 from geneticengine.grammars.coding.numbers import SafeDiv
 from geneticengine.grammars.coding.numbers import Var
 from geneticengine.metahandlers.vars import VarRange
+
 
 FILE_NAME = "Number_IO"
 DATA_FILE_TRAIN = f"./examples/progsys/data/{FILE_NAME}/Train.txt"
@@ -48,31 +51,37 @@ def preprocess():
     return extract_grammar([Plus, Mul, SafeDiv, Literal, Var], Number)
 
 
-def evolve(g, seed, mode, representation=""):
+def evolve(
+    seed,
+    mode,
+    save_to_csv: str = None,
+    representation="treebased_representation",
+):
     if representation == "ge":
         representation = ge_representation
     elif representation == "sge":
         representation = sge_representation
     else:
         representation = treebased_representation
+
+    g = preprocess()
     alg = GP(
         g,
         fitness_function,
         representation=representation,
-        number_of_generations=50,
+        probability_crossover=gv.PROBABILITY_CROSSOVER,
+        probability_mutation=gv.PROBABILITY_MUTATION,
+        number_of_generations=gv.NUMBER_OF_GENERATIONS,
+        max_depth=gv.MAX_DEPTH,
+        population_size=gv.POPULATION_SIZE,
+        selection_method=gv.SELECTION_METHOD,
+        n_elites=gv.N_ELITES,
+        # ----------------
         minimize=True,
         seed=seed,
-        max_depth=17,
-        population_size=500,
-        probability_crossover=0.9,
         timer_stop_criteria=mode,
+        save_to_csv=save_to_csv,
+        save_genotype_as_string=False,
     )
     (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf
-
-
-if __name__ == "__main__":
-    g = preprocess()
-    bf, b = evolve(g, 0, False)
-    print(b)
-    print(f"With fitness: {bf}")

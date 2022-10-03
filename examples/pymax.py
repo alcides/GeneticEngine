@@ -3,6 +3,8 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 
+import global_vars as gv
+
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.grammatical_evolution.ge import (
@@ -73,9 +75,9 @@ def preprocess():
 
 
 def evolve(
-    g,
     seed,
     mode,
+    save_to_csv: str = None,
     representation="treebased_representation",
 ):
     if representation == "ge":
@@ -85,23 +87,24 @@ def evolve(
     else:
         representation = treebased_representation
 
+    g = preprocess()
     alg = GP(
         g,
         fitness_function,
         representation=representation,
-        max_depth=13,
-        population_size=25,
-        number_of_generations=10,
+        probability_crossover=gv.PROBABILITY_CROSSOVER,
+        probability_mutation=gv.PROBABILITY_MUTATION,
+        number_of_generations=gv.NUMBER_OF_GENERATIONS,
+        max_depth=gv.MAX_DEPTH,
+        population_size=gv.POPULATION_SIZE,
+        selection_method=gv.SELECTION_METHOD,
+        n_elites=gv.N_ELITES,
+        # ----------------
         minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
+        save_to_csv=save_to_csv,
+        save_genotype_as_string=False,
     )
     (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf
-
-
-if __name__ == "__main__":
-    g = preprocess()
-    bf, b = evolve(g, 0, False)
-    print(b)
-    print(f"With fitness: {bf}")

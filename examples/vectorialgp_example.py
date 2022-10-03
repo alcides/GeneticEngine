@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Annotated
 from typing import Any
 
+import global_vars as gv
 import numpy as np
 from sklearn.metrics import mean_squared_error
 
@@ -20,6 +21,7 @@ from geneticengine.core.representations.grammatical_evolution.structured_ge impo
 from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.metahandlers.floats import FloatRange
 from geneticengine.metahandlers.ints import IntRange
+
 
 # Load Dataset
 dataset = [
@@ -3165,42 +3167,36 @@ def preprocess():
 
 
 def evolve(
-    g,
     seed,
     mode,
+    save_to_csv: str = None,
     representation="treebased_representation",
 ):
-    if representation == "grammatical_evolution":
+    if representation == "ge":
         representation = ge_representation
     elif representation == "sge":
         representation = sge_representation
     else:
         representation = treebased_representation
 
+    g = preprocess()
     alg = GP(
         g,
         fitness_function,
         representation=representation,
+        probability_crossover=gv.PROBABILITY_CROSSOVER,
+        probability_mutation=gv.PROBABILITY_MUTATION,
+        number_of_generations=gv.NUMBER_OF_GENERATIONS,
+        max_depth=gv.MAX_DEPTH,
+        population_size=gv.POPULATION_SIZE,
+        selection_method=gv.SELECTION_METHOD,
+        n_elites=gv.N_ELITES,
+        # ----------------
         minimize=True,
         seed=seed,
-        # As in PonyGE2:
-        probability_crossover=0.75,
-        probability_mutation=0.01,
-        number_of_generations=30,
-        max_depth=14,  # In grammar of PonyGE there is one redundant root node.
-        # max_init_depth=10,
-        population_size=100,
-        selection_method=("tournament", 2),
-        n_elites=5,
-        # ----------------
         timer_stop_criteria=mode,
+        save_to_csv=save_to_csv,
+        save_genotype_as_string=False,
     )
     (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf
-
-
-if __name__ == "__main__":
-    g = preprocess()
-    bf, b = evolve(g, 0, False)
-    print(b)
-    print(f"With fitness: {bf}")

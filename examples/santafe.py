@@ -7,14 +7,20 @@ from typing import Annotated
 from typing import List
 from typing import Tuple
 
+import global_vars as gv
+
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.representations.grammatical_evolution.ge import (
+    ge_representation,
+)
 from geneticengine.core.representations.grammatical_evolution.structured_ge import (
     sge_representation,
 )
 from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.metahandlers.lists import ListSizeBetween
+
 
 map = """.###............................
 ...#............................
@@ -170,39 +176,40 @@ def preprocess():
     return extract_grammar([ActionBlock, Action, IfFood, Move, Right, Left], ActionMain)
 
 
-if __name__ == "__main__":
+fitness_function = lambda p: simulate(p, map)
+
+
+def evolve(
+    seed,
+    mode,
+    save_to_csv: str = None,
+    representation="treebased_representation",
+):
+    if representation == "ge":
+        representation = ge_representation
+    elif representation == "sge":
+        representation = sge_representation
+    else:
+        representation = treebased_representation
+
     g = preprocess()
-    print(f"Grammar: {repr(g)}")
-    alg_gp = GP(
+    alg = GP(
         g,
-        lambda p: simulate(p, map),
-        representation=treebased_representation,
+        fitness_function,
+        representation=representation,
+        probability_crossover=gv.PROBABILITY_CROSSOVER,
+        probability_mutation=gv.PROBABILITY_MUTATION,
+        number_of_generations=gv.NUMBER_OF_GENERATIONS,
+        max_depth=gv.MAX_DEPTH,
+        population_size=gv.POPULATION_SIZE,
+        selection_method=gv.SELECTION_METHOD,
+        n_elites=gv.N_ELITES,
+        # ----------------
         minimize=False,
-        max_depth=40,
-        probability_mutation=0.5,
-        number_of_generations=50,
-        population_size=150,
-        specific_type_mutation=ActionBlock,
-        specific_type_crossover=ActionBlock,
-        either_mut_or_cro=0.5,
-        n_novelties=5,
-        n_elites=5,
+        seed=seed,
+        timer_stop_criteria=mode,
+        save_to_csv=save_to_csv,
+        save_genotype_as_string=False,
     )
-    (b_gp, bf_gp, bp_gp) = alg_gp.evolve(verbose=1)
-
-    alg_hc = HC(
-        g,
-        lambda p: simulate(p, map),
-        representation=treebased_representation,
-        minimize=False,
-        max_depth=40,
-        number_of_generations=50,
-        population_size=150,
-    )
-    (b_hc, bf_hc, bp_hc) = alg_hc.evolve(verbose=1)
-
-    print("\n======\nHC\n======\n")
-    print(bf_hc, bp_hc, b_hc)
-
-    print("\n======\nGP\n======\n")
-    print(bf_gp, bp_gp, b_gp)
+    (b, bf, bp) = alg.evolve(verbose=1)
+    return b, bf

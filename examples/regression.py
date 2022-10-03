@@ -7,6 +7,7 @@ from typing import Annotated
 from typing import Any
 from typing import Callable
 
+import global_vars as gv
 import numpy as np
 import pandas as pd
 
@@ -113,9 +114,9 @@ def fitness_function(n: Number):
 
 
 def evolve(
-    g,
     seed,
     mode,
+    save_to_csv: str = None,
     representation="treebased_representation",
 ):
     if representation == "ge":
@@ -125,30 +126,24 @@ def evolve(
     else:
         representation = treebased_representation
 
+    g = preprocess()
     alg = GP(
         g,
         fitness_function,
         representation=representation,
-        minimize=True,
-        # As in PonyGE2:
-        probability_crossover=0.75,
-        probability_mutation=0.01,
-        number_of_generations=50,
-        max_depth=30,
-        # max_init_depth=10,
-        population_size=500,
-        selection_method=("tournament", 2),
-        n_elites=5,
+        probability_crossover=gv.PROBABILITY_CROSSOVER,
+        probability_mutation=gv.PROBABILITY_MUTATION,
+        number_of_generations=gv.NUMBER_OF_GENERATIONS,
+        max_depth=gv.MAX_DEPTH,
+        population_size=gv.POPULATION_SIZE,
+        selection_method=gv.SELECTION_METHOD,
+        n_elites=gv.N_ELITES,
         # ----------------
+        minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
+        save_to_csv=save_to_csv,
+        save_genotype_as_string=False,
     )
     (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf
-
-
-if __name__ == "__main__":
-    g = preprocess()
-    bf, b = evolve(g, 0, False)
-    print(b)
-    print(f"With fitness: {bf}")

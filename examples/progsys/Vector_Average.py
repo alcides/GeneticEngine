@@ -4,6 +4,8 @@ from typing import Annotated
 from typing import Any
 from typing import Callable
 
+import global_vars as gv
+
 import geneticengine.grammars.coding.lists as lists
 import geneticengine.grammars.coding.numbers as numbers
 from examples.progsys.utils import get_data
@@ -35,8 +37,6 @@ from geneticengine.grammars.coding.logical_ops import And
 from geneticengine.grammars.coding.logical_ops import Or
 from geneticengine.metahandlers.vars import VarRange
 
-# Max, Min, Abs, Plus, Literal, Mul, SafeDiv, Var
-# Max, Min, Abs, Plus, Literal, Mul, SafeDiv, Var
 
 FILE_NAME = "Vector_Average"
 DATA_FILE_TRAIN = f"./examples/progsys/data/{FILE_NAME}/Train.txt"
@@ -95,31 +95,37 @@ def fitness_function(n: Statement):
     return fitness
 
 
-def evolve(g, seed, mode, representation=""):
+def evolve(
+    seed,
+    mode,
+    save_to_csv: str = None,
+    representation="treebased_representation",
+):
     if representation == "ge":
         representation = ge_representation
     elif representation == "sge":
         representation = sge_representation
     else:
         representation = treebased_representation
+
+    g = preprocess()
     alg = GP(
         g,
         fitness_function,
         representation=representation,
-        number_of_generations=5,
+        probability_crossover=gv.PROBABILITY_CROSSOVER,
+        probability_mutation=gv.PROBABILITY_MUTATION,
+        number_of_generations=gv.NUMBER_OF_GENERATIONS,
+        max_depth=gv.MAX_DEPTH,
+        population_size=gv.POPULATION_SIZE,
+        selection_method=gv.SELECTION_METHOD,
+        n_elites=gv.N_ELITES,
+        # ----------------
         minimize=True,
         seed=seed,
-        max_depth=17,
-        population_size=500,
-        probability_crossover=0.9,
         timer_stop_criteria=mode,
+        save_to_csv=save_to_csv,
+        save_genotype_as_string=False,
     )
     (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf
-
-
-if __name__ == "__main__":
-    g = preprocess()
-    bf, b = evolve(g, 0, False)
-    print(b)
-    print(f"With fitness: {bf}")
