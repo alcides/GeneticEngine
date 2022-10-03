@@ -80,14 +80,10 @@ def f1_score(y_pred, y_gt, binary=False):
 
     n_positives = len(y_pred[y_pred == 1])
 
-    # not sure if its right
-    if y_gt.ndim == 1:
-        fp = sum((y_pred[y_pred == 1] - y_gt[y_pred == 1]) / 2)
-        fn = abs(sum((y_pred[y_pred == -1] - y_gt[y_pred == -1]) / 2))
+    assert y_gt.ndim == 1
 
-    elif y_gt.ndim == 0:
-        fp = sum((y_pred[y_pred == 1] - y_gt) / 2)
-        fn = abs(sum((y_pred[y_pred == -1] - y_gt) / 2))
+    fp = sum((y_pred[y_pred == 1] - y_gt[y_pred == 1]) / 2)
+    fn = abs(sum((y_pred[y_pred == -1] - y_gt[y_pred == -1]) / 2))
 
     tp = n_positives - fp
 
