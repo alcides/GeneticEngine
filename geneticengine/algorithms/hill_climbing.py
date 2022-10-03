@@ -7,10 +7,10 @@ from typing import Type
 import geneticengine.algorithms.gp.generation_steps.mutation as mutation
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.core.grammar import Grammar
+from geneticengine.core.problems import FitnessType
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.api import Representation
 from geneticengine.core.representations.tree.treebased import treebased_representation
-from GeneticEngine.geneticengine.core.problems import FitnessType
 
 
 class HC:

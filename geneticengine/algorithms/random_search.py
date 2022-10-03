@@ -12,11 +12,11 @@ from geneticengine.algorithms.callbacks.callback import ProgressCallback
 from geneticengine.algorithms.callbacks.csv_callback import CSVCallback
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.core.grammar import Grammar
+from geneticengine.core.problems import FitnessType
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.api import Representation
 from geneticengine.core.representations.tree.treebased import relabel_nodes_of_trees
 from geneticengine.core.representations.tree.treebased import treebased_representation
-from GeneticEngine.geneticengine.core.problems import FitnessType
 
 
 class RandomSearch:
