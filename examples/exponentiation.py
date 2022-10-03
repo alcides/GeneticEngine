@@ -60,10 +60,9 @@ class Exponentiation(Number):
         d1 = self.baseNumber.evaluate(**kwargs)
         d2 = self.powerNumber.evaluate(**kwargs)
         try:
-            return b1**b2
+            return d1**d2
         except:
             return 1.0
-        return
 
 
 def preprocess():
@@ -118,7 +117,6 @@ def evolve(
         probability_mutation=0.01,
         number_of_generations=50,
         max_depth=30,
-        # max_init_depth=10,
         population_size=500,
         selection_method=("tournament", 2),
         n_elites=5,
