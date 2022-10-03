@@ -221,7 +221,13 @@ def create_individual(
 
 
 def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
-    rkey = r.choice(list(key for key in ind.dna.keys() if len(ind.dna[key]) > 0))
+    rkey = r.choice(
+        list(
+            key
+            for key in ind.dna.keys()
+            if (len(ind.dna[key]) > 0) and (key != LEFTOVER_KEY)
+        ),
+    )
     dna = ind.dna
     clone = [i for i in dna[rkey]]
     rindex = r.randint(0, len(dna[rkey]) - 1)
@@ -237,7 +243,7 @@ def crossover(
     p2: Genotype,
     max_depth: int,
 ) -> tuple[Genotype, Genotype]:
-    keys = p1.dna.keys()
+    keys = p1.dna.keys()  # Leave leftovers in as it doesn't matter
     mask = [(k, r.random_bool()) for k in keys]
     c1 = dict()
     c2 = dict()
