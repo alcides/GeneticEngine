@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from argparse import ArgumentParser
 from dataclasses import dataclass
 from math import isinf
@@ -12,7 +13,8 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-import examples.global_vars as gv
+sys.path.insert(1, "GeneticEngine/examples")
+import global_vars as gv
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
@@ -36,8 +38,8 @@ from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import f1_score
 
 DATASET_NAME = "Banknote"
-DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.csv"
-DATA_FILE_TEST = f"examples/data/{DATASET_NAME}/Test.csv"
+DATA_FILE_TRAIN = f"GeneticEngine/examples/data/{DATASET_NAME}/Train.csv"
+DATA_FILE_TEST = f"GeneticEngine/examples/data/{DATASET_NAME}/Test.csv"
 
 bunch = pd.read_csv(DATA_FILE_TRAIN, delimiter=" ")
 target = bunch.y
