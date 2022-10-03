@@ -16,6 +16,7 @@ from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.api import Representation
 from geneticengine.core.representations.tree.treebased import relabel_nodes_of_trees
 from geneticengine.core.representations.tree.treebased import treebased_representation
+from GeneticEngine.geneticengine.core.problems import FitnessType
 
 
 class RandomSearch:
@@ -92,7 +93,7 @@ class RandomSearch:
             fitness=None,
         )
 
-    def evaluate(self, individual: Individual) -> float:
+    def evaluate(self, individual: Individual) -> FitnessType:
         if individual.fitness is None:
             phenotype = self.representation.genotype_to_phenotype(
                 self.grammar,
