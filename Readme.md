@@ -300,13 +300,18 @@ This work was supported by Fundação para a Ciência e Tecnologia (FCT) through
 * the FCT Exploratory project RAP (EXPL/CCI-COM/1306/2021)
 
 ## References
+
 <a id="1">[1]</a>
 Whigham, Peter A. "Grammatically-based genetic programming." Proceedings of the workshop on genetic programming: from theory to real-world applications. Vol. 16. No. 3. 1995.
+
 <a id="2">[2]</a>
 Ryan, Conor, John James Collins, and Michael O. Neill. "Grammatical evolution: Evolving programs for an arbitrary language." European conference on genetic programming. Springer, Berlin, Heidelberg, 1998.
+
 <a id="3">[3]</a>
 Lourenço, Nuno, Francisco B. Pereira, and Ernesto Costa. "SGE: a structured representation for grammatical evolution." International Conference on Artificial Evolution (Evolution Artificielle). Springer, Cham, 2015.
+
 <a id="4">[4]</a>
 Lourenço, Nuno, et al. "Structured grammatical evolution: a dynamic approach." Handbook of Grammatical Evolution. Springer, Cham, 2018. 137-161.
+
 <a id="5">[5]</a>
 Fonseca, Alcides. "Benchmarking Representations of Individuals in Grammar-Guided Genetic Programming." Evo* 2022: 5.
