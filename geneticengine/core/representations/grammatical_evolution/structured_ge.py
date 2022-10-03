@@ -19,7 +19,8 @@ from geneticengine.core.utils import get_arguments
 from geneticengine.core.utils import is_generic
 from geneticengine.core.utils import strip_annotations
 
-LIST_SIZE = 100
+GENE_SIZE = 100
+MAX_RAND_INT = 100000
 
 
 @dataclass
@@ -45,7 +46,7 @@ def random_individual(
 
     dna: dict[str, list[int]] = dict()
     for nodestr in nodes:
-        dna[nodestr] = [r.randint(0, 10000) for _ in range(LIST_SIZE)]
+        dna[nodestr] = [r.randint(0, MAX_RAND_INT) for _ in range(GENE_SIZE)]
 
     return Genotype(dna)
 
@@ -54,8 +55,8 @@ def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
     rkey = r.choice(list(ind.dna.keys()))
     dna = ind.dna
     clone = [i for i in dna[rkey]]
-    rindex = r.randint(0, len(dna[rkey])) - 1
-    clone[rindex] = r.randint(0, 10000)
+    rindex = r.randint(0, len(dna[rkey]) - 1)
+    clone[rindex] = r.randint(0, MAX_RAND_INT)
     dna[rkey] = clone
     return Genotype(dna)
 
@@ -98,7 +99,7 @@ class StructuredListWrapper(Source):
         return v % (max - min + 1) + min
 
     def random_float(self, min: float, max: float, prod: str = "") -> float:
-        k = self.randint(1, 100000000, prod)
+        k = self.randint(1, MAX_RAND_INT, prod)
         return 1 * (max - min) / k + min
 
 
