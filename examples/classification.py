@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import os
+from argparse import ArgumentParser
 from dataclasses import dataclass
 from math import isinf
 from typing import Annotated
 from typing import Any
 from typing import Callable
 
+import global_vars as gv
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -221,6 +223,7 @@ def evolve(
     g,
     seed,
     mode,
+    csv_file: str = None,
     representation="treebased_representation",
 ):
     if representation == "ge":
@@ -234,30 +237,62 @@ def evolve(
         g,
         fitness_function,
         representation=representation,
-        # As in PonyGE2:
-        probability_crossover=0.75,
-        probability_mutation=0.01,
-        number_of_generations=50,
-        max_depth=15,
-        # max_init_depth=10,
-        population_size=50,
-        selection_method=("tournament", 2),
-        n_elites=1,
+        probability_crossover=gv.PROBABILITY_CROSSOVER,
+        probability_mutation=gv.PROBABILITY_MUTATION,
+        number_of_generations=gv.NUMBER_OF_GENERATIONS,
+        max_depth=gv.MAX_DEPTH,
+        population_size=gv.POPULATION_SIZE,
+        selection_method=gv.SELECTION_METHOD,
+        n_elites=gv.N_ELITES,
         # ----------------
         minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
-        # save_to_csv='bla.csv',
-        # test_data=fitness_test_function,
-        # only_record_best_inds=None,
+        save_to_csv=csv_file,
+        save_genotype_as_string=False,
     )
     (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf
 
 
 if __name__ == "__main__":
-    g = preprocess()
-    print(g)
-    b, bf = evolve(g, 123, False)
-    print(bf)
-    print(f"With fitness: {b}")
+    parser = ArgumentParser()
+    parser.add_argument(
+        "-irc",
+        "--ind-rep-comparison",
+        dest="ind_rep_comparison",
+        action="store_const",
+        const=True,
+        default=False,
+    )
+    args = parser.parse_args()
+    if args.ind_rep_comparison:
+        parser.add_argument(
+            "-t",
+            "--time",
+            dest="time",
+            action="store_const",
+            const=True,
+            default=False,
+        )
+        parser.add_argument("-s", "--seed", dest="seed", type="int")
+        parser.add_argument(
+            "-r",
+            "--representation",
+            dest="representation",
+            type=str,
+            default="",
+        )
+        timed = args.time
+        rep = args.representation
+        seed = args.seed
+        mode = "generations"
+        if timed:
+            mode = "time"
+        file_name = os.path.basename(__file__).split(".")[0]
+        dest_file = f"results/{mode}/{file_name}/{rep}/{seed}.csv"
+
+        g = preprocess()
+        b, bf = evolve(g, seed, timed, csv_file=dest_file, representation=rep)
+        print(bf)
+        print(f"With fitness: {b}")
