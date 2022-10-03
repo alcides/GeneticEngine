@@ -14,7 +14,6 @@ from geneticengine.core.utils import get_arguments
 from geneticengine.core.utils import get_generic_parameter
 from geneticengine.core.utils import is_generic
 from geneticengine.core.utils import is_generic_list
-from geneticengine.core.utils import is_terminal
 from geneticengine.core.utils import strip_annotations
 from geneticengine.exceptions import GeneticEngineError
 from geneticengine.metahandlers.base import is_metahandler
