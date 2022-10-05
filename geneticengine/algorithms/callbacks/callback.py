@@ -26,6 +26,7 @@ class DebugCallback(Callback):
 class ProgressCallback(Callback):
     """Prints the number of the generation"""
 
+    # Currently this only work with GP, doesnt work with Hill Climbing and Random Search
     def process_iteration(self, generation: int, population, time: float, gp):
         best_individual = gp.get_best_individual(gp.problem, population)
 
