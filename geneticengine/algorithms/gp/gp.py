@@ -337,8 +337,6 @@ class GP:
             for cb in self.callbacks:
                 cb.process_iteration(gen + 1, population, time=time_gen, gp=self)
 
-            if self.problem.solved(best_individual.fitness):
-                break
             gen += 1
         self.final_population = population
 
