@@ -16,6 +16,15 @@ from sklearn.metrics import f1_score
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
+    dsge_representation,
+)
+from geneticengine.core.representations.grammatical_evolution.ge import (
+    ge_representation,
+)
+from geneticengine.core.representations.grammatical_evolution.structured_ge import (
+    sge_representation,
+)
 from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.grammars.coding.classes import Condition
 from geneticengine.grammars.coding.classes import Expr
@@ -322,11 +331,25 @@ def preprocess(method):
     return grammar
 
 
-def evolve(fitness_function, g, seed, mode):
+def evolve(
+    fitness_function,
+    g,
+    seed,
+    mode,
+    representation="treebased_representation",
+):
+    if representation == "ge":
+        representation = ge_representation
+    elif representation == "sge":
+        representation = sge_representation
+    elif representation == "dsge":
+        representation = dsge_representation
+    else:
+        representation = treebased_representation
     alg = GP(
         g,
         fitness_function,
-        representation=treebased_representation,
+        representation=representation,
         # number_of_generations=150,
         # population_size=100,
         # max_depth=15,
@@ -338,7 +361,7 @@ def evolve(fitness_function, g, seed, mode):
         seed=seed,
         timer_stop_criteria=mode,
     )
-    (b, bf, bp) = alg.evolve(verbose=2)
+    (b, bf, bp) = alg.evolve(verbose=1)
 
     print("Best individual:", bp)
     print("Genetic Engine Train F1 score:", bf)
@@ -353,8 +376,8 @@ def evolve(fitness_function, g, seed, mode):
 if __name__ == "__main__":
     args = sys.argv
     print(args)
-    method = args[1]  # 'col'
-    dataset_name = args[2]  # 'GameOfLife'
+    method = "col"
+    dataset_name = "GameOfLife"
 
     g = preprocess(method)
 
@@ -365,6 +388,6 @@ if __name__ == "__main__":
         ypred = [_clf(line) for line in np.rollaxis(Xtrain, 0)]
         return f1_score(ytrain, ypred)
 
-    for i in range(30):
+    for i in range(1):
         print(f"Run: {i}.")
-        evolve(fitness_function, g, i, False)
+        evolve(fitness_function, g, i, False, "dsge")
