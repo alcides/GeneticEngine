@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import time
+from operator import attrgetter
 from typing import Any
 from typing import Callable
 from typing import NoReturn
@@ -26,6 +27,7 @@ from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.api import Representation
 from geneticengine.core.representations.tree.treebased import relabel_nodes_of_trees
 from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.core.utils import average_fitness
 
 
 class GP:
@@ -246,6 +248,8 @@ class GP:
         return individual.fitness
 
     def keyfitness(self):
+        # have to changes this to work with multiObjective
+        # if(isinstance(self.problem, SingleObjectiveProblem)):
         if self.problem.minimize:
             return lambda x: self.evaluate(x)
         else:
@@ -290,8 +294,6 @@ class GP:
                 ),
                 fitness=None,
             )
-        population = sorted(population, key=self.keyfitness())
-
         gen = 0
         start = time.time()
 
@@ -328,13 +330,14 @@ class GP:
                     spotsLeft -= 2
 
             population = npop
-            population = sorted(population, key=self.keyfitness())
+
+            best_individual = self.get_best_individual(self.problem, population)
 
             time_gen = time.time() - start
             for cb in self.callbacks:
                 cb.process_iteration(gen + 1, population, time=time_gen, gp=self)
 
-            if self.problem.solved(population[0].fitness):
+            if self.problem.solved(best_individual.fitness):
                 break
             gen += 1
         self.final_population = population
@@ -342,11 +345,11 @@ class GP:
         for cb in self.callbacks:
             cb.end_evolution()
         return (
-            population[0],
-            self.evaluate(population[0]),
+            best_individual,
+            self.evaluate(best_individual),
             self.representation.genotype_to_phenotype(
                 self.grammar,
-                population[0].genotype,
+                best_individual.genotype,
             ),
         )
 
@@ -354,3 +357,36 @@ class GP:
         return [
             self.create_individual(self.max_depth) for _ in range(self.population_size)
         ]
+
+    def get_best_individual(
+        self,
+        p: Problem,
+        individuals: list[Individual],
+    ) -> Individual:
+        best_individual: Individual
+        if isinstance(p, SingleObjectiveProblem):
+            fitnesses = [self.evaluate(x) for x in individuals]
+            assert all(isinstance(x, float) for x in fitnesses)
+            if p.minimize:
+                best_individual = min(individuals, key=attrgetter("fitness"))
+            else:
+                best_individual = max(individuals, key=attrgetter("fitness"))
+
+        elif isinstance(p, MultiObjectiveProblem):
+            fitnesses = [self.evaluate(x) for x in individuals]
+            assert all(isinstance(x, list) for x in fitnesses)
+
+            for i in range(len(individuals)):
+                individual = individuals[i]
+                if i == 0:
+                    best_individual = individual
+                elif (
+                    average_fitness(best_individual) > average_fitness(individual)
+                ) and p.minimize[i]:
+                    best_individual = individual
+                elif (
+                    average_fitness(best_individual) < average_fitness(individual)
+                ) and not p.minimize[i]:
+                    best_individual = individual
+
+        return best_individual

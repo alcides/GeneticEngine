@@ -50,6 +50,7 @@ def create_elitism(
         population: list[Individual],
         fitness: Callable[[Individual], float],
     ) -> list[Individual]:
+        ## copy()
         population = sorted(population, key=fitness)
         elites: list[Individual] = list()
         i = 0
