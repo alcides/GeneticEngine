@@ -247,7 +247,7 @@ def evolve(
         max_depth=15,
         # max_init_depth=10,
         population_size=50,
-        selection_method=("lexicase", 2),
+        selection_method=("tournament", 2),
         n_elites=1,
         # ----------------
         seed=seed,

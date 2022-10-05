@@ -15,7 +15,6 @@ from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import MultiObjectiveProblem
-from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.ge import (
     ge_representation,
 )
@@ -158,41 +157,32 @@ class Literal2(Number):
 def preprocess():
     return extract_grammar(
         [Plus, Mul, SafeDiv, Literal2, Var, SafeSqrt, SafeLog],
-        # [Plus, Mul, SafeDiv, Var, SafeSqrt, SafeLog] + literals,
         Number,
     )
 
 
+X_train, X_test, y_train, y_test = train_test_split(
+    data.values,
+    target.values,
+    test_size=0.75,
+)
+
+
 def fitness_function_lexicase(n: Number):
-    y = target.values
-    cases = []  # list of problems
-    cases = data.values.tolist()  # list of rows, each row is a list of values
+    X = X_test
+    y = y_test
 
-    fitnesses = list()
+    variables = {}
+    for x in feature_names:
+        i = feature_indices[x]
+        variables[x] = X[:, i]
 
-    for c in cases:
-        variables = {}
-        for x in feature_names:
-            i = feature_indices[x]
-            variables[x] = c[i]
+    y_pred = n.evaluate(**variables)
+    if type(y_pred) in [np.float64, int, float] or y_pred.shape != y.shape:
+        """If n does not use variables, the output will be scalar."""
+        y_pred = np.full(len(y), y_pred)
 
-        y_pred = n.evaluate(**variables)
-
-        if type(y_pred) in [np.float64, int, float]:
-            """If n does not use variables, the output will be scalar."""
-            y_pred = np.full(abs(int(y[cases.index(c)])), y_pred)
-
-        if y_pred.shape != (y[cases.index(c)],):
-            fitness = -100000000
-        else:
-            # Leon told me to use y[index of case] instead of y, had to change f1_score function in order to work with 0 dimensional array
-            fitness = f1_score(y_pred, y[cases.index(c)])
-            if isinf(fitness):
-                fitness = -100000000
-
-        fitnesses.append(fitness)
-
-    return fitnesses
+    return [int(p == r) for (p, r) in zip(y, y_pred)]
 
 
 def evolve(
@@ -224,8 +214,8 @@ def evolve(
         max_depth=15,
         # max_init_depth=10,
         population_size=50,
-        selection_method=("lexicase", 2),
-        n_elites=1,
+        selection_method=("lexicase",),
+        n_elites=0,
         # ----------------
         seed=seed,
         timer_stop_criteria=mode,
