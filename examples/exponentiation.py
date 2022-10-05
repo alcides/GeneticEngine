@@ -116,8 +116,8 @@ def evolve(
         probability_crossover=0.75,
         probability_mutation=0.01,
         number_of_generations=50,
-        max_depth=30,
-        population_size=500,
+        max_depth=8,
+        population_size=50,
         selection_method=("tournament", 2),
         n_elites=5,
         # ----------------
