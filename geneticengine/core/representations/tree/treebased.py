@@ -346,7 +346,7 @@ def expand_node(
 
         if starting_symbol in g.alternatives:  # Alternatives
             extra_depth = 0
-            if is_abstract(starting_symbol) and g.ponyge_depthing:
+            if is_abstract(starting_symbol) and g.expansion_depthing:
                 extra_depth = 1
 
             compatible_productions = g.alternatives[starting_symbol]
@@ -456,7 +456,7 @@ def mutate_inner(
             replacement = random_node(r, g, max_depth, ty, method=Grow)
             return replacement
         else:
-            if is_abstract(ty) and g.ponyge_depthing:
+            if is_abstract(ty) and g.expansion_depthing:
                 max_depth -= g.abstract_dist_to_t[ty][type(i)]
             max_depth -= 1
             args = list(i.gengy_init_values)
@@ -566,7 +566,7 @@ def find_in_tree(g: Grammar, ty: type, o: TreeNode, max_depth: int):
             def is_valid(node):
                 _, depth, _ = relabel_nodes(node, g)
 
-                if is_abs and g.ponyge_depthing:
+                if is_abs and g.expansion_depthing:
                     depth += g.abstract_dist_to_t[ty][t]
 
                 return depth <= max_depth
@@ -644,7 +644,7 @@ def crossover_inner(
 
             return replacement
         else:
-            if is_abstract(ty) and g.ponyge_depthing:
+            if is_abstract(ty) and g.expansion_depthing:
                 max_depth -= g.abstract_dist_to_t[ty][type(i)]
             max_depth -= 1
             args = list(i.gengy_init_values)

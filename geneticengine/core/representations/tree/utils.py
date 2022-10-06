@@ -42,10 +42,10 @@ def relabel_nodes(i: TreeNode, g: Grammar) -> tuple[int, int, dict[type, list[An
     if is_terminal(type(i), non_terminals) and (not isinstance(i, list)):
         if not is_builtin(type(i)):
             i.gengy_labeled = True
-            i.gengy_distance_to_term = int(g.ponyge_depthing)
-            i.gengy_nodes = int(g.ponyge_depthing)
+            i.gengy_distance_to_term = int(g.expansion_depthing)
+            i.gengy_nodes = int(g.expansion_depthing)
             i.gengy_types_this_way = {type(i): [i]}
-        return int(g.ponyge_depthing), int(g.ponyge_depthing), {type(i): [i]}
+        return int(g.expansion_depthing), int(g.expansion_depthing), {type(i): [i]}
     else:
         if isinstance(i, list):
             children = [(type(obj), obj) for obj in i]
@@ -62,7 +62,7 @@ def relabel_nodes(i: TreeNode, g: Grammar) -> tuple[int, int, dict[type, list[An
             nodes, dist, thisway = relabel_nodes(c, g)
             abs_adjust = (
                 0
-                if not is_abstract(t) or not g.ponyge_depthing
+                if not is_abstract(t) or not g.expansion_depthing
                 else g.abstract_dist_to_t[t][type(c)]
             )
             number_of_nodes += abs_adjust + nodes

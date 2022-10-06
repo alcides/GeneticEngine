@@ -49,7 +49,7 @@ class Grammar:
     def __init__(
         self,
         starting_symbol: type,
-        ponyge_depthing: bool,
+        expansion_depthing: bool,
         considered_subtypes: list[type] = None,
     ) -> None:
         self.alternatives: dict[type, list[type]] = {}
@@ -63,7 +63,7 @@ class Grammar:
             lambda: defaultdict(lambda: 1000000),
         )
         self.considered_subtypes = considered_subtypes or []
-        self.ponyge_depthing = ponyge_depthing
+        self.expansion_depthing = expansion_depthing
 
         self.validate()
 
@@ -192,9 +192,9 @@ class Grammar:
             return self.get_distance_to_terminal(ta)
         elif is_generic_list(ty):
             ta = get_generic_parameter(ty)
-            return int(self.ponyge_depthing) + self.get_distance_to_terminal(ta)
+            return int(self.expansion_depthing) + self.get_distance_to_terminal(ta)
         elif is_generic(ty):
-            return int(self.ponyge_depthing) + max(
+            return int(self.expansion_depthing) + max(
                 self.get_distance_to_terminal(t) for t in get_generic_parameters(ty)
             )
         else:
@@ -246,7 +246,7 @@ class Grammar:
                         for prod in prods:
                             val = min(
                                 val,
-                                int(self.ponyge_depthing)
+                                int(self.expansion_depthing)
                                 + self.distanceToTerminal[prod],
                             )
                             old = self.abstract_dist_to_t[sym][prod]
@@ -269,7 +269,7 @@ class Grammar:
                     if is_terminal(sym, self.non_terminals):
                         if (
                             sym == int or sym == float or sym == str
-                        ) and not self.ponyge_depthing:
+                        ) and not self.expansion_depthing:
                             val = 0
                         else:
                             val = 1
@@ -300,7 +300,7 @@ class Grammar:
 def extract_grammar(
     considered_subtypes: list[type],
     starting_symbol: type,
-    ponyge_depthing: bool = False,
+    expansion_depthing: bool = False,
 ):
     """
     The extract_grammar takes in all the productions of the grammar (nodes) and a starting symbol (starting_symbol). It goes through all the nodes and constructs a complete grammar that can then be used for search algorithms such as Genetic Programming and Hill Climbing.
@@ -313,7 +313,7 @@ def extract_grammar(
         - The grammar
 
     """
-    g = Grammar(starting_symbol, ponyge_depthing, considered_subtypes)
+    g = Grammar(starting_symbol, expansion_depthing, considered_subtypes)
     g.register_type(starting_symbol)
     g.preprocess()
     return g
