@@ -3,15 +3,37 @@ from __future__ import annotations
 from abc import ABC
 from abc import abstractmethod
 from operator import attrgetter
+from typing import Callable
 
 from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.core.grammar import Grammar
 from geneticengine.core.problems import FitnessType
 from geneticengine.core.problems import MultiObjectiveProblem
 from geneticengine.core.problems import Problem
 from geneticengine.core.problems import SingleObjectiveProblem
+from geneticengine.core.random.sources import RandomSource
+from geneticengine.core.representations.api import Representation
 
 
 class Heuristics(ABC):
+    grammar: Grammar
+    representation: Representation[Any]
+    problem: Problem
+    random: RandomSource
+
+    def __init__(
+        self,
+        grammar: Grammar,
+        representation: Representation,
+        problem: Problem = None,  # DEPRECATE in the next versi
+        randomSource: Callable[[int], RandomSource] = RandomSource,
+        seed: int = 123,
+    ):
+        self.problem: Problem = problem
+        self.grammar = grammar
+        self.representation = representation
+        self.random = randomSource(seed)
+
     @abstractmethod
     def evolve(self, verbose):
         pass
