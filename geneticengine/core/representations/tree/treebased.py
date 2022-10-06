@@ -274,7 +274,7 @@ def mk_save_init(starting_symbol: Any, receiver: Callable):
 def expand_node(
     r: Source,
     g: Grammar,
-    new_symbol,
+    new_symbol,  # Method to find new_symbol (?)
     filter_choices,
     receiver,
     depth,

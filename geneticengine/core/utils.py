@@ -112,8 +112,6 @@ def is_terminal(t: type, non_terminals: set[type]) -> bool:
         return all(
             [is_terminal(inner, non_terminals) for inner in get_generic_parameters(t)],
         )
-    if not has_arguments(t):
-        return True
     return t not in non_terminals
 
 
