@@ -60,7 +60,9 @@ class Heuristics(ABC):
 
             def single_criteria(i: Individual) -> float:
                 assert isinstance(p.minimize, list)
-                return sum((m and -f or f) for (f, m) in zip(i.fitness, p.minimize))
+                return sum(
+                    (m and -f or f) for (f, m) in zip(self.evaluate(i), p.minimize)
+                )
 
             return max(individuals, key=single_criteria)
 
