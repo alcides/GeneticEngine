@@ -26,7 +26,11 @@ class GengyList(list):
         return GengyList(self.typ, newargs)
 
 
-def relabel_nodes(i: TreeNode, g: Grammar) -> tuple[int, int, dict[type, list[Any]]]:
+def relabel_nodes(
+    i: TreeNode,
+    g: Grammar,
+    is_list: bool = False,
+) -> tuple[int, int, dict[type, list[Any]]]:
     """
     Recomputes all the nodes, depth and distance_to_term in the tree.\n
     Returns the number of nodes, distance to terminal (depth) and typed this way.
@@ -37,6 +41,9 @@ def relabel_nodes(i: TreeNode, g: Grammar) -> tuple[int, int, dict[type, list[An
         return i.gengy_nodes, i.gengy_distance_to_term, i.gengy_types_this_way
     number_of_nodes = 1
     distance_to_term = 1
+    if is_list:
+        number_of_nodes = 0
+        distance_to_term = 0
     types_this_way = defaultdict(lambda: [])
     types_this_way[type(i)] = [i]
     if is_terminal(type(i), non_terminals) and (not isinstance(i, list)):
@@ -58,15 +65,15 @@ def relabel_nodes(i: TreeNode, g: Grammar) -> tuple[int, int, dict[type, list[An
             ]
         assert children
         for t, c in children:
-            # print(f"{t=}, {c=}")
-            nodes, dist, thisway = relabel_nodes(c, g)
+            nodes, dist, thisway = relabel_nodes(c, g, isinstance(c, list))
             abs_adjust = (
                 0
                 if not is_abstract(t) or not g.expansion_depthing
                 else g.abstract_dist_to_t[t][type(c)]
             )
+            list_adjust = 0 if isinstance(c, list) else 1
             number_of_nodes += abs_adjust + nodes
-            distance_to_term = max(distance_to_term, dist + abs_adjust + 1)
+            distance_to_term = max(distance_to_term, dist + abs_adjust + list_adjust)
             for (k, v) in thisway.items():
                 types_this_way[k].extend(v)
 
