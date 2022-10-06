@@ -4,8 +4,6 @@ import os
 from dataclasses import dataclass
 from math import isinf
 from typing import Annotated
-from typing import Any
-from typing import Callable
 
 import numpy as np
 import pandas as pd
@@ -14,7 +12,6 @@ from sklearn.model_selection import train_test_split
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import MultiObjectiveProblem
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
     dsge_representation,
@@ -34,7 +31,6 @@ from geneticengine.grammars.sgp import Number
 from geneticengine.grammars.sgp import Plus
 from geneticengine.grammars.sgp import Var
 from geneticengine.metahandlers.floats import FloatList
-from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import f1_score
 

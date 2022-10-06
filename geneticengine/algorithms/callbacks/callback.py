@@ -28,6 +28,7 @@ class ProgressCallback(Callback):
 
     # Currently this only work with GP, doesnt work with Hill Climbing and Random Search
     def process_iteration(self, generation: int, population, time: float, gp):
+
         best_individual = gp.get_best_individual(gp.problem, population)
 
         if isinstance(gp.problem, SingleObjectiveProblem):

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from random import random
 from typing import Annotated
 
@@ -65,24 +64,30 @@ alg_gp = GP(
 
 alg_hc = HC(
     g,
-    evaluation_function=fit,
     representation=treebased_representation,
+    problem=SingleObjectiveProblem(
+        minimize=True,
+        fitness_function=fit,
+        target_fitness=None,
+    ),
     population_size=150,
     max_depth=5,
     number_of_generations=10,
-    minimize=True,
 )
 (b_hc, bf_hc, bp_hc) = alg_hc.evolve(verbose=1)
 
 alg_rs = RandomSearch(
     g,
-    evaluation_function=fit,
     representation=treebased_representation,
+    problem=SingleObjectiveProblem(
+        minimize=True,
+        fitness_function=fit,
+        target_fitness=None,
+    ),
     population_size=150,
     max_depth=5,
     number_of_generations=40,
-    minimize=True,
-    favor_less_deep_trees=True,
+    # favor_less_deep_trees=True,
 )
 (b_rs, bf_rs, bp_rs) = alg_rs.evolve(verbose=1)
 

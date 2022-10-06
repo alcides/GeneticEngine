@@ -6,14 +6,17 @@ from typing import Type
 
 import geneticengine.algorithms.gp.generation_steps.mutation as mutation
 from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.algorithms.heuristics import Heuristics
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.problems import FitnessType
+from geneticengine.core.problems import Problem
+from geneticengine.core.problems import process_problem
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.api import Representation
 from geneticengine.core.representations.tree.treebased import treebased_representation
 
 
-class HC:
+class HC(Heuristics):
     """
     Hill Climbing object. Main attribute: evolve
 
@@ -31,11 +34,13 @@ class HC:
 
     """
 
+    # PROBlEM
     def __init__(
         self,
         g: Grammar,
-        evaluation_function: Callable[[Any], float],
+        evaluation_function: Callable[[Any], float] = None,
         representation: Representation = treebased_representation,
+        problem: Problem = None,
         randomSource: Callable[[int], RandomSource] = RandomSource,
         population_size: int = 200,
         number_of_generations: int = 100,
@@ -45,6 +50,7 @@ class HC:
         seed: int = 123,
     ):
         assert population_size >= 1
+        self.problem: Problem = process_problem(problem, evaluation_function, minimize)
 
         self.grammar: Grammar = g
         self.representation = representation
@@ -82,11 +88,11 @@ class HC:
                 self.grammar,
                 individual.genotype,
             )
-            individual.fitness = self.evaluation_function(phenotype)
+            individual.fitness = self.problem.evaluate(phenotype)
         return individual.fitness
 
     def keyfitness(self):
-        if self.minimize:
+        if self.problem.minimize:
             return lambda x: self.evaluate(x)
         else:
             return lambda x: -self.evaluate(x)

@@ -1,11 +1,9 @@
 from __future__ import annotations
 
 import time
-from operator import attrgetter
 from typing import Any
 from typing import Callable
 from typing import NoReturn
-from typing import Optional
 
 import geneticengine.algorithms.gp.generation_steps.cross_over as cross_over
 import geneticengine.algorithms.gp.generation_steps.mutation as mutation
@@ -16,21 +14,19 @@ from geneticengine.algorithms.callbacks.callback import PrintBestCallback
 from geneticengine.algorithms.callbacks.callback import ProgressCallback
 from geneticengine.algorithms.callbacks.csv_callback import CSVCallback
 from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.algorithms.heuristics import Heuristics
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.problems import FitnessType
-from geneticengine.core.problems import MultiObjectiveProblem
 from geneticengine.core.problems import Problem
 from geneticengine.core.problems import process_problem
-from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.problems import wrap_depth
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.api import Representation
 from geneticengine.core.representations.tree.treebased import relabel_nodes_of_trees
 from geneticengine.core.representations.tree.treebased import treebased_representation
-from geneticengine.core.utils import average_fitness
 
 
-class GP:
+class GP(Heuristics):
     """
     Genetic Programming object. Main attribute: evolve
 
@@ -227,34 +223,6 @@ class GP:
             )
             self.callbacks.append(c)
 
-    def create_individual(self, depth: int):
-        genotype = self.representation.create_individual(
-            r=self.random,
-            g=self.grammar,
-            depth=depth,
-        )
-        return Individual(
-            genotype=genotype,
-            fitness=None,
-        )
-
-    def evaluate(self, individual: Individual) -> FitnessType:
-        if individual.fitness is None:
-            phenotype = self.representation.genotype_to_phenotype(
-                self.grammar,
-                individual.genotype,
-            )
-            individual.fitness = self.problem.evaluate(phenotype)
-        return individual.fitness
-
-    def keyfitness(self):
-        # have to changes this to work with multiObjective
-        # if(isinstance(self.problem, SingleObjectiveProblem)):
-        if self.problem.minimize:
-            return lambda x: self.evaluate(x)
-        else:
-            return lambda x: -self.evaluate(x)
-
     def evolve(self, verbose=1) -> tuple[Individual, FitnessType, Any]:
         """
         The main function of the GP object. This function runs the GP algorithm over the set number of generations, evolving better solutions
@@ -314,7 +282,7 @@ class GP:
                         candidates = self.selection(self.random, population, 2)
                         (p1, p2) = self.cross_over(candidates[0], candidates[1])
                         npop.append(p1)
-                        npop.append(p2)
+                        npop.axtppend(p2)
                         spotsLeft -= 2
                 else:
                     candidates = self.selection(self.random, population, 2)
@@ -355,36 +323,3 @@ class GP:
         return [
             self.create_individual(self.max_depth) for _ in range(self.population_size)
         ]
-
-    def get_best_individual(
-        self,
-        p: Problem,
-        individuals: list[Individual],
-    ) -> Individual:
-        best_individual: Individual
-        if isinstance(p, SingleObjectiveProblem):
-            fitnesses = [self.evaluate(x) for x in individuals]
-            assert all(isinstance(x, float) for x in fitnesses)
-            if p.minimize:
-                best_individual = min(individuals, key=attrgetter("fitness"))
-            else:
-                best_individual = max(individuals, key=attrgetter("fitness"))
-
-        elif isinstance(p, MultiObjectiveProblem):
-            fitnesses = [self.evaluate(x) for x in individuals]
-            assert all(isinstance(x, list) for x in fitnesses)
-
-            for i in range(len(individuals)):
-                individual = individuals[i]
-                if i == 0:
-                    best_individual = individual
-                elif (
-                    average_fitness(best_individual) > average_fitness(individual)
-                ) and p.minimize[i]:
-                    best_individual = individual
-                elif (
-                    average_fitness(best_individual) < average_fitness(individual)
-                ) and not p.minimize[i]:
-                    best_individual = individual
-
-        return best_individual
