@@ -60,9 +60,8 @@ class TestDepthing:
         assert y.gengy_nodes == 4
         # assert z.gengy_distance_to_term == 4
         # assert z.gengy_nodes == 7
-        import IPython as ip
-
-        ip.embed()
+        # import IPython as ip
+        # ip.embed()
 
     def test_expansion_depthing(self):
         r = RandomSource(seed=1)
@@ -78,6 +77,6 @@ class TestDepthing:
         # ip.embed()
 
 
-a = TestDepthing
-a.test_normal_depthing(a)
-a.test_expansion_depthing(a)
+# a = TestDepthing
+# a.test_normal_depthing(a)
+# a.test_expansion_depthing(a)
