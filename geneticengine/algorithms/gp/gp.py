@@ -282,7 +282,7 @@ class GP(Heuristics):
                         candidates = self.selection(self.random, population, 2)
                         (p1, p2) = self.cross_over(candidates[0], candidates[1])
                         npop.append(p1)
-                        npop.axtppend(p2)
+                        npop.append(p2)
                         spotsLeft -= 2
                 else:
                     candidates = self.selection(self.random, population, 2)

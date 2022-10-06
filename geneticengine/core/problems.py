@@ -13,6 +13,9 @@ P = TypeVar("P")
 
 
 class Problem(ABC):
+    minimize: bool | list[bool]
+    fitness_function: Callable[[P], float] | Callable[[P], list[float]]
+
     def evaluate(self, p: P) -> FitnessType:
         ...
 
