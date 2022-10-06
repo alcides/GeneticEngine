@@ -27,7 +27,7 @@ class Leaf(Root):
 @dataclass
 class A(Root):
     # y: list[int]
-    z: Annotated[GengyList[Root], ListSizeBetween(2, 3)]
+    z: Annotated[list[Root], ListSizeBetween(2, 3)]
 
 
 @dataclass
