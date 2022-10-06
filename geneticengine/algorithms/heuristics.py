@@ -3,6 +3,7 @@ from __future__ import annotations
 from abc import ABC
 from abc import abstractmethod
 from operator import attrgetter
+from typing import Any
 from typing import Callable
 
 from geneticengine.algorithms.gp.individual import Individual
@@ -17,7 +18,7 @@ from geneticengine.core.representations.api import Representation
 
 class Heuristics(ABC):
     grammar: Grammar
-    representation: Representation[Any]
+    representation: Representation
     problem: Problem
     random: RandomSource
 
@@ -25,9 +26,9 @@ class Heuristics(ABC):
         self,
         grammar: Grammar,
         representation: Representation,
-        problem: Problem = None,  # DEPRECATE in the next versi
-        randomSource: Callable[[int], RandomSource] = RandomSource,
-        seed: int = 123,
+        problem: Problem,
+        randomSource: Callable[[int], RandomSource],
+        seed: int,
     ):
         self.problem: Problem = problem
         self.grammar = grammar
@@ -58,6 +59,7 @@ class Heuristics(ABC):
             assert all(isinstance(x, list) for x in fitnesses)
 
             def single_criteria(i: Individual) -> float:
+                assert isinstance(p.minimize, list)
                 return sum((m and -f or f) for (f, m) in zip(i.fitness, p.minimize))
 
             return max(individuals, key=single_criteria)
