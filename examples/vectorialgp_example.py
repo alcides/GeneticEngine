@@ -3212,7 +3212,6 @@ if __name__ == "__main__":
 
     parser = OptionParser()
     parser.add_option("-s", "--seed", dest="seed", type="int")
-    parser.add_option("-e", "--example", dest="example", type="int", default=0)
     parser.add_option("-r", "--representation", dest="representation", type="int")
     parser.add_option(
         "-t",
