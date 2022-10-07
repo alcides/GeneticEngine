@@ -109,8 +109,8 @@ def evolve(g, seed, mode, representation=""):
         number_of_generations=5,
         minimize=True,
         seed=seed,
-        max_depth=17,
-        population_size=500,
+        max_depth=10,
+        population_size=50,
         probability_crossover=0.9,
         timer_stop_criteria=mode,
     )

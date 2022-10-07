@@ -50,10 +50,11 @@ class Grammar:
         self,
         starting_symbol: type,
         considered_subtypes: list[type] = None,
+        expansion_depthing: bool = False,
     ) -> None:
         self.alternatives: dict[type, list[type]] = {}
         self.starting_symbol = starting_symbol
-        self.distanceToTerminal = {int: 1, str: 1, float: 1}
+        self.distanceToTerminal = {int: 0, str: 0, float: 0}
         self.all_nodes = set()
         self.recursive_prods = set()
         self.terminals = set()
@@ -62,6 +63,7 @@ class Grammar:
             lambda: defaultdict(lambda: 1000000),
         )
         self.considered_subtypes = considered_subtypes or []
+        self.expansion_depthing = expansion_depthing
 
         self.validate()
 
@@ -153,7 +155,10 @@ class Grammar:
             if hasattr(n, "__name__"):
                 return n.__name__
             if hasattr(n, "__metadata__"):
-                return n.__metadata__[0]
+                if is_generic_list(get_generic_parameter(n)):
+                    return f"{n.__metadata__[0]} of {wrap(strip_annotations(n))}"
+                else:
+                    return f"{n.__metadata__[0]}"
             return n
 
         def format(x):
@@ -187,9 +192,9 @@ class Grammar:
             return self.get_distance_to_terminal(ta)
         elif is_generic_list(ty):
             ta = get_generic_parameter(ty)
-            return 1 + self.get_distance_to_terminal(ta)
+            return int(self.expansion_depthing) + self.get_distance_to_terminal(ta)
         elif is_generic(ty):
-            return 1 + max(
+            return int(self.expansion_depthing) + max(
                 self.get_distance_to_terminal(t) for t in get_generic_parameters(ty)
             )
         else:
@@ -239,7 +244,11 @@ class Grammar:
                     if sym in self.alternatives:
                         prods = self.alternatives[sym]
                         for prod in prods:
-                            val = min(val, 1 + self.distanceToTerminal[prod])
+                            val = min(
+                                val,
+                                int(self.expansion_depthing)
+                                + self.distanceToTerminal[prod],
+                            )
                             old = self.abstract_dist_to_t[sym][prod]
                             if 1 < old:
                                 self.abstract_dist_to_t[sym][prod] = 1
@@ -258,7 +267,12 @@ class Grammar:
                         changed |= process_reachability(sym, prods)
                 else:
                     if is_terminal(sym, self.non_terminals):
-                        val = 1
+                        if (
+                            sym == int or sym == float or sym == str
+                        ) and not self.expansion_depthing:
+                            val = 0
+                        else:
+                            val = 1
                     else:
                         args = get_arguments(sym)
                         assert args
@@ -286,6 +300,7 @@ class Grammar:
 def extract_grammar(
     considered_subtypes: list[type],
     starting_symbol: type,
+    expansion_depthing: bool = False,
 ):
     """
     The extract_grammar takes in all the productions of the grammar (nodes) and a starting symbol (starting_symbol). It goes through all the nodes and constructs a complete grammar that can then be used for search algorithms such as Genetic Programming and Hill Climbing.
@@ -298,7 +313,7 @@ def extract_grammar(
         - The grammar
 
     """
-    g = Grammar(starting_symbol, considered_subtypes)
+    g = Grammar(starting_symbol, considered_subtypes, expansion_depthing)
     g.register_type(starting_symbol)
     g.preprocess()
     return g

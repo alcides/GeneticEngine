@@ -36,7 +36,7 @@ class ListSizeBetween(MetaHandlerGenerator):
             nctx = ctx.copy()
             nident = ident + "_" + str(i)
             nctx["_"] = nident
-            new_symbol(base_type, fin, depth - 1, nident, nctx)
+            new_symbol(base_type, fin, depth, nident, nctx)
 
     def mutate(
         self,
@@ -130,7 +130,7 @@ class ListSizeBetweenWithoutListOperations(MetaHandlerGenerator):
             nctx = ctx.copy()
             nident = ident + "_" + str(i)
             nctx["_"] = nident
-            new_symbol(base_type, fin, depth - 1, nident, nctx)
+            new_symbol(base_type, fin, depth, nident, nctx)
 
     def __class_getitem__(self, args):
         return ListSizeBetweenWithoutListOperations(*args)
