@@ -71,6 +71,8 @@ def relabel_nodes(
                 if not is_abstract(t) or not g.expansion_depthing
                 else g.abstract_dist_to_t[t][type(c)]
             )
+            if isinstance(c, list) and g.expansion_depthing:
+                abs_adjust = 1
             list_adjust = 0 if isinstance(c, list) else 1
             number_of_nodes += abs_adjust + nodes
             distance_to_term = max(distance_to_term, dist + abs_adjust + list_adjust)
