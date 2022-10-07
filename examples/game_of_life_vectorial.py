@@ -48,8 +48,8 @@ MATRIX_COL_SIZE = 3
 
 def prepare_data(DATASET_NAME):
 
-    DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.csv"
-    DATA_FILE_TEST = f"examples/data/{DATASET_NAME}/Test.csv"
+    DATA_FILE_TRAIN = f"GeneticEngine/examples/data/{DATASET_NAME}/Train.csv"
+    DATA_FILE_TEST = f"GeneticEngine/examples/data/{DATASET_NAME}/Test.csv"
 
     train = np.genfromtxt(
         DATA_FILE_TRAIN,
