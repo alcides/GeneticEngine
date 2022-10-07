@@ -72,5 +72,5 @@ class TestDepthing:
         assert x.gengy_nodes == 2
         assert y.gengy_distance_to_term == 6
         assert y.gengy_nodes == 6
-        assert z.gengy_distance_to_term == 5
-        assert z.gengy_nodes == 12
+        assert z.gengy_distance_to_term == 6
+        assert z.gengy_nodes == 14
