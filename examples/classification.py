@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import csv
 import os
 import sys
+import time
 from argparse import ArgumentParser
 from dataclasses import dataclass
 from math import isinf
+from optparse import OptionParser
 from typing import Annotated
 from typing import Any
 from typing import Callable
@@ -260,3 +263,45 @@ def evolve(
     )
     (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf
+
+
+if __name__ == "__main__":
+    representations = ["treebased_representation", "ge", "dsge"]
+
+    parser = OptionParser()
+    parser.add_option("-s", "--seed", dest="seed", type="int")
+    parser.add_option("-e", "--example", dest="example", type="int", default=0)
+    parser.add_option("-r", "--representation", dest="representation", type="int")
+    parser.add_option(
+        "-t",
+        "--timed",
+        dest="timed",
+        action="store_const",
+        const=True,
+        default=False,
+    )
+    (options, args) = parser.parse_args()
+
+    timed = options.timed
+    seed = options.seed
+    example_name = __file__.split(".")[0]
+    representation = representations[options.representation]
+    print(seed, example_name, representation)
+    evol_method = evolve
+
+    mode = "generations"
+    if timed:
+        mode = "time"
+    dest_file = f"{gv.RESULTS_FOLDER}/{mode}/{example_name}/{representation}/{seed}.csv"
+
+    start = time.time()
+    b, bf = evolve(seed, timed, dest_file, representation)
+    end = time.time()
+    csv_row = [mode, example_name, representation, seed, bf, (end - start), b]
+    with open(
+        f"./{gv.RESULTS_FOLDER}/{mode}/{example_name}/{representation}/main.csv",
+        "a",
+        newline="",
+    ) as outfile:
+        writer = csv.writer(outfile)
+        writer.writerow(csv_row)
