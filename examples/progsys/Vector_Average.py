@@ -110,7 +110,7 @@ def evolve(g, seed, mode, representation=""):
         minimize=True,
         seed=seed,
         max_depth=10,
-        population_size=500,
+        population_size=50,
         probability_crossover=0.9,
         timer_stop_criteria=mode,
     )

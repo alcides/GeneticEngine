@@ -62,7 +62,7 @@ def evolve(
         max_depth=10,
         number_of_generations=30,
         # max_init_depth=10,
-        population_size=500,
+        population_size=50,
         selection_method=("tournament", 2),
         n_elites=5,
         # ----------------
