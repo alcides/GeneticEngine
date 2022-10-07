@@ -106,11 +106,16 @@ def is_abstract(t: type) -> bool:
     return t.mro()[1] in [ABC, Protocol] or get_gengy(t).get("abstract", False)
 
 
-def is_terminal(t: type, l: set[type]) -> bool:
+def is_terminal(
+    t: type,
+    non_terminals: set[type],
+) -> bool:  # TODO: Number from classification.py is classified as terminal?
     """Returns whether a node is a terminal or not, based on the list of non terminals in the grammar"""
     if is_annotated(t):
-        return all([is_terminal(inner, l) for inner in get_generic_parameters(t)])
-    return t not in l
+        return all(
+            [is_terminal(inner, non_terminals) for inner in get_generic_parameters(t)],
+        )
+    return t not in non_terminals
 
 
 def all_init_arguments_typed(t: type) -> bool:

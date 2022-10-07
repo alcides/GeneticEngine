@@ -10,6 +10,7 @@ from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.tree.treebased import PI_Grow
 from geneticengine.core.representations.tree.treebased import random_node
+from geneticengine.core.representations.tree.utils import GengyList
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.lists import ListSizeBetween
 
@@ -24,8 +25,8 @@ class Leaf(Root):
 
 
 @dataclass
-class A(Root):
-    y: list[Annotated[int, IntRange(7, 9)]]
+class MiddleList(Root):
+    xs: list[Annotated[int, IntRange(0, 9)]]
     z: Annotated[list[Root], ListSizeBetween(2, 3)]
 
 
@@ -42,6 +43,11 @@ class Middle(Root):
 @dataclass
 class ConcreteList(Root):
     xs: list[int]
+
+
+@dataclass
+class ConcreteAnnotatedList(Root):
+    xs: list[Annotated[int, IntRange(0, 9)]]
 
 
 class TestPIGrow:
@@ -66,12 +72,28 @@ class TestPIGrow:
         assert isinstance(x, Concrete)
         assert isinstance(x, Root)
 
-    def test_list(self):
+    def test_concrete_list(self):
         r = RandomSource(seed=1)
         g: Grammar = extract_grammar([ConcreteList], Root)
         x = random_node(r, g, 6, Root, method=PI_Grow)
         assert isinstance(x, ConcreteList)
         assert isinstance(x.xs, list)
+        assert isinstance(x, Root)
+
+    def test_concrete_annotated_list(self):
+        r = RandomSource(seed=1)
+        g: Grammar = extract_grammar([ConcreteAnnotatedList], Root)
+        x = random_node(r, g, 6, Root, method=PI_Grow)
+        assert isinstance(x, ConcreteAnnotatedList)
+        assert isinstance(x.xs, list)
+        assert isinstance(x, Root)
+
+    def test_middle_list(self):
+        r = RandomSource(seed=1)
+        g: Grammar = extract_grammar([MiddleList, Concrete], Root)
+        x = random_node(r, g, 6, Root, method=PI_Grow)
+        assert isinstance(x, MiddleList)
+        assert isinstance(x.z, list)
         assert isinstance(x, Root)
 
     def test_middle_has_right_distance_to_term(self):

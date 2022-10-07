@@ -363,7 +363,6 @@ def evolve(
         population_size=gv.POPULATION_SIZE,
         selection_method=gv.SELECTION_METHOD,
         n_elites=gv.N_ELITES,
-        # ----------------
         minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
