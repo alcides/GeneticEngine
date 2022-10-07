@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import csv
+import time
+from optparse import OptionParser
 from typing import Annotated
 from typing import Any
 from typing import Callable
@@ -181,7 +184,7 @@ if __name__ == "__main__":
 
     timed = options.timed
     seed = options.seed
-    example_name = __file__.split(".")[0].split("\\")[-1]
+    example_name = __file__.split(".")[0].split("\\")[-1].split("/")[-1]
     representation = representations[options.representation]
     print(seed, example_name, representation)
     evol_method = evolve
