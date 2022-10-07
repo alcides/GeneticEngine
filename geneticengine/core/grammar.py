@@ -49,8 +49,8 @@ class Grammar:
     def __init__(
         self,
         starting_symbol: type,
-        expansion_depthing: bool,
         considered_subtypes: list[type] = None,
+        expansion_depthing: bool = False,
     ) -> None:
         self.alternatives: dict[type, list[type]] = {}
         self.starting_symbol = starting_symbol
@@ -313,7 +313,7 @@ def extract_grammar(
         - The grammar
 
     """
-    g = Grammar(starting_symbol, expansion_depthing, considered_subtypes)
+    g = Grammar(starting_symbol, considered_subtypes, expansion_depthing)
     g.register_type(starting_symbol)
     g.preprocess()
     return g
