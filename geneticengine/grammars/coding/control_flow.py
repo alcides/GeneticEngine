@@ -16,7 +16,7 @@ from geneticengine.metahandlers.lists import ListSizeBetween
 
 @dataclass
 class Code(Statement):
-    stmts: Annotated[GengyList[Statement], ListSizeBetween(1, 10)]
+    stmts: Annotated[list[Statement], ListSizeBetween(1, 10)]
 
     def evaluate(self, **kwargs) -> float:
         x = kwargs.get("x", 1.0)
