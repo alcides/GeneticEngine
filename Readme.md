@@ -31,6 +31,7 @@ GeneticEngine has been developed at [LASIGE](https://www.lasige.pt), [University
 
 Below you'll find a step-by-step guide on how to use Genetic Engine, together with an example. For more specific documentation on the implementation and algorithms available, follow the links below. If you cannot find the information you are looking for, please create an issue, and we will update as soon as possible.
 * [Individual representation](geneticengine/core/representations)
+* [Grammar specifics](geneticengine/grammars)
 
 
 How to use
@@ -85,7 +86,7 @@ class Vectorial(ABC):
 
 ```
 
-then we create some terminals:
+Then, we create some terminals:
 
 
 ```python
@@ -150,7 +151,7 @@ The output should be:
 Grammar: Grammar<Starting=Scalar,Productions=[Scalar -> Value(value: float)|ScalarVar(index: [0...2])|Add(right: Scalar, left: Scalar)|Mean(arr: Vectorial);Vectorial -> VectorialVar(index: [2...4])|CumulativeSum(arr: Vectorial)]>.
 ```
 
-which can be reformated as:
+which can be reformatted as:
 
 ```
 Scalar -> Value(float)
@@ -172,10 +173,10 @@ def fitness_function(n):
 
 This fitness function will give all individuals the same fitness (0), turning this problem into a random search. This is helpful to debug the representation, but will have to be replaced by a proper fitness function later.
 
-Now we can run the Genetic Engine, parameterized with this grammar and this fitness function:
+Now we can run Genetic Engine, parameterized with this grammar and this fitness function:
 
 ```python
-alg = GP(g, fitness_function, treebased_representation, minimize=True, seed=122, population_size=10, number_of_generations=5)
+alg = GP(g, fitness_function, treebased_representation, minimize=True, population_size=10, number_of_generations=5)
 (b, bf) = alg.evolve()
 print(bf, b)
 ```
