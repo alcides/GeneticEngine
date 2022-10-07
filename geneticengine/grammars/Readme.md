@@ -1,6 +1,6 @@
 # Grammars
 
-In the [root folder](../..) there is an example on how to create a grammar. In this folder we introduced a number of off-the-shelf grammars that can be used for many general problems, like classification and regression, program synthesis and string matching. See the [examples folder](../../examples/) for worked-out examples of these.
+In the [root folder](https://github.com/alcides/GeneticEngine) there is an example on how to create a grammar. In this folder we introduced a number of off-the-shelf grammars that can be used for many general problems, like classification and regression, program synthesis and string matching. See the [examples folder](../../examples/) for worked-out examples of these.
 
 ## Depthing
 Depthing can be adjusted when extract the grammar, with the variable expansion_depthing (bool, default = False) in the [extract_grammar](../core/grammar.py) method.
