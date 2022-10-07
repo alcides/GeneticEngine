@@ -3181,6 +3181,8 @@ def evolve(
         representation = sge_representation
     elif representation == "dsge":
         representation = dsge_representation
+    elif representation == "dsge":
+        representation = dsge_representation
     else:
         representation = treebased_representation
 
