@@ -37,7 +37,7 @@ class Heuristics(ABC):
 
     @abstractmethod
     def evolve(self, verbose):
-        pass
+        ...
 
     # TODO: test this function
     def get_best_individual(
@@ -67,6 +67,7 @@ class Heuristics(ABC):
 
         return best_individual
 
+    # this only works with SingleObjectiveProblem
     def keyfitness(self):
         if self.problem.minimize:
             return lambda x: self.evaluate(x)

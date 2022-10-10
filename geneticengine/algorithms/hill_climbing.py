@@ -82,21 +82,6 @@ class HC(Heuristics):
                 fitness=None,
             )
 
-    def evaluate(self, individual: Individual) -> FitnessType:
-        if individual.fitness is None:
-            phenotype = self.representation.genotype_to_phenotype(
-                self.grammar,
-                individual.genotype,
-            )
-            individual.fitness = self.problem.evaluate(phenotype)
-        return individual.fitness
-
-    def keyfitness(self):
-        if self.problem.minimize:
-            return lambda x: self.evaluate(x)
-        else:
-            return lambda x: -self.evaluate(x)
-
     def evolve(self, verbose=1):
         population = self.population
 
