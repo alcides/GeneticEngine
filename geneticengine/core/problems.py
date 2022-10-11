@@ -46,6 +46,7 @@ class SingleObjectiveProblem(Problem):
 class MultiObjectiveProblem(Problem):
     minimize: list[bool]
     fitness_function: Callable[[P], list[float]]
+    best_individual_criteria_function: Callable[[P], float] | None = None
 
     def number_of_objectives(self):
         return len(self.minimize)
