@@ -55,10 +55,13 @@ class TestDepthing:
         z = random_node(r, g, 4, Root, method=PI_Grow)
         assert x.gengy_distance_to_term == 1
         assert x.gengy_nodes == 1
+        assert x.gengy_weighted_nodes == 1
         assert y.gengy_distance_to_term == 4
         assert y.gengy_nodes == 4
+        assert y.gengy_weighted_nodes == 10
         assert z.gengy_distance_to_term == 4
         assert z.gengy_nodes == 7
+        assert z.gengy_weighted_nodes == 16
 
     def test_expansion_depthing(self):
         r = RandomSource(seed=1)
@@ -70,7 +73,10 @@ class TestDepthing:
         z = random_node(r, g, 8, Root, method=PI_Grow)
         assert x.gengy_distance_to_term == 2
         assert x.gengy_nodes == 2
+        assert x.gengy_weighted_nodes == 3
         assert y.gengy_distance_to_term == 6
         assert y.gengy_nodes == 6
+        assert y.gengy_weighted_nodes == 13
         assert z.gengy_distance_to_term == 6
         assert z.gengy_nodes == 14
+        assert z.gengy_weighted_nodes == 26

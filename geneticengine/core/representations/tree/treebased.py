@@ -564,7 +564,7 @@ def find_in_tree(g: Grammar, ty: type, o: TreeNode, max_depth: int):
         for t in o.gengy_types_this_way:
 
             def is_valid(node):
-                _, depth, _ = relabel_nodes(node, g)
+                _, depth, _, _ = relabel_nodes(node, g)
 
                 if is_abs and g.expansion_depthing:
                     depth += g.abstract_dist_to_t[ty][t]
@@ -584,7 +584,7 @@ def find_in_tree_exact(g: Grammar, ty: type, o: TreeNode, max_depth: int):
         if vals:
 
             def is_valid(node):
-                _, depth, _ = relabel_nodes(node, g)
+                _, depth, _, _ = relabel_nodes(node, g)
                 return depth <= max_depth
 
             yield from filter(is_valid, vals)
