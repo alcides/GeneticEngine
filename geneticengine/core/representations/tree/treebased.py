@@ -421,11 +421,13 @@ def mutate_inner(
     i: TreeNode,
     max_depth: int,
     ty: type,
-    force_mutate: bool = False,
+    force_mutate: bool,
+    depth_aware_ops: bool,
 ) -> TreeNode:
-    if i.gengy_nodes > 0:
-        c = r.randint(0, i.gengy_nodes - 1)
-        if c == 0 or force_mutate:
+    counter = i.gengy_weighted_nodes if depth_aware_ops else i.gengy_nodes
+    if counter > 0:
+        c = r.randint(0, counter - 1)
+        if c == 0 or (c < i.gengy_distance_to_term and depth_aware_ops) or force_mutate:
             # If Metahandler mutation exists, the mutation process is different
             args_with_specific_mutation = [
                 has_annotated_mutation(arg[1]) for arg in get_arguments(i)
@@ -463,7 +465,11 @@ def mutate_inner(
             for idx, (_, field_type) in enumerate(get_arguments(i)):
                 child = args[idx]
                 if hasattr(child, "gengy_nodes"):
-                    count = child.gengy_nodes
+                    count = (
+                        child.gengy_weighted_nodes
+                        if depth_aware_ops
+                        else child.gengy_nodes
+                    )
                     if c <= count:
                         args[idx] = mutate_inner(
                             r,
@@ -471,6 +477,8 @@ def mutate_inner(
                             child,
                             max_depth,
                             field_type,
+                            force_mutate,
+                            depth_aware_ops,
                         )
                         break
                     else:
@@ -488,9 +496,18 @@ def mutate_specific_type_inner(
     ty: type,
     specific_type: type,
     n: int,
+    depth_aware_ops: bool,
 ) -> TreeNode:
     if n == 1 and type(i) == specific_type:
-        return mutate_inner(r, g, i, max_depth, ty, force_mutate=True)
+        return mutate_inner(
+            r,
+            g,
+            i,
+            max_depth,
+            ty,
+            force_mutate=True,
+            depth_aware_ops=depth_aware_ops,
+        )
     else:
         args = list(i.gengy_init_values)
         for idx, (_, field_type) in enumerate(get_arguments(i)):
@@ -507,6 +524,7 @@ def mutate_specific_type_inner(
                     ty,
                     specific_type,
                     n,
+                    depth_aware_ops,
                 )
             else:
                 n -= n_options
@@ -520,11 +538,20 @@ def mutate_specific_type(
     max_depth: int,
     target_type: type,
     specific_type: type,
+    depth_aware_ops: bool,
 ) -> TreeNode:
     ch = r.randint(0, 2)
     n_options = len(list(find_in_tree_exact(g, specific_type, i, max_depth)))
     if ch == 0 or n_options == 0:
-        new_tree = mutate_inner(r, g, i, max_depth, target_type)
+        new_tree = mutate_inner(
+            r,
+            g,
+            i,
+            max_depth,
+            target_type,
+            force_mutate=False,
+            depth_aware_ops=depth_aware_ops,
+        )
         relabeled_new_tree = relabel_nodes_of_trees(new_tree, g)
         return relabeled_new_tree
     else:
@@ -537,6 +564,7 @@ def mutate_specific_type(
             target_type,
             specific_type,
             n,
+            depth_aware_ops,
         )
         relabeled_new_tree = relabel_nodes_of_trees(new_tree, g)
         return relabeled_new_tree
@@ -549,10 +577,19 @@ def mutate(
     max_depth: int,
     target_type: type,
     specific_type: type | None = None,
+    depth_aware_ops: bool = True,
 ) -> Any:
     if specific_type:
-        return mutate_specific_type(r, g, i, max_depth, target_type, specific_type)
-    new_tree = mutate_inner(r, g, i, max_depth, target_type)
+        return mutate_specific_type(
+            r,
+            g,
+            i,
+            max_depth,
+            target_type,
+            specific_type,
+            depth_aware_ops,
+        )
+    new_tree = mutate_inner(r, g, i, max_depth, target_type, False, depth_aware_ops)
     relabeled_new_tree = relabel_nodes_of_trees(new_tree, g)
     return relabeled_new_tree
 
