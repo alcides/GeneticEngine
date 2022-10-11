@@ -40,7 +40,6 @@ class GP:
         - max_depth (int): The maximum depth a tree can have (default = 15).
         - favor_less_deep_trees (bool): If set to True, this gives a tiny penalty to deeper trees to favor simpler trees (default = False).
         - selection_method (Tuple[str, int]): Allows the user to define the method to choose individuals for the next population (default = ("tournament", 5)).
-        - hill_climbing (bool): Allows the user to change the standard mutation operations to the hill-climbing mutation operation, in which an individual is mutated to 5 different new individuals, after which the best is chosen to survive (default = False).
         - target_fitness (Optional[float]): Sets a target fitness. When this fitness is reached, the algorithm stops running (default = None).
         - force_individual (Any): Allows the incorporation of an individual in the first population (default = None).
         - timer_stop_criteria (bool): If set to True, the algorithm is stopped after the time limit (default = 60 seconds). Then the fittest individual is returned (default = False).
@@ -55,8 +54,10 @@ class GP:
         - probability_mutation (float): probability that an individual is mutated (default = 0.01).
         - probability_crossover (float): probability that an individual is chosen for cross-over (default = 0.9).
         - either_mut_or_cro (float | None): Switch evolution style to do either a mutation or a crossover. The given float defines the chance of a mutation. Otherwise a crossover is performed. (default = None),
+        - hill_climbing (bool): Allows the user to change the standard mutation operations to the hill-climbing mutation operation, in which an individual is mutated to 5 different new individuals, after which the best is chosen to survive (default = False).
         - specific_type_mutation (type): Specify a type that is given preference when mutation occurs (default = None),
         - specific_type_crossover (type): Specify a type that is given preference when crossover occurs (default = None),
+        - depth_aware_ops (bool): If chosen, evolutionary operators are depth-aware, giving preference to operate on nodes closer to the root. (default = True).
         -----
 
     """
@@ -103,6 +104,7 @@ class GP:
         hill_climbing: bool = False,
         specific_type_mutation: type = None,
         specific_type_crossover: type = None,
+        depth_aware_ops: bool = True,
         # -----
         minimize: bool = False,
         target_fitness: float | None = None,
@@ -151,6 +153,7 @@ class GP:
                 self.keyfitness(),
                 5,
                 specific_type=specific_type_mutation,
+                depth_aware_ops=depth_aware_ops,
             )
         else:
             self.mutation = mutation.create_mutation(
@@ -159,6 +162,7 @@ class GP:
                 self.grammar,
                 max_depth,
                 specific_type=specific_type_mutation,
+                depth_aware_ops=depth_aware_ops,
             )
         self.cross_over = cross_over.create_cross_over(
             self.random,

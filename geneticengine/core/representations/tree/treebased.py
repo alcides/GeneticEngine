@@ -826,8 +826,9 @@ class TreeBasedRepresentation(Representation[TreeNode]):
         depth: int,
         ty: type,
         specific_type: type = None,
+        depth_aware_ops: bool = True,
     ) -> TreeNode:
-        return mutate(r, g, ind, depth, ty, specific_type)
+        return mutate(r, g, ind, depth, ty, specific_type, depth_aware_ops)
 
     def crossover_individuals(
         self,

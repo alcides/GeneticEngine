@@ -85,6 +85,7 @@ class GrammaticalEvolutionRepresentation(Representation[Genotype]):
         depth: int,
         ty: type,
         specific_type: type = None,
+        depth_aware_ops: bool = True,
     ) -> Genotype:
         return mutate(r, g, ind, depth)
 
