@@ -35,8 +35,8 @@ from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import f1_score
 
 DATASET_NAME = "Banknote"
-DATA_FILE_TRAIN = f"data/{DATASET_NAME}/Train.csv"
-DATA_FILE_TEST = f"data/{DATASET_NAME}/Test.csv"
+DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.csv"
+DATA_FILE_TEST = f"examples/data/{DATASET_NAME}/Test.csv"
 
 bunch = pd.read_csv(DATA_FILE_TRAIN, delimiter=" ")
 target = bunch.y
@@ -212,7 +212,6 @@ def evolve(
         problem=MultiObjectiveProblem(
             minimize=minimizelist,
             fitness_function=fitness_function_lexicase,
-            best_individual_criteria_function=single_criteria_test,
         ),
         # As in PonyGE2:
         probability_crossover=0.75,
@@ -222,7 +221,7 @@ def evolve(
         # max_init_depth=10,
         population_size=50,
         selection_method=("lexicase",),
-        n_elites=0,
+        n_elites=5,
         # ----------------
         seed=seed,
         timer_stop_criteria=mode,

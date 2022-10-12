@@ -30,8 +30,8 @@ from geneticengine.grammars.coding.logical_ops import Or
 from geneticengine.metahandlers.ints import IntRange
 
 DATASET_NAME = "GameOfLife"
-DATA_FILE_TRAIN = f"data/{DATASET_NAME}/Train.csv"
-DATA_FILE_TEST = f"data/{DATASET_NAME}/Test.csv"
+DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.csv"
+DATA_FILE_TEST = f"examples/data/{DATASET_NAME}/Test.csv"
 OUTPUT_FOLDER = "GoL/grammar_standard"
 
 
