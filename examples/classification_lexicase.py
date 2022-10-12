@@ -201,10 +201,7 @@ def evolve(
     minimizelist = [False for _ in data.values.tolist()]
 
     def single_criteria_test(n: Number) -> float:
-        return sum(
-            (m and -f or f)
-            for (f, m) in zip(fitness_function_lexicase(n), minimizelist)
-        )
+        return sum((m and -f or f) for (f, m) in zip(n.fitness, minimizelist))
 
     alg = GP(
         g,
@@ -212,6 +209,7 @@ def evolve(
         problem=MultiObjectiveProblem(
             minimize=minimizelist,
             fitness_function=fitness_function_lexicase,
+            best_individual_criteria_function=single_criteria_test,
         ),
         # As in PonyGE2:
         probability_crossover=0.75,
