@@ -427,7 +427,11 @@ def mutate_inner(
     counter = i.gengy_weighted_nodes if depth_aware_ops else i.gengy_nodes
     if counter > 0:
         c = r.randint(0, counter - 1)
-        if c == 0 or (c < i.gengy_distance_to_term and depth_aware_ops) or force_mutate:
+        if (
+            c == 0
+            or (c <= i.gengy_distance_to_term and depth_aware_ops)
+            or force_mutate
+        ):
             # If Metahandler mutation exists, the mutation process is different
             args_with_specific_mutation = [
                 has_annotated_mutation(arg[1]) for arg in get_arguments(i)
