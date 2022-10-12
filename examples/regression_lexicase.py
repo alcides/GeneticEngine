@@ -6,6 +6,7 @@ from typing import Annotated
 
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar

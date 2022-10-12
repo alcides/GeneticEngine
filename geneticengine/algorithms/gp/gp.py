@@ -270,7 +270,12 @@ class GP(Heuristics):
         ):
             npop = self.novelty(self.n_novelties)
             npop.extend(
-                self.elitism(population, self.problem, self.get_best_individual),
+                self.elitism(
+                    population,
+                    self.problem,
+                    self.get_best_individual,
+                    self.evaluate,
+                ),
             )
             spotsLeft = self.population_size - len(npop)
             while spotsLeft > 0:

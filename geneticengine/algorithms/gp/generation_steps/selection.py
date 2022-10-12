@@ -3,6 +3,7 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import Callable
 from typing import List
+from typing import Union
 
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.core.problems import MultiObjectiveProblem
@@ -53,11 +54,20 @@ def create_elitism(
         population: list[Individual],
         problem: Problem,
         best_individual_function: Callable[[Problem, [Individual]], Individual],
+        evaluate: Callable[[Individual], float | list[float]],
     ) -> list[Individual]:
+        fitnesses = [evaluate(x) for x in population]
+
+        if isinstance(problem, SingleObjectiveProblem):
+            assert all(isinstance(x, float) for x in fitnesses)
+        else:
+            assert all(isinstance(x, list) for x in fitnesses)
+
         elites: list[Individual] = list()
         population_copy = population.copy()
         i = 0
         while len(elites) < n_elites and i < len(population):
+
             elite = best_individual_function(problem, population_copy)
             elites.append(elite)
             population_copy.remove(elite)
