@@ -45,18 +45,24 @@ def create_tournament(
 
 def create_elitism(
     n_elites: int,
-) -> Callable[[list[Individual], Callable[[Individual], float]], list[Individual]]:
+) -> Callable[
+    [list[Individual], Problem, Callable[[Problem, [Individual]], Individual]],
+    list[Individual],
+]:
     def elitism(
         population: list[Individual],
-        fitness: Callable[[Individual], float],
+        problem: Problem,
+        best_individual_function: Callable[[Problem, [Individual]], Individual],
     ) -> list[Individual]:
-        population = sorted(population, key=fitness)
         elites: list[Individual] = list()
+        population_copy = population.copy()
         i = 0
         while len(elites) < n_elites and i < len(population):
-            if population[i] not in elites:
-                elites.append(population[i])
+            elite = best_individual_function(problem, population_copy)
+            elites.append(elite)
+            population_copy.remove(elite)
             i += 1
+
         return elites
 
     return elitism

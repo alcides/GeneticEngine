@@ -39,12 +39,12 @@ class Heuristics(ABC):
     def evolve(self, verbose):
         ...
 
-    # TODO: test this function
     def get_best_individual(
         self,
         p: Problem,
         individuals: list[Individual],
     ) -> Individual:
+
         best_individual: Individual
         if isinstance(p, SingleObjectiveProblem):
             fitnesses = [self.evaluate(x) for x in individuals]
@@ -66,7 +66,7 @@ class Heuristics(ABC):
             return max(
                 individuals,
                 key=single_criteria
-                if p.best_individual_criteria_function is not None
+                if p.best_individual_criteria_function is None
                 else p.best_individual_criteria_function,
             )
 
