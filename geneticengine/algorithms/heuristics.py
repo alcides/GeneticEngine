@@ -63,7 +63,7 @@ class Heuristics(ABC):
                 assert isinstance(i.fitness, list)
                 return sum((m and -f or f) for (f, m) in zip(i.fitness, p.minimize))
 
-            return max(
+            best_individual = max(
                 individuals,
                 key=single_criteria
                 if p.best_individual_criteria_function is None
