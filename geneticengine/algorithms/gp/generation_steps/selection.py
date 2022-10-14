@@ -60,7 +60,7 @@ def create_elitism(
     [
         list[Individual],
         Problem,
-        Callable[[Problem, [Individual]], Individual],
+        Callable[[Problem, list[Individual]], Individual],
         Callable[[Individual], float | list[float]],
     ],
     list[Individual],
