@@ -158,6 +158,7 @@ def preprocess():
         [Plus, Mul, SafeDiv, Literal2, Var, SafeSqrt, SafeLog],
         # [Plus, Mul, SafeDiv, Var, SafeSqrt, SafeLog] + literals,
         Number,
+        # expansion_depthing=True
     )
 
 
@@ -245,7 +246,7 @@ def evolve(
         probability_crossover=1,
         probability_mutation=0.5,
         number_of_generations=50,
-        max_depth=15,
+        max_depth=10,
         # max_init_depth=10,
         population_size=50,
         selection_method=("tournament", 2),

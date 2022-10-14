@@ -98,7 +98,7 @@ def evolve(
             fitness_function=fitness_function,
             target_fitness=None,
         ),
-        max_depth=13,
+        max_depth=8,
         population_size=25,
         number_of_generations=10,
         seed=seed,

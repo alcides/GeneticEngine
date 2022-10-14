@@ -225,7 +225,7 @@ if __name__ == "__main__":
         lambda p: simulate(p, map),
         representation=treebased_representation,
         minimize=False,
-        max_depth=40,
+        max_depth=10,
         number_of_generations=50,
         population_size=150,
     )

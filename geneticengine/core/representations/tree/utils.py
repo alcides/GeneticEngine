@@ -26,22 +26,33 @@ class GengyList(list):
         return GengyList(self.typ, newargs)
 
 
-def relabel_nodes(i: TreeNode, g: Grammar) -> tuple[int, int, dict[type, list[Any]]]:
+def relabel_nodes(
+    i: TreeNode,
+    g: Grammar,
+    is_list: bool = False,
+) -> tuple[int, int, dict[type, list[Any]]]:
+    """
+    Recomputes all the nodes, depth and distance_to_term in the tree.\n
+    Returns the number of nodes, distance to terminal (depth) and typed this way.
+    """
     non_terminals = g.non_terminals
     children: list[Any]
     if getattr(i, "gengy_labeled", False):
         return i.gengy_nodes, i.gengy_distance_to_term, i.gengy_types_this_way
     number_of_nodes = 1
     distance_to_term = 1
+    if is_list:
+        number_of_nodes = 0
+        distance_to_term = 0
     types_this_way = defaultdict(lambda: [])
     types_this_way[type(i)] = [i]
     if is_terminal(type(i), non_terminals) and (not isinstance(i, list)):
         if not is_builtin(type(i)):
             i.gengy_labeled = True
-            i.gengy_distance_to_term = 1
-            i.gengy_nodes = 1
+            i.gengy_distance_to_term = int(g.expansion_depthing)
+            i.gengy_nodes = int(g.expansion_depthing)
             i.gengy_types_this_way = {type(i): [i]}
-        return 0, 1, {type(i): [i]}
+        return int(g.expansion_depthing), int(g.expansion_depthing), {type(i): [i]}
     else:
         if isinstance(i, list):
             children = [(type(obj), obj) for obj in i]
@@ -54,17 +65,17 @@ def relabel_nodes(i: TreeNode, g: Grammar) -> tuple[int, int, dict[type, list[An
             ]
         assert children
         for t, c in children:
-            # print(f"{t=}, {c=}")
-            nodes, dist, thisway = relabel_nodes(c, g)
+            nodes, dist, thisway = relabel_nodes(c, g, isinstance(c, list))
             abs_adjust = (
                 0
-                if not is_abstract(
-                    t,
-                )
+                if not is_abstract(t) or not g.expansion_depthing
                 else g.abstract_dist_to_t[t][type(c)]
             )
+            if isinstance(c, list) and g.expansion_depthing:
+                abs_adjust = 1
+            list_adjust = 0 if isinstance(c, list) else 1
             number_of_nodes += abs_adjust + nodes
-            distance_to_term = max(distance_to_term, dist + abs_adjust + 1)
+            distance_to_term = max(distance_to_term, dist + abs_adjust + list_adjust)
             for (k, v) in thisway.items():
                 types_this_way[k].extend(v)
 

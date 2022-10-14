@@ -52,7 +52,8 @@ alg_gp = GP(
         fitness_function=fit,
         target_fitness=None,
     ),
-    population_size=150,
+    population_size=50,
+
     max_depth=5,
     number_of_generations=10,
     minimize=True,
@@ -70,7 +71,8 @@ alg_hc = HC(
         fitness_function=fit,
         target_fitness=None,
     ),
-    population_size=150,
+    population_size=50,
+
     max_depth=5,
     number_of_generations=10,
 )
@@ -84,7 +86,7 @@ alg_rs = RandomSearch(
         fitness_function=fit,
         target_fitness=None,
     ),
-    population_size=150,
+    population_size=50,
     max_depth=5,
     number_of_generations=40,
     # favor_less_deep_trees=True,
