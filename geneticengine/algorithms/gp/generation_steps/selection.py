@@ -57,7 +57,12 @@ def create_tournament(
 def create_elitism(
     n_elites: int,
 ) -> Callable[
-    [list[Individual], Problem, Callable[[Problem, [Individual]], Individual]],
+    [
+        list[Individual],
+        Problem,
+        Callable[[Problem, [Individual]], Individual],
+        Callable[[Individual], float | list[float]],
+    ],
     list[Individual],
 ]:
     """
