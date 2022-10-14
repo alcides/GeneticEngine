@@ -75,7 +75,12 @@ class GP(Heuristics):
     elitism: (
         NoReturn
         | Callable[
-            [list[Individual], Callable[[Individual], float]],
+            [
+                list[Individual],
+                Problem,
+                Callable[[Problem, list[Individual]], Individual],
+                Callable[[Individual], float | list[float]],
+            ],
             list[Individual],
         ]
     )
