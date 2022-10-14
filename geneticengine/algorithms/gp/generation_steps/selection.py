@@ -16,6 +16,16 @@ def create_tournament(
     tournament_size: int,
     problem: Problem,
 ) -> Callable[[RandomSource, list[Individual], int], list[Individual]]:
+    """
+    The create_tournament is a function that uses the tournament selection algorithm to select a list of individuals with the best fitness
+
+    Parameters:
+        - tournament_size: number of individuals from the population that will be randomly selected
+        - problem: type of problem that you are trying to solve
+
+    Returns:
+        - A callable object that returns a list of winners
+    """
     assert isinstance(problem, SingleObjectiveProblem)
 
     def tournament(
@@ -50,6 +60,15 @@ def create_elitism(
     [list[Individual], Problem, Callable[[Problem, [Individual]], Individual]],
     list[Individual],
 ]:
+    """
+    The create_elitism is a function that returns the individuals with the best fitness in a generation
+
+    Parameters:
+        - n_elites: number of desired  elite Individuals
+    Returns:
+        - A callable object that returns a list of elite Individuals
+    """
+
     def elitism(
         population: list[Individual],
         problem: Problem,
@@ -82,6 +101,16 @@ def create_novelties(
     create_individual: Callable[[int], Individual],
     max_depth: int,
 ) -> Callable[[int], list[Individual]]:
+    """
+    The create_novelties is a function that returns a list of completely new Individuals
+
+    Parameters:
+        - create_individual: callable object that returns a single Individual
+        - max_depth:
+    Returns:
+        - A callable object that returns a list of new Individuals
+    """
+
     def novelties(n_novelties: int) -> list[Individual]:
         return [create_individual(max_depth) for _ in range(n_novelties)]
 
@@ -91,6 +120,16 @@ def create_novelties(
 def create_lexicase(
     problem: Problem,
 ) -> Callable[[RandomSource, list[Individual], int], list[Individual]]:
+    """
+    The create_lexicase is a function that uses the lexicase selection algorithm to select a list of
+    Individuals with the best fitness
+
+    Parameters:
+        - problem: type of problem that you are trying to solve
+
+    Returns:
+        - A callable object that returns a list of the selected Individuals
+    """
     assert isinstance(problem, MultiObjectiveProblem)
 
     def lexicase(
