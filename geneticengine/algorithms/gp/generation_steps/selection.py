@@ -77,7 +77,7 @@ def create_elitism(
     def elitism(
         population: list[Individual],
         problem: Problem,
-        best_individual_function: Callable[[Problem, [Individual]], Individual],
+        best_individual_function: Callable[[Problem, list[Individual]], Individual],
         evaluate: Callable[[Individual], float | list[float]],
     ) -> list[Individual]:
         fitnesses = [evaluate(x) for x in population]
