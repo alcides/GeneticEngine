@@ -58,6 +58,7 @@ class GP:
         - specific_type_mutation (type): Specify a type that is given preference when mutation occurs (default = None),
         - specific_type_crossover (type): Specify a type that is given preference when crossover occurs (default = None),
         - depth_aware_mut (bool): If chosen, mutations are depth-aware, giving preference to operate on nodes closer to the root. (default = True).
+        - depth_aware_co (bool): If chosen, crossovers are depth-aware, giving preference to operate on nodes closer to the root. (default = True).
         -----
 
     """
@@ -104,7 +105,8 @@ class GP:
         hill_climbing: bool = False,
         specific_type_mutation: type = None,
         specific_type_crossover: type = None,
-        depth_aware_mut: bool = True,
+        depth_aware_mut: bool = False,
+        depth_aware_co: bool = False,
         # -----
         minimize: bool = False,
         target_fitness: float | None = None,
@@ -154,6 +156,7 @@ class GP:
                 5,
                 specific_type=specific_type_mutation,
                 depth_aware_mut=depth_aware_mut,
+                depth_aware_co=depth_aware_co,
             )
         else:
             self.mutation = mutation.create_mutation(
@@ -170,6 +173,7 @@ class GP:
             self.grammar,
             max_depth,
             specific_type=specific_type_crossover,
+            depth_aware_co=depth_aware_co,
         )
         self.n_novelties = n_novelties
         self.number_of_generations = number_of_generations

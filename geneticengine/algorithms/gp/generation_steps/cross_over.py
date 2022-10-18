@@ -16,6 +16,7 @@ def create_cross_over(
     g: Grammar,
     max_depth: int,
     specific_type: type | None = None,
+    depth_aware_co: bool = False,
 ) -> Callable[[Individual, Individual], tuple[Individual, Individual]]:
     def cross_over_double(
         individual1: Individual,
@@ -28,6 +29,7 @@ def create_cross_over(
             individual2.genotype,
             max_depth,
             specific_type=specific_type,
+            depth_aware_co=depth_aware_co,
         )
         individual1 = Individual(g1)
         individual2 = Individual(g2)

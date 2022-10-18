@@ -315,7 +315,7 @@ class DynamicStructuredGrammaticalEvolutionRepresentation(Representation[Genotyp
         depth: int,
         ty: type,
         specific_type: type = None,
-        depth_aware_mut: bool = True,
+        depth_aware_mut: bool = False,
     ) -> Genotype:
         return mutate(r, g, ind, depth)
 
@@ -327,6 +327,7 @@ class DynamicStructuredGrammaticalEvolutionRepresentation(Representation[Genotyp
         i2: Genotype,
         depth: int,
         specific_type: type = None,
+        depth_aware_co: bool = False,
     ) -> tuple[Genotype, Genotype]:
         return crossover(r, g, i1, i2, depth)
 

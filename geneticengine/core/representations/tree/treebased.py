@@ -460,9 +460,10 @@ def mutate_inner(
                 mk = mk_save_init(type(i), lambda x: x)(*args)
                 return mk
 
-            replacement = i
-            while replacement == i:
+            for _ in range(3):
                 replacement = random_node(r, g, max_depth, ty, method=Grow)
+                if replacement != i:
+                    break
             return replacement
         else:
             if is_abstract(ty) and g.expansion_depthing:
@@ -495,9 +496,10 @@ def mutate_inner(
             mk = mk_save_init(i, lambda x: x)(*args)
             return mk
     else:
-        rn = i
-        while rn == i:
+        for _ in range(3):
             rn = random_node(r, g, max_depth, ty, method=Grow)
+            if rn != i:
+                break
         return rn
 
 
@@ -590,7 +592,7 @@ def mutate(
     max_depth: int,
     target_type: type,
     specific_type: type | None = None,
-    depth_aware_mut: bool = True,
+    depth_aware_mut: bool = False,
 ) -> Any:
     if specific_type:
         return mutate_specific_type(
@@ -647,11 +649,17 @@ def crossover_inner(
     o: TreeNode,
     max_depth: int,
     ty: type,
-    force_crossover: bool = False,
+    force_crossover: bool,
+    depth_aware_co: bool,
 ) -> Any:
-    if i.gengy_nodes > 0:
-        c = r.randint(0, i.gengy_nodes - 1)
-        if c == 0 or force_crossover:
+    counter = i.gengy_weighted_nodes if depth_aware_co else i.gengy_nodes
+    if counter > 0:
+        c = r.randint(0, counter - 1)
+        if (
+            c == 0
+            or (c <= i.gengy_distance_to_term and depth_aware_co)
+            or force_crossover
+        ):
             replacement = None
             args_with_specific_crossover = [
                 has_annotated_crossover(arg[1]) for arg in get_arguments(i)
@@ -690,7 +698,10 @@ def crossover_inner(
             if options:
                 replacement = r.choice(options)
             if replacement is None:
-                replacement = random_node(r, g, max_depth, ty, method=Grow)
+                for _ in range(3):
+                    replacement = random_node(r, g, max_depth, ty, method=Grow)
+                    if replacement != i:
+                        break
 
             return replacement
         else:
@@ -698,10 +709,15 @@ def crossover_inner(
                 max_depth -= g.abstract_dist_to_t[ty][type(i)]
             max_depth -= 1
             args = list(i.gengy_init_values)
+            c -= i.gengy_distance_to_term if depth_aware_co else 1
             for idx, (field, field_type) in enumerate(get_arguments(i)):
                 child = args[idx]
                 if hasattr(child, "gengy_nodes"):
-                    count = child.gengy_nodes
+                    count = (
+                        child.gengy_weighted_nodes
+                        if depth_aware_co
+                        else child.gengy_nodes
+                    )
                     if c <= count:
                         args[idx] = crossover_inner(
                             r,
@@ -710,6 +726,8 @@ def crossover_inner(
                             o,
                             max_depth,
                             field_type,
+                            force_crossover=False,
+                            depth_aware_co=depth_aware_co,
                         )
                         break
                     else:
@@ -728,9 +746,19 @@ def crossover_specific_type_inner(
     ty: type,
     specific_type: type,
     n: int,
+    depth_aware_co: bool,
 ) -> TreeNode:
     if n == 1 and type(i) == specific_type:
-        return crossover_inner(r, g, i, o, max_depth, ty, force_crossover=True)
+        return crossover_inner(
+            r,
+            g,
+            i,
+            o,
+            max_depth,
+            ty,
+            force_crossover=True,
+            depth_aware_co=depth_aware_co,
+        )
     else:
         args = list(i.gengy_init_values)
         for idx, (_, field_type) in enumerate(get_arguments(i)):
@@ -748,6 +776,7 @@ def crossover_specific_type_inner(
                     ty,
                     specific_type,
                     n,
+                    depth_aware_co=depth_aware_co,
                 )
             else:
                 n -= n_options
@@ -762,12 +791,22 @@ def crossover_specific_type(
     max_depth: int,
     target_type: type,
     specific_type: type,
+    depth_aware_co: bool,
 ) -> TreeNode:
     ch = r.randint(0, 1)
     n_options_i = len(list(find_in_tree_exact(g, specific_type, i, max_depth)))
     n_options_o = len(list(find_in_tree_exact(g, specific_type, o, max_depth)))
     if ch == 0 or n_options_i == 0 or n_options_o == 0:
-        new_tree = crossover_inner(r, g, i, o, max_depth, target_type)
+        new_tree = crossover_inner(
+            r,
+            g,
+            i,
+            o,
+            max_depth,
+            target_type,
+            force_crossover=False,
+            depth_aware_co=depth_aware_co,
+        )
         relabeled_new_tree = relabel_nodes_of_trees(new_tree, g)
         return relabeled_new_tree
     else:
@@ -781,6 +820,7 @@ def crossover_specific_type(
             target_type,
             specific_type,
             n,
+            depth_aware_co=depth_aware_co,
         )
         relabeled_new_tree = relabel_nodes_of_trees(new_tree, g)
         return relabeled_new_tree
@@ -793,6 +833,7 @@ def crossover(
     p2: TreeNode,
     max_depth: int,
     specific_type: type | None = None,
+    depth_aware_co: bool = False,
 ) -> tuple[TreeNode, TreeNode]:
     """
     Given the two input trees [p1] and [p2], the grammar and the random source, this function returns two trees that are created by crossing over [p1] and [p2]. The first tree returned has [p1] as the base, and the second tree has [p2] as a base.
@@ -806,9 +847,19 @@ def crossover(
             max_depth,
             g.starting_symbol,
             specific_type,
+            depth_aware_co=depth_aware_co,
         )
     else:
-        new_tree1 = crossover_inner(r, g, p1, p2, max_depth, g.starting_symbol)
+        new_tree1 = crossover_inner(
+            r,
+            g,
+            p1,
+            p2,
+            max_depth,
+            g.starting_symbol,
+            force_crossover=False,
+            depth_aware_co=depth_aware_co,
+        )
     relabeled_new_tree1 = relabel_nodes_of_trees(new_tree1, g)
 
     if specific_type:
@@ -820,9 +871,19 @@ def crossover(
             max_depth,
             g.starting_symbol,
             specific_type,
+            depth_aware_co=depth_aware_co,
         )
     else:
-        new_tree2 = crossover_inner(r, g, p2, p1, max_depth, g.starting_symbol)
+        new_tree2 = crossover_inner(
+            r,
+            g,
+            p2,
+            p1,
+            max_depth,
+            g.starting_symbol,
+            force_crossover=False,
+            depth_aware_co=depth_aware_co,
+        )
     relabeled_new_tree2 = relabel_nodes_of_trees(new_tree2, g)
     return relabeled_new_tree1, relabeled_new_tree2
 
@@ -839,7 +900,7 @@ class TreeBasedRepresentation(Representation[TreeNode]):
         depth: int,
         ty: type,
         specific_type: type = None,
-        depth_aware_mut: bool = True,
+        depth_aware_mut: bool = False,
     ) -> TreeNode:
         new_ind = mutate(r, g, ind, depth, ty, specific_type, depth_aware_mut)
         bla = new_ind == ind
@@ -855,8 +916,9 @@ class TreeBasedRepresentation(Representation[TreeNode]):
         i2: TreeNode,
         max_depth: int,
         specific_type: type = None,
+        depth_aware_co: bool = False,
     ) -> tuple[TreeNode, TreeNode]:
-        return crossover(r, g, i1, i2, max_depth, specific_type)
+        return crossover(r, g, i1, i2, max_depth, specific_type, depth_aware_co)
 
     def genotype_to_phenotype(self, g: Grammar, genotype: TreeNode) -> TreeNode:
         return genotype
