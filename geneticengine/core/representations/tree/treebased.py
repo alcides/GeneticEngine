@@ -457,15 +457,19 @@ def mutate_inner(
                     method=Grow,
                     current_node=args[index],
                 )
-                return mk_save_init(type(i), lambda x: x)(*args)
+                mk = mk_save_init(type(i), lambda x: x)(*args)
+                return mk
 
-            replacement = random_node(r, g, max_depth, ty, method=Grow)
+            replacement = i
+            while replacement == i:
+                replacement = random_node(r, g, max_depth, ty, method=Grow)
             return replacement
         else:
             if is_abstract(ty) and g.expansion_depthing:
                 max_depth -= g.abstract_dist_to_t[ty][type(i)]
             max_depth -= 1
             args = list(i.gengy_init_values)
+            c -= i.gengy_distance_to_term if depth_aware_mut else 1
             for idx, (_, field_type) in enumerate(get_arguments(i)):
                 child = args[idx]
                 if hasattr(child, "gengy_nodes"):
@@ -475,7 +479,7 @@ def mutate_inner(
                         else child.gengy_nodes
                     )
                     if c <= count:
-                        args[idx] = mutate_inner(
+                        mi = mutate_inner(
                             r,
                             g,
                             child,
@@ -484,12 +488,17 @@ def mutate_inner(
                             force_mutate,
                             depth_aware_mut,
                         )
+                        args[idx] = mi
                         break
                     else:
                         c -= count
-            return mk_save_init(i, lambda x: x)(*args)
+            mk = mk_save_init(i, lambda x: x)(*args)
+            return mk
     else:
-        return random_node(r, g, max_depth, ty, method=Grow)
+        rn = i
+        while rn == i:
+            rn = random_node(r, g, max_depth, ty, method=Grow)
+        return rn
 
 
 def mutate_specific_type_inner(
@@ -833,6 +842,9 @@ class TreeBasedRepresentation(Representation[TreeNode]):
         depth_aware_mut: bool = True,
     ) -> TreeNode:
         new_ind = mutate(r, g, ind, depth, ty, specific_type, depth_aware_mut)
+        bla = new_ind == ind
+        if bla:
+            print(bla)
         return new_ind
 
     def crossover_individuals(
