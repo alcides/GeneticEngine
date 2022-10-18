@@ -57,7 +57,7 @@ class GP:
         - hill_climbing (bool): Allows the user to change the standard mutation operations to the hill-climbing mutation operation, in which an individual is mutated to 5 different new individuals, after which the best is chosen to survive (default = False).
         - specific_type_mutation (type): Specify a type that is given preference when mutation occurs (default = None),
         - specific_type_crossover (type): Specify a type that is given preference when crossover occurs (default = None),
-        - depth_aware_ops (bool): If chosen, evolutionary operators are depth-aware, giving preference to operate on nodes closer to the root. (default = True).
+        - depth_aware_mut (bool): If chosen, mutations are depth-aware, giving preference to operate on nodes closer to the root. (default = True).
         -----
 
     """
@@ -104,7 +104,7 @@ class GP:
         hill_climbing: bool = False,
         specific_type_mutation: type = None,
         specific_type_crossover: type = None,
-        depth_aware_ops: bool = True,
+        depth_aware_mut: bool = True,
         # -----
         minimize: bool = False,
         target_fitness: float | None = None,
@@ -153,7 +153,7 @@ class GP:
                 self.keyfitness(),
                 5,
                 specific_type=specific_type_mutation,
-                depth_aware_ops=depth_aware_ops,
+                depth_aware_mut=depth_aware_mut,
             )
         else:
             self.mutation = mutation.create_mutation(
@@ -162,7 +162,7 @@ class GP:
                 self.grammar,
                 max_depth,
                 specific_type=specific_type_mutation,
-                depth_aware_ops=depth_aware_ops,
+                depth_aware_mut=depth_aware_mut,
             )
         self.cross_over = cross_over.create_cross_over(
             self.random,

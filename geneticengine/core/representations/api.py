@@ -27,7 +27,7 @@ class Representation(Generic[g]):
         depth: int,
         ty: type,
         specific_type: type = None,
-        depth_aware_ops: bool = True,
+        depth_aware_mut: bool = True,
     ) -> g:
         ...
 

@@ -16,7 +16,7 @@ def create_mutation(
     g: Grammar,
     max_depth: int,
     specific_type: type | None = None,
-    depth_aware_ops: bool = True,
+    depth_aware_mut: bool = True,
 ) -> Callable[[Individual], Individual]:
     def mutation(individual: Individual):
         new_individual = Individual(
@@ -27,7 +27,7 @@ def create_mutation(
                 max_depth,
                 g.starting_symbol,
                 specific_type=specific_type,
-                depth_aware_ops=depth_aware_ops,
+                depth_aware_mut=depth_aware_mut,
             ),
             fitness=None,
         )
@@ -44,7 +44,7 @@ def create_hill_climbing_mutation(
     fitness_function: Callable[[Individual], float],
     n_candidates: int = 5,
     specific_type: type = None,
-    depth_aware_ops: bool = True,
+    depth_aware_mut: bool = True,
 ) -> Callable[[Individual], Individual]:
     def hill_climbing_mutation(individual: Individual):
         def creation_new_individual():
@@ -56,7 +56,7 @@ def create_hill_climbing_mutation(
                     max_depth,
                     g.starting_symbol,
                     specific_type=specific_type,
-                    depth_aware_ops=depth_aware_ops,
+                    depth_aware_mut=depth_aware_mut,
                 ),
                 fitness=None,
             )

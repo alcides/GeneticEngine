@@ -422,14 +422,14 @@ def mutate_inner(
     max_depth: int,
     ty: type,
     force_mutate: bool,
-    depth_aware_ops: bool,
+    depth_aware_mut: bool,
 ) -> TreeNode:
-    counter = i.gengy_weighted_nodes if depth_aware_ops else i.gengy_nodes
+    counter = i.gengy_weighted_nodes if depth_aware_mut else i.gengy_nodes
     if counter > 0:
         c = r.randint(0, counter - 1)
         if (
             c == 0
-            or (c <= i.gengy_distance_to_term and depth_aware_ops)
+            or (c <= i.gengy_distance_to_term and depth_aware_mut)
             or force_mutate
         ):
             # If Metahandler mutation exists, the mutation process is different
@@ -471,7 +471,7 @@ def mutate_inner(
                 if hasattr(child, "gengy_nodes"):
                     count = (
                         child.gengy_weighted_nodes
-                        if depth_aware_ops
+                        if depth_aware_mut
                         else child.gengy_nodes
                     )
                     if c <= count:
@@ -482,7 +482,7 @@ def mutate_inner(
                             max_depth,
                             field_type,
                             force_mutate,
-                            depth_aware_ops,
+                            depth_aware_mut,
                         )
                         break
                     else:
@@ -500,7 +500,7 @@ def mutate_specific_type_inner(
     ty: type,
     specific_type: type,
     n: int,
-    depth_aware_ops: bool,
+    depth_aware_mut: bool,
 ) -> TreeNode:
     if n == 1 and type(i) == specific_type:
         return mutate_inner(
@@ -510,7 +510,7 @@ def mutate_specific_type_inner(
             max_depth,
             ty,
             force_mutate=True,
-            depth_aware_ops=depth_aware_ops,
+            depth_aware_mut=depth_aware_mut,
         )
     else:
         args = list(i.gengy_init_values)
@@ -528,7 +528,7 @@ def mutate_specific_type_inner(
                     ty,
                     specific_type,
                     n,
-                    depth_aware_ops,
+                    depth_aware_mut,
                 )
             else:
                 n -= n_options
@@ -542,7 +542,7 @@ def mutate_specific_type(
     max_depth: int,
     target_type: type,
     specific_type: type,
-    depth_aware_ops: bool,
+    depth_aware_mut: bool,
 ) -> TreeNode:
     ch = r.randint(0, 2)
     n_options = len(list(find_in_tree_exact(g, specific_type, i, max_depth)))
@@ -554,7 +554,7 @@ def mutate_specific_type(
             max_depth,
             target_type,
             force_mutate=False,
-            depth_aware_ops=depth_aware_ops,
+            depth_aware_mut=depth_aware_mut,
         )
         relabeled_new_tree = relabel_nodes_of_trees(new_tree, g)
         return relabeled_new_tree
@@ -568,7 +568,7 @@ def mutate_specific_type(
             target_type,
             specific_type,
             n,
-            depth_aware_ops,
+            depth_aware_mut,
         )
         relabeled_new_tree = relabel_nodes_of_trees(new_tree, g)
         return relabeled_new_tree
@@ -581,7 +581,7 @@ def mutate(
     max_depth: int,
     target_type: type,
     specific_type: type | None = None,
-    depth_aware_ops: bool = True,
+    depth_aware_mut: bool = True,
 ) -> Any:
     if specific_type:
         return mutate_specific_type(
@@ -591,9 +591,9 @@ def mutate(
             max_depth,
             target_type,
             specific_type,
-            depth_aware_ops,
+            depth_aware_mut,
         )
-    new_tree = mutate_inner(r, g, i, max_depth, target_type, False, depth_aware_ops)
+    new_tree = mutate_inner(r, g, i, max_depth, target_type, False, depth_aware_mut)
     relabeled_new_tree = relabel_nodes_of_trees(new_tree, g)
     return relabeled_new_tree
 
@@ -830,9 +830,10 @@ class TreeBasedRepresentation(Representation[TreeNode]):
         depth: int,
         ty: type,
         specific_type: type = None,
-        depth_aware_ops: bool = True,
+        depth_aware_mut: bool = True,
     ) -> TreeNode:
-        return mutate(r, g, ind, depth, ty, specific_type, depth_aware_ops)
+        new_ind = mutate(r, g, ind, depth, ty, specific_type, depth_aware_mut)
+        return new_ind
 
     def crossover_individuals(
         self,
