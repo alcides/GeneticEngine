@@ -177,7 +177,6 @@ class GP(Heuristics):
                 5,
                 specific_type=specific_type_mutation,
                 depth_aware_mut=depth_aware_mut,
-                depth_aware_co=depth_aware_co,
             )
         else:
             self.mutation = mutation.create_mutation(
