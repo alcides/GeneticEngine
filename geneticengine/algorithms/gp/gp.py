@@ -4,7 +4,6 @@ import time
 from typing import Any
 from typing import Callable
 from typing import NoReturn
-from typing import Optional
 
 import geneticengine.algorithms.gp.generation_steps.cross_over as cross_over
 import geneticengine.algorithms.gp.generation_steps.mutation as mutation
@@ -15,14 +14,19 @@ from geneticengine.algorithms.callbacks.callback import PrintBestCallback
 from geneticengine.algorithms.callbacks.callback import ProgressCallback
 from geneticengine.algorithms.callbacks.csv_callback import CSVCallback
 from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.algorithms.heuristics import Heuristics
 from geneticengine.core.grammar import Grammar
+from geneticengine.core.problems import FitnessType
+from geneticengine.core.problems import Problem
+from geneticengine.core.problems import process_problem
+from geneticengine.core.problems import wrap_depth
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.api import Representation
 from geneticengine.core.representations.tree.treebased import relabel_nodes_of_trees
 from geneticengine.core.representations.tree.treebased import treebased_representation
 
 
-class GP:
+class GP(Heuristics):
     """
     Genetic Programming object. Main attribute: evolve
 
@@ -40,7 +44,6 @@ class GP:
         - max_depth (int): The maximum depth a tree can have (default = 15).
         - favor_less_deep_trees (bool): If set to True, this gives a tiny penalty to deeper trees to favor simpler trees (default = False).
         - selection_method (Tuple[str, int]): Allows the user to define the method to choose individuals for the next population (default = ("tournament", 5)).
-        - hill_climbing (bool): Allows the user to change the standard mutation operations to the hill-climbing mutation operation, in which an individual is mutated to 5 different new individuals, after which the best is chosen to survive (default = False).
         - target_fitness (Optional[float]): Sets a target fitness. When this fitness is reached, the algorithm stops running (default = None).
         - force_individual (Any): Allows the incorporation of an individual in the first population (default = None).
         - timer_stop_criteria (bool): If set to True, the algorithm is stopped after the time limit (default = 60 seconds). Then the fittest individual is returned (default = False).
@@ -55,8 +58,11 @@ class GP:
         - probability_mutation (float): probability that an individual is mutated (default = 0.01).
         - probability_crossover (float): probability that an individual is chosen for cross-over (default = 0.9).
         - either_mut_or_cro (float | None): Switch evolution style to do either a mutation or a crossover. The given float defines the chance of a mutation. Otherwise a crossover is performed. (default = None),
+        - hill_climbing (bool): Allows the user to change the standard mutation operations to the hill-climbing mutation operation, in which an individual is mutated to 5 different new individuals, after which the best is chosen to survive (default = False).
         - specific_type_mutation (type): Specify a type that is given preference when mutation occurs (default = None),
         - specific_type_crossover (type): Specify a type that is given preference when crossover occurs (default = None),
+        - depth_aware_mut (bool): If chosen, mutations are depth-aware, giving preference to operate on nodes closer to the root. (default = True).
+        - depth_aware_co (bool): If chosen, crossovers are depth-aware, giving preference to operate on nodes closer to the root. (default = True).
         -----
 
     """
@@ -64,28 +70,41 @@ class GP:
     # reason for union with noreturn in evaluation function, elitism and elitism: https://stackoverflow.com/questions/51811024/mypy-type-checking-on-callable-thinks-that-member-variable-is-a-method
     grammar: Grammar
     representation: Representation[Any]
+    problem: Problem
     evaluation_function: NoReturn | Callable[[Any], float]
     random: RandomSource
     population_size: int
     elitism: (
         NoReturn
         | Callable[
-            [list[Individual], Callable[[Individual], float]],
+            [
+                list[Individual],
+                Problem,
+                Callable[[Problem, list[Individual]], Individual],
+                Callable[[Individual], float | list[float]],
+            ],
             list[Individual],
         ]
     )
     mutation: (NoReturn | Callable[[Individual], Individual])
     max_depth: int
     novelty: NoReturn | Callable[[int], list[Individual]]
-    minimize: bool
     final_population: list[Individual]
     callbacks: list[Callback]
 
     def __init__(
         self,
         grammar: Grammar,
-        evaluation_function: Callable[[Any], float],
         representation: Representation = treebased_representation,
+        # These classes should be replaced by the problem alone.
+        problem: Problem = None,
+        evaluation_function: Callable[
+            [Any],
+            float,
+        ] = None,  # DEPRECATE in the next version
+        minimize: bool = False,  # DEPRECATE in the next version
+        target_fitness: float | None = None,  # DEPRECATE in the next version
+        favor_less_deep_trees: bool = False,  # DEPRECATE in the next version
         randomSource: Callable[[int], RandomSource] = RandomSource,
         population_size: int = 200,
         n_elites: int = 5,  # Shouldn't this be a percentage of population size?
@@ -93,7 +112,8 @@ class GP:
         number_of_generations: int = 100,
         max_depth: int = 15,
         # now based on depth, maybe on number of nodes?
-        favor_less_deep_trees: bool = False,
+        # selection-method is a tuple because tournament selection needs to receive the tournament size
+        # but lexicase does not need a tuple
         selection_method: tuple[str, int] = ("tournament", 5),
         # -----
         # As given in A Field Guide to GP, p.17, by Poli and Mcphee
@@ -103,9 +123,9 @@ class GP:
         hill_climbing: bool = False,
         specific_type_mutation: type = None,
         specific_type_crossover: type = None,
+        depth_aware_mut: bool = False,
+        depth_aware_co: bool = False,
         # -----
-        minimize: bool = False,
-        target_fitness: float | None = None,
         force_individual: Any = None,
         seed: int = 123,
         # -----
@@ -114,16 +134,23 @@ class GP:
         # -----
         save_to_csv: str = None,
         save_genotype_as_string: bool = True,
-        test_data: Callable[[Any], float] = None,
+        test_data: Callable[
+            [Any],
+            float,
+        ] = None,  # TODO: Should be part of Problem Class  [LEON]
         only_record_best_inds: int | None = 1,
         # -----
         callbacks: list[Callback] = None,
     ):
         assert population_size > (n_elites + n_novelties + 1)
 
+        self.problem: Problem = wrap_depth(
+            process_problem(problem, evaluation_function, minimize, target_fitness),
+            favor_less_deep_trees,
+        )
+
         self.grammar = grammar
         self.representation = representation
-        self.evaluation_function = evaluation_function
         self.random = randomSource(seed)
         self.seed = seed
         self.population_size = population_size
@@ -134,8 +161,6 @@ class GP:
             self.create_individual,
             max_depth=max_depth,
         )
-        self.minimize = minimize
-        self.target_fitness = target_fitness
         self.timer_stop_criteria = timer_stop_criteria
         self.timer_limit = timer_limit
         if callbacks:
@@ -151,6 +176,7 @@ class GP:
                 self.keyfitness(),
                 5,
                 specific_type=specific_type_mutation,
+                depth_aware_mut=depth_aware_mut,
             )
         else:
             self.mutation = mutation.create_mutation(
@@ -159,6 +185,7 @@ class GP:
                 self.grammar,
                 max_depth,
                 specific_type=specific_type_mutation,
+                depth_aware_mut=depth_aware_mut,
             )
         self.cross_over = cross_over.create_cross_over(
             self.random,
@@ -166,6 +193,7 @@ class GP:
             self.grammar,
             max_depth,
             specific_type=specific_type_crossover,
+            depth_aware_co=depth_aware_co,
         )
         self.n_novelties = n_novelties
         self.number_of_generations = number_of_generations
@@ -175,7 +203,11 @@ class GP:
         if selection_method[0] == "tournament":
             self.selection = selection.create_tournament(
                 selection_method[1],
-                self.minimize,
+                self.problem,
+            )
+        elif selection_method[0] == "lexicase":
+            self.selection = selection.create_lexicase(
+                self.problem,
             )
         else:
             self.selection = lambda r, ls, n: [x for x in ls[:n]]
@@ -203,41 +235,7 @@ class GP:
             )
             self.callbacks.append(c)
 
-    def create_individual(self, depth: int):
-        genotype = self.representation.create_individual(
-            r=self.random,
-            g=self.grammar,
-            depth=depth,
-        )
-        return Individual(
-            genotype=genotype,
-            fitness=None,
-        )
-
-    def evaluate(self, individual: Individual) -> float:
-        if individual.fitness is None:
-            phenotype = self.representation.genotype_to_phenotype(
-                self.grammar,
-                individual.genotype,
-            )
-            individual.fitness = self.evaluation_function(phenotype)
-        return individual.fitness
-
-    def fitness_correction_for_depth(self, individual: Individual) -> float:
-        if (
-            self.favor_less_deep_trees
-        ):  # grammatical evolution does not have gengy_distance_to_term
-            return individual.genotype.gengy_distance_to_term * 10**-25
-        else:
-            return 0
-
-    def keyfitness(self):
-        if self.minimize:
-            return lambda x: self.evaluate(x) + self.fitness_correction_for_depth(x)
-        else:
-            return lambda x: -self.evaluate(x) - self.fitness_correction_for_depth(x)
-
-    def evolve(self, verbose=1) -> tuple[Individual, float, Any]:
+    def evolve(self, verbose=1) -> tuple[Individual, FitnessType, Any]:
         """
         The main function of the GP object. This function runs the GP algorithm over the set number of generations, evolving better solutions
 
@@ -276,8 +274,6 @@ class GP:
                 ),
                 fitness=None,
             )
-        population = sorted(population, key=self.keyfitness())
-
         gen = 0
         start = time.time()
 
@@ -285,7 +281,14 @@ class GP:
             self.timer_stop_criteria and (time.time() - start) < self.timer_limit
         ):
             npop = self.novelty(self.n_novelties)
-            npop.extend(self.elitism(population, self.keyfitness()))
+            npop.extend(
+                self.elitism(
+                    population,
+                    self.problem,
+                    self.get_best_individual,
+                    self.evaluate,
+                ),
+            )
             spotsLeft = self.population_size - len(npop)
             while spotsLeft > 0:
                 if self.either_mut_or_cro:
@@ -314,27 +317,24 @@ class GP:
                     spotsLeft -= 2
 
             population = npop
-            population = sorted(population, key=self.keyfitness())
+
+            best_individual = self.get_best_individual(self.problem, population)
 
             time_gen = time.time() - start
             for cb in self.callbacks:
                 cb.process_iteration(gen + 1, population, time=time_gen, gp=self)
 
-            if (
-                self.target_fitness is not None
-                and population[0].fitness == self.target_fitness
-            ):
-                break
             gen += 1
         self.final_population = population
+
         for cb in self.callbacks:
             cb.end_evolution()
         return (
-            population[0],
-            self.evaluate(population[0]),
+            best_individual,
+            self.evaluate(best_individual),
             self.representation.genotype_to_phenotype(
                 self.grammar,
-                population[0].genotype,
+                best_individual.genotype,
             ),
         )
 

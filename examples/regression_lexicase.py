@@ -1,25 +1,16 @@
 from __future__ import annotations
 
-import csv
-import os
-import time
 from dataclasses import dataclass
 from math import isinf
-from optparse import OptionParser
 from typing import Annotated
-from typing import Any
-from typing import Callable
 
-import global_vars as gv
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
-    dsge_representation,
-)
+from geneticengine.core.problems import MultiObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.ge import (
     ge_representation,
 )
@@ -43,8 +34,8 @@ from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import mse
 
 DATASET_NAME = "Vladislavleva4"
-DATA_FILE_TRAIN = f"GeneticEngine/examples/data/{DATASET_NAME}/Train.txt"
-DATA_FILE_TEST = f"GeneticEngine/examples/data/{DATASET_NAME}/Test.txt"
+DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.txt"
+DATA_FILE_TEST = f"examples/data/{DATASET_NAME}/Test.txt"
 
 bunch = pd.read_csv(DATA_FILE_TRAIN, delimiter="\t")
 target = bunch.response
@@ -103,101 +94,70 @@ def preprocess():
     # <c>  ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 
 
-def fitness_function(n: Number):
-    X = data.values
+def fitness_function_lexicase(n: Number):
+    cases = data.values.tolist()
     y = target.values
 
-    variables = {}
-    for x in feature_names:
-        i = feature_indices[x]
-        variables[x] = X[:, i]
+    fitnesses = list()
 
-    y_pred = n.evaluate(**variables)
-    # mse is used in PonyGE, as the error metric is not None!
-    fitness = mse(y_pred, y)
-    if isinf(fitness) or np.isnan(fitness):
-        fitness = 100000000
-    return fitness
+    for c in cases:
+        variables = {}
+        for x in feature_names:
+            i = feature_indices[x]
+            variables[x] = c[i]
+
+        y_pred = n.evaluate(**variables)
+
+        # mse is used in PonyGE, as the error metric is not None!
+        fitness = mse(y_pred, y[cases.index(c)])
+        if isinf(fitness) or np.isnan(fitness):
+            fitness = 100000000
+
+        fitnesses.append(fitness)
+
+    return fitnesses
 
 
 def evolve(
+    g,
     seed,
     mode,
-    save_to_csv: str = None,
     representation="treebased_representation",
 ):
     if representation == "ge":
         representation = ge_representation
     elif representation == "sge":
         representation = sge_representation
-    elif representation == "dsge":
-        representation = dsge_representation
     else:
         representation = treebased_representation
 
-    g = preprocess()
+    minimizelist = [True for _ in data.values.tolist()]
+
     alg = GP(
         g,
         representation=representation,
-        probability_crossover=gv.PROBABILITY_CROSSOVER,
-        probability_mutation=gv.PROBABILITY_MUTATION,
-        number_of_generations=gv.NUMBER_OF_GENERATIONS,
-        max_depth=gv.MAX_DEPTH,
-        population_size=gv.POPULATION_SIZE,
-        selection_method=gv.SELECTION_METHOD,
-        n_elites=gv.N_ELITES,
-        problem=SingleObjectiveProblem(
-            minimize=True,
-            fitness_function=fitness_function,
-            target_fitness=None,
+        problem=MultiObjectiveProblem(
+            minimize=minimizelist,
+            fitness_function=fitness_function_lexicase,
         ),
+        # As in PonyGE2:
+        probability_crossover=0.75,
+        probability_mutation=0.01,
+        number_of_generations=50,
+        max_depth=15,
+        population_size=50,
+        selection_method=("lexicase",),
+        n_elites=0,
         # ----------------
-        minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
-        save_to_csv=save_to_csv,
-        save_genotype_as_string=False,
     )
     (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf
 
 
 if __name__ == "__main__":
-    representations = ["treebased_representation", "ge", "dsge"]
-
-    parser = OptionParser()
-    parser.add_option("-s", "--seed", dest="seed", type="int")
-    parser.add_option("-r", "--representation", dest="representation", type="int")
-    parser.add_option(
-        "-t",
-        "--timed",
-        dest="timed",
-        action="store_const",
-        const=True,
-        default=False,
-    )
-    (options, args) = parser.parse_args()
-
-    timed = options.timed
-    seed = options.seed
-    example_name = __file__.split(".")[0].split("\\")[-1].split("/")[-1]
-    representation = representations[options.representation]
-    print(seed, example_name, representation)
-    evol_method = evolve
-
-    mode = "generations"
-    if timed:
-        mode = "time"
-    dest_file = f"{gv.RESULTS_FOLDER}/{mode}/{example_name}/{representation}/{seed}.csv"
-
-    start = time.time()
-    b, bf = evolve(seed, timed, dest_file, representation)
-    end = time.time()
-    csv_row = [mode, example_name, representation, seed, bf, (end - start), b]
-    with open(
-        f"./{gv.RESULTS_FOLDER}/{mode}/{example_name}/{representation}/main.csv",
-        "a",
-        newline="",
-    ) as outfile:
-        writer = csv.writer(outfile)
-        writer.writerow(csv_row)
+    g = preprocess()
+    bf, b = evolve(g, 0, False)
+    print(b)
+    print(f"With fitness: {bf}")

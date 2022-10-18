@@ -1,7 +1,7 @@
 #!/bin/bash
 export PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}."
 
-PYTHON_BINARY=python
+PYTHON_BINARY=python3
 
 
 
@@ -18,7 +18,9 @@ run_example examples/example.py
 run_example examples/pymax.py # Works in PonyGE
 run_example examples/vectorialgp_example.py
 run_example examples/regression.py # Works in PonyGE
+run_example examples/regression_lexicase.py # Works in PonyGE
 run_example examples/classification.py # Works in PonyGE
+run_example examples/classification_lexicase.py # Works in PonyGE
 run_example examples/santafe.py
 run_example examples/game_of_life.py
 run_example examples/string_match.py # Works in PonyGE

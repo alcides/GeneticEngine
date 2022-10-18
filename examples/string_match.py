@@ -9,6 +9,7 @@ import global_vars as gv
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
     dsge_representation,
 )
@@ -65,7 +66,6 @@ def evolve(
     g = preprocess()
     alg = GP(
         g,
-        fitness_function,
         representation=representation,
         probability_crossover=gv.PROBABILITY_CROSSOVER,
         probability_mutation=gv.PROBABILITY_MUTATION,
@@ -74,6 +74,11 @@ def evolve(
         population_size=gv.POPULATION_SIZE,
         selection_method=gv.SELECTION_METHOD,
         n_elites=gv.N_ELITES,
+        problem=SingleObjectiveProblem(
+            minimize=True,
+            fitness_function=fitness_function,
+            target_fitness=None,
+        ),
         # ----------------
         minimize=True,
         seed=seed,

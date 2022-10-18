@@ -11,14 +11,19 @@ from geneticengine.algorithms.callbacks.callback import PrintBestCallback
 from geneticengine.algorithms.callbacks.callback import ProgressCallback
 from geneticengine.algorithms.callbacks.csv_callback import CSVCallback
 from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.algorithms.heuristics import Heuristics
 from geneticengine.core.grammar import Grammar
+from geneticengine.core.problems import FitnessType
+from geneticengine.core.problems import Problem
+from geneticengine.core.problems import process_problem
+from geneticengine.core.problems import wrap_depth
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.api import Representation
 from geneticengine.core.representations.tree.treebased import relabel_nodes_of_trees
 from geneticengine.core.representations.tree.treebased import treebased_representation
 
 
-class RandomSearch:
+class RandomSearch(Heuristics):
     """
     Random Search object. Main attribute: evolve
 
@@ -42,8 +47,9 @@ class RandomSearch:
     def __init__(
         self,
         grammar: Grammar,
-        evaluation_function: Callable[[Any], float],
+        evaluation_function: Callable[[Any], float] = None,
         representation: Representation = treebased_representation,
+        problem: Problem = None,
         randomSource: Callable[[int], RandomSource] = RandomSource,
         population_size: int = 200,
         number_of_generations: int = 100,
@@ -58,6 +64,11 @@ class RandomSearch:
         callbacks: list[Callback] = None,
     ):
         assert population_size >= 1
+
+        self.problem: Problem = wrap_depth(
+            process_problem(problem, evaluation_function, minimize),
+            favor_less_deep_trees,
+        )
 
         self.grammar = grammar
         self.representation = representation
@@ -80,32 +91,6 @@ class RandomSearch:
                 save_genotype_as_string=save_genotype_as_string,
             )
             self.callbacks.append(c)
-
-    def create_individual(self, depth: int):
-        genotype = self.representation.create_individual(
-            r=self.random,
-            g=self.grammar,
-            depth=depth,
-        )
-        return Individual(
-            genotype=genotype,
-            fitness=None,
-        )
-
-    def evaluate(self, individual: Individual) -> float:
-        if individual.fitness is None:
-            phenotype = self.representation.genotype_to_phenotype(
-                self.grammar,
-                individual.genotype,
-            )
-            individual.fitness = self.evaluation_function(phenotype)
-        return individual.fitness
-
-    def keyfitness(self):
-        if self.minimize:
-            return lambda x: self.evaluate(x)
-        else:
-            return lambda x: -self.evaluate(x)
 
     def evolve(self, verbose=1):
         self.callbacks = [

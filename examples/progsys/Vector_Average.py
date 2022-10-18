@@ -4,17 +4,16 @@ import csv
 import time
 from optparse import OptionParser
 from typing import Annotated
-from typing import Any
-from typing import Callable
 
 import global_vars as gv
+from utils import get_data
+from utils import import_embedded
 
 import geneticengine.grammars.coding.lists as lists
 import geneticengine.grammars.coding.numbers as numbers
-from examples.progsys.utils import get_data
-from examples.progsys.utils import import_embedded
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
     dsge_representation,
 )
@@ -45,8 +44,8 @@ from geneticengine.metahandlers.vars import VarRange
 
 
 FILE_NAME = "Vector_Average"
-DATA_FILE_TRAIN = f"./examples/progsys/data/{FILE_NAME}/Train.txt"
-DATA_FILE_TEST = f"./examples/progsys/data/{FILE_NAME}/Test.txt"
+DATA_FILE_TRAIN = f"./data/{FILE_NAME}/Train.txt"
+DATA_FILE_TEST = f"./data/{FILE_NAME}/Test.txt"
 
 inval, outval = get_data(DATA_FILE_TRAIN, DATA_FILE_TEST)
 imported = import_embedded(FILE_NAME)
@@ -119,7 +118,6 @@ def evolve(
     g = preprocess()
     alg = GP(
         g,
-        fitness_function,
         representation=representation,
         probability_crossover=gv.PROBABILITY_CROSSOVER,
         probability_mutation=gv.PROBABILITY_MUTATION,
@@ -129,7 +127,11 @@ def evolve(
         selection_method=gv.SELECTION_METHOD,
         n_elites=gv.N_ELITES,
         # ----------------
-        minimize=True,
+        problem=SingleObjectiveProblem(
+            minimize=True,
+            fitness_function=fitness_function,
+            target_fitness=None,
+        ),
         seed=seed,
         timer_stop_criteria=mode,
         save_to_csv=save_to_csv,

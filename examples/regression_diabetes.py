@@ -1,6 +1,6 @@
 from __future__ import annotations
-from math import isinf
 
+from math import isinf
 from typing import Annotated
 from typing import Any
 from typing import Callable
@@ -11,13 +11,14 @@ from sklearn.metrics import mean_squared_error
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.grammars.basic_math import Exp
+from geneticengine.grammars.basic_math import SafeDiv
 from geneticengine.grammars.basic_math import SafeLog
 from geneticengine.grammars.basic_math import SafeSqrt
 from geneticengine.grammars.basic_math import Sin
 from geneticengine.grammars.basic_math import Tanh
-from geneticengine.grammars.basic_math import SafeDiv
 from geneticengine.grammars.sgp import Literal
 from geneticengine.grammars.sgp import Mul
 from geneticengine.grammars.sgp import Number
@@ -48,15 +49,17 @@ def preprocess():
 def evolve(g, seed):
     alg = GP(
         g,
-        fitness_function,
         treebased_representation,
-        minimize=True,
+        problem=SingleObjectiveProblem(
+            minimize=True,
+            fitness_function=fitness_function,
+            target_fitness=None,
+        ),
         number_of_generations=10,
         seed=seed,
     )
     (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf
-
 
 
 def fitness_function(n: Number):
