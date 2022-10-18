@@ -27,6 +27,7 @@ GeneticEngine has been developed at [LASIGE](https://www.lasige.pt), [University
 * [Guilherme Espada](https://www.lasige.di.fc.ul.pt/user/732)
 * [Paulo Santos](https://pcanelas.com/)
 * [Pedro Barbosa](https://www.lasige.di.fc.ul.pt/user/661)
+* [Eduardo Madeira](https://www.lasige.pt/member/jose-eduardo-madeira)
 
 
 Below you'll find a step-by-step guide on how to use Genetic Engine, together with an example. For more specific documentation on the implementation and algorithms available, follow the links below. If you cannot find the information you are looking for, please create an issue, and we will update as soon as possible.

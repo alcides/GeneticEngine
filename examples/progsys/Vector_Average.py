@@ -1,15 +1,15 @@
 from __future__ import annotations
 
 from typing import Annotated
-from typing import Any
-from typing import Callable
+
+from utils import get_data
+from utils import import_embedded
 
 import geneticengine.grammars.coding.lists as lists
 import geneticengine.grammars.coding.numbers as numbers
-from examples.progsys.utils import get_data
-from examples.progsys.utils import import_embedded
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.ge import (
     ge_representation,
 )
@@ -39,8 +39,8 @@ from geneticengine.metahandlers.vars import VarRange
 # Max, Min, Abs, Plus, Literal, Mul, SafeDiv, Var
 
 FILE_NAME = "Vector_Average"
-DATA_FILE_TRAIN = f"./examples/progsys/data/{FILE_NAME}/Train.txt"
-DATA_FILE_TEST = f"./examples/progsys/data/{FILE_NAME}/Test.txt"
+DATA_FILE_TRAIN = f"./data/{FILE_NAME}/Train.txt"
+DATA_FILE_TEST = f"./data/{FILE_NAME}/Test.txt"
 
 inval, outval = get_data(DATA_FILE_TRAIN, DATA_FILE_TEST)
 imported = import_embedded(FILE_NAME)
@@ -104,10 +104,13 @@ def evolve(g, seed, mode, representation=""):
         representation = treebased_representation
     alg = GP(
         g,
-        fitness_function,
         representation=representation,
+        problem=SingleObjectiveProblem(
+            minimize=True,
+            fitness_function=fitness_function,
+            target_fitness=None,
+        ),
         number_of_generations=5,
-        minimize=True,
         seed=seed,
         max_depth=10,
         population_size=50,

@@ -20,12 +20,10 @@ from geneticengine.core.representations.grammatical_evolution.structured_ge impo
     sge_representation,
 )
 from geneticengine.core.representations.tree.treebased import treebased_representation
-from geneticengine.grammars.basic_math import Exp
 from geneticengine.grammars.basic_math import SafeDiv
 from geneticengine.grammars.basic_math import SafeLog
 from geneticengine.grammars.basic_math import SafeSqrt
-from geneticengine.grammars.basic_math import Sin
-from geneticengine.grammars.basic_math import Tanh
+from geneticengine.grammars.sgp import Literal
 from geneticengine.grammars.sgp import Minus
 from geneticengine.grammars.sgp import Mul
 from geneticengine.grammars.sgp import Number
@@ -54,14 +52,17 @@ Var.feature_indices = feature_indices  # type: ignore
 
 
 @dataclass
-class Literal(Number):
-    val: Annotated[int, IntRange(0, 9)]
+class Exponentiation(Number):
+    baseNumber: Number
+    powerNumber: Number
 
     def evaluate(self, **kwargs):
-        return self.val
-
-    def __str__(self) -> str:
-        return str(self.val)
+        d1 = self.baseNumber.evaluate(**kwargs)
+        d2 = self.powerNumber.evaluate(**kwargs)
+        try:
+            return d1**d2
+        except:
+            return 1.0
 
 
 def preprocess():
@@ -74,26 +75,11 @@ def preprocess():
             Literal,
             Var,
             SafeSqrt,
-            Exp,
-            Sin,
-            Tanh,
+            Exponentiation,
             SafeLog,
         ],
         Number,
     )
-
-    # <e>  ::=  <e>+<e>|
-    #       <e>-<e>|
-    #       <e>*<e>|
-    #       pdiv(<e>,<e>)|
-    #       psqrt(<e>)|
-    #       np.sin(<e>)|
-    #       np.tanh(<e>)|
-    #       np.exp(<e>)|
-    #       plog(<e>)|
-    #       x[:, 0]|x[:, 1]|x[:, 2]|x[:, 3]|x[:, 4]|
-    #       <c>
-    # <c>  ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 
 
 def fitness_function(n: Number):
@@ -117,18 +103,10 @@ def evolve(
     g,
     seed,
     mode,
-    representation="treebased_representation",
 ):
-    if representation == "ge":
-        representation = ge_representation
-    elif representation == "sge":
-        representation = sge_representation
-    else:
-        representation = treebased_representation
-
     alg = GP(
         g,
-        representation=representation,
+        representation=treebased_representation,
         problem=SingleObjectiveProblem(
             minimize=True,
             fitness_function=fitness_function,
@@ -138,7 +116,7 @@ def evolve(
         probability_crossover=0.75,
         probability_mutation=0.01,
         number_of_generations=50,
-        max_depth=10,
+        max_depth=8,
         population_size=50,
         selection_method=("tournament", 2),
         n_elites=5,

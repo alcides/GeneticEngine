@@ -10,6 +10,7 @@ from typing import Tuple
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
     dsge_representation,
 )
@@ -191,10 +192,15 @@ def evolve(
         representation = dsge_representation
     else:
         representation = treebased_representation
+
     alg = GP(
         g,
-        fitness_function,
         representation=representation,
+        problem=SingleObjectiveProblem(
+            minimize=False,
+            fitness_function=fitness_function,
+            target_fitness=None,
+        ),
         # number_of_generations=150,
         # population_size=100,
         # max_depth=15,
@@ -202,7 +208,6 @@ def evolve(
         # probability_crossover=0.75,
         # probability_mutation=0.01,
         # selection_method=("tournament", 2),
-        minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
     )

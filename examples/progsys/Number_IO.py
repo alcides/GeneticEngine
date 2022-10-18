@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from typing import Annotated
-from typing import Any
-from typing import Callable
 
-from examples.progsys.utils import get_data
-from examples.progsys.utils import import_embedded
+from utils import get_data
+from utils import import_embedded
+
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.ge import (
     ge_representation,
 )
@@ -57,10 +57,13 @@ def evolve(g, seed, mode, representation=""):
         representation = treebased_representation
     alg = GP(
         g,
-        fitness_function,
         representation=representation,
+        problem=SingleObjectiveProblem(
+            minimize=True,
+            fitness_function=fitness_function,
+            target_fitness=None,
+        ),
         number_of_generations=50,
-        minimize=True,
         seed=seed,
         max_depth=10,
         population_size=50,

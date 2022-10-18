@@ -4,6 +4,8 @@ import os
 from dataclasses import dataclass
 from math import isinf
 from typing import Annotated
+from typing import Any
+from typing import Callable
 
 import numpy as np
 import pandas as pd
@@ -12,10 +14,7 @@ from sklearn.model_selection import train_test_split
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
-    dsge_representation,
-)
+from geneticengine.core.problems import MultiObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.ge import (
     ge_representation,
 )
@@ -31,6 +30,7 @@ from geneticengine.grammars.sgp import Number
 from geneticengine.grammars.sgp import Plus
 from geneticengine.grammars.sgp import Var
 from geneticengine.metahandlers.floats import FloatList
+from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import f1_score
 
@@ -41,6 +41,7 @@ DATA_FILE_TEST = f"examples/data/{DATASET_NAME}/Test.csv"
 bunch = pd.read_csv(DATA_FILE_TRAIN, delimiter=" ")
 target = bunch.y
 data = bunch.drop(["y"], axis=1)
+
 
 feature_names = list(data.columns.values)
 feature_indices = {}
@@ -156,19 +157,9 @@ class Literal2(Number):
 def preprocess():
     return extract_grammar(
         [Plus, Mul, SafeDiv, Literal2, Var, SafeSqrt, SafeLog],
-        # [Plus, Mul, SafeDiv, Var, SafeSqrt, SafeLog] + literals,
         Number,
-        # expansion_depthing=True
     )
 
-
-# <e> ::= (<e> <op> <e>) | <f1>(<e>) | <f2>(<e>, <e>) | <v> | <c>
-# <op> ::= + | * | -
-# <f1> ::= psqrt | plog
-# <f2> ::= pdiv
-# <v> ::= x[:, <idx>]
-# <idx> ::= 0 | 1 | 2 | 3
-# <c> ::= -1.0 | -0.1 | -0.01 | -0.001 | 0.001 | 0.01 | 0.1 | 1.0
 
 X_train, X_test, y_train, y_test = train_test_split(
     data.values,
@@ -177,28 +168,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 
-def fitness_function(n: Number):
-    X = X_train
-    y = y_train
-
-    variables = {}
-    for x in feature_names:
-        i = feature_indices[x]
-        variables[x] = X[:, i]
-    y_pred = n.evaluate(**variables)
-
-    if type(y_pred) in [np.float64, int, float]:
-        """If n does not use variables, the output will be scalar."""
-        y_pred = np.full(len(y), y_pred)
-    if y_pred.shape != (len(y),):
-        return -100000000
-    fitness = f1_score(y_pred, y)
-    if isinf(fitness):
-        fitness = -100000000
-    return fitness
-
-
-def fitness_test_function(n: Number):
+def fitness_function_lexicase(n: Number):
     X = X_test
     y = y_test
 
@@ -206,17 +176,13 @@ def fitness_test_function(n: Number):
     for x in feature_names:
         i = feature_indices[x]
         variables[x] = X[:, i]
-    y_pred = n.evaluate(**variables)
 
-    if type(y_pred) in [np.float64, int, float]:
+    y_pred = n.evaluate(**variables)
+    if type(y_pred) in [np.float64, int, float] or y_pred.shape != y.shape:
         """If n does not use variables, the output will be scalar."""
         y_pred = np.full(len(y), y_pred)
-    if y_pred.shape != (len(y),):
-        return -100000000
-    fitness = f1_score(y_pred, y)
-    if isinf(fitness):
-        fitness = -100000000
-    return fitness
+
+    return [int(p == r) for (p, r) in zip(y, y_pred)]
 
 
 def evolve(
@@ -224,41 +190,42 @@ def evolve(
     seed,
     mode,
     representation="treebased_representation",
-    depth_aware=True,
 ):
     if representation == "ge":
         representation = ge_representation
     elif representation == "sge":
         representation = sge_representation
-    elif representation == "dsge":
-        representation = dsge_representation
     else:
         representation = treebased_representation
+
+    minimizelist = [False for _ in data.values.tolist()]
+
+    def single_criteria_test(n: Number) -> float:
+        return sum((m and -f or f) for (f, m) in zip(n.fitness, minimizelist))
 
     alg = GP(
         g,
         representation=representation,
-        problem=SingleObjectiveProblem(
-            minimize=False,
-            fitness_function=fitness_function,
-            target_fitness=None,
+        problem=MultiObjectiveProblem(
+            minimize=minimizelist,
+            fitness_function=fitness_function_lexicase,
+            best_individual_criteria_function=single_criteria_test,
         ),
         # As in PonyGE2:
-        probability_crossover=1,
-        probability_mutation=0.5,
+        probability_crossover=0.75,
+        probability_mutation=0.01,
         number_of_generations=50,
-        max_depth=10,
+        max_depth=15,
         # max_init_depth=10,
         population_size=50,
-        selection_method=("tournament", 2),
-        n_elites=1,
+        selection_method=("lexicase",),
+        n_elites=5,
         # ----------------
         seed=seed,
         timer_stop_criteria=mode,
         # save_to_csv='bla.csv',
         # test_data=fitness_test_function,
         # only_record_best_inds=None,
-        depth_aware_mut=depth_aware,
     )
     (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf
@@ -267,7 +234,6 @@ def evolve(
 if __name__ == "__main__":
     g = preprocess()
     print(g)
-    # b, bf = evolve(g, 123, False, "dsge")
     b, bf = evolve(g, 123, False)
     print(bf)
     print(f"With fitness: {b}")

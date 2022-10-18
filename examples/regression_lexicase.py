@@ -1,18 +1,16 @@
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass
 from math import isinf
 from typing import Annotated
-from typing import Any
-from typing import Callable
 
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import SingleObjectiveProblem
+from geneticengine.core.problems import MultiObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.ge import (
     ge_representation,
 )
@@ -36,8 +34,8 @@ from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import mse
 
 DATASET_NAME = "Vladislavleva4"
-DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.txt"
-DATA_FILE_TEST = f"examples/data/{DATASET_NAME}/Test.txt"
+DATA_FILE_TRAIN = f"data/{DATASET_NAME}/Train.txt"
+DATA_FILE_TEST = f"data/{DATASET_NAME}/Test.txt"
 
 bunch = pd.read_csv(DATA_FILE_TRAIN, delimiter="\t")
 target = bunch.response
@@ -96,21 +94,28 @@ def preprocess():
     # <c>  ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 
 
-def fitness_function(n: Number):
-    X = data.values
+def fitness_function_lexicase(n: Number):
+    cases = data.values.tolist()
     y = target.values
 
-    variables = {}
-    for x in feature_names:
-        i = feature_indices[x]
-        variables[x] = X[:, i]
+    fitnesses = list()
 
-    y_pred = n.evaluate(**variables)
-    # mse is used in PonyGE, as the error metric is not None!
-    fitness = mse(y_pred, y)
-    if isinf(fitness) or np.isnan(fitness):
-        fitness = 100000000
-    return fitness
+    for c in cases:
+        variables = {}
+        for x in feature_names:
+            i = feature_indices[x]
+            variables[x] = c[i]
+
+        y_pred = n.evaluate(**variables)
+
+        # mse is used in PonyGE, as the error metric is not None!
+        fitness = mse(y_pred, y[cases.index(c)])
+        if isinf(fitness) or np.isnan(fitness):
+            fitness = 100000000
+
+        fitnesses.append(fitness)
+
+    return fitnesses
 
 
 def evolve(
@@ -126,22 +131,23 @@ def evolve(
     else:
         representation = treebased_representation
 
+    minimizelist = [True for _ in data.values.tolist()]
+
     alg = GP(
         g,
         representation=representation,
-        problem=SingleObjectiveProblem(
-            minimize=True,
-            fitness_function=fitness_function,
-            target_fitness=None,
+        problem=MultiObjectiveProblem(
+            minimize=minimizelist,
+            fitness_function=fitness_function_lexicase,
         ),
         # As in PonyGE2:
         probability_crossover=0.75,
         probability_mutation=0.01,
         number_of_generations=50,
-        max_depth=10,
+        max_depth=15,
         population_size=50,
-        selection_method=("tournament", 2),
-        n_elites=5,
+        selection_method=("lexicase",),
+        n_elites=0,
         # ----------------
         seed=seed,
         timer_stop_criteria=mode,
