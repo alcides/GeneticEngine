@@ -460,7 +460,7 @@ def mutate_inner(
                 mk = mk_save_init(type(i), lambda x: x)(*args)
                 return mk
 
-            for _ in range(3):
+            for _ in range(5):
                 replacement = random_node(r, g, max_depth, ty, method=Grow)
                 if replacement != i:
                     break
@@ -496,7 +496,7 @@ def mutate_inner(
             mk = mk_save_init(i, lambda x: x)(*args)
             return mk
     else:
-        for _ in range(3):
+        for _ in range(5):
             rn = random_node(r, g, max_depth, ty, method=Grow)
             if rn != i:
                 break
@@ -698,7 +698,7 @@ def crossover_inner(
             if options:
                 replacement = r.choice(options)
             if replacement is None:
-                for _ in range(3):
+                for _ in range(5):
                     replacement = random_node(r, g, max_depth, ty, method=Grow)
                     if replacement != i:
                         break
@@ -903,9 +903,6 @@ class TreeBasedRepresentation(Representation[TreeNode]):
         depth_aware_mut: bool = False,
     ) -> TreeNode:
         new_ind = mutate(r, g, ind, depth, ty, specific_type, depth_aware_mut)
-        bla = new_ind == ind
-        if bla:
-            print(bla)
         return new_ind
 
     def crossover_individuals(
