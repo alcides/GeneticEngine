@@ -319,7 +319,7 @@ def expand_node(
         r.random_list(
             receiver,
             new_symbol,
-            depth - 1,
+            depth,
             starting_symbol,
             ctx,
             str(starting_symbol),
