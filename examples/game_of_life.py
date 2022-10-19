@@ -113,6 +113,11 @@ def evolve(
     g = preprocess()
     alg = GP(
         g,
+        problem=SingleObjectiveProblem(
+            minimize=False,
+            fitness_function=fitness_function,
+            target_fitness=None,
+        ),
         representation=representation,
         probability_crossover=gv.PROBABILITY_CROSSOVER,
         probability_mutation=gv.PROBABILITY_MUTATION,

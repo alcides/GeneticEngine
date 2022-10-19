@@ -20,6 +20,7 @@ from sklearn.metrics import f1_score
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
     dsge_representation,
 )
@@ -362,8 +363,12 @@ def evolve(
     g = preprocess("row_col_cube")
     alg = GP(
         g,
-        fitness_function,
         representation=representation,
+        problem=SingleObjectiveProblem(
+            minimize=False,
+            fitness_function=fitness_function,
+            target_fitness=None,
+        ),
         probability_crossover=gv.PROBABILITY_CROSSOVER,
         probability_mutation=gv.PROBABILITY_MUTATION,
         number_of_generations=gv.NUMBER_OF_GENERATIONS,
@@ -371,7 +376,6 @@ def evolve(
         population_size=gv.POPULATION_SIZE,
         selection_method=gv.SELECTION_METHOD,
         n_elites=gv.N_ELITES,
-        minimize=False,
         seed=seed,
         timer_stop_criteria=mode,
         save_to_csv=save_to_csv,
