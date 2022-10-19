@@ -51,6 +51,7 @@ class CSVCallback(Callback):
 
     def process_iteration(self, generation: int, population, time: float, gp):
         pop = self.filter_population(population)
+        pop = pop.sort(key=lambda ind: ind.fitness)
         if self.only_record_best_ind:
             pop = pop[0 : self.only_record_best_ind]
         self.cumulative_time = self.cumulative_time + time
