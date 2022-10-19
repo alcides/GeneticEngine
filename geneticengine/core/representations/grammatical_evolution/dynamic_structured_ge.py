@@ -102,7 +102,7 @@ def random_individual(
         valid_productions = filter_choices(
             productions,
             g,
-            max_depth - 1,
+            max_depth - int(g.expansion_depthing),
             starting_symbol,
         )
         if any(["weight" in get_gengy(p) for p in valid_productions]):
@@ -121,8 +121,8 @@ def random_individual(
             g,
             prod,
             current_genotype,
-            max_depth - 1,
-        )  # TODO: PonyGE depthing applied
+            max_depth - int(g.expansion_depthing),
+        )
     elif is_generic_list(starting_symbol):
         new_type = get_generic_parameter(starting_symbol)
         list_length = r.randint(1, MAX_RAND_LIST_SIZE)
@@ -133,7 +133,7 @@ def random_individual(
                 g,
                 new_type,
                 current_genotype,
-                max_depth - 1,
+                max_depth,
             )
     elif is_metahandler(
         starting_symbol,
