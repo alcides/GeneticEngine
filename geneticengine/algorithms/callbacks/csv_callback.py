@@ -16,7 +16,7 @@ class CSVCallback(Callback):
         filename: str = None,
         filter_population: Callable[[list[Individual]], list[Individual]] = lambda x: x,
         test_data: Callable[[Individual], float] = None,
-        only_record_best_ind: int | None = 1,
+        only_record_best_ind: bool = True,
         save_genotype_as_string: bool = True,
     ):
         if filename is None:
@@ -51,9 +51,8 @@ class CSVCallback(Callback):
 
     def process_iteration(self, generation: int, population, time: float, gp):
         pop = self.filter_population(population)
-        pop = pop.sort(key=lambda ind: ind.fitness)
         if self.only_record_best_ind:
-            pop = pop[0 : self.only_record_best_ind]
+            pop = [gp.get_best_individual(gp.problem, population)]
         self.cumulative_time = self.cumulative_time + time
         for ind in pop:
             if hasattr(ind.genotype, "gengy_distance_to_term"):
