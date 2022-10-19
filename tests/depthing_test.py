@@ -51,9 +51,9 @@ class TestDepthing:
         x = random_node(r, g, 4, Root, method=PI_Grow)
         g: Grammar = extract_grammar([Concrete, Middle], Root, False)
         y = random_node(r, g, 4, Root, method=PI_Grow)
-        g: Grammar = extract_grammar([ConcreteList, Middle], Root, False)
-        z = random_node(r, g, 4, Root, method=PI_Grow)
         g: Grammar = extract_grammar([Concrete, Middle, MiddleList], Root, False)
+        z = random_node(r, g, 4, Root, method=PI_Grow)
+        g: Grammar = extract_grammar([ConcreteList, Middle], Root, False)
         a = random_node(r, g, 4, Root, method=PI_Grow)
         assert x.gengy_distance_to_term == 1
         assert x.gengy_nodes == 1
@@ -62,11 +62,11 @@ class TestDepthing:
         assert y.gengy_nodes == 4
         assert y.gengy_weighted_nodes == 10
         assert z.gengy_distance_to_term == 4
-        assert z.gengy_nodes == 4
-        assert z.gengy_weighted_nodes == 10
+        assert z.gengy_nodes == 7
+        assert z.gengy_weighted_nodes == 16
         assert a.gengy_distance_to_term == 4
-        assert a.gengy_nodes == 7
-        assert a.gengy_weighted_nodes == 16
+        assert a.gengy_nodes == 4
+        assert a.gengy_weighted_nodes == 10
 
     def test_expansion_depthing(self):
         r = RandomSource(seed=1)
