@@ -2,14 +2,13 @@ from __future__ import annotations
 
 from abc import ABC
 
-from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.problems import MultiObjectiveProblem
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.utils import average_fitness
 
 
 class Callback(ABC):
-    def process_iteration(self, generation: int, population, time: float, gp: GP):
+    def process_iteration(self, generation: int, population, time: float, gp):
         ...
 
     def end_evolution(self):
@@ -28,7 +27,7 @@ class ProgressCallback(Callback):
     """Prints the number of the generation"""
 
     # Currently this only work with GP, doesnt work with Hill Climbing and Random Search
-    def process_iteration(self, generation: int, population, time: float, gp: GP):
+    def process_iteration(self, generation: int, population, time: float, gp):
 
         best_individual = gp.get_best_individual(gp.problem, population)
 
@@ -48,7 +47,7 @@ class ProgressCallback(Callback):
 class PrintBestCallback(Callback):
     """Prints the number of the generation"""
 
-    def process_iteration(self, generation: int, population, time: float, gp: GP):
+    def process_iteration(self, generation: int, population, time: float, gp):
         if isinstance(gp.problem, SingleObjectiveProblem):
             fitness = round(gp.evaluate(population[0]), 4)
         elif isinstance(gp.problem, MultiObjectiveProblem):

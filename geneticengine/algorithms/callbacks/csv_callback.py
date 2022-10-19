@@ -5,7 +5,6 @@ from typing import Callable
 from typing import Optional
 
 from geneticengine.algorithms.callbacks.callback import Callback
-from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.gp.individual import Individual
 
 
@@ -50,7 +49,7 @@ class CSVCallback(Callback):
             row.append("genotype_as_str")
         self.writer.writerow(row)
 
-    def process_iteration(self, generation: int, population, time: float, gp: GP):
+    def process_iteration(self, generation: int, population, time: float, gp):
         pop = self.filter_population(population)
         if self.only_record_best_ind:
             pop = [gp.get_best_individual(gp.problem, population)]
