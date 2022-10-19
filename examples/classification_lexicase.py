@@ -225,7 +225,6 @@ def evolve(
         timer_stop_criteria=mode,
         # save_to_csv='bla.csv',
         # test_data=fitness_test_function,
-        # only_record_best_inds=None,
     )
     (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf
