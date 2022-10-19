@@ -76,15 +76,15 @@ class Source(ABC):
     ):
         inner_type = get_generic_parameter(ty)
         size = 1
-        if depth > 1:
-            size = self.randint(1, depth - 1, prod)
+        if depth > 0:
+            size = self.randint(1, depth, prod)
         fins = build_finalizers(lambda *x: receiver(GengyList(inner_type, x)), size)
         ident = ctx["_"]
         for i, fin in enumerate(fins):
             nctx = ctx.copy()
             nident = ident + "_" + str(i)
             nctx["_"] = nident
-            new_symbol(inner_type, fin, depth - 1, nident, nctx)
+            new_symbol(inner_type, fin, depth, nident, nctx)
 
 
 class RandomSource(Source):
