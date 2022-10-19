@@ -5,8 +5,7 @@ import time
 from optparse import OptionParser
 from typing import Annotated
 
-import global_vars as gv
-
+import examples.global_vars as gv
 from examples.progsys.utils import get_data
 from examples.progsys.utils import import_embedded
 from geneticengine.algorithms.gp.gp import GP

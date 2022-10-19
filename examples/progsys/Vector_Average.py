@@ -5,10 +5,10 @@ import time
 from optparse import OptionParser
 from typing import Annotated
 
-import global_vars as gv
 from utils import get_data
 from utils import import_embedded
 
+import examples.global_vars as gv
 import geneticengine.grammars.coding.lists as lists
 import geneticengine.grammars.coding.numbers as numbers
 from geneticengine.algorithms.gp.gp import GP
