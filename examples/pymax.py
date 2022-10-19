@@ -17,7 +17,6 @@ from geneticengine.core.representations.grammatical_evolution.structured_ge impo
 )
 from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.grammars.coding.classes import Expr
-from geneticengine.grammars.coding.classes import Statement
 from geneticengine.grammars.coding.classes import XAssign
 from geneticengine.grammars.coding.control_flow import Code
 from geneticengine.grammars.coding.control_flow import ForLoop
