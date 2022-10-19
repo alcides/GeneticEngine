@@ -80,7 +80,6 @@ def evolve(
             target_fitness=None,
         ),
         # ----------------
-        minimize=True,
         seed=seed,
         timer_stop_criteria=mode,
         save_to_csv=save_to_csv,
