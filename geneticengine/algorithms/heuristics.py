@@ -46,8 +46,9 @@ class Heuristics(ABC):
     ) -> Individual:
 
         best_individual: Individual
+        fitnesses = [self.evaluate(x) for x in individuals]
+
         if isinstance(p, SingleObjectiveProblem):
-            fitnesses = [self.evaluate(x) for x in individuals]
             assert all(isinstance(x, float) for x in fitnesses)
             if p.minimize:
                 best_individual = min(individuals, key=attrgetter("fitness"))
@@ -55,7 +56,6 @@ class Heuristics(ABC):
                 best_individual = max(individuals, key=attrgetter("fitness"))
 
         elif isinstance(p, MultiObjectiveProblem):
-            fitnesses = [self.evaluate(x) for x in individuals]
             assert all(isinstance(x, list) for x in fitnesses)
 
             def single_criteria(i: Individual) -> float:
