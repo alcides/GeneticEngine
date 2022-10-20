@@ -67,9 +67,6 @@ class Literal(Number):
         return str(self.val)
 
 
-# dataclass que sair ter la dentro uma lista de numeros
-
-
 @dataclass
 class NumberList:
     lst: Annotated[list[Number], ListSizeBetween(3, 3)]
