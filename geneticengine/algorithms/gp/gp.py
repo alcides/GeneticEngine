@@ -44,14 +44,13 @@ class GP(Heuristics):
         - max_depth (int): The maximum depth a tree can have (default = 15).
         - favor_less_deep_trees (bool): If set to True, this gives a tiny penalty to deeper trees to favor simpler trees (default = False).
         - selection_method (Tuple[str, int]): Allows the user to define the method to choose individuals for the next population (default = ("tournament", 5)).
-        - hill_climbing (bool): Allows the user to change the standard mutation operations to the hill-climbing mutation operation, in which an individual is mutated to 5 different new individuals, after which the best is chosen to survive (default = False).
         - target_fitness (Optional[float]): Sets a target fitness. When this fitness is reached, the algorithm stops running (default = None).
         - force_individual (Any): Allows the incorporation of an individual in the first population (default = None).
         - timer_stop_criteria (bool): If set to True, the algorithm is stopped after the time limit (default = 60 seconds). Then the fittest individual is returned (default = False).
         - timer_limit (int): The time limit of the timer.
         - save_to_csv (str): Saves a CSV file with the details of all the individuals of all generations.
         - test_data (Any): Give test data (format: (X_test, y_test)) to test the individuals on test data during training and save that to the csv (default = None).
-        - only_record_best_inds (int : None): Specify the number of indivduals to be recorded and saved to the csv files (default = 1).
+        - only_record_best_inds (bool): Specify whether one or all individuals are saved to the csv files (default = True).
         - save_genotype_as_string (bool): Turn this off if you don't want to safe all the genotypes as strings. This saves memory and a bit of time.
         - callbacks (List[Callback]): The callbacks to define what is done with the returned prints from the algorithm (default = []).
         -----
@@ -59,8 +58,11 @@ class GP(Heuristics):
         - probability_mutation (float): probability that an individual is mutated (default = 0.01).
         - probability_crossover (float): probability that an individual is chosen for cross-over (default = 0.9).
         - either_mut_or_cro (float | None): Switch evolution style to do either a mutation or a crossover. The given float defines the chance of a mutation. Otherwise a crossover is performed. (default = None),
+        - hill_climbing (bool): Allows the user to change the standard mutation operations to the hill-climbing mutation operation, in which an individual is mutated to 5 different new individuals, after which the best is chosen to survive (default = False).
         - specific_type_mutation (type): Specify a type that is given preference when mutation occurs (default = None),
         - specific_type_crossover (type): Specify a type that is given preference when crossover occurs (default = None),
+        - depth_aware_mut (bool): If chosen, mutations are depth-aware, giving preference to operate on nodes closer to the root. (default = True).
+        - depth_aware_co (bool): If chosen, crossovers are depth-aware, giving preference to operate on nodes closer to the root. (default = True).
         -----
 
     """
@@ -121,6 +123,8 @@ class GP(Heuristics):
         hill_climbing: bool = False,
         specific_type_mutation: type = None,
         specific_type_crossover: type = None,
+        depth_aware_mut: bool = False,
+        depth_aware_co: bool = False,
         # -----
         force_individual: Any = None,
         seed: int = 123,
@@ -134,7 +138,7 @@ class GP(Heuristics):
             [Any],
             float,
         ] = None,  # TODO: Should be part of Problem Class  [LEON]
-        only_record_best_inds: int | None = 1,
+        only_record_best_inds: bool = True,
         # -----
         callbacks: list[Callback] = None,
     ):
@@ -172,6 +176,7 @@ class GP(Heuristics):
                 self.keyfitness(),
                 5,
                 specific_type=specific_type_mutation,
+                depth_aware_mut=depth_aware_mut,
             )
         else:
             self.mutation = mutation.create_mutation(
@@ -180,6 +185,7 @@ class GP(Heuristics):
                 self.grammar,
                 max_depth,
                 specific_type=specific_type_mutation,
+                depth_aware_mut=depth_aware_mut,
             )
         self.cross_over = cross_over.create_cross_over(
             self.random,
@@ -187,6 +193,7 @@ class GP(Heuristics):
             self.grammar,
             max_depth,
             specific_type=specific_type_crossover,
+            depth_aware_co=depth_aware_co,
         )
         self.n_novelties = n_novelties
         self.number_of_generations = number_of_generations

@@ -224,6 +224,7 @@ def evolve(
     seed,
     mode,
     representation="treebased_representation",
+    depth_aware=True,
 ):
     if representation == "ge":
         representation = ge_representation
@@ -256,7 +257,7 @@ def evolve(
         timer_stop_criteria=mode,
         # save_to_csv='bla.csv',
         # test_data=fitness_test_function,
-        # only_record_best_inds=None,
+        depth_aware_mut=depth_aware,
     )
     (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf
