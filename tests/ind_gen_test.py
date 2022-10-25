@@ -135,9 +135,6 @@ class TestFull:
         assert z.gengy_nodes == 63
         x1 = random_node(r, g, 7, Root, method=Full)
         assert x1.gengy_nodes == 127
-        import IPython as ip
-
-        ip.embed()
 
 
 class TestRamped:
