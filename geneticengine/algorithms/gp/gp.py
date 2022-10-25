@@ -145,7 +145,7 @@ class GP(Heuristics):
             [Any],
             float,
         ] = None,  # TODO: Should be part of Problem Class  [LEON]
-        only_record_best_inds: int | None = 1,
+        only_record_best_inds: bool = True,
         # -----
         callbacks: list[Callback] = None,
     ):
