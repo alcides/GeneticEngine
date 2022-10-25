@@ -17,6 +17,17 @@ from geneticengine.core.representations.api import Representation
 
 
 class Heuristics(ABC):
+    """
+    An Abstract class that gp.py, hill_climbing.py and random_search extends to
+
+    Parameters:
+        - grammar (Grammar): The grammar used to guide the search.
+        - representation (Representation): The individual representation used by the GP program. The default is treebased_representation.
+        - problem (Problem): The problem we are solving. Either a SingleObjectiveProblem or a MultiObjectiveProblem.
+        - randomSource (Callable[[int], RandomSource]): The random source function used by the program. Should take in an integer, representing the seed, and return a RandomSource.
+
+    """
+
     grammar: Grammar
     representation: Representation
     problem: Problem
@@ -44,10 +55,20 @@ class Heuristics(ABC):
         p: Problem,
         individuals: list[Individual],
     ) -> Individual:
+        """
+        The get_best_individual is a method that that returns the best individual of a population
 
+        Parameters:
+            - p (Problem): the problem we are trying to solve
+            - individuals (list[Individual]): the list of individuals where we're going to search for the best one
+
+        Returns:
+            - returns an Individual
+        """
         best_individual: Individual
+        fitnesses = [self.evaluate(x) for x in individuals]
+
         if isinstance(p, SingleObjectiveProblem):
-            fitnesses = [self.evaluate(x) for x in individuals]
             assert all(isinstance(x, float) for x in fitnesses)
             if p.minimize:
                 best_individual = min(individuals, key=attrgetter("fitness"))
@@ -55,7 +76,6 @@ class Heuristics(ABC):
                 best_individual = max(individuals, key=attrgetter("fitness"))
 
         elif isinstance(p, MultiObjectiveProblem):
-            fitnesses = [self.evaluate(x) for x in individuals]
             assert all(isinstance(x, list) for x in fitnesses)
 
             def single_criteria(i: Individual) -> float:
@@ -81,6 +101,16 @@ class Heuristics(ABC):
             return lambda x: -self.evaluate(x)
 
     def evaluate(self, individual: Individual) -> FitnessType:
+        """
+        The evaluate is a methoad that is used to evaluate individual fitness
+
+        Parameters:
+            - individual (Individual): Individual that we are evaluating the fitness
+
+        Returns:
+            - returns The FitnessType of the individual, either a float or a list[float]
+
+        """
         if individual.fitness is None:
             phenotype = self.representation.genotype_to_phenotype(
                 self.grammar,
@@ -89,7 +119,17 @@ class Heuristics(ABC):
             individual.fitness = self.problem.evaluate(phenotype)
         return individual.fitness
 
-    def create_individual(self, depth: int):
+    def create_individual(self, depth: int) -> Individual:
+        """
+        The create_individual is a methoad that is used to create a new individual
+
+        Parameters:
+            - depth: number of
+
+        Returns:
+            - returns an Individual
+
+        """
         genotype = self.representation.create_individual(
             r=self.random,
             g=self.grammar,
