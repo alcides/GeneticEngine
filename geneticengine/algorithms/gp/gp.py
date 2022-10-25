@@ -50,7 +50,7 @@ class GP(Heuristics):
         - timer_limit (int): The time limit of the timer.
         - save_to_csv (str): Saves a CSV file with the details of all the individuals of all generations.
         - test_data (Any): Give test data (format: (X_test, y_test)) to test the individuals on test data during training and save that to the csv (default = None).
-        - only_record_best_inds (bool): Specify whether one or all individuals are saved to the csv files (default = True).
+        - only_record_best_inds (int : None): Specify the number of indivduals to be recorded and saved to the csv files (default = 1).
         - save_genotype_as_string (bool): Turn this off if you don't want to safe all the genotypes as strings. This saves memory and a bit of time.
         - callbacks (List[Callback]): The callbacks to define what is done with the returned prints from the algorithm (default = []).
         -----
@@ -138,7 +138,7 @@ class GP(Heuristics):
             [Any],
             float,
         ] = None,  # TODO: Should be part of Problem Class  [LEON]
-        only_record_best_inds: bool = True,
+        only_record_best_inds: int | None = 1,
         # -----
         callbacks: list[Callback] = None,
     ):
