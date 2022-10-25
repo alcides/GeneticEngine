@@ -164,7 +164,3 @@ class TestRamped:
         assert depths.count(max(depths)) > 45 and depths.count(max(depths)) < 60
         assert max(nodes) == 511
         assert nodes.count(max(nodes)) > 45 and nodes.count(max(nodes)) < 55
-
-
-x = TestRamped()
-x.test_middle_double()
