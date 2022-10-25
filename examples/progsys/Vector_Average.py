@@ -44,8 +44,8 @@ from geneticengine.metahandlers.vars import VarRange
 
 
 FILE_NAME = "Vector_Average"
-DATA_FILE_TRAIN = f"./data/{FILE_NAME}/Train.txt"
-DATA_FILE_TEST = f"./data/{FILE_NAME}/Test.txt"
+DATA_FILE_TRAIN = f"GeneticEngine/examples/progsys/data/{FILE_NAME}/Train.txt"
+DATA_FILE_TEST = f"GeneticEngine/examples/progsys/data/{FILE_NAME}/Test.txt"
 
 inval, outval = get_data(DATA_FILE_TRAIN, DATA_FILE_TEST)
 imported = import_embedded(FILE_NAME)
