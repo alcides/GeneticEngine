@@ -10,6 +10,7 @@ from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.tree.treebased import Full
 from geneticengine.core.representations.tree.treebased import PI_Grow
+from geneticengine.core.representations.tree.treebased import Ramped_HalfAndHalf
 from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.core.representations.tree.utils import GengyList
 from geneticengine.metahandlers.ints import IntRange
@@ -139,5 +140,31 @@ class TestFull:
         ip.embed()
 
 
-x = TestFull()
+class TestRamped:
+    def test_root(self):
+        r = RandomSource(seed=1)
+        g: Grammar = extract_grammar([Concrete], Root)
+        x = random_node(r, g, 4, Root, method=Ramped_HalfAndHalf)
+        assert isinstance(x, Concrete)
+        assert isinstance(x, Root)
+
+    def test_middle_double(self):
+        r = RandomSource(seed=1)
+        g: Grammar = extract_grammar([Concrete, MiddleDouble], Root)
+        individuals = []
+        depths = []
+        nodes = []
+        for _ in range(100):
+            x = random_node(r, g, 9, Root, method=Ramped_HalfAndHalf)
+            individuals.append(x)
+            depths.append(x.gengy_distance_to_term)
+            nodes.append(x.gengy_nodes)
+
+        assert max(depths) == 9
+        assert depths.count(max(depths)) > 45 and depths.count(max(depths)) < 60
+        assert max(nodes) == 511
+        assert nodes.count(max(nodes)) > 45 and nodes.count(max(nodes)) < 55
+
+
+x = TestRamped()
 x.test_middle_double()

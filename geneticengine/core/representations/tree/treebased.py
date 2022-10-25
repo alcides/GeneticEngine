@@ -228,6 +228,17 @@ def Full(
     return n
 
 
+def Ramped_HalfAndHalf(
+    r: Source,
+    g: Grammar,
+    depth: int,
+    starting_symbol: type[Any] = int,
+):
+    methods = [Grow, Full]
+    method = r.choice(methods)
+    return method(r, g, depth, starting_symbol)
+
+
 def PI_Grow(
     r: Source,
     g: Grammar,
