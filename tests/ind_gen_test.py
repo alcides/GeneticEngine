@@ -8,6 +8,7 @@ from typing import List
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
+from geneticengine.core.representations.tree.treebased import Full
 from geneticengine.core.representations.tree.treebased import PI_Grow
 from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.core.representations.tree.utils import GengyList
@@ -38,6 +39,12 @@ class Concrete(Root):
 @dataclass
 class Middle(Root):
     x: Root
+
+
+@dataclass
+class MiddleDouble(Root):
+    x: Root
+    y: Root
 
 
 @dataclass
@@ -106,3 +113,31 @@ class TestPIGrow:
         x = random_node(r, g, 20, RootHolder, method=PI_Grow)
         assert x.gengy_distance_to_term == 20
         assert isinstance(x, RootHolder)
+
+
+class TestFull:
+    def test_root(self):
+        r = RandomSource(seed=1)
+        g: Grammar = extract_grammar([Concrete], Root)
+        x = random_node(r, g, 4, Root, method=Full)
+        assert isinstance(x, Concrete)
+        assert isinstance(x, Root)
+
+    def test_middle_double(self):
+        r = RandomSource(seed=1)
+        g: Grammar = extract_grammar([Concrete, MiddleDouble], Root)
+        x = random_node(r, g, 4, Root, method=Full)
+        assert x.gengy_nodes == 15
+        y = random_node(r, g, 5, Root, method=Full)
+        assert y.gengy_nodes == 31
+        z = random_node(r, g, 6, Root, method=Full)
+        assert z.gengy_nodes == 63
+        x1 = random_node(r, g, 7, Root, method=Full)
+        assert x1.gengy_nodes == 127
+        import IPython as ip
+
+        ip.embed()
+
+
+x = TestFull()
+x.test_middle_double()
