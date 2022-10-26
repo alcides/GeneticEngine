@@ -35,6 +35,7 @@ Below you'll find a step-by-step guide on how to use Genetic Engine, together wi
 * [Grammar specifics](geneticengine/grammars)
 * [Implemented generations steps (mutation, crossover and selection)](geneticengine/algorithms/gp/generation_steps/)
 * [Metahandlers](geneticengine/metahandlers/)
+* [Available algorithms](geneticengine/algorithms/)
 
 
 How to use
