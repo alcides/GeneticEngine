@@ -2,8 +2,8 @@
 
 In this Folder we implement some Genetic Operators, these include crossover, mutation and selection methods.
 Inside crossover.py file, we defined a method that apply the crossover operator between two individuals.
-On the other hand, in mutation.py file,  we difined two diferent methods that apply the mutation operator, on for GP Algorithm and another for HillClimbing Algorithm.
-And lastly we have the selection.py file, where we defined two parent selection algorithm (tournament selection and lexicase selection[[1]](#1)) along with an elitism function that is reponsible for returning the elite Individuals of a generation and a function that create novelty Individuals
+On the other hand, in mutation.py file, we defined two different methods that apply the mutation operator, one for the GP algorithm and another for the hill climbing algorithm (which can also be used within GP).
+And lastly we have the selection.py file, where we defined two parent selection algorithms (tournament selection and lexicase selection[[1]](#1)). Furthermore, we include an elitism function, responsible for returning the elite individuals of a generation, and a novelty function, responsible for creating novel individuals.
 
 
 ## References
