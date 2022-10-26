@@ -12,9 +12,9 @@ The main different between STGP and GGGP is that the restrictions on what trees 
 
 The advantages of using STGP are:
 
-* the user does not need to know grammars, EBNF or any other grammar syntax
-* there is no need for a textual representation of programs, as trees can be the only representation (à lá lisp).
-* there is no need for parsing a textual program to a tree, to then interpret the tree (unlike [PonyGE2](https://github.com/PonyGE/PonyGE2), which works on a textual level)
+* The user does not need to know grammars, EBNF or any other grammar syntax
+* There is no need for a textual representation of programs, as trees can be the only representation (à lá lisp).
+* There is no need for parsing a textual program to a tree, to then interpret the tree (unlike [PonyGE2](https://github.com/PonyGE/PonyGE2), which works on a textual level)
 * Mutations and Recombination are automatically type-safe, where in a grammar that type-safety is implicit in the structure of the grammar (and hard to reason)
 
 
@@ -33,6 +33,8 @@ GeneticEngine has been developed at [LASIGE](https://www.lasige.pt), [University
 Below you'll find a step-by-step guide on how to use Genetic Engine, together with an example. For more specific documentation on the implementation and algorithms available, follow the links below. If you cannot find the information you are looking for, please create an issue, and we will update as soon as possible.
 * [Individual representation](geneticengine/core/representations)
 * [Grammar specifics](geneticengine/grammars)
+* [Implemented generations steps (mutation, crossover and selection)](geneticengine/algorithms/gp/generation_steps/)
+* [Metahandlers](geneticengine/metahandlers/)
 
 
 How to use
@@ -109,7 +111,7 @@ class VectorialVar(Vectorial):
 
 The Value class corresponds to a literal scalar, like 3.4 or 3.2. ScalarVar corresponds to the features that are scalar values, which we know from the dataset that are columns at indices 0 and 1. Columns at indices 2 and 3 are vectorial, so we create another tree node that extends the Vectorial class.
 
-We use the `dataclass` decorator to have automatic constructors, based on the properties of the class. The `Annotated` type allows to refine the type of base types (like `int`) with what we call MetaHandlers, which restrict the generation of random values. In this case we are using `IntRange` to restrict the possible values of index. We will talk more about metahandlers later.
+We use the `dataclass` decorator to have automatic constructors, based on the properties of the class. The `Annotated` type allows to refine the type of base types (like `int`) with what we call MetaHandlers, which restrict the generation of random values. In this case we are using `IntRange` to restrict the possible values of index. We will talk more about metahandlers [here](geneticengine/metahandlers/).
 
 We now move to the non-terminals:
 
