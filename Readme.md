@@ -304,3 +304,18 @@ This work was supported by Fundação para a Ciência e Tecnologia (FCT) through
 * Paulo Santos CMU|Portugal PhD fellowship (SFRH/BD/151469/2021)
 * the CMU|Portugal CAMELOT project (LISBOA-01-0247-FEDER-045915)
 * the FCT Exploratory project RAP (EXPL/CCI-COM/1306/2021)
+
+Please cite as:
+```
+Espada, Guilherme, et al. "Data types as a more ergonomic frontend for Grammar-Guided Genetic Programming." arXiv preprint arXiv:2210.04826 (2022).
+```
+
+Bibtex:
+```
+@article{espada2022data,
+  title={Data types as a more ergonomic frontend for Grammar-Guided Genetic Programming},
+  author={Espada, Guilherme and Ingelse, Leon and Canelas, Paulo and Barbosa, Pedro and Fonseca, Alcides},
+  journal={arXiv preprint arXiv:2210.04826},
+  year={2022}
+}
+```
