@@ -3192,7 +3192,6 @@ def evolve(
             target_fitness=None,
         ),
         seed=seed,
-        # As in PonyGE2:
         probability_crossover=0.75,
         probability_mutation=0.01,
         number_of_generations=30,
@@ -3200,7 +3199,6 @@ def evolve(
         population_size=50,
         selection_method=("tournament", 2),
         n_elites=5,
-        # ----------------
         timer_stop_criteria=mode,
     )
     (b, bf, bp) = alg.evolve(verbose=1)

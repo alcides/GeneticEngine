@@ -92,7 +92,6 @@ def fitness_function(n: Number):
         variables[x] = X[:, i]
 
     y_pred = n.evaluate(**variables)
-    # mse is used in PonyGE, as the error metric is not None!
     fitness = mse(y_pred, y)
     if isinf(fitness) or np.isnan(fitness):
         fitness = 100000000
@@ -112,7 +111,6 @@ def evolve(
             fitness_function=fitness_function,
             target_fitness=None,
         ),
-        # As in PonyGE2:
         probability_crossover=0.75,
         probability_mutation=0.01,
         number_of_generations=50,
@@ -120,7 +118,6 @@ def evolve(
         population_size=50,
         selection_method=("tournament", 2),
         n_elites=5,
-        # ----------------
         seed=seed,
         timer_stop_criteria=mode,
     )

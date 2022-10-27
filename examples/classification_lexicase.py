@@ -211,20 +211,15 @@ def evolve(
             fitness_function=fitness_function_lexicase,
             best_individual_criteria_function=single_criteria_test,
         ),
-        # As in PonyGE2:
         probability_crossover=0.75,
         probability_mutation=0.01,
         number_of_generations=50,
         max_depth=15,
-        # max_init_depth=10,
         population_size=50,
         selection_method=("lexicase",),
         n_elites=5,
-        # ----------------
         seed=seed,
         timer_stop_criteria=mode,
-        # save_to_csv='bla.csv',
-        # test_data=fitness_test_function,
     )
     (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf

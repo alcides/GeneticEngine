@@ -134,7 +134,6 @@ def evolve(
             fitness_function=fitness_function,
             target_fitness=None,
         ),
-        # As in PonyGE2:
         probability_crossover=0.75,
         probability_mutation=0.01,
         number_of_generations=50,
@@ -142,7 +141,6 @@ def evolve(
         population_size=50,
         selection_method=("tournament", 2),
         n_elites=5,
-        # ----------------
         seed=seed,
         timer_stop_criteria=mode,
     )

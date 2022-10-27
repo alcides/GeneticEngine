@@ -124,7 +124,6 @@ def evolve(
     seed,
     mode,
     representation="treebased_representation",
-    depth_aware=True,
 ):
     if representation == "ge":
         representation = ge_representation
@@ -143,21 +142,15 @@ def evolve(
             fitness_function=fitness_function,
             target_fitness=None,
         ),
-        # As in PonyGE2:
         probability_crossover=1,
         probability_mutation=0.5,
         number_of_generations=50,
         max_depth=10,
-        # max_init_depth=10,
         population_size=50,
         selection_method=("tournament", 2),
         n_elites=1,
-        # ----------------
         seed=seed,
         timer_stop_criteria=mode,
-        # save_to_csv='bla.csv',
-        # test_data=fitness_test_function,
-        depth_aware_mut=depth_aware,
     )
     (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf
@@ -166,7 +159,6 @@ def evolve(
 if __name__ == "__main__":
     g = preprocess()
     print(g)
-    # b, bf = evolve(g, 123, False, "dsge")
     b, bf = evolve(g, 123, False)
     print(bf)
     print(f"With fitness: {b}")
