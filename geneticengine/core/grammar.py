@@ -15,6 +15,7 @@ from typing import Set
 from typing import Tuple
 from typing import Type
 
+from geneticengine.core.decorators import get_gengy
 from geneticengine.core.utils import all_init_arguments_typed
 from geneticengine.core.utils import get_arguments
 from geneticengine.core.utils import get_generic_parameter
@@ -162,10 +163,15 @@ class Grammar:
             return n
 
         def format(x):
+            def add_weight(prod):
+                if "weight" in get_gengy(prod):
+                    return f'<{get_gengy(prod)["weight"]}>'
+                return ""
+
             args = ", ".join(
                 [f"{a}: {wrap(at)}" for (a, at) in get_arguments(x)],
             )
-            return f"{x.__name__}({args})"
+            return f"{x.__name__}({args}){add_weight(x)}"
 
         prods = ";".join(
             [
