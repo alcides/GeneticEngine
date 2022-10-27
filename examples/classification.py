@@ -66,19 +66,9 @@ class Literal(Number):
 def preprocess():
     return extract_grammar(
         [Plus, Mul, SafeDiv, Literal, Var, SafeSqrt, SafeLog],
-        # [Plus, Mul, SafeDiv, Var, SafeSqrt, SafeLog] + literals,
         Number,
-        # expansion_depthing=True
     )
 
-
-# <e> ::= (<e> <op> <e>) | <f1>(<e>) | <f2>(<e>, <e>) | <v> | <c>
-# <op> ::= + | * | -
-# <f1> ::= psqrt | plog
-# <f2> ::= pdiv
-# <v> ::= x[:, <idx>]
-# <idx> ::= 0 | 1 | 2 | 3
-# <c> ::= -1.0 | -0.1 | -0.01 | -0.001 | 0.001 | 0.01 | 0.1 | 1.0
 
 X_train, X_test, y_train, y_test = train_test_split(
     data.values,
