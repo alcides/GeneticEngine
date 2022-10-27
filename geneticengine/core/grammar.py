@@ -302,6 +302,35 @@ class Grammar:
             else:
                 pass
 
+    def get_weights(self):
+        weights = {prod: get_gengy(prod).get("weight", 1.0) for prod in self.all_nodes}
+        return weights
+
+    def update_weights(self, learning_rate, extra_weights):
+        weights = self.get_weights()
+        for rule in self.alternatives:
+            prods = self.alternatives[rule]
+            total_weights = 0
+            for prod in prods:
+                weights[prod] += learning_rate * extra_weights[prod]
+                total_weights += weights[prod]
+            for prod in prods:
+                weights[prod] = weights[prod] / total_weights
+
+        for weight in weights:
+            assert weights[weight] >= 0 and weights[weight] <= 1
+
+        starting_symbol = self.starting_symbol
+        starting_symbol.__dict__["__gengy__"]["weight"] = weights[starting_symbol]
+        nodes = list()
+        for node in self.considered_subtypes:
+            node.__dict__["__gengy__"]["weight"] = weights[node]
+            nodes.append(node)
+        self.__init__(starting_symbol, nodes, self.expansion_depthing)
+        self.register_type(starting_symbol)
+        self.preprocess()
+        return self
+
 
 def extract_grammar(
     considered_subtypes: list[type],
@@ -322,4 +351,6 @@ def extract_grammar(
     g = Grammar(starting_symbol, considered_subtypes, expansion_depthing)
     g.register_type(starting_symbol)
     g.preprocess()
+    if any(["weight" in get_gengy(p) for p in considered_subtypes]):
+        g.update_weights(1, g.get_weights())
     return g

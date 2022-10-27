@@ -37,6 +37,7 @@ class GP(Heuristics):
         - evaluation_function (Callable[[Any], float]): The fitness function. Should take in any valid individual and return a float. The default is that the higher the fitness, the more applicable is the solution to the problem. Turn on the parameter minimize to switch it around.
         - minimize (bool): When switch on, the fitness function is reversed, so that a higher result from the fitness function corresponds to a less fit solution (default = False).
         - target_fitness (Optional[float]): Sets a target fitness. When this fitness is reached, the algorithm stops running (default = None).
+        - evolve_grammar (bool): Choose to also evolve the grammar throughout the evolutionary process (default = False)
         - favor_less_deep_trees (bool): If set to True, this gives a tiny penalty to deeper trees to favor simpler trees (default = False).
         - randomSource (Callable[[int], RandomSource]): The random source function used by the program. Should take in an integer, representing the seed, and return a RandomSource.
         - population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (n_elites + n_novelties + 1) must hold.
@@ -111,16 +112,14 @@ class GP(Heuristics):
         ] = None,  # DEPRECATE in the next version
         minimize: bool = False,  # DEPRECATE in the next version
         target_fitness: float | None = None,  # DEPRECATE in the next version
+        evolve_grammar: bool = False,
         favor_less_deep_trees: bool = False,  # DEPRECATE in the next version
         randomSource: Callable[[int], RandomSource] = RandomSource,
         population_size: int = 200,
-        n_elites: int = 5,  # Shouldn't this be a percentage of population size?
+        n_elites: int = 5,
         n_novelties: int = 10,
         number_of_generations: int = 100,
         max_depth: int = 15,
-        # now based on depth, maybe on number of nodes?
-        # selection-method is a tuple because tournament selection needs to receive the tournament size
-        # but lexicase does not need a tuple
         selection_method: tuple[str, int] = ("tournament", 5),
         # -----
         # As given in A Field Guide to GP, p.17, by Poli and Mcphee
@@ -136,7 +135,7 @@ class GP(Heuristics):
         force_individual: Any = None,
         seed: int = 123,
         # -----
-        timer_stop_criteria: bool = False,  # TODO: This should later be generic
+        timer_stop_criteria: bool = False,
         timer_limit: int = 60,
         # -----
         save_to_csv: str = None,
@@ -144,7 +143,7 @@ class GP(Heuristics):
         test_data: Callable[
             [Any],
             float,
-        ] = None,  # TODO: Should be part of Problem Class  [LEON]
+        ] = None,
         only_record_best_inds: bool = True,
         # -----
         callbacks: list[Callback] = None,
@@ -163,6 +162,7 @@ class GP(Heuristics):
         self.population_size = population_size
         self.elitism = selection.create_elitism(n_elites)
         self.max_depth = max_depth
+        self.evolve_grammar = evolve_grammar
         self.favor_less_deep_trees = favor_less_deep_trees
         self.novelty = selection.create_novelties(
             self.create_individual,
@@ -287,15 +287,15 @@ class GP(Heuristics):
         while (not self.timer_stop_criteria and gen < self.number_of_generations) or (
             self.timer_stop_criteria and (time.time() - start) < self.timer_limit
         ):
+
             npop = self.novelty(self.n_novelties)
-            npop.extend(
-                self.elitism(
-                    population,
-                    self.problem,
-                    self.get_best_individual,
-                    self.evaluate,
-                ),
+            elites = self.elitism(
+                population,
+                self.problem,
+                self.get_best_individual,
+                self.evaluate,
             )
+            npop.extend(elites)
             spotsLeft = self.population_size - len(npop)
             while spotsLeft > 0:
                 if self.either_mut_or_cro:
@@ -331,6 +331,24 @@ class GP(Heuristics):
             for cb in self.callbacks:
                 cb.process_iteration(gen + 1, population, time=time_gen, gp=self)
 
+            if self.evolve_grammar:
+                probs = list()
+                for elite in elites:
+                    prob = elite.production_probabilities(
+                        lambda x: self.representation.genotype_to_phenotype(
+                            self.grammar,
+                            x,
+                        ),
+                        self.grammar,
+                    )
+                    probs.append(prob)
+                averaged_probs = probs[0].copy()
+                for key in averaged_probs.keys():
+                    averaged_probs[key] = sum(list(map(lambda x: x[key], probs))) / len(
+                        probs,
+                    )
+                self.grammar = self.grammar.update_weights(0.1, averaged_probs)
+                # print(self.grammar)
             gen += 1
         self.final_population = population
 
