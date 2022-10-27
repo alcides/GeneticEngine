@@ -52,98 +52,8 @@ Var.__init__.__annotations__["name"] = Annotated[str, VarRange(feature_names)]
 Var.feature_indices = feature_indices  # type: ignore
 
 
-@abstract
+@dataclass
 class Literal(Number):
-    pass
-
-
-@dataclass
-class One(Literal):
-    def evaluate(self, **kwargs):
-        return 1
-
-    def __str__(self) -> str:
-        return str(1)
-
-
-@dataclass
-class PointOne(Literal):
-    def evaluate(self, **kwargs):
-        return 0.1
-
-    def __str__(self) -> str:
-        return str(0.1)
-
-
-@dataclass
-class PointtOne(Literal):
-    def evaluate(self, **kwargs):
-        return 0.01
-
-    def __str__(self) -> str:
-        return str(0.01)
-
-
-@dataclass
-class PointttOne(Literal):
-    def evaluate(self, **kwargs):
-        return 0.001
-
-    def __str__(self) -> str:
-        return str(0.001)
-
-
-@dataclass
-class MinusPointttOne(Literal):
-    def evaluate(self, **kwargs):
-        return -0.001
-
-    def __str__(self) -> str:
-        return str(-0.001)
-
-
-@dataclass
-class MinusPointtOne(Literal):
-    def evaluate(self, **kwargs):
-        return -0.01
-
-    def __str__(self) -> str:
-        return str(-0.01)
-
-
-@dataclass
-class MinusPointOne(Literal):
-    def evaluate(self, **kwargs):
-        return -0.1
-
-    def __str__(self) -> str:
-        return str(-0.1)
-
-
-@dataclass
-class MinusOne(Literal):
-    def evaluate(self, **kwargs):
-        return -1
-
-    def __str__(self) -> str:
-        return str(-1)
-
-
-literals = [
-    Literal,
-    MinusOne,
-    MinusPointOne,
-    MinusPointtOne,
-    MinusPointttOne,
-    One,
-    PointOne,
-    PointtOne,
-    PointttOne,
-]
-
-
-@dataclass
-class Literal2(Number):
     val: Annotated[float, FloatList([-1, -0.1, -0.01, -0.001, 1, 0.1, 0.01, 0.001])]
 
     def evaluate(self, **kwargs):
@@ -155,7 +65,7 @@ class Literal2(Number):
 
 def preprocess():
     return extract_grammar(
-        [Plus, Mul, SafeDiv, Literal2, Var, SafeSqrt, SafeLog],
+        [Plus, Mul, SafeDiv, Literal, Var, SafeSqrt, SafeLog],
         # [Plus, Mul, SafeDiv, Var, SafeSqrt, SafeLog] + literals,
         Number,
         # expansion_depthing=True
