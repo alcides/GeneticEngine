@@ -284,6 +284,9 @@ class GP(Heuristics):
         gen = 0
         start = time.time()
 
+        if self.evolve_grammar:
+            best_overall = True
+
         while (not self.timer_stop_criteria and gen < self.number_of_generations) or (
             self.timer_stop_criteria and (time.time() - start) < self.timer_limit
         ):
@@ -333,6 +336,9 @@ class GP(Heuristics):
 
             if self.evolve_grammar:
                 probs = list()
+                if not best_overall:
+                    elites = population.remove(elites)
+                elites = [self.get_best_individual(self.problem, elites)]
                 for elite in elites:
                     prob = elite.production_probabilities(
                         lambda x: self.representation.genotype_to_phenotype(
@@ -348,7 +354,7 @@ class GP(Heuristics):
                         probs,
                     )
                 self.grammar = self.grammar.update_weights(0.1, averaged_probs)
-                # print(self.grammar)
+                best_overall = not best_overall
             gen += 1
         self.final_population = population
 
