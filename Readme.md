@@ -38,6 +38,7 @@ Below you'll find a step-by-step guide on how to use Genetic Engine, together wi
 * [Implemented generations steps (mutation, crossover and selection)](geneticengine/algorithms/gp/generation_steps/)
 * [Metahandlers](geneticengine/metahandlers/)
 * [Available algorithms](geneticengine/algorithms/)
+* [Sk-learn-style classifiers and regressors](geneticengine/off_the_shelf/)
 
 
 How to use
