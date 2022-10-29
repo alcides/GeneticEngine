@@ -6,7 +6,8 @@ A hybrid between strongly-typed (STGP) and grammar-guided genetic programming (G
 About Genetic Engine
 --------------------
 
-Genetic Engine is a framework for using Genetic Programming in different contexts. Genetic Engine allows the user to define trees in terms of Classes and Inheritance, as they would in a regular programming environment. Our framework takes care of generating individuals, mutating them and crossing them over. The user also defines a fitness function that takes a tree and returns a fitness score. This often requires to write (or reuse) a tree interpreter, as it is custom in these types of approaches.
+Genetic Engine is a framework for using Genetic Programming in different contexts. Genetic Engine allows the user to define trees in terms of Classes and Inheritance, as they would in a regular programming environment. Our framework takes care of generating individuals, mutating them and crossing them over. The user also defines a fitness function that takes a tree and returns a fitness score. This often requires writing (or reusing) a tree interpreter, as it is custom in these types of approaches. We intend to include all GP specific parameters to Genetic Engine ([see all we have implemented](geneticengine/algorithms/gp/)). If you don't see what you need, please create an issue, and we will add it as soon as possible.
+
 Genetic Engine also supports [off-the-shelf sk-learn-style classifiers and regressors](geneticengine/off_the_shelf/).
 
 The main different between STGP and GGGP is that the restrictions on what trees are valid are done via types, while in GGGP they are expressed using a grammar. Genetic Engine extracts the grammar from the types and their relationship, allowing to use any technique from GGGP (such as Grammatical Evolution) in STGP.
