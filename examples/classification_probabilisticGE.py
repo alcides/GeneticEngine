@@ -166,9 +166,10 @@ def evolve(
         probability_mutation=0.5,
         number_of_generations=50,
         max_depth=10,
-        population_size=50,
+        max_init_depth=6,
+        population_size=1000,
         selection_method=("tournament", 2),
-        n_elites=1,
+        n_elites=100,
         seed=seed,
         timer_stop_criteria=mode,
     )
