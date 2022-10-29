@@ -15,6 +15,7 @@ from geneticengine.algorithms.callbacks.callback import ProgressCallback
 from geneticengine.algorithms.callbacks.csv_callback import CSVCallback
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.algorithms.heuristics import Heuristics
+from geneticengine.core.grammar import EvolveGrammar
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.problems import FitnessType
 from geneticengine.core.problems import Problem
@@ -112,7 +113,7 @@ class GP(Heuristics):
         ] = None,  # DEPRECATE in the next version
         minimize: bool = False,  # DEPRECATE in the next version
         target_fitness: float | None = None,  # DEPRECATE in the next version
-        evolve_grammar: bool = False,
+        evolve_grammar: EvolveGrammar | None = None,
         favor_less_deep_trees: bool = False,  # DEPRECATE in the next version
         randomSource: Callable[[int], RandomSource] = RandomSource,
         population_size: int = 200,
@@ -347,7 +348,10 @@ class GP(Heuristics):
                     ),
                     self.grammar,
                 )
-                self.grammar = self.grammar.update_weights(0.1, prob)
+                self.grammar = self.grammar.update_weights(
+                    self.evolve_grammar.learning_rate,
+                    prob,
+                )
                 best_overall = not best_overall
             gen += 1
         self.final_population = population

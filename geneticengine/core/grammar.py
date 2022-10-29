@@ -35,6 +35,11 @@ class InvalidGrammarException(Exception):
     pass
 
 
+class EvolveGrammar:
+    def __init__(self, learning_rate=0.01) -> None:
+        self.learning_rate = learning_rate
+
+
 class Grammar:
     starting_symbol: type
     alternatives: dict[type, list[type]]
