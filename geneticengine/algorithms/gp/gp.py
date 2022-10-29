@@ -46,6 +46,7 @@ class GP(Heuristics):
         - n_novelties (int): Number of novelties, i.e. the number of newly generated individuals added to the population each generation. (default = 10).
         - number_of_generations (int): Number of generations (default = 100).
         - max_depth (int): The maximum depth a tree can have (default = 15).
+        - max_init_depth (int): The maximum depth a tree can have in the initialisation population (default = 15).
         - selection_method (Tuple[str, int]): Allows the user to define the method to choose individuals for the next population (default = ("tournament", 5)).
         -----
         Default as given in A Field Guide to GP, p.17, by Poli and Mcphee:
@@ -121,6 +122,7 @@ class GP(Heuristics):
         n_novelties: int = 10,
         number_of_generations: int = 100,
         max_depth: int = 15,
+        max_init_depth: int = 15,
         selection_method: tuple[str, int] = ("tournament", 5),
         # -----
         # As given in A Field Guide to GP, p.17, by Poli and Mcphee
@@ -163,6 +165,7 @@ class GP(Heuristics):
         self.population_size = population_size
         self.elitism = selection.create_elitism(n_elites)
         self.max_depth = max_depth
+        self.max_init_depth = max_init_depth
         self.evolve_grammar = evolve_grammar
         self.favor_less_deep_trees = favor_less_deep_trees
         self.novelty = selection.create_novelties(
@@ -371,5 +374,6 @@ class GP(Heuristics):
 
     def init_population(self):
         return [
-            self.create_individual(self.max_depth) for _ in range(self.population_size)
+            self.create_individual(self.max_init_depth)
+            for _ in range(self.population_size)
         ]
