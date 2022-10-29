@@ -32,12 +32,6 @@ class SafeDiv(Number):
     right: Number
 
     def evaluate(self, **kwargs):
-        def sign(x):
-            if x < 0:
-                -1
-            else:
-                1
-
         d1 = self.left.evaluate(**kwargs)
         d2 = self.right.evaluate(**kwargs)
         if hasattr(d1, "dtype"):
@@ -48,7 +42,7 @@ class SafeDiv(Number):
                 d2 = d2.astype(float)
         try:
             with np.errstate(divide="ignore", invalid="ignore"):
-                return np.where(abs(d2) < 0.001, d1 / (sign(d2) * 0.001), d1 / d2)
+                return np.where(abs(d2) < 0.001, np.ones_like(d1), d1 / d2)
         except ZeroDivisionError:
             # In this case we are trying to divide two constants, one of which is 0
             # Return a constant.
