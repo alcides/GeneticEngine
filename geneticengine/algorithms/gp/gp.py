@@ -122,7 +122,7 @@ class GP(Heuristics):
         n_novelties: int = 10,
         number_of_generations: int = 100,
         max_depth: int = 15,
-        max_init_depth: int = 15,
+        max_init_depth: int | None = None,
         selection_method: tuple[str, int] = ("tournament", 5),
         # -----
         # As given in A Field Guide to GP, p.17, by Poli and Mcphee
@@ -165,7 +165,11 @@ class GP(Heuristics):
         self.population_size = population_size
         self.elitism = selection.create_elitism(n_elites)
         self.max_depth = max_depth
-        self.max_init_depth = max_init_depth
+        if max_init_depth:
+            assert max_init_depth <= self.max_depth
+            self.max_init_depth = max_init_depth
+        else:
+            self.max_init_depth = self.max_depth
         self.evolve_grammar = evolve_grammar
         self.favor_less_deep_trees = favor_less_deep_trees
         self.novelty = selection.create_novelties(
