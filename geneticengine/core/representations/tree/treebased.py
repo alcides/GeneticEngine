@@ -307,7 +307,7 @@ def random_node(
     g: Grammar,
     max_depth: int,
     starting_symbol: type[Any] = None,
-    method=PI_Grow,
+    method=Ramped_HalfAndHalf,
 ):
     if starting_symbol is None:
         starting_symbol = g.starting_symbol
@@ -462,7 +462,7 @@ def random_individual(
     r: Source,
     g: Grammar,
     max_depth: int = 5,
-    method=PI_Grow,
+    method=Ramped_HalfAndHalf,
 ) -> TreeNode:
     try:
         assert max_depth >= g.get_min_tree_depth()
@@ -955,7 +955,7 @@ def crossover(
 class TreeBasedRepresentation(Representation[TreeNode]):
     method: Callable[[Source, Grammar, int, type[Any]], Any]
 
-    def __init__(self, method=PI_Grow) -> None:
+    def __init__(self, method=Ramped_HalfAndHalf) -> None:
         self.method = method
 
     def create_individual(self, r: Source, g: Grammar, depth: int) -> TreeNode:
