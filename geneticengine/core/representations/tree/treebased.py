@@ -143,6 +143,10 @@ def Grow(
     depth: int,
     starting_symbol: type[Any] = int,
 ):
+    """
+    Implements the standard Grow tree-initialization method, where trees are naturally grown from the grammar.
+    """
+
     def filter_choices(possible_choices: list[type], depth):
         valid_productions = [
             vp for vp in possible_choices if g.get_distance_to_terminal(vp) <= depth
@@ -186,6 +190,10 @@ def Full(
     depth: int,
     starting_symbol: type[Any] = int,
 ):
+    """
+    Implements the Full tree-initialization method, where trees are grown from the grammar with all branches as deep as possible, making full trees.
+    """
+
     def filter_choices(possible_choices: list[type], depth):
         valid_productions = [
             vp for vp in possible_choices if g.get_distance_to_terminal(vp) <= depth
@@ -234,6 +242,9 @@ def Ramped_HalfAndHalf(
     depth: int,
     starting_symbol: type[Any] = int,
 ):
+    """
+    Implements the Ramped Half and Half tree-initialization method, where trees are either grown through the Grow method or through the Full method.
+    """
     methods = [Grow, Full]
     method = r.choice(methods)
     return method(r, g, depth, starting_symbol)
@@ -245,6 +256,9 @@ def PI_Grow(
     depth: int,
     starting_symbol: type[Any] = int,
 ):
+    """
+    Implements the PI Grow tree-initialization method (http://ncra.ucd.ie/papers/Exploring%20Position%20Independent%20Initialisation%20in%20Grammatical%20Evolution.pdf), where trees are grown to have at least one branch as deep as possible.
+    """
     state = {}
 
     def final_finalize(x):
