@@ -339,7 +339,9 @@ class GP(Heuristics):
                 if best_overall:
                     inds = elites
                 else:
-                    inds = population.remove(elites)
+                    for e in elites:
+                        npop.remove(e)
+                    inds = npop
                 best = self.get_best_individual(self.problem, inds)
                 prob = best.production_probabilities(
                     lambda x: self.representation.genotype_to_phenotype(
