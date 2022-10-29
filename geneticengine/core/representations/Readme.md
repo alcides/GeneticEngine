@@ -1,5 +1,13 @@
 # Individual representations
-Genetic Engine currently supports 3 individual representations, tree-based representation, also known as Context-Free Grammars GP (CFG-GP)[[1]](#1), Grammatical Evolution (GE)[[2]](#2), Structured GE (dSGE)[[3]](#3), and dynamic SGE (dSGE)[[4]](#4). The representation can be chosen by the user. There are many discussions on which representation performs better as a search algorithm (fitness progression will differ across algorithms). Genetic Engine uses the same method for tree generation in CFG-GP and genotype-to-phenotype mapping in GE, SGE and dSGE, making it individual-representation independent on the implementation side. Still, we aim to implement performance enhancements on trees, benefitting the performance of CFG-GP, both on the time performance side (such as detailed in [[5]](#5)), as on the algorithm side.
+Genetic Engine currently supports the following individual representations:
+* tree-based representation, also known as Context-Free Grammars GP (CFG-GP)[[1]](#1)
+* Grammatical Evolution (GE)[[2]](#2)
+* Structured GE (SGE)[[3]](#3)
+* and dynamic SGE (dSGE)[[4]](#4).
+
+The representation can be chosen by the user. There are many discussions on which representation performs better as a search algorithm (fitness progression will differ across algorithms). Genetic Engine uses the same method for tree generation in CFG-GP and genotype-to-phenotype mapping in GE, SGE and dSGE, making it individual-representation independent on the implementation side. Still, we aim to implement performance enhancements on trees, benefitting the performance of CFG-GP, both on the time performance side (such as detailed in [[5]](#5)), as on the algorithm side.
+
+We have implemented multiple tree-initialization methods: [Grow, Full, Ramped Half and Half, and Position Independent Grow](tree/treebased.py). The default we use is Ramped Half and Half.
 
 ## References
 
