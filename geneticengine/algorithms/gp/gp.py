@@ -335,25 +335,19 @@ class GP(Heuristics):
                 cb.process_iteration(gen + 1, population, time=time_gen, gp=self)
 
             if self.evolve_grammar:
-                probs = list()
-                if not best_overall:
-                    elites = population.remove(elites)
-                elites = [self.get_best_individual(self.problem, elites)]
-                for elite in elites:
-                    prob = elite.production_probabilities(
-                        lambda x: self.representation.genotype_to_phenotype(
-                            self.grammar,
-                            x,
-                        ),
+                if best_overall:
+                    inds = elites
+                else:
+                    inds = population.remove(elites)
+                best = self.get_best_individual(self.problem, inds)
+                prob = best.production_probabilities(
+                    lambda x: self.representation.genotype_to_phenotype(
                         self.grammar,
-                    )
-                    probs.append(prob)
-                averaged_probs = probs[0].copy()
-                for key in averaged_probs.keys():
-                    averaged_probs[key] = sum(list(map(lambda x: x[key], probs))) / len(
-                        probs,
-                    )
-                self.grammar = self.grammar.update_weights(0.1, averaged_probs)
+                        x,
+                    ),
+                    self.grammar,
+                )
+                self.grammar = self.grammar.update_weights(0.1, prob)
                 best_overall = not best_overall
             gen += 1
         self.final_population = population
