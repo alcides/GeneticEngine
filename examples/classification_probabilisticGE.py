@@ -13,6 +13,7 @@ from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.decorators import abstract
 from geneticengine.core.decorators import get_gengy
 from geneticengine.core.decorators import weight
+from geneticengine.core.grammar import EvolveGrammar
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
@@ -161,7 +162,7 @@ def evolve(
             target_fitness=None,
         ),
         probability_crossover=1,
-        evolve_grammar=True,
+        evolve_grammar=EvolveGrammar(),
         probability_mutation=0.5,
         number_of_generations=50,
         max_depth=10,
