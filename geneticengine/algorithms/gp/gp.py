@@ -111,7 +111,7 @@ class GP(Heuristics):
         ] = None,  # DEPRECATE in the next version
         minimize: bool = False,  # DEPRECATE in the next version
         target_fitness: float | None = None,  # DEPRECATE in the next version
-        favor_less_deep_trees: bool = False,  # DEPRECATE in the next version
+        favor_less_deep_trees: bool = True,  # DEPRECATE in the next version
         randomSource: Callable[[int], RandomSource] = RandomSource,
         population_size: int = 200,
         n_elites: int = 5,  # Shouldn't this be a percentage of population size?

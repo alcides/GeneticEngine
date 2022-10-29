@@ -14,6 +14,8 @@ from sklearn.base import TransformerMixin
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.problems import Problem
+from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.api import Representation
 from geneticengine.core.representations.tree.treebased import treebased_representation
@@ -147,7 +149,11 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
 
         model = GP(
             grammar=self.grammar,
-            evaluation_function=fitness_function,
+            problem=SingleObjectiveProblem(
+                minimize=False,
+                fitness_function=fitness_function,
+                target_fitness=None,
+            ),
             representation=self.representation,
             population_size=self.population_size,
             n_elites=self.n_elites,
@@ -164,7 +170,6 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
         best_ind, fitness, phenotype = model.evolve(verbose=1)
         self.evolved_phenotype = phenotype
         self.sympy_compatible_phenotype = fix_all(str(phenotype))
-        
 
     def predict(self, X):
         """
@@ -276,7 +281,11 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
 
         model = HC(
             g=self.grammar,
-            evaluation_function=fitness_function,
+            problem=SingleObjectiveProblem(
+                minimize=False,
+                fitness_function=fitness_function,
+                target_fitness=None,
+            ),
             representation=self.representation,
             population_size=self.population_size,
             number_of_generations=self.number_of_generations,
@@ -308,4 +317,3 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
         y_pred = self.evolved_phenotype.evaluate(**variables)
 
         return y_pred
-
