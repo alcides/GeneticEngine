@@ -1,9 +1,15 @@
 # Grammars
 
-In the [root folder](https://github.com/alcides/GeneticEngine) there is an example on how to create a grammar. In this folder we introduced a number of off-the-shelf grammars that can be used for many general problems, like classification and regression, program synthesis and string matching. See the [examples folder](../../examples/) for worked-out examples of these.
 
-## Depthing
-Depthing can be adjusted when extract the grammar, with the variable expansion_depthing (bool, default = False) in the [extract_grammar](../core/grammar.py) method.
+## Defining grammars
+
+The [tutorial](tutorial.md) contains an example of how to create a grammar.
+
+The examples folder in the repo also contain several examples of grammars, including examples for classification and regressions, program synthesis and string matching.
+
+## A note on defining Depth of trees
+
+Depthing can be adjusted when extract the grammar, with the variable expansion_depthing (bool, default = False) in the [extract_grammar](../geneticengine/core/grammar.py) method.
 
 We refer to the tree-depth-measurement method as the _depthing_ method. Genetic Engine supports two depthing methods. First, it supports standard abstract-syntax-tree depthing, in which the depth is increased each time you go done one node in the tree. This is straight-forward and intuitive, so we will not elaborate on this.
 

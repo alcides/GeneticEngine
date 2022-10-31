@@ -19,12 +19,12 @@ def create_tournament(
     """
     The create_tournament is a function that uses the tournament selection algorithm to select a list of individuals with the best fitness
 
-    Parameters:
-        - tournament_size: number of individuals from the population that will be randomly selected
-        - problem: type of problem that you are trying to solve
+    Args:
+        tournament_size: number of individuals from the population that will be randomly selected
+        problem: type of problem that you are trying to solve
 
     Returns:
-        - A callable object that returns a list of winners
+        A callable object that returns a list of winners
     """
     assert isinstance(problem, SingleObjectiveProblem)
 
@@ -68,10 +68,10 @@ def create_elitism(
     """
     The create_elitism is a function that returns the individuals with the best fitness in a generation
 
-    Parameters:
-        - n_elites: number of desired  elite Individuals
+    Args:
+        n_elites: number of desired  elite Individuals
     Returns:
-        - A callable object that returns a list of elite Individuals
+        A callable object that returns a list of elite Individuals
     """
 
     def elitism(
@@ -109,11 +109,11 @@ def create_novelties(
     """
     The create_novelties is a function that returns a list of completely new Individuals
 
-    Parameters:
-        - create_individual: callable object that returns a single Individual
-        - max_depth:
+    Args:
+        create_individual: callable object that returns a single Individual
+        max_depth:
     Returns:
-        - A callable object that returns a list of new Individuals
+        A callable object that returns a list of new Individuals
     """
 
     def novelties(n_novelties: int) -> list[Individual]:
@@ -129,11 +129,11 @@ def create_lexicase(
     The create_lexicase is a function that uses the lexicase selection algorithm to select a list of
     Individuals with the best fitness
 
-    Parameters:
-        - problem: type of problem that you are trying to solve
+    Args:
+        problem: type of problem that you are trying to solve
 
     Returns:
-        - A callable object that returns a list of the selected Individuals
+        A callable object that returns a list of the selected Individuals
     """
     assert isinstance(problem, MultiObjectiveProblem)
 

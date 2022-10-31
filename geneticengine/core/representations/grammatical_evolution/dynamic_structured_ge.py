@@ -301,6 +301,9 @@ def create_tree(g: Grammar, ind: Genotype, depth: int) -> TreeNode:
 
 
 class DynamicStructuredGrammaticalEvolutionRepresentation(Representation[Genotype]):
+    """This version uses a list of lists of integers to represent individuals, based on non-terminal
+    symbols. It delays computing the expansions that have enough depth to runtime."""
+
     depth: int
 
     def create_individual(self, r: Source, g: Grammar, depth: int) -> Genotype:

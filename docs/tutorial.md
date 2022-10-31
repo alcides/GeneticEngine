@@ -1,48 +1,5 @@
-Genetic Engine
-==============
+# Tutorial
 
-A hybrid between strongly-typed (STGP) and grammar-guided genetic programming (GGGP).
-
-About Genetic Engine
---------------------
-
-Genetic Engine is a framework for using Genetic Programming in different contexts. Genetic Engine allows the user to define trees in terms of Classes and Inheritance, as they would in a regular programming environment. Our framework takes care of generating individuals, mutating them and crossing them over. The user also defines a fitness function that takes a tree and returns a fitness score. This often requires writing (or reusing) a tree interpreter, as it is custom in these types of approaches. We intend to include all GP specific parameters to Genetic Engine ([see all we have implemented](geneticengine/algorithms/gp/)). If you don't see what you need, please create an issue, and we will add it as soon as possible.
-
-Genetic Engine also supports [off-the-shelf sk-learn-style classifiers and regressors](geneticengine/off_the_shelf/).
-
-The main different between STGP and GGGP is that the restrictions on what trees are valid are done via types, while in GGGP they are expressed using a grammar. Genetic Engine extracts the grammar from the types and their relationship, allowing to use any technique from GGGP (such as Grammatical Evolution) in STGP.
-
-The advantages of using STGP are:
-
-* The user does not need to know grammars, EBNF or any other grammar syntax
-* There is no need for a textual representation of programs, as trees can be the only representation (à lá lisp).
-* There is no need for parsing a textual program to a tree, to then interpret the tree (unlike [PonyGE2](https://github.com/PonyGE/PonyGE2), which works on a textual level)
-* Mutations and Recombination are automatically type-safe, where in a grammar that type-safety is implicit in the structure of the grammar (and hard to reason)
-
-
-Authors
-----------
-GeneticEngine has been developed at [LASIGE](https://www.lasige.pt), [University of Lisbon](https://ciencias.ulisboa.pt) by:
-
-* [Alcides Fonseca](http://alcidesfonseca.com)
-* [Leon Ingelse](https://leoningel.github.io)
-* [Guilherme Espada](https://www.lasige.di.fc.ul.pt/user/732)
-* [Paulo Santos](https://pcanelas.com/)
-* [Pedro Barbosa](https://www.lasige.di.fc.ul.pt/user/661)
-* [Eduardo Madeira](https://www.lasige.pt/member/jose-eduardo-madeira)
-
-
-Below you'll find a step-by-step guide on how to use Genetic Engine, together with an example. For more specific documentation on the implementation and algorithms available, follow the links below. If you cannot find the information you are looking for, please create an issue, and we will update as soon as possible.
-* [Individual representation](geneticengine/core/representations)
-* [Grammar specifics](geneticengine/grammars)
-* [Implemented generations steps (mutation, crossover and selection)](geneticengine/algorithms/gp/generation_steps/)
-* [Metahandlers](geneticengine/metahandlers/)
-* [Available algorithms](geneticengine/algorithms/)
-* [Sk-learn-style classifiers and regressors](geneticengine/off_the_shelf/)
-
-
-How to use
-----------
 
 To use GeneticEngine to solve a Genetic Programming problem, you need two things:
 
@@ -67,7 +24,7 @@ dataset = [
 At the root of our expression, we are looking for an element (because we are doing regression), but not all variables are elements — some are vectorial. To translate vectorial variables to elements, we can use some functions (mean, max, min, etc...). Some other functions convert vectorial into vectorial variables (such as cumulative sum).
 
 
-### Step 0 Installation
+## Step 0. Installation
 
 You can install the dependencies from the requirements.txt file.
 
@@ -75,9 +32,9 @@ You can install the dependencies from the requirements.txt file.
 python -m pip install -r requirements.txt
 ```
 
-The following snippets are taken from `exmaples/vectorialgp_example.py`, where the full running code, with imports, is available.
+The following snippets are taken from `examples/vectorialgp_example.py`, where the full running code, with imports, is available.
 
-### Step 1. Object-Oriented Representation
+## Step 1. Object-Oriented Representation
 
 Thus, we can create our class-based representation. We start by our generic types. These classes have no information, they are just used to represent the type of data.
 They must inherit from Abstract Base Class (ABC), which make these classes as abstract and not instantiable, unlike their child classes.
@@ -115,7 +72,7 @@ class VectorialVar(Vectorial):
 
 The Value class corresponds to a literal scalar, like 3.4 or 3.2. ScalarVar corresponds to the features that are scalar values, which we know from the dataset that are columns at indices 0 and 1. Columns at indices 2 and 3 are vectorial, so we create another tree node that extends the Vectorial class.
 
-We use the `dataclass` decorator to have automatic constructors, based on the properties of the class. The `Annotated` type allows to refine the type of base types (like `int`) with what we call MetaHandlers, which restrict the generation of random values. In this case we are using `IntRange` to restrict the possible values of index. We will talk more about metahandlers [here](geneticengine/metahandlers/).
+We use the `dataclass` decorator to have automatic constructors, based on the properties of the class. The `Annotated` type allows to refine the type of base types (like `int`) with what we call MetaHandlers, which restrict the generation of random values. In this case we are using `IntRange` to restrict the possible values of index. We will talk more about metahandlers [here](metahandlers.md).
 
 We now move to the non-terminals:
 
@@ -201,7 +158,7 @@ BEST at 4 / 5 is 0
 
 Non-surprisingly, you can see that the best fitness in each generation was also 0. The best individual after the 5 generations was the mean of the vectorial var in column 2. Feel free to change the initial seed to see other generated trees. Even if you inspect all possible trees, you will never find a tree that does the Mean of a scalar variable, because that would not be type-safe.
 
-### Step 2. Writing Fitness Function
+## Step 2. Writing Fitness Function
 
 Writing a proper fitness functions is often a challenge in GP. Because we have a tabular dataset, we just have to apply the program to the input data, and return the prediction error:
 
@@ -295,35 +252,3 @@ def fitness_function_alternative(n: Scalar):
 ```
 
 In this example, the `translate` function converts the tree into Python code, and in the beginning of the `fitness_function_alternative` function, we use eval to convert that code string into a callable function.
-
-Acknowledgements
-----------------
-
-This work was supported by Fundação para a Ciência e Tecnologia (FCT) through:
-
-* the LASIGE Research Unit (ref. UIDB/00408/2020 and UIDP/00408/2020)
-* Pedro Barbosa PhD fellowship (SFRH/BD/137062/2018)
-* Guilherme Espada PhD fellowship (UI/BD/151179/2021)
-* Paulo Santos CMU|Portugal PhD fellowship (SFRH/BD/151469/2021)
-* the CMU|Portugal CAMELOT project (LISBOA-01-0247-FEDER-045915)
-* the FCT Exploratory project RAP (EXPL/CCI-COM/1306/2021)
-
-
-Please cite as:
-```
-Espada, Guilherme, et al. "Data types as a more ergonomic frontend for Grammar-Guided Genetic Programming.", GPCE '22: Concepts and Experiences, 2022
-```
-
-Bibtex:
-```
-@inproceedings{espada2022data,
-  author={Guilherme Espada and Leon Ingelse and Paulo Canelas and Pedro Barbosa and Alcides Fonseca},
-  editor    = {Bernhard Scholz and Yukiyoshi Kameyama},
-  title={Datatypes as a More Ergonomic Frontend for Grammar-Guided Genetic Programming},
-  booktitle = {{GPCE} '22: Concepts and Experiences, Auckland, NZ, December 6
-               - 7, 2022},
-  pages     = {1},
-  publisher = {{ACM}},
-  year      = {2022},
-}
-```

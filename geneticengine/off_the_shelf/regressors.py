@@ -39,22 +39,22 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
     """
     Genetic Programming Regressor. Main attributes: fit and predict
 
-    Parameters:
-        - nodes (List[Number]): The list of nodes to be used in the grammar. You can design your own, or use the ones in geneticengine.grammars.[sgp,literals,basic_math]. The default uses [ Plus, Mul, ExpLiteral, Var, SafeDiv, SafeLog, SafeSqrt ] + exp_literals.
-        - representation (Representation): The individual representation used by the GP program. The default is treebased_representation. Currently Genetic Engine also supports Grammatical Evolution: geneticengine.core.representations.grammatical_evolution.ge_representation. You can also deisgn your own.
-        - seed (int): The seed for the RandomSource (default = 123).
-        - population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (n_elites + n_novelties + 1) must hold.
-        - n_elites (int): Number of elites, i.e. the number of best individuals that are preserved every generation (default = 5).
-        - n_novelties (int): Number of novelties, i.e. the number of newly generated individuals added to the population each generation. (default = 10).
-        - number_of_generations (int): Number of generations (default = 100).
-        - max_depth (int): The maximum depth a tree can have (default = 15).
-        - favor_less_deep_trees (bool): If set to True, this gives a tiny penalty to deeper trees to favor simpler trees (default = False).
-        - hill_climbing (bool): Allows the user to change the standard mutation operations to the hill-climbing mutation operation, in which an individual is mutated to 5 different new individuals, after which the best is chosen to survive (default = False).
-        - metric (str): Choose the metric used in the fitness function. Currently available: mean square error (mse), and the r2 measure (r2), new once can be requested or easily implemented by the user (default = 'mse').
+    Args:
+        nodes (List[Number]): The list of nodes to be used in the grammar. You can design your own, or use the ones in geneticengine.grammars.[sgp,literals,basic_math]. The default uses [ Plus, Mul, ExpLiteral, Var, SafeDiv, SafeLog, SafeSqrt ] + exp_literals.
+        representation (Representation): The individual representation used by the GP program. The default is treebased_representation. Currently Genetic Engine also supports Grammatical Evolution: geneticengine.core.representations.grammatical_evolution.ge_representation. You can also deisgn your own.
+        seed (int): The seed for the RandomSource (default = 123).
+        population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (n_elites + n_novelties + 1) must hold.
+        n_elites (int): Number of elites, i.e. the number of best individuals that are preserved every generation (default = 5).
+        n_novelties (int): Number of novelties, i.e. the number of newly generated individuals added to the population each generation. (default = 10).
+        number_of_generations (int): Number of generations (default = 100).
+        max_depth (int): The maximum depth a tree can have (default = 15).
+        favor_less_deep_trees (bool): If set to True, this gives a tiny penalty to deeper trees to favor simpler trees (default = False).
+        hill_climbing (bool): Allows the user to change the standard mutation operations to the hill-climbing mutation operation, in which an individual is mutated to 5 different new individuals, after which the best is chosen to survive (default = False).
+        metric (str): Choose the metric used in the fitness function. Currently available: mean square error (mse), and the r2 measure (r2), new once can be requested or easily implemented by the user (default = 'mse').
         -----
         Defaults as given in A Field Guide to GP, p.17, by Poli and Mcphee:
-        - probability_mutation (float): probability that an individual is mutated (default = 0.01).
-        - probability_crossover (float): probability that an individual is chosen for cross-over (default = 0.9).
+        probability_mutation (float): probability that an individual is mutated (default = 0.01).
+        probability_crossover (float): probability that an individual is chosen for cross-over (default = 0.9).
         -----
     """
 
@@ -217,13 +217,13 @@ class HillClimbingRegressor(BaseEstimator, TransformerMixin):
     """
     Hill Climbing Regressor. Main attributes: fit and predict
 
-    Parameters:
-        - nodes (List[Number]): The list of nodes to be used in the grammar. You can design your own, or use the ones in geneticengine.grammars.[sgp,literals,basic_math]. The default uses [ Plus, Mul, ExpLiteral, Var, SafeDiv, SafeLog, SafeSqrt ] + exp_literals.
-        - representation (Representation): The individual representation used by the GP program. The default is treebased_representation. Currently Genetic Engine also supports Grammatical Evolution: geneticengine.core.representations.grammatical_evolution.ge_representation. You can also deisgn your own.
-        - seed (int): The seed for the RandomSource (default = 123).
-        - population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (n_elites + n_novelties + 1) must hold.
-        - number_of_generations (int): Number of generations (default = 100).
-        - max_depth (int): The maximum depth a tree can have (default = 15).
+    Args:
+        nodes (List[Number]): The list of nodes to be used in the grammar. You can design your own, or use the ones in geneticengine.grammars.[sgp,literals,basic_math]. The default uses [ Plus, Mul, ExpLiteral, Var, SafeDiv, SafeLog, SafeSqrt ] + exp_literals.
+        representation (Representation): The individual representation used by the GP program. The default is treebased_representation. Currently Genetic Engine also supports Grammatical Evolution: geneticengine.core.representations.grammatical_evolution.ge_representation. You can also deisgn your own.
+        seed (int): The seed for the RandomSource (default = 123).
+        population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (n_elites + n_novelties + 1) must hold.
+        number_of_generations (int): Number of generations (default = 100).
+        max_depth (int): The maximum depth a tree can have (default = 15).
     """
 
     def __init__(

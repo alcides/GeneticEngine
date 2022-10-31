@@ -20,9 +20,9 @@ class SafeDiv(Number):
     """
     Safe Division object. If division fails because of a ZeroDivisionError, 1 is returned.
 
-    Parameters:
-        - left  (Number)
-        - right (Number)
+    Args:
+        left  (Number)
+        right (Number)
 
     Returns when evaluated:
         left / right
@@ -57,8 +57,8 @@ class SafeSqrt(Number):
     """
     Safe Square Root object. If the number is negative, the square root of the positive counterpart of the number is returned.
 
-    Parameters:
-        - number (Number)
+    Args:
+        number (Number)
 
     Returns when evaluated:
         np.sqrt(number)
@@ -79,8 +79,8 @@ class Sin(Number):
     """
     Standard Sinus object.
 
-    Parameters:
-        - number (Number)
+    Args:
+        number (Number)
 
     Returns when evaluated:
         np.sin(number)
@@ -101,8 +101,8 @@ class Tanh(Number):
     """
     Standard Hyperbolic Tangent object.
 
-    Parameters:
-        - number (Number)
+    Args:
+        number (Number)
 
     Returns when evaluated:
         np.tanh(number)
@@ -123,8 +123,8 @@ class Exp(Number):
     """
     Standard Exponential object.
 
-    Parameters:
-        - number (Number)
+    Args:
+        number (Number)
 
     Returns when evaluated:
         np.exp(number)
@@ -145,9 +145,9 @@ class SafeLog(Number):
     """
     Safe Logarithmic object. If the number is negative, the logarithm of the positive counterpart of the number + 1 is returned.
 
-    Parameters:
-        - left  (Number)
-        - right (Number)
+    Args:
+        left  (Number)
+        right (Number)
 
     Returns when evaluated:
         np.log(number)

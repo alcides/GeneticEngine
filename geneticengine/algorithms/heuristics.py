@@ -20,11 +20,11 @@ class Heuristics(ABC):
     """
     An Abstract class that gp.py, hill_climbing.py and random_search extends to
 
-    Parameters:
-        - grammar (Grammar): The grammar used to guide the search.
-        - representation (Representation): The individual representation used by the GP program. The default is treebased_representation.
-        - problem (Problem): The problem we are solving. Either a SingleObjectiveProblem or a MultiObjectiveProblem.
-        - randomSource (Callable[[int], RandomSource]): The random source function used by the program. Should take in an integer, representing the seed, and return a RandomSource.
+    Args:
+        grammar (Grammar): The grammar used to guide the search.
+        representation (Representation): The individual representation used by the GP program. The default is treebased_representation.
+        problem (Problem): The problem we are solving. Either a SingleObjectiveProblem or a MultiObjectiveProblem.
+        randomSource (Callable[[int], RandomSource]): The random source function used by the program. Should take in an integer, representing the seed, and return a RandomSource.
 
     """
 
@@ -58,12 +58,12 @@ class Heuristics(ABC):
         """
         The get_best_individual is a method that that returns the best individual of a population
 
-        Parameters:
-            - p (Problem): the problem we are trying to solve
-            - individuals (list[Individual]): the list of individuals where we're going to search for the best one
+        Args:
+            p (Problem): the problem we are trying to solve
+            individuals (list[Individual]): the list of individuals where we're going to search for the best one
 
         Returns:
-            - returns an Individual
+            returns an Individual
         """
         best_individual: Individual
         fitnesses = [self.evaluate(x) for x in individuals]
@@ -104,11 +104,11 @@ class Heuristics(ABC):
         """
         The evaluate is a methoad that is used to evaluate individual fitness
 
-        Parameters:
-            - individual (Individual): Individual that we are evaluating the fitness
+        Args:
+            individual (Individual): Individual that we are evaluating the fitness
 
         Returns:
-            - returns The FitnessType of the individual, either a float or a list[float]
+            FitnessType: The FitnessType of the individual, either a float or a list[float]
 
         """
         if individual.fitness is None:
@@ -123,11 +123,11 @@ class Heuristics(ABC):
         """
         The create_individual is a methoad that is used to create a new individual
 
-        Parameters:
-            - depth: number of
+        Args:
+            depth: number of
 
         Returns:
-            - returns an Individual
+            Individual
 
         """
         genotype = self.representation.create_individual(
