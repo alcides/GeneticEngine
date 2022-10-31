@@ -28,46 +28,46 @@ from geneticengine.core.representations.tree.treebased import treebased_represen
 
 class GP(Heuristics):
     """
-    Genetic Programming object. Main attribute: evolve
+    Represents the Genetic Programming algorithm. Defaults as given in A Field Guide to GP, p.17, by Poli and Mcphee:
 
-    Parameters:
-        - grammar (Grammar): The grammar used to guide the search.
-        - representation (Representation): The individual representation used by the GP program. The default is treebased_representation.
-        - problem (Problem): The problem we are solving. Either a SingleObjectiveProblem or a MultiObjectiveProblem.
-        - evaluation_function (Callable[[Any], float]): The fitness function. Should take in any valid individual and return a float. The default is that the higher the fitness, the more applicable is the solution to the problem. Turn on the parameter minimize to switch it around.
-        - minimize (bool): When switch on, the fitness function is reversed, so that a higher result from the fitness function corresponds to a less fit solution (default = False).
-        - target_fitness (Optional[float]): Sets a target fitness. When this fitness is reached, the algorithm stops running (default = None).
-        - favor_less_deep_trees (bool): If set to True, this gives a tiny penalty to deeper trees to favor simpler trees (default = False).
-        - randomSource (Callable[[int], RandomSource]): The random source function used by the program. Should take in an integer, representing the seed, and return a RandomSource.
-        - population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (n_elites + n_novelties + 1) must hold.
-        - n_elites (int): Number of elites, i.e. the number of best individuals that are preserved every generation (default = 5).
-        - n_novelties (int): Number of novelties, i.e. the number of newly generated individuals added to the population each generation. (default = 10).
-        - number_of_generations (int): Number of generations (default = 100).
-        - max_depth (int): The maximum depth a tree can have (default = 15).
-        - selection_method (Tuple[str, int]): Allows the user to define the method to choose individuals for the next population (default = ("tournament", 5)).
-        -----
-        Default as given in A Field Guide to GP, p.17, by Poli and Mcphee:
-        - probability_mutation (float): probability that an individual is mutated (default = 0.01).
-        - probability_crossover (float): probability that an individual is chosen for cross-over (default = 0.9).
-        - either_mut_or_cro (float | None): Switch evolution style to do either a mutation or a crossover. The given float defines the chance of a mutation. Otherwise a crossover is performed. (default = None),
-        - hill_climbing (bool): Allows the user to change the standard mutation operations to the hill-climbing mutation operation, in which an individual is mutated to 5 different new individuals, after which the best is chosen to survive (default = False).
-        - specific_type_mutation (type): Specify a type that is given preference when mutation occurs (default = None),
-        - specific_type_crossover (type): Specify a type that is given preference when crossover occurs (default = None),
-        - depth_aware_mut (bool): If chosen, mutations are depth-aware, giving preference to operate on nodes closer to the root. (default = True).
-        - depth_aware_co (bool): If chosen, crossovers are depth-aware, giving preference to operate on nodes closer to the root. (default = True).
-        -----
-        - force_individual (Any): Allows the incorporation of an individual in the first population (default = None).
-        - seed (int): The seed of the RandomSource (default = 123).
-        -----
-        - timer_stop_criteria (bool): If set to True, the algorithm is stopped after the time limit (default = 60 seconds). Then the fittest individual is returned (default = False).
-        - timer_limit (int): The time limit of the timer.
-        -----
-        - save_to_csv (str): Saves a CSV file with the details of all the individuals of all generations.
-        - save_genotype_as_string (bool): Turn this off if you don't want to safe all the genotypes as strings. This saves memory and a bit of time.
-        - test_data (Any): Give test data (format: (X_test, y_test)) to test the individuals on test data during training and save that to the csv (default = None).
-        - only_record_best_inds (bool): Specify whether one or all individuals are saved to the csv files (default = True).
-        -----
-        - callbacks (List[Callback]): The callbacks to define what is done with the returned prints from the algorithm (default = []).
+    Args:
+        grammar (Grammar): The grammar used to guide the search.
+        representation (Representation): The individual representation used by the GP program. The default is treebased_representation.
+        problem (Problem): The problem we are solving. Either a SingleObjectiveProblem or a MultiObjectiveProblem.
+        evaluation_function (Callable[[Any], float]): The fitness function. Should take in any valid individual and return a float. The default is that the higher the fitness, the more applicable is the solution to the problem. Turn on the parameter minimize to switch it around.
+        minimize (bool): When switch on, the fitness function is reversed, so that a higher result from the fitness function corresponds to a less fit solution (default = False).
+        target_fitness (Optional[float]): Sets a target fitness. When this fitness is reached, the algorithm stops running (default = None).
+        favor_less_deep_trees (bool): If set to True, this gives a tiny penalty to deeper trees to favor simpler trees (default = False).
+        randomSource (Callable[[int], RandomSource]): The random source function used by the program. Should take in an integer, representing the seed, and return a RandomSource.
+        population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (n_elites + n_novelties + 1) must hold.
+        n_elites (int): Number of elites, i.e. the number of best individuals that are preserved every generation (default = 5).
+        n_novelties (int): Number of novelties, i.e. the number of newly generated individuals added to the population each generation. (default = 10).
+        number_of_generations (int): Number of generations (default = 100).
+        max_depth (int): The maximum depth a tree can have (default = 15).
+        selection_method (Tuple[str, int]): Allows the user to define the method to choose individuals for the next population (default = ("tournament", 5)).
+
+
+        probability_mutation (float): probability that an individual is mutated (default = 0.01).
+        probability_crossover (float): probability that an individual is chosen for cross-over (default = 0.9).
+        either_mut_or_cro (float | None): Switch evolution style to do either a mutation or a crossover. The given float defines the chance of a mutation. Otherwise a crossover is performed. (default = None),
+        hill_climbing (bool): Allows the user to change the standard mutation operations to the hill-climbing mutation operation, in which an individual is mutated to 5 different new individuals, after which the best is chosen to survive (default = False).
+        specific_type_mutation (type): Specify a type that is given preference when mutation occurs (default = None),
+        specific_type_crossover (type): Specify a type that is given preference when crossover occurs (default = None),
+        depth_aware_mut (bool): If chosen, mutations are depth-aware, giving preference to operate on nodes closer to the root. (default = True).
+        depth_aware_co (bool): If chosen, crossovers are depth-aware, giving preference to operate on nodes closer to the root. (default = True).
+
+        force_individual (Any): Allows the incorporation of an individual in the first population (default = None).
+        seed (int): The seed of the RandomSource (default = 123).
+
+        timer_stop_criteria (bool): If set to True, the algorithm is stopped after the time limit (default = 60 seconds). Then the fittest individual is returned (default = False).
+        timer_limit (int): The time limit of the timer.
+
+        save_to_csv (str): Saves a CSV file with the details of all the individuals of all generations.
+        save_genotype_as_string (bool): Turn this off if you don't want to safe all the genotypes as strings. This saves memory and a bit of time.
+        test_data (Any): Give test data (format: (X_test, y_test)) to test the individuals on test data during training and save that to the csv (default = None).
+        only_record_best_inds (bool): Specify whether one or all individuals are saved to the csv files (default = True).
+
+        callbacks (List[Callback]): The callbacks to define what is done with the returned prints from the algorithm (default = []).
 
 
 
@@ -111,7 +111,7 @@ class GP(Heuristics):
         ] = None,  # DEPRECATE in the next version
         minimize: bool = False,  # DEPRECATE in the next version
         target_fitness: float | None = None,  # DEPRECATE in the next version
-        favor_less_deep_trees: bool = False,  # DEPRECATE in the next version
+        favor_less_deep_trees: bool = True,  # DEPRECATE in the next version
         randomSource: Callable[[int], RandomSource] = RandomSource,
         population_size: int = 200,
         n_elites: int = 5,  # Shouldn't this be a percentage of population size?
@@ -246,13 +246,13 @@ class GP(Heuristics):
         """
         The main function of the GP object. This function runs the GP algorithm over the set number of generations, evolving better solutions
 
-        Parameters:
-            - verbose (int): Sets the verbose level of the function (0: no prints, 1: print progress, or 2: print the best individual in each generation).
+        Args:
+            verbose (int): Sets the verbose level of the function (0: no prints, 1: print progress, or 2: print the best individual in each generation).
 
         Returns a tuple with the following arguments:
-            - individual (Individual): The fittest individual after the algorithm has finished.
-            - fitness (float): The fitness of above individual.
-            - phenotype (Any): The phenotype of the best individual.
+            individual (Individual): The fittest individual after the algorithm has finished.
+            fitness (float): The fitness of above individual.
+            phenotype (Any): The phenotype of the best individual.
         """
         self.callbacks = [
             cb

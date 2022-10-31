@@ -109,6 +109,9 @@ def create_tree(g: Grammar, ind: Genotype, depth: int) -> TreeNode:
 
 
 class StructuredGrammaticalEvolutionRepresentation(Representation[Genotype]):
+    """This version uses a list of lists of integers to represent individuals, based on non-terminal
+    symbols."""
+
     depth: int
 
     def create_individual(self, r: Source, g: Grammar, depth: int) -> Genotype:

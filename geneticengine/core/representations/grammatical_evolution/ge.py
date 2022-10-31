@@ -71,6 +71,8 @@ def create_tree(g: Grammar, ind: Genotype, depth: int) -> TreeNode:
 
 
 class GrammaticalEvolutionRepresentation(Representation[Genotype]):
+    """This representation uses a list of integers to guide the generation of trees in the phenotype."""
+
     depth: int
 
     def create_individual(self, r: Source, g: Grammar, depth: int) -> Genotype:

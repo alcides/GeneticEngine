@@ -889,6 +889,9 @@ def crossover(
 
 
 class TreeBasedRepresentation(Representation[TreeNode]):
+    """This class represents the tree representation of an individual.
+    In this approach, the genotype and the phenotype are exactly the same."""
+
     def create_individual(self, r: Source, g: Grammar, depth: int) -> TreeNode:
         return random_individual(r, g, depth)
 

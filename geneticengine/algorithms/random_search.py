@@ -27,21 +27,21 @@ class RandomSearch(Heuristics):
     """
     Random Search object. Main attribute: evolve
 
-    Parameters:
-        - grammar (Grammar): The grammar used to guide the search.
-        - evaluation_function (Callable[[Any], float]): The fitness function. Should take in any valid individual and return a float. The default is that the higher the fitness, the more applicable is the solution to the problem. Turn on the parameter minimize to switch it around.
-        - minimize (bool): When switch on, the fitness function is reversed, so that a higher result from the fitness function corresponds to a less fit solution (default = False).
-        - representation (Representation): The individual representation used by the GP program. The default is treebased_representation.
-        - randomSource (Callable[[int], RandomSource]): The random source function used by the program. Should take in an integer, representing the seed, and return a RandomSource.
-        - seed (int): The seed of the RandomSource (default = 123).
-        - population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (n_elites + n_novelties + 1) must hold.
-        - number_of_generations (int): Number of generations (default = 100).
-        - max_depth (int): The maximum depth a tree can have (default = 15).
-        - favor_less_deep_trees (bool): If set to True, this gives a tiny penalty to deeper trees to favor simpler trees (default = False).
-        - force_individual (Any): Allows the incorporation of an individual in the first population (default = None).
-        - save_to_csv (str): Saves a CSV file with the details of all the individuals of all generations.
-        - save_genotype_as_string (bool): Turn this off if you don't want to safe all the genotypes as strings. This saves memory and a bit of time.
-        - callbacks (List[Callback]): The callbacks to define what is done with the returned prints from the algorithm (default = []).
+    Args:
+        grammar (Grammar): The grammar used to guide the search.
+        evaluation_function (Callable[[Any], float]): The fitness function. Should take in any valid individual and return a float. The default is that the higher the fitness, the more applicable is the solution to the problem. Turn on the parameter minimize to switch it around.
+        minimize (bool): When switch on, the fitness function is reversed, so that a higher result from the fitness function corresponds to a less fit solution (default = False).
+        representation (Representation): The individual representation used by the GP program. The default is treebased_representation.
+        randomSource (Callable[[int], RandomSource]): The random source function used by the program. Should take in an integer, representing the seed, and return a RandomSource.
+        seed (int): The seed of the RandomSource (default = 123).
+        population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (n_elites + n_novelties + 1) must hold.
+        number_of_generations (int): Number of generations (default = 100).
+        max_depth (int): The maximum depth a tree can have (default = 15).
+        favor_less_deep_trees (bool): If set to True, this gives a tiny penalty to deeper trees to favor simpler trees (default = False).
+        force_individual (Any): Allows the incorporation of an individual in the first population (default = None).
+        save_to_csv (str): Saves a CSV file with the details of all the individuals of all generations.
+        save_genotype_as_string (bool): Turn this off if you don't want to safe all the genotypes as strings. This saves memory and a bit of time.
+        callbacks (List[Callback]): The callbacks to define what is done with the returned prints from the algorithm (default = []).
     """
 
     def __init__(

@@ -7,6 +7,9 @@ from geneticengine.off_the_shelf.classifiers import HillClimbingClassifier
 from geneticengine.off_the_shelf.regressors import GeneticProgrammingRegressor
 from geneticengine.off_the_shelf.regressors import HillClimbingRegressor
 
+# Examples of how to use the off_the_shelf classifiers and regressors.
+# ===================================
+
 # ===================================
 # Classifiers
 # ===================================

@@ -7,11 +7,12 @@ from geneticengine.core.representations.tree.treebased import random_individual
 
 
 class RandomMutations:
-    def __init__(self, g: Grammar, representation, e):
+    def __init__(self, g: Grammar, representation, e, n_generations):
         self.grammar = g
         self.representation = representation
         self.evaluation = e
         self.random = RandomSource()
+        self.n_generations = n_generations
 
     def evolve(self):
         best = 0
@@ -21,7 +22,7 @@ class RandomMutations:
             self.grammar,
             10,
         )  # Puts in grammar but random_individual takes Processed Grammar
-        for _ in range(1000):
+        for _ in range(self.n_generations):
             i = mutate(self.random, self.grammar, i)
             f = self.evaluation(i)
             if f > best:
