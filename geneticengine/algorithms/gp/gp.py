@@ -271,7 +271,6 @@ class GP(Heuristics):
         if verbose > 0:
             self.callbacks.append(ProgressCallback())
 
-        # TODO: This is not ramped half and half
         population = self.init_population()
         if self.force_individual is not None:
             population[0] = Individual(

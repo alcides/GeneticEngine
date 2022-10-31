@@ -143,6 +143,10 @@ def Grow(
     depth: int,
     starting_symbol: type[Any] = int,
 ):
+    """
+    Implements the standard Grow tree-initialization method, where trees are naturally grown from the grammar.
+    """
+
     def filter_choices(possible_choices: list[type], depth):
         valid_productions = [
             vp for vp in possible_choices if g.get_distance_to_terminal(vp) <= depth
@@ -180,12 +184,81 @@ def Grow(
     return n
 
 
+def Full(
+    r: Source,
+    g: Grammar,
+    depth: int,
+    starting_symbol: type[Any] = int,
+):
+    """
+    Implements the Full tree-initialization method, where trees are grown from the grammar with all branches as deep as possible, making full trees.
+    """
+
+    def filter_choices(possible_choices: list[type], depth):
+        valid_productions = [
+            vp for vp in possible_choices if g.get_distance_to_terminal(vp) <= depth
+        ]
+        recursive_valid_productions = [
+            vp for vp in valid_productions if vp in g.recursive_prods
+        ]
+        if recursive_valid_productions:
+            return recursive_valid_productions
+        return valid_productions
+
+    def handle_symbol(
+        next_type,
+        next_finalizer,
+        depth: int,
+        ident: str,
+        ctx: dict[str, str],
+    ):
+        expand_node(
+            r,
+            g,
+            handle_symbol,
+            filter_choices,
+            next_finalizer,
+            depth,
+            next_type,
+            ident,
+            ctx,
+        )
+
+    state = {}
+
+    def final_finalize(x):
+        state["final"] = x
+
+    handle_symbol(starting_symbol, final_finalize, depth, "root", ctx={})
+    SMTResolver.resolve_clauses()
+    n = state["final"]
+    relabel_nodes_of_trees(n, g)
+    return n
+
+
+def Ramped_HalfAndHalf(
+    r: Source,
+    g: Grammar,
+    depth: int,
+    starting_symbol: type[Any] = int,
+):
+    """
+    Implements the Ramped Half and Half tree-initialization method, where trees are either grown through the Grow method or through the Full method.
+    """
+    methods = [Grow, Full]
+    method = r.choice(methods)
+    return method(r, g, depth, starting_symbol)
+
+
 def PI_Grow(
     r: Source,
     g: Grammar,
     depth: int,
     starting_symbol: type[Any] = int,
 ):
+    """
+    Implements the PI Grow tree-initialization method (http://ncra.ucd.ie/papers/Exploring%20Position%20Independent%20Initialisation%20in%20Grammatical%20Evolution.pdf), where trees are grown to have at least one branch as deep as possible.
+    """
     state = {}
 
     def final_finalize(x):
@@ -248,7 +321,7 @@ def random_node(
     g: Grammar,
     max_depth: int,
     starting_symbol: type[Any] = None,
-    method=PI_Grow,
+    method=Ramped_HalfAndHalf,
 ):
     if starting_symbol is None:
         starting_symbol = g.starting_symbol
@@ -399,7 +472,12 @@ def expand_node(
                 new_symbol(argt, fins[i], depth - 1, id + "_" + argn, ctx)
 
 
-def random_individual(r: Source, g: Grammar, max_depth: int = 5) -> TreeNode:
+def random_individual(
+    r: Source,
+    g: Grammar,
+    max_depth: int = 5,
+    method=Ramped_HalfAndHalf,
+) -> TreeNode:
     try:
         assert max_depth >= g.get_min_tree_depth()
     except:
@@ -410,7 +488,7 @@ def random_individual(r: Source, g: Grammar, max_depth: int = 5) -> TreeNode:
         raise GeneticEngineError(
             f"Cannot use complete grammar for individual creation. Max depth ({max_depth}) is smaller than grammar's minimal tree depth ({g.get_min_tree_depth()}).",
         )
-    ind = random_node(r, g, max_depth, g.starting_symbol)
+    ind = random_node(r, g, max_depth, g.starting_symbol, method=method)
     assert isinstance(ind, TreeNode)
     return ind
 
@@ -892,8 +970,13 @@ class TreeBasedRepresentation(Representation[TreeNode]):
     """This class represents the tree representation of an individual.
     In this approach, the genotype and the phenotype are exactly the same."""
 
+    method: Callable[[Source, Grammar, int, type[Any]], Any]
+
+    def __init__(self, method=Ramped_HalfAndHalf) -> None:
+        self.method = method
+
     def create_individual(self, r: Source, g: Grammar, depth: int) -> TreeNode:
-        return random_individual(r, g, depth)
+        return random_individual(r, g, depth, self.method)
 
     def mutate_individual(
         self,
