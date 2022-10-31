@@ -7,7 +7,6 @@ from geneticengine.core.decorators import get_gengy
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
-from geneticengine.core.representations.tree.treebased import Grow
 from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.core.tree import TreeNode
 from geneticengine.core.utils import get_arguments
@@ -297,7 +296,7 @@ class DynamicStructuredListWrapper(Source):
 
 def create_tree(g: Grammar, ind: Genotype, depth: int) -> TreeNode:
     rand: Source = DynamicStructuredListWrapper(ind)
-    return random_node(rand, g, depth, g.starting_symbol, method=Grow)
+    return random_node(rand, g, depth, g.starting_symbol)
 
 
 class DynamicStructuredGrammaticalEvolutionRepresentation(Representation[Genotype]):
