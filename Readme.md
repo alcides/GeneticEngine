@@ -66,8 +66,7 @@ Bibtex:
   author={Guilherme Espada and Leon Ingelse and Paulo Canelas and Pedro Barbosa and Alcides Fonseca},
   editor    = {Bernhard Scholz and Yukiyoshi Kameyama},
   title={Datatypes as a More Ergonomic Frontend for Grammar-Guided Genetic Programming},
-  booktitle = {{GPCE} '22: Concepts and Experiences, Auckland, NZ, December 6
-               - 7, 2022},
+  booktitle = {{GPCE} '22: Concepts and Experiences, Auckland, NZ, December 6 - 7, 2022},
   pages     = {1},
   publisher = {{ACM}},
   year      = {2022},
