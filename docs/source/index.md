@@ -64,7 +64,9 @@ maxdepth: 2
 tutorial
 sklearn
 grammars
-metahandlers
+metahandlers/index
+metahandlers/api
+metahandlers/define
 problems
 representations
 genetic_operators
