@@ -103,15 +103,7 @@ class GP(Heuristics):
         self,
         grammar: Grammar,
         representation: Representation = treebased_representation,
-        # These classes should be replaced by the problem alone.
         problem: Problem = None,
-        evaluation_function: Callable[
-            [Any],
-            float,
-        ] = None,  # DEPRECATE in the next version
-        minimize: bool = False,  # DEPRECATE in the next version
-        target_fitness: float | None = None,  # DEPRECATE in the next version
-        favor_less_deep_trees: bool = True,  # DEPRECATE in the next version
         randomSource: Callable[[int], RandomSource] = RandomSource,
         population_size: int = 200,
         n_elites: int = 5,  # Shouldn't this be a percentage of population size?
@@ -151,13 +143,10 @@ class GP(Heuristics):
     ):
         assert population_size > (n_elites + n_novelties + 1)
 
-        self.problem: Problem = wrap_depth(
-            process_problem(problem, evaluation_function, minimize, target_fitness),
-            favor_less_deep_trees,
-        )
-
         self.grammar = grammar
         self.representation = representation
+        self.problem = problem
+
         self.random = randomSource(seed)
         self.seed = seed
         self.population_size = population_size
