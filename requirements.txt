@@ -6,5 +6,8 @@ pandas
 pytest
 sklearn
 sphinx
+sphinx-autoapi
+sphinx-rtd-theme
+sphinxcontrib-fulltoc
 threadpoolctl==3.1.0
 z3-solver

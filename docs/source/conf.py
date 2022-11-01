@@ -6,37 +6,33 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 from __future__ import annotations
 
-project = "GeneticEngine"
-copyright = "2022, Alcides Fonseca and Students"
-author = "Alcides Fonseca and Students"
+project = "Genetic Engine"
+copyright = "2022, Alcides Fonseca et al."
+author = "Alcides Fonseca et al."
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    "sphinx.ext.duration",
-    "sphinx.ext.doctest",
-    "sphinx.ext.autodoc",
-    "sphinx.ext.autosummary",
-    "sphinx.ext.intersphinx",
     "myst_parser",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.autodoc",
+    "autoapi.extension",
+    "sphinx.ext.autosectionlabel",
 ]
 
-intersphinx_mapping = {
-    "python": ("https://docs.python.org/3/", None),
-    "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
-}
+autoapi_type = "python"
+autoapi_dirs = ["../../geneticengine"]
 
-intersphinx_disabled_domains = ["std"]
+autodoc_typehints = "description"
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
-source_suffix = {
-    ".rst": "restructuredtext",
-    ".txt": "markdown",
-    ".md": "markdown",
-}
+myst_heading_anchors = 3
+
+autosectionlabel_prefix_document = True
+
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
