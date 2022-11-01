@@ -37,7 +37,11 @@ from geneticengine.metahandlers.floats import FloatList
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import f1_score
 
-# An example of classification using Probabilistic GE (https://arxiv.org/pdf/2103.08389.pdf). The main differences with the normal classification example are the addition of weights/probabilities to the production rules of the grammar (lines 81-83) and adding the evolve_grammar parameter in the GP class (line 159). Notice that the weights don't need to be added to the grammar, as by default all production rules have the same weight/probability.
+# An example of classification using Probabilistic GE (https://arxiv.org/pdf/2103.08389.pdf).
+# The main differences with the normal classification example are the addition of weights/probabilities to the
+# production rules of the grammar (lines 81-83), and adding the evolve_grammar parameter in the GP class (line 159).
+# Notice that the weights don't need to be added to the grammar, as by default all production rules have the same
+# weight/probability.
 
 DATASET_NAME = "Banknote"
 DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.csv"
