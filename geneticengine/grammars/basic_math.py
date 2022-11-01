@@ -20,9 +20,9 @@ class SafeDiv(Number):
     """
     Safe Division object. If division fails because of a ZeroDivisionError, 1 is returned.
 
-    Parameters:
-        - left  (Number)
-        - right (Number)
+    Args:
+        left  (Number)
+        right (Number)
 
     Returns when evaluated:
         left / right
@@ -34,15 +34,15 @@ class SafeDiv(Number):
     def evaluate(self, **kwargs):
         d1 = self.left.evaluate(**kwargs)
         d2 = self.right.evaluate(**kwargs)
-        if hasattr(d1,"dtype"):
+        if hasattr(d1, "dtype"):
             if d1.dtype == "O":
                 d1 = d1.astype(float)
-        if hasattr(d2,"dtype"):
+        if hasattr(d2, "dtype"):
             if d2.dtype == "O":
                 d2 = d2.astype(float)
         try:
             with np.errstate(divide="ignore", invalid="ignore"):
-                return np.where(d2 == 0, np.ones_like(d1), d1 / d2)
+                return np.where(abs(d2) < 0.001, np.ones_like(d1), d1 / d2)
         except ZeroDivisionError:
             # In this case we are trying to divide two constants, one of which is 0
             # Return a constant.
@@ -57,8 +57,8 @@ class SafeSqrt(Number):
     """
     Safe Square Root object. If the number is negative, the square root of the positive counterpart of the number is returned.
 
-    Parameters:
-        - number (Number)
+    Args:
+        number (Number)
 
     Returns when evaluated:
         np.sqrt(number)
@@ -79,8 +79,8 @@ class Sin(Number):
     """
     Standard Sinus object.
 
-    Parameters:
-        - number (Number)
+    Args:
+        number (Number)
 
     Returns when evaluated:
         np.sin(number)
@@ -101,8 +101,8 @@ class Tanh(Number):
     """
     Standard Hyperbolic Tangent object.
 
-    Parameters:
-        - number (Number)
+    Args:
+        number (Number)
 
     Returns when evaluated:
         np.tanh(number)
@@ -123,8 +123,8 @@ class Exp(Number):
     """
     Standard Exponential object.
 
-    Parameters:
-        - number (Number)
+    Args:
+        number (Number)
 
     Returns when evaluated:
         np.exp(number)
@@ -145,9 +145,9 @@ class SafeLog(Number):
     """
     Safe Logarithmic object. If the number is negative, the logarithm of the positive counterpart of the number + 1 is returned.
 
-    Parameters:
-        - left  (Number)
-        - right (Number)
+    Args:
+        left  (Number)
+        right (Number)
 
     Returns when evaluated:
         np.log(number)

@@ -22,9 +22,9 @@ class Plus(Number):
     """
     Standard Plus object.
 
-    Parameters:
-        - left  (Number)
-        - right (Number)
+    Args:
+        left  (Number)
+        right (Number)
 
     Returns when evaluated:
         left + right
@@ -45,9 +45,9 @@ class Minus(Number):
     """
     Standard Minus object.
 
-    Parameters:
-        - left  (Number)
-        - right (Number)
+    Args:
+        left  (Number)
+        right (Number)
 
     Returns when evaluated:
         left - right
@@ -68,9 +68,9 @@ class Mul(Number):
     """
     Standard Multiplication object.
 
-    Parameters:
-        - left  (Number)
-        - right (Number)
+    Args:
+        left  (Number)
+        right (Number)
 
     Returns when evaluated:
         left * right
@@ -86,14 +86,13 @@ class Mul(Number):
         return f"({self.left} * {self.right})"
 
 
-
 @dataclass
 class Literal(Number):
     """
     Standard Literal object.
 
-    Parameters:
-        - val  (Number)
+    Args:
+        val  (Number)
 
     Returns when evaluated:
         val
@@ -113,8 +112,8 @@ class Var(Number):
     """
     Standard Variable object. Used to introduce variables.
 
-    Parameters:
-        - name  (str)
+    Args:
+        name  (str)
 
     Returns when evaluated:
         name

@@ -16,9 +16,9 @@ class Problem(ABC):
     """
     An Abstract class that SingleObjectiveProblem and MultiObjectiveProblem extends to
 
-    Parameters:
-        - minimize (bool | list[bool]): When switch on, the fitness function is reversed, so that a higher result from the fitness function corresponds to a less fit solution.
-        - fitness_function (Callable[[P], float] | Callable[[P], list[float]]): The fitness function. Should take in any valid individual and return a float or a list of floats, depending if its a single objetive problem or a multi objective problem.
+    Args:
+        minimize (bool | list[bool]): When switch on, the fitness function is reversed, so that a higher result from the fitness function corresponds to a less fit solution.
+        fitness_function (Callable[[P], float] | Callable[[P], list[float]]): The fitness function. Should take in any valid individual and return a float or a list of floats, depending if its a single objetive problem or a multi objective problem.
     """
 
     minimize: bool | list[bool]
@@ -36,10 +36,10 @@ class SingleObjectiveProblem(Problem):
     """
     SingleObjectiveProblem is a class that extends the Problem class
 
-    Parameters:
-        - minimize (bool): When switch on, the fitness function is reversed, so that a higher result from the fitness function corresponds to a less fit solution.
-        - fitness_function (Callable[[P], float]): The fitness function. Should take in any valid individual and return a float.
-        - target_fitness (Optional[float]): Sets a target fitness. When this fitness is reached, the algorithm stops running (default = None).
+    Args:
+        minimize (bool): When switch on, the fitness function is reversed, so that a higher result from the fitness function corresponds to a less fit solution.
+        fitness_function (Callable[[P], float]): The fitness function. Should take in any valid individual and return a float.
+        target_fitness (Optional[float]): Sets a target fitness. When this fitness is reached, the algorithm stops running (default = None).
     """
 
     minimize: bool
@@ -64,11 +64,10 @@ class MultiObjectiveProblem(Problem):
     """
     MultiObjectiveProblem is a class that extends the Problem class
 
-    Parameters:
-        - minimize (list[bool]): When switch on, the fitness function is reversed, so that a higher result from the fitness function corresponds to a less fit solution.
-        - fitness_function (Callable[[P], list[bool]]): The fitness function. Should take in any valid individual and return a list of float.
-        - best_individual_criteria_function: Optional(Callable[[P], float]): This function allow the user to choose how to find the best individual in a generation (default = None , this means that the individual with the best fitness is the one considered as the best in that generation)
-
+    Args:
+        minimize (list[bool]): When switch on, the fitness function is reversed, so that a higher result from the fitness function corresponds to a less fit solution.
+        fitness_function (Callable[[P], list[bool]]): The fitness function. Should take in any valid individual and return a list of float.
+        best_individual_criteria_function (Optional(Callable[[P], float]): This function allow the user to choose how to find the best individual in a generation (default = None , this means that the individual with the best fitness is the one considered as the best in that generation)
     """
 
     minimize: list[bool]

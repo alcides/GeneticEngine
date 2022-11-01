@@ -133,17 +133,21 @@ def evolve(
 
     minimizelist = [True for _ in data.values.tolist()]
 
+    def single_criteria_test(n: Number) -> float:
+        return sum((m and -f or f) for (f, m) in zip(n.fitness, minimizelist))
+
     alg = GP(
         g,
         representation=representation,
         problem=MultiObjectiveProblem(
             minimize=minimizelist,
             fitness_function=fitness_function_lexicase,
+            best_individual_criteria_function=single_criteria_test,
         ),
         probability_crossover=0.75,
         probability_mutation=0.01,
-        number_of_generations=50,
-        max_depth=15,
+        number_of_generations=10,
+        max_depth=8,
         population_size=50,
         selection_method=("lexicase",),
         n_elites=0,

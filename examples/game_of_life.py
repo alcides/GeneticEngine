@@ -56,7 +56,6 @@ class MatrixElement(Condition):
 
 
 def evaluate(e: Expr) -> Callable[[Any], float]:
-
     if isinstance(e, And):
         f1 = evaluate(e.left)
         f2 = evaluate(e.right)

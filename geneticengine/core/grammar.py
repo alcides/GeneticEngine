@@ -30,7 +30,8 @@ from geneticengine.core.utils import strip_annotations
 
 
 class InvalidGrammarException(Exception):
-    """Exception to be raised when a passed node is neither abstract nor typed."""
+    """Exception to be raised when a passed node is neither abstract nor
+    typed."""
 
     pass
 
@@ -96,10 +97,8 @@ class Grammar:
                 )
 
     def register_alternative(self, nonterminal: type, nodetype: type):
-        """
-        Register a production A->B
-        Call multiple times with same A to register many possible alternatives.
-        """
+        """Register a production A->B Call multiple times with same A to
+        register many possible alternatives."""
         if not is_abstract(nonterminal):
             raise Exception(
                 f"Trying to register an alternative on a non-abstract class: {nonterminal} -> {nodetype}\n"
@@ -191,13 +190,13 @@ class Grammar:
         )
 
     def get_all_symbols(self) -> tuple[set[type], set[type], set[type]]:
-        """All symbols in the current grammar, including terminals"""
+        """All symbols in the current grammar, including terminals."""
         keys = {k for k in self.alternatives.keys()}
         sequence = {v for vv in self.alternatives.values() for v in vv}
         return (keys, sequence, sequence.union(keys).union(self.all_nodes))
 
     def get_distance_to_terminal(self, ty: type) -> int:
-        """Returns the current distance to terminal of a given type"""
+        """Returns the current distance to terminal of a given type."""
         if is_annotated(ty):
             ta = get_generic_parameter(ty)
             return self.get_distance_to_terminal(ta)
@@ -212,11 +211,11 @@ class Grammar:
             return self.distanceToTerminal[ty]
 
     def get_min_tree_depth(self):
-        """Returns the minimum depth a tree must have"""
+        """Returns the minimum depth a tree must have."""
         return self.distanceToTerminal[self.starting_symbol]
 
     def get_max_node_depth(self):
-        """Returns the maximum minimum depth a node can have"""
+        """Returns the maximum minimum depth a node can have."""
 
         def dist(x):
             return self.distanceToTerminal[x]
@@ -342,16 +341,17 @@ def extract_grammar(
     starting_symbol: type,
     expansion_depthing: bool = False,
 ):
-    """
-    The extract_grammar takes in all the productions of the grammar (nodes) and a starting symbol (starting_symbol). It goes through all the nodes and constructs a complete grammar that can then be used for search algorithms such as Genetic Programming and Hill Climbing.
+    """The extract_grammar takes in all the productions of the grammar (nodes)
+    and a starting symbol (starting_symbol). It goes through all the nodes and
+    constructs a complete grammar that can then be used for search algorithms
+    such as Genetic Programming and Hill Climbing.
 
-    Parameters:
-        - nodes (list): A list of objects representing tree nodes. Make sure that any node can be produced be the starting symbol.
-        - starting_symbol (object): The starting symbol of each tree. Makes sure every generated tree by the returned grammar starts with this symbol. Make sure that the starting symbol can produce any object of nodes.
+    Args:
+        nodes (list): A list of objects representing tree nodes. Make sure that any node can be produced be the starting symbol.
+        starting_symbol (object): The starting symbol of each tree. Makes sure every generated tree by the returned grammar starts with this symbol. Make sure that the starting symbol can produce any object of nodes.
 
     Returns:
-        - The grammar
-
+        The grammar
     """
     g = Grammar(starting_symbol, considered_subtypes, expansion_depthing)
     g.register_type(starting_symbol)
