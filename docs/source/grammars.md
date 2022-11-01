@@ -10,7 +10,7 @@ The examples folder in the repo also contain several examples of grammars, inclu
 
 ## Using builtin grammar definitions
 
-The `geneticengine.grammars` module contains many different ready implementations of grammars popular in Genetic Programming:
+The `geneticengine.grammars` module contains various ready implementations of grammars popular in Genetic Programming:
 
 * Standard Genetic Programming
 * Literals
@@ -18,6 +18,16 @@ The `geneticengine.grammars` module contains many different ready implementation
 * Basic Math
 * Coding
 * Letters
+
+## Probabilistic Grammars and Evolving Grammars
+
+Genetic Engine supports Probabilistic grammars by assigning weights to classes. Weights can be added by extending classes directly with the simple `@weight` decorator (as is done in the [pcfg_example](../../examples/pcfg_example.py)), or by adding them afterwards by setting the weight of a `prod` using `prod.__dict__["__gengy__"]["weight"]` (as is done in the [classification_probabilisticGE](../../examples/classification_probabilisticGE.py)).
+
+Genetic Engine also allows the evolution of the weights of the grammar, as is done in [Probabilistic GE (PGE)](https://arxiv.org/pdf/2103.08389.pdf). Evolution of the grammar is done by setting the `evolve_grammar` parameter in the `GP` class with the `EvolveGrammar` class:
+
+```{eval-rst}
+.. autoapiclass:: geneticengine.off_the_shelf.classifiers.GeneticProgrammingClassifier
+```
 
 ## Controlling the Depth of Individuals
 
@@ -37,7 +47,7 @@ Using this method, the maximum depth of an individual is the depth of its tree r
 grammar = extract_grammar([A, B], Root, expansion_depthing=True)
 ```
 
-We also support grammar-expansion depthing, as done in [PonyGE2](https://github.com/PonyGE/PonyGE2). In grammar-expansion depthing the depth is increased each time a grammar production rule is expanded. For example, suppose you have the following grammar:
+We also support grammar-expansion depthing, as done in [PonyGE2](https://github.com/PonyGE/PonyGE2). In grammar-expansion depthing, the depth is increased each time a grammar production rule is expanded. For example, suppose you have the following grammar:
 
 ```
 A       :== 0 | B
