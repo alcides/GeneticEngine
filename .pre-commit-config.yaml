@@ -31,3 +31,8 @@ repos:
     hooks:
     -   id: pyupgrade
         args: [--py39-plus]
+-   repo: https://github.com/PyCQA/docformatter
+    rev: v1.5.0
+    hooks:
+      - id: docformatter
+        args: [--in-place --config ./pyproject.toml --syntax google --black true]
