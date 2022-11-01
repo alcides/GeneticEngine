@@ -8,13 +8,14 @@ A hybrid between strongly-typed (STGP) and grammar-guided genetic programming (G
 About GeneticEngine
 -------------------
 
-GeneticEngine is a Genetic Programming framework for single- and multi-objective optimization. GeneticEngine allows the user to provide domain knowledge about the shape of the solution (using type annotations) and
+GeneticEngine is a Genetic Programming framework for single- and multi-objective optimization. GeneticEngine allows the user to provide domain knowledge about the shape of the solution (using type annotations) and by defining the fitness function.
 
 
 Documentation
 -------------
 
 * [Documentation](https://geneticengine.readthedocs.io/)
+* [Examples](examples/)
 
 
 
