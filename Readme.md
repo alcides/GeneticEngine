@@ -1,6 +1,8 @@
 Genetic Engine
 ==============
 
+!https://readthedocs.org/projects/geneticengine/badge/?version=latest!
+
 A hybrid between strongly-typed (STGP) and grammar-guided genetic programming (GGGP).
 
 About Genetic Engine
