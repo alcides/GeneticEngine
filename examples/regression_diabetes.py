@@ -12,7 +12,7 @@ from sklearn.metrics import mean_squared_error
 from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammars.basic_math import Exp
 from geneticengine.grammars.basic_math import SafeDiv
 from geneticengine.grammars.basic_math import SafeLog
@@ -49,7 +49,7 @@ def preprocess():
 def evolve(g, seed):
     alg = GPFriendly(
         g,
-        treebased_representation,
+        TreeBasedRepresentation,
         problem=SingleObjectiveProblem(
             minimize=True,
             fitness_function=fitness_function,

@@ -11,13 +11,13 @@ import pandas as pd
 from sklearn.base import BaseEstimator
 from sklearn.base import TransformerMixin
 
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.api import Representation
-from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammars.basic_math import SafeDiv
 from geneticengine.grammars.basic_math import SafeLog
 from geneticengine.grammars.basic_math import SafeSqrt
@@ -36,13 +36,12 @@ from geneticengine.off_the_shelf.sympy_compatible import fix_all
 
 
 class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
-    """
-    Genetic Programming Regressor. Main attributes: fit and predict
-    Defaults as given in A Field Guide to GP, p.17, by Poli and Mcphee
+    """Genetic Programming Regressor. Main attributes: fit and predict Defaults
+    as given in A Field Guide to GP, p.17, by Poli and Mcphee.
 
     Args:
         nodes (List[Number]): The list of nodes to be used in the grammar. You can design your own, or use the ones in geneticengine.grammars.[sgp,literals,basic_math]. The default uses [ Plus, Mul, ExpLiteral, Var, SafeDiv, SafeLog, SafeSqrt ] + exp_literals.
-        representation (Representation): The individual representation used by the GP program. The default is treebased_representation. Currently Genetic Engine also supports Grammatical Evolution: geneticengine.core.representations.grammatical_evolution.ge_representation. You can also deisgn your own.
+        representation (Representation): The individual representation used by the GP program. The default is TreeBasedRepresentation. Currently Genetic Engine also supports Grammatical Evolution: geneticengine.core.representations.grammatical_evolution.GrammaticalEvolutionRepresentation. You can also deisgn your own.
         seed (int): The seed for the RandomSource (default = 123).
         population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (n_elites + n_novelties + 1) must hold.
         n_elites (int): Number of elites, i.e. the number of best individuals that are preserved every generation (default = 5).
@@ -60,7 +59,7 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
     def __init__(
         self,
         nodes: list[type[Number]] = None,
-        representation: Representation = treebased_representation,
+        representation: type[Representation] = TreeBasedRepresentation,
         population_size: int = 200,
         n_elites: int = 5,
         n_novelties: int = 10,
@@ -93,7 +92,7 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
         assert Var in nodes
 
         self.nodes = nodes
-        self.representation = representation
+        self.representation_class = representation
         self.evolved_ind = None
         self.nodes = nodes
         self.random = RandomSource(seed)
@@ -112,9 +111,7 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
         self.metric = metric
 
     def fit(self, X, y):
-        """
-        Fits the regressor with data X and target y.
-        """
+        """Fits the regressor with data X and target y."""
         if type(y) == pd.Series:
             target = y.values
         else:
@@ -159,14 +156,14 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
                 fitness = 100000000
             return fitness
 
-        model = GP(
+        model = GPFriendly(
             grammar=self.grammar,
             problem=SingleObjectiveProblem(
                 minimize=minimise,
                 fitness_function=fitness_function,
                 target_fitness=None,
             ),
-            representation=self.representation,
+            representation=self.representation_class(self.grammar, self.max_depth),
             population_size=self.population_size,
             n_elites=self.n_elites,
             n_novelties=self.n_novelties,
@@ -186,8 +183,9 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
         self.sympy_compatible_phenotype = fix_all(str(phenotype))
 
     def predict(self, X):
-        """
-        Predict the target values of X. The model must have been fitted
+        """Predict the target values of X.
+
+        The model must have been fitted
         """
         assert self.evolved_phenotype != None
         if (type(X) == pd.DataFrame) or (type(X) == pd.Series):
@@ -213,12 +211,11 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
 
 
 class HillClimbingRegressor(BaseEstimator, TransformerMixin):
-    """
-    Hill Climbing Regressor. Main attributes: fit and predict
+    """Hill Climbing Regressor. Main attributes: fit and predict.
 
     Args:
         nodes (List[Number]): The list of nodes to be used in the grammar. You can design your own, or use the ones in geneticengine.grammars.[sgp,literals,basic_math]. The default uses [ Plus, Mul, ExpLiteral, Var, SafeDiv, SafeLog, SafeSqrt ] + exp_literals.
-        representation (Representation): The individual representation used by the GP program. The default is treebased_representation. Currently Genetic Engine also supports Grammatical Evolution: geneticengine.core.representations.grammatical_evolution.ge_representation. You can also deisgn your own.
+        representation (Representation): The individual representation used by the GP program. The default is TreeBasedRepresentation. Currently Genetic Engine also supports Grammatical Evolution: geneticengine.core.representations.grammatical_evolution.GrammaticalEvolutionRepresentation. You can also deisgn your own.
         seed (int): The seed for the RandomSource (default = 123).
         population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (n_elites + n_novelties + 1) must hold.
         number_of_generations (int): Number of generations (default = 100).
@@ -237,7 +234,7 @@ class HillClimbingRegressor(BaseEstimator, TransformerMixin):
             SafeSqrt,
             *exp_literals,
         ],  # "type: ignore"
-        representation: Representation = treebased_representation,
+        representation_class: type[Representation] = TreeBasedRepresentation,
         population_size: int = 200,
         number_of_generations: int = 100,
         max_depth: int = 15,
@@ -247,7 +244,7 @@ class HillClimbingRegressor(BaseEstimator, TransformerMixin):
         assert Var in nodes
 
         self.nodes = nodes
-        self.representation = representation
+        self.representation_class = representation_class
         self.evolved_ind = None
         self.nodes = nodes
         self.random = RandomSource(seed)
@@ -263,9 +260,7 @@ class HillClimbingRegressor(BaseEstimator, TransformerMixin):
             self.minimise = True
 
     def fit(self, X, y):
-        """
-        Fits the regressor with data X and target y.
-        """
+        """Fits the regressor with data X and target y."""
         if type(y) == pd.Series:
             target = y.values
         else:
@@ -310,7 +305,7 @@ class HillClimbingRegressor(BaseEstimator, TransformerMixin):
                 fitness_function=fitness_function,
                 target_fitness=None,
             ),
-            representation=self.representation,
+            representation=self.representation_class(self.grammar, self.max_depth),
             population_size=self.population_size,
             number_of_generations=self.number_of_generations,
             max_depth=self.max_depth,
@@ -322,8 +317,9 @@ class HillClimbingRegressor(BaseEstimator, TransformerMixin):
         self.sympy_compatible_phenotype = fix_all(str(phenotype))
 
     def predict(self, X):
-        """
-        Predict the target values of X. The model must have been fitted
+        """Predict the target values of X.
+
+        The model must have been fitted
         """
         assert self.evolved_phenotype != None
         if (type(X) == pd.DataFrame) or (type(X) == pd.Series):

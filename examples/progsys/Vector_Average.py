@@ -7,16 +7,16 @@ from utils import import_embedded
 
 import geneticengine.grammars.coding.lists as lists
 import geneticengine.grammars.coding.numbers as numbers
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.ge import (
-    ge_representation,
+    GrammaticalEvolutionRepresentation,
 )
 from geneticengine.core.representations.grammatical_evolution.structured_ge import (
-    sge_representation,
+    sGrammaticalEvolutionRepresentation,
 )
-from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammars.coding.classes import Number
 from geneticengine.grammars.coding.classes import Statement
 from geneticengine.grammars.coding.classes import XAssign
@@ -97,12 +97,12 @@ def fitness_function(n: Statement):
 
 def evolve(g, seed, mode, representation=""):
     if representation == "ge":
-        representation = ge_representation
+        representation = GrammaticalEvolutionRepresentation
     elif representation == "sge":
-        representation = sge_representation
+        representation = sGrammaticalEvolutionRepresentation
     else:
-        representation = treebased_representation
-    alg = GP(
+        representation = TreeBasedRepresentation
+    alg = GPFriendly(
         g,
         representation=representation,
         problem=SingleObjectiveProblem(

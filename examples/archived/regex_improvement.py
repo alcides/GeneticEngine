@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from examples.archived.regex_fitness.RegexEval import RegexEval
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammars.regex import *
 
 
@@ -42,10 +42,10 @@ def preprocess():
 
 
 def evolve(g, seed, mode):
-    alg = GP(
+    alg = GPFriendly(
         g,
         fitness_function,
-        representation=treebased_representation,
+        representation=TreeBasedRepresentation,
         max_depth=100,
         population_size=1000,
         n_elites=100,

@@ -22,7 +22,7 @@ class Heuristics(ABC):
 
     Args:
         grammar (Grammar): The grammar used to guide the search.
-        representation (Representation): The individual representation used by the GP program. The default is treebased_representation.
+        representation (Representation): The individual representation used by the GP program. The default is TreeBasedRepresentation.
         problem (Problem): The problem we are solving. Either a SingleObjectiveProblem or a MultiObjectiveProblem.
         randomSource (Callable[[int], RandomSource]): The random source function used by the program. Should take in an integer, representing the seed, and return a RandomSource.
     """

@@ -17,15 +17,15 @@ from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
-    dsge_representation,
+    dsGrammaticalEvolutionRepresentation,
 )
 from geneticengine.core.representations.grammatical_evolution.ge import (
-    ge_representation,
+    GrammaticalEvolutionRepresentation,
 )
 from geneticengine.core.representations.grammatical_evolution.structured_ge import (
-    sge_representation,
+    sGrammaticalEvolutionRepresentation,
 )
-from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammars.coding.classes import Condition
 from geneticengine.grammars.coding.classes import Expr
 from geneticengine.grammars.coding.classes import Number
@@ -335,16 +335,16 @@ def evolve(
     g,
     seed,
     mode,
-    representation="treebased_representation",
+    representation="TreeBasedRepresentation",
 ):
     if representation == "ge":
-        representation = ge_representation
+        representation = GrammaticalEvolutionRepresentation
     elif representation == "sge":
-        representation = sge_representation
+        representation = sGrammaticalEvolutionRepresentation
     elif representation == "dsge":
-        representation = dsge_representation
+        representation = dsGrammaticalEvolutionRepresentation
     else:
-        representation = treebased_representation
+        representation = TreeBasedRepresentation
     alg = GPFriendly(
         g,
         fitness_function,

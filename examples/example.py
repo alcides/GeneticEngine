@@ -8,9 +8,9 @@ from geneticengine.algorithms.random_search import RandomSearch
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.structured_ge import (
-    sge_representation,
+    sGrammaticalEvolutionRepresentation,
 )
-from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammars.basic_math import SafeDiv
 from geneticengine.grammars.sgp import Literal
 from geneticengine.grammars.sgp import Mul
@@ -42,7 +42,7 @@ def target(x):
 
 alg_gp = GPFriendly(
     g,
-    representation=treebased_representation,
+    representation=TreeBasedRepresentation,
     problem=SingleObjectiveProblem(
         minimize=True,
         fitness_function=fit,
@@ -60,7 +60,7 @@ alg_gp = GPFriendly(
 
 alg_hc = HC(
     g,
-    representation=treebased_representation,
+    representation=TreeBasedRepresentation,
     problem=SingleObjectiveProblem(
         minimize=True,
         fitness_function=fit,
@@ -74,7 +74,7 @@ alg_hc = HC(
 
 alg_rs = RandomSearch(
     g,
-    representation=treebased_representation,
+    representation=TreeBasedRepresentation,
     problem=SingleObjectiveProblem(
         minimize=True,
         fitness_function=fit,

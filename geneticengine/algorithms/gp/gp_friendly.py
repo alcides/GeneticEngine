@@ -54,7 +54,7 @@ class GPFriendly(GP):
     Defaults as given in A Field Guide to GP, p.17, by Poli and Mcphee:
     Args:
         grammar (Grammar): The grammar used to guide the search.
-        representation (Representation): The individual representation used by the GP program. The default is treebased_representation.
+        representation (Representation): The individual representation used by the GP program. The default is TreeBasedRepresentation.
         problem (Problem): The problem we are solving. Either a SingleObjectiveProblem or a MultiObjectiveProblem.
         evaluation_function (Callable[[Any], float]): The fitness function. Should take in any valid individual and return a float. The default is that the higher the fitness, the more applicable is the solution to the problem. Turn on the parameter minimize to switch it around.
         minimize (bool): When switch on, the fitness function is reversed, so that a higher result from the fitness function corresponds to a less fit solution (default = False).
@@ -286,7 +286,7 @@ class GPFriendly(GP):
         elif isinstance(minimize, list) and evaluation_function:
             return MultiObjectiveProblem(minimize, evaluation_function)
         elif isinstance(minimize, bool) and evaluation_function:
-            return SingleObjectiveProblem(minimize, evaluation_function, target_fitness)
+            return SingleObjectiveProblem(evaluation_function, minimize, target_fitness)
         else:
             raise NotImplementedError(
                 "This combination of parameters to define the problem is not valid",

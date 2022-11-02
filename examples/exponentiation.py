@@ -14,12 +14,12 @@ from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.ge import (
-    ge_representation,
+    GrammaticalEvolutionRepresentation,
 )
 from geneticengine.core.representations.grammatical_evolution.structured_ge import (
-    sge_representation,
+    sGrammaticalEvolutionRepresentation,
 )
-from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammars.basic_math import SafeDiv
 from geneticengine.grammars.basic_math import SafeLog
 from geneticengine.grammars.basic_math import SafeSqrt
@@ -105,7 +105,7 @@ def evolve(
 ):
     alg = GPFriendly(
         g,
-        representation=treebased_representation,
+        representation=TreeBasedRepresentation,
         problem=SingleObjectiveProblem(
             minimize=True,
             fitness_function=fitness_function,

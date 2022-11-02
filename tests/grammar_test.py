@@ -11,7 +11,7 @@ from unittest import skip
 import pytest
 from scipy import rand
 
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
@@ -103,7 +103,7 @@ class TestGrammar:
         assert isinstance(x, Leaf)
         assert isinstance(x, Root)
 
-        gp = GP(
+        gp = GPFriendly(
             g,
             evaluation_function=lambda x: x.depth,
             randomSource=RandomSource,

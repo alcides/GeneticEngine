@@ -10,7 +10,7 @@ from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.core.decorators import weight
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.lists import ListSizeBetween
 
@@ -38,7 +38,7 @@ if __name__ == "__main__":
     g = extract_grammar([A, B, C], R)
     alg = GPFriendly(
         g,
-        representation=treebased_representation,
+        representation=TreeBasedRepresentation,
         problem=SingleObjectiveProblem(
             minimize=False,
             fitness_function=lambda x: 1,
