@@ -4,7 +4,7 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
 
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.metahandlers.ints import IntRange
@@ -67,7 +67,7 @@ def fitness_function(p):
 
 if __name__ == "__main__":
     g = extract_grammar([Op, Access, Literal], Node)
-    gp = GP(
+    gp = GPFriendly(
         grammar=g,
         problem=SingleObjectiveProblem(
             minimize=True,

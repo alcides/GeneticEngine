@@ -9,7 +9,7 @@ from typing import Any
 import numpy as np
 from sklearn.metrics import mean_squared_error
 
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
@@ -3183,7 +3183,7 @@ def evolve(
     else:
         representation = treebased_representation
 
-    alg = GP(
+    alg = GPFriendly(
         g,
         representation=representation,
         problem=SingleObjectiveProblem(
@@ -3192,7 +3192,6 @@ def evolve(
             target_fitness=None,
         ),
         seed=seed,
-        # As in PonyGE2:
         probability_crossover=0.75,
         probability_mutation=0.01,
         number_of_generations=30,
@@ -3200,7 +3199,6 @@ def evolve(
         population_size=50,
         selection_method=("tournament", 2),
         n_elites=5,
-        # ----------------
         timer_stop_criteria=mode,
     )
     (b, bf, bp) = alg.evolve(verbose=1)

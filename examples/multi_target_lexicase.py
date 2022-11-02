@@ -10,7 +10,7 @@ import pandas as pd
 from sklearn.datasets import load_linnerud
 from sklearn.model_selection import train_test_split
 
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import MultiObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.ge import (
@@ -161,14 +161,13 @@ def evolve(
 
     minimizelist = [True for _ in X.values.tolist()]
 
-    alg = GP(
+    alg = GPFriendly(
         g,
         representation=representation,
         problem=MultiObjectiveProblem(
             minimize=minimizelist,
             fitness_function=fitness_function_lexicase,
         ),
-        # As in PonyGE2:
         probability_crossover=0.75,
         probability_mutation=0.01,
         number_of_generations=50,
@@ -176,7 +175,6 @@ def evolve(
         population_size=50,
         selection_method=("lexicase",),
         n_elites=0,
-        # ----------------
         seed=seed,
         timer_stop_criteria=mode,
     )

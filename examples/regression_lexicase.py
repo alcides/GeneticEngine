@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import MultiObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.ge import (
@@ -136,7 +136,7 @@ def evolve(
     def single_criteria_test(n: Number) -> float:
         return sum((m and -f or f) for (f, m) in zip(n.fitness, minimizelist))
 
-    alg = GP(
+    alg = GPFriendly(
         g,
         representation=representation,
         problem=MultiObjectiveProblem(
@@ -150,8 +150,7 @@ def evolve(
         max_depth=8,
         population_size=50,
         selection_method=("lexicase",),
-        n_elites=5,
-        # ----------------
+        n_elites=0,
         seed=seed,
         timer_stop_criteria=mode,
     )

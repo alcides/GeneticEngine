@@ -72,7 +72,7 @@ class VectorialVar(Vectorial):
 
 The Value class corresponds to a literal scalar, like 3.4 or 3.2. ScalarVar corresponds to the features that are scalar values, which we know from the dataset that are columns at indices 0 and 1. Columns at indices 2 and 3 are vectorial, so we create another tree node that extends the Vectorial class.
 
-We use the `dataclass` decorator to have automatic constructors, based on the properties of the class. The `Annotated` type allows to refine the type of base types (like `int`) with what we call MetaHandlers, which restrict the generation of random values. In this case we are using `IntRange` to restrict the possible values of index. We will talk more about metahandlers [here](metahandlers.md).
+We use the `dataclass` decorator to have automatic constructors, based on the properties of the class. The `Annotated` type allows to refine the type of base types (like `int`) with what we call MetaHandlers, which restrict the generation of random values. In this case we are using `IntRange` to restrict the possible values of index. We will talk more about metahandlers [here](metahandlers/index.md).
 
 We now move to the non-terminals:
 

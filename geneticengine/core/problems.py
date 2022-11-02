@@ -13,8 +13,8 @@ P = TypeVar("P")
 
 
 class Problem(ABC):
-    """
-    An Abstract class that SingleObjectiveProblem and MultiObjectiveProblem extends to
+    """An Abstract class that SingleObjectiveProblem and MultiObjectiveProblem
+    extends to.
 
     Args:
         minimize (bool | list[bool]): When switch on, the fitness function is reversed, so that a higher result from the fitness function corresponds to a less fit solution.
@@ -30,11 +30,13 @@ class Problem(ABC):
     def solved(self, best_fitness: FitnessType):
         return False
 
+    def overall_fitness(self, p: P) -> float:
+        ...
+
 
 @dataclass
 class SingleObjectiveProblem(Problem):
-    """
-    SingleObjectiveProblem is a class that extends the Problem class
+    """SingleObjectiveProblem is a class that extends the Problem class.
 
     Args:
         minimize (bool): When switch on, the fitness function is reversed, so that a higher result from the fitness function corresponds to a less fit solution.
@@ -46,8 +48,21 @@ class SingleObjectiveProblem(Problem):
     fitness_function: Callable[[P], float]
     target_fitness: float | None
 
+    def __init__(
+        self,
+        fitness_function: Callable[[P], float],
+        minimize: bool = False,
+        target_fitness: float | None = None,
+    ):
+        self.fitness_function = fitness_function
+        self.minimize = minimize
+        self.target_fitness = target_fitness
+
     def evaluate(self, p: P) -> float:
         return float(self.fitness_function(p))
+
+    def overall_fitness(self, p: P) -> float:
+        return self.evaluate(p)
 
     def solved(self, best_fitness: FitnessType):
         assert isinstance(best_fitness, float)
@@ -61,8 +76,7 @@ class SingleObjectiveProblem(Problem):
 
 @dataclass
 class MultiObjectiveProblem(Problem):
-    """
-    MultiObjectiveProblem is a class that extends the Problem class
+    """MultiObjectiveProblem is a class that extends the Problem class.
 
     Args:
         minimize (list[bool]): When switch on, the fitness function is reversed, so that a higher result from the fitness function corresponds to a less fit solution.
@@ -80,11 +94,16 @@ class MultiObjectiveProblem(Problem):
     def evaluate(self, p: P) -> list[float]:
         return [float(x) for x in self.fitness_function(p)]
 
+    def overall_fitness(self, p: P) -> float:
+        if self.best_individual_criteria_function is None:
+            return sum(self.evaluate(p))
+        else:
+            return self.best_individual_criteria_function(p)
+
 
 def wrap_depth_minimization(p: SingleObjectiveProblem) -> SingleObjectiveProblem:
-    """
-    This wrapper takes a SingleObjectiveProblem and adds a penalty for bigger trees.
-    """
+    """This wrapper takes a SingleObjectiveProblem and adds a penalty for
+    bigger trees."""
 
     def w(i):
         if p.minimize:
@@ -97,35 +116,3 @@ def wrap_depth_minimization(p: SingleObjectiveProblem) -> SingleObjectiveProblem
         fitness_function=w,
         target_fitness=None,
     )
-
-
-def process_problem(
-    problem: Problem | None,
-    evaluation_function: Callable[[P], float] = None,  # DEPRECATE in the next version
-    minimize: bool = False,  # DEPRECATE in the next version
-    target_fitness: float | None = None,  # DEPRECATE in the next version
-) -> Problem:
-    """
-    This function is a placeholder until we deprecate all the old usage of GP class.
-    """
-    if problem:
-        return problem
-    elif isinstance(minimize, list) and evaluation_function:
-        return MultiObjectiveProblem(minimize, evaluation_function)
-    elif isinstance(minimize, bool) and evaluation_function:
-        return SingleObjectiveProblem(minimize, evaluation_function, target_fitness)
-    else:
-        raise NotImplementedError(
-            "This combination of parameters to define the problem is not valid",
-        )
-
-
-def wrap_depth(p: Problem, favor_less_deep_trees: bool = False):
-    if isinstance(p, SingleObjectiveProblem):
-        if favor_less_deep_trees:
-            return wrap_depth_minimization(p)
-        else:
-            return p
-    else:
-        assert isinstance(p, MultiObjectiveProblem)
-        return p

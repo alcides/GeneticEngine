@@ -13,7 +13,7 @@ from typing import Union
 import numpy as np
 from sklearn.metrics import f1_score
 
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
@@ -43,7 +43,6 @@ MATRIX_COL_SIZE = 3
 
 
 def prepare_data(DATASET_NAME):
-
     DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.csv"
     DATA_FILE_TEST = f"examples/data/{DATASET_NAME}/Test.csv"
 
@@ -146,7 +145,6 @@ def flat_sum(s):
 
 
 def evaluate(e: Expr | Matrix | Number) -> Callable[[Any], float]:
-
     if isinstance(e, And):
         l = e.left
         r = e.right
@@ -219,8 +217,9 @@ def evaluate(e: Expr | Matrix | Number) -> Callable[[Any], float]:
 
 
 def preprocess(method):
-    """
-    Options for methor are [standard], [row], [col], [row_col], [cube], [row_col_cube], [sum_all].
+    """Options for methor are [standard], [row], [col], [row_col], [cube],
+
+    [row_col_cube], [sum_all].
     """
     if method == "standard":
         grammar = extract_grammar([And, Or, Not, MatrixElement], Condition)
@@ -346,7 +345,7 @@ def evolve(
         representation = dsge_representation
     else:
         representation = treebased_representation
-    alg = GP(
+    alg = GPFriendly(
         g,
         fitness_function,
         representation=representation,

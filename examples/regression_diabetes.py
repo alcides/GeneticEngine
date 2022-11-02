@@ -9,7 +9,7 @@ import numpy as np
 from sklearn.datasets import load_diabetes
 from sklearn.metrics import mean_squared_error
 
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.tree.treebased import treebased_representation
@@ -47,7 +47,7 @@ def preprocess():
 
 
 def evolve(g, seed):
-    alg = GP(
+    alg = GPFriendly(
         g,
         treebased_representation,
         problem=SingleObjectiveProblem(

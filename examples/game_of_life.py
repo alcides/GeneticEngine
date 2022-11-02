@@ -11,7 +11,7 @@ from typing import Tuple
 import numpy as np
 from sklearn.metrics import f1_score
 
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.ge import (
@@ -56,7 +56,6 @@ class MatrixElement(Condition):
 
 
 def evaluate(e: Expr) -> Callable[[Any], float]:
-
     if isinstance(e, And):
         f1 = evaluate(e.left)
         f2 = evaluate(e.right)
@@ -101,7 +100,7 @@ def evolve(
     else:
         representation = treebased_representation
 
-    alg = GP(
+    alg = GPFriendly(
         g,
         representation=sge_representation,
         problem=SingleObjectiveProblem(
@@ -109,8 +108,6 @@ def evolve(
             fitness_function=fitness_function,
             target_fitness=None,
         ),
-        # favor_less_deep_trees=True,
-        # As in PonyGE2:
         probability_crossover=0.75,
         probability_mutation=0.01,
         number_of_generations=50,
@@ -118,7 +115,6 @@ def evolve(
         population_size=50,
         selection_method=("tournament", 2),
         n_elites=5,
-        # ----------------
         seed=seed,
         timer_stop_criteria=mode,
     )

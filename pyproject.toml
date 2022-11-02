@@ -25,3 +25,13 @@ build-backend = 'setuptools.build_meta'
 requires = [
     'setuptools >= 43.0.0',
 ]
+
+[tool.docformatter]
+syntax = 'google'
+black = true
+recursive = true
+docstring-length = [60, 100]
+blank = false
+pre-summary-newline = true
+close-quotes-on-newline = true
+wrap-one-line = true

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.ge import (
@@ -53,7 +53,7 @@ def evolve(
     else:
         representation = treebased_representation
 
-    alg = GP(
+    alg = GPFriendly(
         g,
         representation=representation,
         problem=SingleObjectiveProblem(
@@ -61,16 +61,13 @@ def evolve(
             fitness_function=fitness_function,
             target_fitness=None,
         ),
-        # As in PonyGE2:
         probability_crossover=0.75,
         probability_mutation=0.01,
         max_depth=10,
         number_of_generations=30,
-        # max_init_depth=10,
         population_size=50,
         selection_method=("tournament", 2),
         n_elites=5,
-        # ----------------
         minimize=True,
         seed=seed,
         timer_stop_criteria=mode,

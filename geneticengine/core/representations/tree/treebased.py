@@ -476,8 +476,13 @@ def crossover(
     specific_type: type | None = None,
     depth_aware_co: bool = False,
 ) -> tuple[TreeNode, TreeNode]:
-    """
-    Given the two input trees [p1] and [p2], the grammar and the random source, this function returns two trees that are created by crossing over [p1] and [p2]. The first tree returned has [p1] as the base, and the second tree has [p2] as a base.
+    """Given the two input trees [p1] and [p2], the grammar and the random
+    source, this function returns two trees that are created by crossing over.
+
+    [p1] and [p2].
+
+    The first tree returned has [p1] as the base, and the second tree
+    has [p2] as a base.
     """
     if specific_type:
         new_tree1 = crossover_specific_type(
@@ -531,38 +536,64 @@ def crossover(
 
 class TreeBasedRepresentation(Representation[TreeNode]):
     """This class represents the tree representation of an individual.
-    In this approach, the genotype and the phenotype are exactly the same."""
 
-    def create_individual(self, r: Source, g: Grammar, depth: int) -> TreeNode:
-        return random_individual(r, g, depth)
+    In this approach, the genotype and the phenotype are exactly the
+    same.
+    """
+
+    def __init__(self, grammar: Grammar, max_depth: int):
+        super().__init__(grammar, max_depth)
+
+    def create_individual(self, r: Source, depth: int | None = None) -> TreeNode:
+        actual_depth = depth or self.max_depth
+        return random_individual(r, self.grammar, actual_depth)
 
     def mutate_individual(
         self,
         r: Source,
-        g: Grammar,
         ind: TreeNode,
         depth: int,
         ty: type,
         specific_type: type = None,
         depth_aware_mut: bool = False,
     ) -> TreeNode:
-        new_ind = mutate(r, g, ind, depth, ty, specific_type, depth_aware_mut)
+        new_ind = mutate(
+            r,
+            self.grammar,
+            ind,
+            depth,
+            ty,
+            specific_type,
+            depth_aware_mut,
+        )
         return new_ind
 
     def crossover_individuals(
         self,
         r: Source,
-        g: Grammar,
         i1: TreeNode,
         i2: TreeNode,
         max_depth: int,
         specific_type: type = None,
         depth_aware_co: bool = False,
     ) -> tuple[TreeNode, TreeNode]:
-        return crossover(r, g, i1, i2, max_depth, specific_type, depth_aware_co)
+        return crossover(
+            r,
+            self.grammar,
+            i1,
+            i2,
+            max_depth,
+            specific_type,
+            depth_aware_co,
+        )
 
-    def genotype_to_phenotype(self, g: Grammar, genotype: TreeNode) -> TreeNode:
+    def genotype_to_phenotype(self, genotype: TreeNode) -> TreeNode:
         return genotype
 
-
-treebased_representation = TreeBasedRepresentation()
+    def phenotype_to_genotype(self, phenotype: Any) -> TreeNode:
+        """Takes an existing program and adapts it to be used in the right
+        representation."""
+        return relabel_nodes_of_trees(
+            phenotype,
+            self.grammar,
+        )

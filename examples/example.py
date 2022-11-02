@@ -3,8 +3,7 @@ from __future__ import annotations
 from random import random
 from typing import Annotated
 
-from geneticengine.algorithms.gp.gp import GP
-from geneticengine.algorithms.hill_climbing import HC
+from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.algorithms.random_search import RandomSearch
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
@@ -41,10 +40,7 @@ def target(x):
     return x**2
 
 
-# target = 234.5
-# fitness_function = lambda p: (abs(target - p.evaluate(x=1, y=2, z=3)))
-
-alg_gp = GP(
+alg_gp = GPFriendly(
     g,
     representation=treebased_representation,
     problem=SingleObjectiveProblem(
@@ -53,7 +49,6 @@ alg_gp = GP(
         target_fitness=None,
     ),
     population_size=50,
-
     max_depth=5,
     number_of_generations=10,
     minimize=True,
@@ -72,7 +67,6 @@ alg_hc = HC(
         target_fitness=None,
     ),
     population_size=50,
-
     max_depth=5,
     number_of_generations=10,
 )

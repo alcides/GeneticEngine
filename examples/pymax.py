@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
@@ -89,7 +89,7 @@ def evolve(
         representation = dsge_representation
     else:
         representation = treebased_representation
-    alg = GP(
+    alg = GPFriendly(
         g,
         representation=representation,
         problem=SingleObjectiveProblem(

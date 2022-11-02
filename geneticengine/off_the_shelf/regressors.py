@@ -38,6 +38,7 @@ from geneticengine.off_the_shelf.sympy_compatible import fix_all
 class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
     """
     Genetic Programming Regressor. Main attributes: fit and predict
+    Defaults as given in A Field Guide to GP, p.17, by Poli and Mcphee
 
     Args:
         nodes (List[Number]): The list of nodes to be used in the grammar. You can design your own, or use the ones in geneticengine.grammars.[sgp,literals,basic_math]. The default uses [ Plus, Mul, ExpLiteral, Var, SafeDiv, SafeLog, SafeSqrt ] + exp_literals.
@@ -51,11 +52,9 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
         favor_less_deep_trees (bool): If set to True, this gives a tiny penalty to deeper trees to favor simpler trees (default = False).
         hill_climbing (bool): Allows the user to change the standard mutation operations to the hill-climbing mutation operation, in which an individual is mutated to 5 different new individuals, after which the best is chosen to survive (default = False).
         metric (str): Choose the metric used in the fitness function. Currently available: mean square error (mse), and the r2 measure (r2), new once can be requested or easily implemented by the user (default = 'mse').
-        -----
-        Defaults as given in A Field Guide to GP, p.17, by Poli and Mcphee:
+
         probability_mutation (float): probability that an individual is mutated (default = 0.01).
         probability_crossover (float): probability that an individual is chosen for cross-over (default = 0.9).
-        -----
     """
 
     def __init__(

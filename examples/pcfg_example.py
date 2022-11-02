@@ -6,7 +6,7 @@ from typing import List
 from typing import NamedTuple
 from typing import Protocol
 
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.core.decorators import weight
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
@@ -36,7 +36,7 @@ class C(R):
 
 if __name__ == "__main__":
     g = extract_grammar([A, B, C], R)
-    alg = GP(
+    alg = GPFriendly(
         g,
         representation=treebased_representation,
         problem=SingleObjectiveProblem(
