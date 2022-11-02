@@ -37,7 +37,7 @@ DATA_FILE_TEST = f"examples/data/{DATASET_NAME}/Test.txt"
 """
 This is a simple example on how to use GeneticEngine to solve a GP problem.
 We define the tree structure of the representation and then we define the fitness function for our problem
-We used the Vladislavleva4 data stored in examples/data folder
+We used the Vladislavleva4 dataset stored in examples/data folder
 """
 
 bunch = pd.read_csv(DATA_FILE_TRAIN, delimiter="\t")

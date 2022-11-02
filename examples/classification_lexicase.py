@@ -31,7 +31,7 @@ from geneticengine.metahandlers.vars import VarRange
 """
 This is an example of normal classification using normal GP, 
 with a lexicase selection algorithm as the parent selection.
-We used the Banknote data stored in examples/data folder
+We used the Banknote dataset stored in examples/data folder
 """
 
 DATASET_NAME = "Banknote"

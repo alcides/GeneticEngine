@@ -37,7 +37,7 @@ from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import mse
 
 """
-This is a example of a Multi target regression problem using normal GP,
+This is an example of a Multi target regression problem using normal GP,
 with a lexicase selection algorithm as the parent selection.
 We used the Linnerud dataset from sklearn library
 """
