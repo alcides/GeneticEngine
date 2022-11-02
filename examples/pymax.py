@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass
 
 from geneticengine.algorithms.gp.gp import GP
@@ -21,6 +20,11 @@ from geneticengine.grammars.coding.classes import XAssign
 from geneticengine.grammars.coding.control_flow import Code
 from geneticengine.grammars.coding.control_flow import ForLoop
 
+"""
+This is a simple example on how to use GeneticEngine to solve a GP problem.
+We define the tree structure of the representation and then we define the fitness function for our problem
+The Pymax problem is a traditional maximisation problem, where the goal is to produce as large a number as possible. 
+"""
 
 class VarX(Expr):
     def evaluate(self, x=0):

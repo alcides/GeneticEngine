@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
@@ -14,6 +13,10 @@ from geneticengine.core.representations.grammatical_evolution.structured_ge impo
 from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.grammars.letter import *
 
+"""
+This is a simple example on how to use GeneticEngine to solve a GP problem.
+We define the tree structure of the representation and then we define the fitness function for our problem
+"""
 
 # Extracted from PonyGE
 def fit(individual: String):

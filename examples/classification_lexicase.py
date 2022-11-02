@@ -1,11 +1,7 @@
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass
-from math import isinf
 from typing import Annotated
-from typing import Any
-from typing import Callable
 
 import numpy as np
 import pandas as pd
@@ -30,9 +26,13 @@ from geneticengine.grammars.sgp import Number
 from geneticengine.grammars.sgp import Plus
 from geneticengine.grammars.sgp import Var
 from geneticengine.metahandlers.floats import FloatList
-from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.vars import VarRange
-from geneticengine.metrics import f1_score
+
+"""
+This is an example of normal classification using normal GP, 
+with a lexicase selection algorithm as the parent selection.
+We used the Banknote data stored in examples/data folder
+"""
 
 DATASET_NAME = "Banknote"
 DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.csv"

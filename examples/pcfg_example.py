@@ -1,20 +1,18 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Annotated
-from typing import List
-from typing import NamedTuple
-from typing import Protocol
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.decorators import weight
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.tree.treebased import treebased_representation
-from geneticengine.metahandlers.ints import IntRange
-from geneticengine.metahandlers.lists import ListSizeBetween
 
-
+"""
+This is a simple example on how to use GeneticEngine to solve a GP problem.
+We define the tree structure of the representation and we assigned weights to each tree node,
+then we define the fitness function for our problem.
+"""
 class R(ABC):
     pass
 

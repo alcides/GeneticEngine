@@ -3,11 +3,9 @@ from __future__ import annotations
 from math import isinf
 from typing import Annotated
 from typing import Any
-from typing import Callable
 
 import numpy as np
 from sklearn.datasets import load_diabetes
-from sklearn.metrics import mean_squared_error
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
@@ -26,6 +24,12 @@ from geneticengine.grammars.sgp import Plus
 from geneticengine.grammars.sgp import Var
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import mse
+
+"""
+This is a simple example of normal regression using normal GP, 
+with a tournament selection algorithm as the parent selection and mse metric for measuring the fitness
+We used the diabetes dataset from sklearn library
+"""
 
 # Load Dataset
 bunch: Any = load_diabetes()
