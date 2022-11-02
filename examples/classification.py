@@ -35,11 +35,11 @@ from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import f1_score
 
 
-"""
-This is a simple example of normal classification using normal GP, 
-with a tournament selection algorithm as the parent selection and f1-score metric for measuring the fitness
-We used the Banknote dataset stored in examples/data folder
-"""
+# ===================================
+# This is a simple example of normal classification using normal GP, 
+# with a tournament selection algorithm as the parent selection and f1-score metric for measuring the fitness
+# We used the Banknote dataset stored in examples/data folder
+# ===================================
 
 DATASET_NAME = "Banknote"
 DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.csv"

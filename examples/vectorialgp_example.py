@@ -25,11 +25,11 @@ from geneticengine.core.representations.tree.treebased import treebased_represen
 from geneticengine.metahandlers.floats import FloatRange
 from geneticengine.metahandlers.ints import IntRange
 
-"""
-This is an example on how to use GeneticEngine to solve a GP problem.
-We define the tree structure of the representation and then we define the fitness function for our problem
-In this example we are solving our problem using a Vectorial Approach to Genetic Programming
-"""
+# ===================================
+# This is an example on how to use GeneticEngine to solve a GP problem.
+# We define the tree structure of the representation and then we define the fitness function for our problem
+# In this example we are solving our problem using a Vectorial Approach to Genetic Programming
+# ===================================
 
 # Load Dataset
 dataset = [

@@ -18,11 +18,11 @@ from geneticengine.grammars.sgp import Plus
 from geneticengine.grammars.sgp import Var
 from geneticengine.metahandlers.vars import VarRange
 
-"""
-This is a simple example on how to use GeneticEngine to solve a GP problem.
-We define the tree structure of the representation and then we define the fitness function for our problem
-In this example we are solving the same problem using three different algoritms; Hill Climbing , Random Search and a GP algorithm 
-"""
+# ===================================
+# This is a simple example on how to use GeneticEngine to solve a GP problem.
+# We define the tree structure of the representation and then we define the fitness function for our problem
+# In this example we are solving the same problem using three different algoritms; Hill Climbing , Random Search and a GP algorithm 
+# ===================================
 
 Var.__init__.__annotations__["name"] = Annotated[str, VarRange("x")]
 g = extract_grammar([Plus, Mul, SafeDiv, Literal, Var], Number)

@@ -33,11 +33,11 @@ from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import mse
 
-"""
-This is a simple example of normal regression using normal GP, 
-with a lexicase selection algorithm as the parent selection and mse metric for measuring the fitness
-We used the Vladislavleva4 data stored in examples/data folder
-"""
+# ===================================
+# This is a simple example of normal regression using normal GP, 
+# with a lexicase selection algorithm as the parent selection and mse metric for measuring the fitness
+# We used the Vladislavleva4 data stored in examples/data folder
+# ===================================
 
 DATASET_NAME = "Vladislavleva4"
 DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.txt"

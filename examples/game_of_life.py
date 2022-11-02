@@ -26,12 +26,12 @@ from geneticengine.grammars.coding.logical_ops import Not
 from geneticengine.grammars.coding.logical_ops import Or
 from geneticengine.metahandlers.ints import IntRange
 
-"""
-This is an example on how to use GeneticEngine to solve a GP problem.
-We define the tree structure of the representation and then we define the fitness function for our problem
-In this example we are Reversing Game of Life using a Vectorial Approach to Genetic Programming
-We used the GameOfLife dataset stored in examples/data folder
-"""
+# ===================================
+# This is an example on how to use GeneticEngine to solve a GP problem.
+# We define the tree structure of the representation and then we define the fitness function for our problem
+# In this example we are Reversing Game of Life using a Vectorial Approach to Genetic Programming
+# We used the GameOfLife dataset stored in examples/data folder
+# ===================================
 
 DATASET_NAME = "GameOfLife"
 DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.csv"

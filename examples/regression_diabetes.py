@@ -25,11 +25,11 @@ from geneticengine.grammars.sgp import Var
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import mse
 
-"""
-This is a simple example of normal regression using normal GP, 
-with a tournament selection algorithm as the parent selection and mse metric for measuring the fitness
-We used the diabetes dataset from sklearn library
-"""
+# ===================================
+# This is a simple example of normal regression using normal GP, 
+# with a tournament selection algorithm as the parent selection and mse metric for measuring the fitness
+# We used the diabetes dataset from sklearn library
+# ===================================
 
 # Load Dataset
 bunch: Any = load_diabetes()

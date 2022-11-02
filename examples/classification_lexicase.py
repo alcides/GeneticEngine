@@ -28,11 +28,11 @@ from geneticengine.grammars.sgp import Var
 from geneticengine.metahandlers.floats import FloatList
 from geneticengine.metahandlers.vars import VarRange
 
-"""
-This is an example of normal classification using normal GP, 
-with a lexicase selection algorithm as the parent selection.
-We used the Banknote dataset stored in examples/data folder
-"""
+# ===================================
+# This is an example of normal classification using normal GP, 
+# with a lexicase selection algorithm as the parent selection.
+# We used the Banknote dataset stored in examples/data folder
+# ===================================
 
 DATASET_NAME = "Banknote"
 DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.csv"

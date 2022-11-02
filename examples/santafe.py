@@ -23,11 +23,11 @@ from geneticengine.core.representations.grammatical_evolution.structured_ge impo
 from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.metahandlers.lists import ListSizeBetween
 
-"""
-This is a simple example on how to use GeneticEngine to solve a GP problem.
-We define the tree structure of the representation and then we define the fitness function for our problem
-The Santa Fe Trail problem is a GP problem in which artificial ants search for food pellets according to a programmed set of instructions
-"""
+# ===================================
+# This is a simple example on how to use GeneticEngine to solve a GP problem.
+# We define the tree structure of the representation and then we define the fitness function for our problem
+# The Santa Fe Trail problem is a GP problem in which artificial ants search for food pellets according to a programmed set of instructions
+# ===================================
 
 map = """.###............................
 ...#............................
