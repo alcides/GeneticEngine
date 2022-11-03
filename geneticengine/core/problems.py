@@ -7,7 +7,6 @@ from typing import Optional
 from typing import TypeVar
 from typing import Union
 
-
 FitnessType = Union[float, list[float]]
 P = TypeVar("P")
 
@@ -92,13 +91,15 @@ class MultiObjectiveProblem(Problem):
         return len(self.minimize)
 
     def evaluate(self, phenotype: P) -> list[float]:
+        assert not "Individual" in str(type(phenotype))  # DEBUG
         return [float(x) for x in self.fitness_function(phenotype)]
 
-    def overall_fitness(self, p: P) -> float:
+    def overall_fitness(self, phenotype: P) -> float:
+        assert not "Individual" in str(type(phenotype))  # DEBUG
         if self.best_individual_criteria_function is None:
-            return sum(self.evaluate(p))
+            return sum(self.evaluate(phenotype))
         else:
-            return self.best_individual_criteria_function(p)
+            return self.best_individual_criteria_function(phenotype)
 
 
 def wrap_depth_minimization(p: SingleObjectiveProblem) -> SingleObjectiveProblem:

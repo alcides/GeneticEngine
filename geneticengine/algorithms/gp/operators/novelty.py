@@ -19,6 +19,9 @@ class NoveltyStep(GeneticStep):
         target_size: int,
     ) -> list[Individual]:
         return [
-            Individual(representation.create_individual(random_source, depth=None))
+            Individual(
+                representation.create_individual(random_source, depth=None),
+                representation.genotype_to_phenotype,
+            )
             for _ in range(target_size)
         ]

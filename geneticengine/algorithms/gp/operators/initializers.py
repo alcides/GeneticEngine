@@ -21,7 +21,10 @@ class FullInitializer(PopulationInitializer):
     ) -> list[Individual]:
         # TODO Mode: full, grow
         return [
-            Individual(representation.create_individual(random_source))
+            Individual(
+                representation.create_individual(random_source),
+                genotype_to_phenotype=representation.genotype_to_phenotype,
+            )
             for _ in range(target_size)
         ]
 
@@ -42,6 +45,7 @@ class GrowInitializer(PopulationInitializer):
                 representation.create_individual(
                     random_source,
                 ),
+                genotype_to_phenotype=representation.genotype_to_phenotype,
             )
             for _ in range(target_size)
         ]
@@ -67,6 +71,7 @@ class RampedHalfAndHalfInitializer(PopulationInitializer):
                         representation.max_depth,
                     ),
                 ),
+                genotype_to_phenotype=representation.genotype_to_phenotype,
             )
             for _ in range(target_size)
         ]
@@ -77,7 +82,7 @@ class InjectInitialPopulationWrapper(PopulationInitializer):
     necessary to fulfill the population size."""
 
     def __init__(self, programs: list[Any], backup: PopulationInitializer):
-        self.programs = [Individual(x) for x in programs]
+        self.programs = programs
         self.backup_initializer = backup
 
     def initialize(
@@ -87,6 +92,10 @@ class InjectInitialPopulationWrapper(PopulationInitializer):
         random_source: Source,
         target_size: int,
     ) -> list[Individual]:
+        self.programs = [
+            Individual(p, genotype_to_phenotype=representation.genotype_to_phenotype)
+            for p in programs
+        ]
         if target_size > len(self.programs):
             return self.programs[:target_size]
         else:

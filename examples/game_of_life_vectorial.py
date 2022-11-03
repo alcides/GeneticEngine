@@ -17,7 +17,7 @@ from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
-    DynamicStructuredGrammaticalEvolutionRepresentation,
+    DynamicStructureGrammaticalEvolutionRepresentation,
 )
 from geneticengine.core.representations.grammatical_evolution.ge import (
     GrammaticalEvolutionRepresentation,
@@ -202,12 +202,12 @@ def evaluate(e: Expr | Matrix | Number) -> Callable[[Any], float]:
         rn: Number = e.right
         return lambda line: evaluate(ln)(line) == evaluate(rn)(line)
     elif isinstance(e, GreaterThan):
-        ln: Number = e.left
-        rn: Number = e.right
+        lng: Number = e.left
+        rng: Number = e.right
         return lambda line: evaluate(ln)(line) > evaluate(rn)(line)
     elif isinstance(e, LessThan):
-        ln: Number = e.left
-        rn: Number = e.right
+        lnl: Number = e.left
+        rnl: Number = e.right
         return lambda line: evaluate(ln)(line) < evaluate(rn)(line)
     elif isinstance(e, Literal):
         v = e.val

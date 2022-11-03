@@ -2,25 +2,38 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any
+from typing import Callable
+from typing import Generic
+from typing import TypeVar
 
 from geneticengine.core.problems import FitnessType
 from geneticengine.core.problems import Problem
 
+G = TypeVar("G")
+P = TypeVar("P")
+
 
 @dataclass
-class Individual:
-    genotype: Any
+class Individual(Generic[G, P]):
+    genotype: G
+    genotype_to_phenotype: Callable[[G], P]
+    phenotype: P | None = None
     fitness: FitnessType | None = None
 
     def __str__(self) -> str:
         return str(self.genotype)
 
-    def evaluate(self, problem: Problem, genotype_to_phenotype) -> FitnessType:
+    def get_phenotype(self):
+        if self.phenotype is None:
+            self.phenotype = self.genotype_to_phenotype(self.genotype)
+        return self.phenotype
+
+    def evaluate(self, problem: Problem) -> FitnessType:
         if self.fitness is None:
-            self.fitness = problem.evaluate(genotype_to_phenotype(self.genotype))
+            self.fitness = problem.evaluate(self.get_phenotype())
         return self.fitness
 
-    def count_prods(self, genotype_to_phenotype, all_nodes):
+    def count_prods(self, all_nodes):
         counts = {prod: 1 for prod in all_nodes}
 
         def add_count(ty):
@@ -39,12 +52,12 @@ class Individual:
             for argn in get_args(node):
                 counting(getattr(node, argn))
 
-        counting(genotype_to_phenotype(self.genotype))
+        counting(self.get_phenotype())
         # self.counts = counts
         return counts
 
-    def production_probabilities(self, genotype_to_phenotype, g):
-        counts = self.count_prods(genotype_to_phenotype, g.all_nodes)
+    def production_probabilities(self, g):
+        counts = self.count_prods(g.all_nodes)
         probs = counts.copy()
         for rule in g.alternatives:
             prods = g.alternatives[rule]

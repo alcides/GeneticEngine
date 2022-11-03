@@ -201,7 +201,8 @@ def evolve(
     minimizelist = [False for _ in data.values.tolist()]
 
     def single_criteria_test(n: Number) -> float:
-        return sum((m and -f or f) for (f, m) in zip(n.fitness, minimizelist))
+        fitnesses = fitness_function_lexicase(n)
+        return sum((m and -f or f) for (f, m) in zip(fitnesses, minimizelist))
 
     alg = GPFriendly(
         g,

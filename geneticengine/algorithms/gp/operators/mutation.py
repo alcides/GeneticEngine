@@ -45,7 +45,7 @@ class GenericMutationStep(GeneticStep):
                 specific_type=self.specific_type,
                 depth_aware_mut=self.depth_aware_mut,
             ),
-            fitness=None,
+            genotype_to_phenotype=representation.genotype_to_phenotype,
         )
 
 

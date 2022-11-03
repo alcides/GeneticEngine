@@ -111,7 +111,7 @@ class GP(Heuristics):
             cb.end_evolution()
         return (
             best_individual,
-            self.evaluate(best_individual),
+            best_individual.evaluate(self.problem),
             self.representation.genotype_to_phenotype(
                 best_individual.genotype,
             ),

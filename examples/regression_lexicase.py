@@ -95,6 +95,7 @@ def preprocess():
 
 
 def fitness_function_lexicase(n: Number):
+    assert isinstance(n, Number)
     cases = data.values.tolist()
     y = target.values
 
@@ -134,7 +135,9 @@ def evolve(
     minimizelist = [True for _ in data.values.tolist()]
 
     def single_criteria_test(n: Number) -> float:
-        return sum((m and -f or f) for (f, m) in zip(n.fitness, minimizelist))
+        assert isinstance(n, Number)
+        fitnesses = fitness_function_lexicase(n)
+        return sum((m and -f or f) for (f, m) in zip(fitnesses, minimizelist))
 
     alg = GPFriendly(
         g,

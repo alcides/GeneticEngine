@@ -59,4 +59,7 @@ class GenericCrossoverStep(GeneticStep):
             specific_type=self.specific_type,
             depth_aware_co=self.depth_aware_co,
         )
-        return (Individual(g1), Individual(g2))
+        return (
+            Individual(g1, representation.genotype_to_phenotype),
+            Individual(g2, representation.genotype_to_phenotype),
+        )

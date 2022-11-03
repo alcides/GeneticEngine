@@ -8,11 +8,12 @@ from typing import List
 from typing import Tuple
 
 from geneticengine.algorithms.gp.gp_friendly import GPFriendly
+from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
-    DynamicStructuredGrammaticalEvolutionRepresentation,
+    DynamicStructureGrammaticalEvolutionRepresentation,
 )
 from geneticengine.core.representations.grammatical_evolution.ge import (
     GrammaticalEvolutionRepresentation,
@@ -215,19 +216,19 @@ def evolve(
     return b, bf
 
 
+def fitness_function(i) -> float:
+    return simulate(i, map)
+
+
 if __name__ == "__main__":
     g = preprocess()
     print(f"Grammar: {repr(g)}")
     (b_gp, bf_gp) = evolve(lambda p: simulate(p, map), g, 123, False, "dsge")
 
     alg_hc = HC(
-        g,
-        lambda p: simulate(p, map),
-        representation=TreeBasedRepresentation,
-        minimize=False,
-        max_depth=10,
-        number_of_generations=50,
-        population_size=150,
+        representation=TreeBasedRepresentation(g, 10),
+        problem=SingleObjectiveProblem(fitness_function),
+        stopping_criterium=GenerationStoppingCriterium(50),
     )
     (b_hc, bf_hc, bp_hc) = alg_hc.evolve()
 

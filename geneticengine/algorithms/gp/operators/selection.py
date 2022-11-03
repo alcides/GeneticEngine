@@ -40,7 +40,6 @@ class TournamentSelection(GeneticStep):
                     candidates,
                     key=lambda x: x.evaluate(
                         problem,
-                        representation.genotype_to_phenotype,
                     ),
                 )
             else:
@@ -48,7 +47,6 @@ class TournamentSelection(GeneticStep):
                     candidates,
                     key=lambda x: x.evaluate(
                         problem,
-                        representation.genotype_to_phenotype,
                     ),
                 )
             winners.append(winner)
@@ -74,7 +72,7 @@ class LexicaseSelection(GeneticStep):
     ) -> list[Individual]:
         assert isinstance(problem, MultiObjectiveProblem)
         candidates = population.copy()
-        candidates[0].evaluate(problem, representation.genotype_to_phenotype)
+        candidates[0].evaluate(problem)
         assert isinstance(candidates[0].fitness, list)
         n_cases = len(candidates[0].fitness)
         cases = r.shuffle(list(range(n_cases)))
@@ -91,7 +89,6 @@ class LexicaseSelection(GeneticStep):
                     checking_candidate = candidates_to_check[i]
                     checking_candidate.evaluate(
                         problem,
-                        representation.genotype_to_phenotype,
                     )
                     assert isinstance(checking_candidate.fitness, list)
 

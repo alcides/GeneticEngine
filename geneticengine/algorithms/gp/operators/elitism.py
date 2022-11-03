@@ -21,6 +21,6 @@ class ElitismStep(GeneticStep):
     ) -> list[Individual]:
         population_copy = population.copy()
         population_copy.sort(
-            key=lambda ind: ind.evaluate(problem, representation.genotype_to_phenotype),
+            key=lambda ind: ind.evaluate(problem),
         )
         return population_copy[:target_size]

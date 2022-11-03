@@ -66,7 +66,7 @@ class Heuristics(ABC):
         """
         assert individuals
         best_individual: Individual
-        fitnesses = [self.evaluate(x) for x in individuals]
+        fitnesses = [x.evaluate(self.problem) for x in individuals]
 
         if isinstance(p, SingleObjectiveProblem):
             assert all(isinstance(x, float) for x in fitnesses)
@@ -96,42 +96,6 @@ class Heuristics(ABC):
     # this only works with SingleObjectiveProblem
     def keyfitness(self):
         if self.problem.minimize:
-            return lambda x: self.evaluate(x)
+            return lambda x: x.evaluate(self.problem)
         else:
-            return lambda x: -self.evaluate(x)
-
-    def evaluate(self, individual: Individual) -> FitnessType:
-        """The evaluate is a methoad that is used to evaluate individual
-        fitness.
-
-        Args:
-            individual (Individual): Individual that we are evaluating the fitness
-
-        Returns:
-            FitnessType: The FitnessType of the individual, either a float or a list[float]
-        """
-        if individual.fitness is None:
-            individual.fitness = individual.evaluate(
-                self.problem,
-                self.representation.genotype_to_phenotype,
-            )
-        return individual.fitness
-
-    def create_individual(self, depth: int) -> Individual:
-        """The create_individual is a methoad that is used to create a new
-        individual.
-
-        Args:
-            depth: number of
-
-        Returns:
-            Individual
-        """
-        genotype = self.representation.create_individual(
-            r=self.random,
-            depth=depth,
-        )
-        return Individual(
-            genotype=genotype,
-            fitness=None,
-        )
+            return lambda x: -x.evaluate(self.problem)
