@@ -13,6 +13,9 @@ from geneticengine.core.representations.tree.treebased import Grammar
 
 
 class GenericCrossoverStep(GeneticStep):
+    """Changes the population by crossing individuals two-by-two together,
+    according to a given probability."""
+
     def __init__(
         self,
         probability: float,

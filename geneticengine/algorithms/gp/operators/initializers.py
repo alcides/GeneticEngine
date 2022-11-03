@@ -10,7 +10,8 @@ from geneticengine.core.representations.api import Representation
 
 
 class FullInitializer(PopulationInitializer):
-    """All individuals are created with full trees."""
+    """All individuals are created with full trees (maximum depth in all
+    branches)."""
 
     def initialize(
         self,
@@ -30,7 +31,8 @@ class FullInitializer(PopulationInitializer):
 
 
 class GrowInitializer(PopulationInitializer):
-    """All individuals are created with full trees."""
+    """All individuals are created expanding productions until a maximum depth,
+    but without the requirement of reaching that depth."""
 
     def initialize(
         self,
@@ -52,7 +54,12 @@ class GrowInitializer(PopulationInitializer):
 
 
 class RampedHalfAndHalfInitializer(PopulationInitializer):
-    """All individuals are created with full trees."""
+    """Half of the individuals are created with the maximum depth, and the
+    other half with different values of maximum depth between the minimum and
+    the maximum.
+
+    There's an equal chance of using full or grow method.
+    """
 
     def initialize(
         self,

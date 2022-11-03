@@ -8,6 +8,8 @@ from geneticengine.core.representations.api import Representation
 
 
 class GenericMutationStep(GeneticStep):
+    """Applies a mutation to individuals with a given probability."""
+
     def __init__(
         self,
         probability: float,
