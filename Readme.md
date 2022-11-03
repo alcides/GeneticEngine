@@ -50,7 +50,7 @@ Publications
 * [Data types as a more ergonomic frontend for Grammar-Guided Genetic Programming](https://arxiv.org/pdf/2210.04826) at GPCE'22
 * [Benchmarking Individual Representation in Grammar-Guided Genetic Programming](https://wwwww.easychair.org/publications/preprint_download/wqrb) at Evo*'22
 * [Grammatical Evolution Mapping for Semantically-Constrained Genetic Programming](https://www.researchgate.net/profile/Alcides-Fonseca/publication/358528379_Grammatical_Evolution_Mapping_for_Semantically-Constrained_Genetic_Programming/links/620a1ecf634ff774f4cc2cee/Grammatical-Evolution-Mapping-for-Semantically-Constrained-Genetic-Programming.pdf) at GPTP'21
-* [The usability argument for refinement typed genetic programming](https://link.springer.com/chapter/10.1007/978-3-030-58115-2_2) at PPSN'20
+* [The Usability Argument for Refinement Typed Genetic Programming](https://link.springer.com/chapter/10.1007/978-3-030-58115-2_2) at PPSN'20
 
 
 Please cite as:
