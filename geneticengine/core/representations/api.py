@@ -9,9 +9,10 @@ from geneticengine.core.random.sources import Source
 from geneticengine.core.tree import TreeNode
 
 g = TypeVar("g")
+p = TypeVar("p")
 
 
-class Representation(Generic[g]):
+class Representation(Generic[g, p]):
     grammar: Grammar
     min_depth: int
     max_depth: int
@@ -22,7 +23,7 @@ class Representation(Generic[g]):
         self.max_depth = max_depth
         assert self.min_depth <= self.max_depth
 
-    def create_individual(self, r: Source, depth: int | None = None) -> g:
+    def create_individual(self, r: Source, depth: int | None = None, **kwargs) -> g:
         ...
 
     def mutate_individual(
@@ -47,10 +48,10 @@ class Representation(Generic[g]):
     ) -> tuple[g, g]:
         ...
 
-    def genotype_to_phenotype(self, genotype: g) -> TreeNode:
+    def genotype_to_phenotype(self, genotype: g) -> p:
         ...
 
-    def phenotype_to_genotype(self, phenotype: Any) -> g:
+    def phenotype_to_genotype(self, phenotype: p) -> g:
         """Takes an existing program and adapts it to be used in the right
         representation."""
         ...

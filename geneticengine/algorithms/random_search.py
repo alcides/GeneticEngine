@@ -7,7 +7,7 @@ from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.gp.operators.combinators import ParallelStep
 from geneticengine.algorithms.gp.operators.elitism import ElitismStep
 from geneticengine.algorithms.gp.operators.initializers import (
-    RampedHalfAndHalfInitializer,
+    GrowInitializer,
 )
 from geneticengine.algorithms.gp.operators.novelty import NoveltyStep
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
@@ -37,7 +37,7 @@ class RandomSearch(GP):
         representation: Representation[Any],
         problem: Problem,
         random_source: Source = RandomSource(0),
-        initializer: PopulationInitializer = RampedHalfAndHalfInitializer(),
+        initializer: PopulationInitializer = GrowInitializer(),
         stopping_criterium: StoppingCriterium = GenerationStoppingCriterium(100),
         callbacks: list[Callback] = None,
     ):

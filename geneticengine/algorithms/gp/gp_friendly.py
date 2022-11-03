@@ -21,9 +21,6 @@ from geneticengine.algorithms.gp.operators.initializers import GrowInitializer
 from geneticengine.algorithms.gp.operators.initializers import (
     InjectInitialPopulationWrapper,
 )
-from geneticengine.algorithms.gp.operators.initializers import (
-    RampedHalfAndHalfInitializer,
-)
 from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
 from geneticengine.algorithms.gp.operators.novelty import NoveltyStep
 from geneticengine.algorithms.gp.operators.selection import LexicaseSelection
@@ -40,6 +37,9 @@ from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.problems import wrap_depth_minimization
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.api import Representation
+from geneticengine.core.representations.tree.operators import (
+    RampedHalfAndHalfInitializer,
+)
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 
 P = TypeVar("P")

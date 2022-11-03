@@ -28,10 +28,12 @@ def apply_metahandler(
     ty: type[Any],
     context: dict[str, str],
 ) -> Any:
-    """
-    This method applies a metahandler to use a custom generator for things of a given type.
-    As an example, AnnotatedType[int, IntRange(3,10)] will use the IntRange.generate(r, recursive_generator)
-    The generator is the annotation on the type ("__metadata__").
+    """This method applies a metahandler to use a custom generator for things
+    of a given type.
+
+    As an example, AnnotatedType[int, IntRange(3,10)] will use the
+    IntRange.generate(r, recursive_generator) The generator is the
+    annotation on the type ("__metadata__").
     """
     metahandler = ty.__metadata__[0]
     base_type = get_generic_parameter(ty)
@@ -46,7 +48,7 @@ def apply_metahandler(
     )  # todo: last argument
 
 
-MethodType = Callable[[Source, Grammar, int, type[Any]], Any]
+InitializationMethodType = Callable[[Source, Grammar, int, type[Any]], Any]
 
 
 def grow_method(
@@ -55,9 +57,8 @@ def grow_method(
     depth: int,
     starting_symbol: type[Any] = int,
 ):
-    """
-    Implements the standard Grow tree-initialization method, where trees are naturally grown from the grammar.
-    """
+    """Implements the standard Grow tree-initialization method, where trees are
+    naturally grown from the grammar."""
 
     def filter_choices(possible_choices: list[type], depth):
         valid_productions = [
@@ -102,9 +103,9 @@ def full_method(
     depth: int,
     starting_symbol: type[Any] = int,
 ):
-    """
-    Implements the Full tree-initialization method, where trees are grown from the grammar with all branches as deep as possible, making full trees.
-    """
+    """Implements the Full tree-initialization method, where trees are grown
+    from the grammar with all branches as deep as possible, making full
+    trees."""
 
     def filter_choices(possible_choices: list[type], depth):
         valid_productions = [
@@ -154,8 +155,12 @@ def pi_grow_method(
     depth: int,
     starting_symbol: type[Any] = int,
 ):
-    """
-    Implements the PI Grow tree-initialization method (http://ncra.ucd.ie/papers/Exploring%20Position%20Independent%20Initialisation%20in%20Grammatical%20Evolution.pdf), where trees are grown to have at least one branch as deep as possible.
+    """Implements the PI Grow tree-initialization method (http://ncra.ucd.ie/pa
+    pers/Exploring%20Position%20Independent%20Initialisation%20in%20Grammatical
+    .
+
+    %20Evolution.pdf), where trees are grown to have at least one branch
+    as deep as possible.
     """
     state = {}
 
@@ -225,9 +230,7 @@ def expand_node(
     id: str,
     ctx: dict[str, str],
 ) -> Any:
-    """
-    Creates a random node of a given type (starting_symbol)
-    """
+    """Creates a random node of a given type (starting_symbol)"""
     if depth < 0:
         raise GeneticEngineError("Recursion Depth reached")
     if depth < g.get_distance_to_terminal(starting_symbol):
