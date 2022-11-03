@@ -41,6 +41,15 @@ from geneticengine.grammars.coding.numbers import SafeDiv
 from geneticengine.grammars.coding.numbers import Var
 from geneticengine.metahandlers.vars import VarRange
 
+
+# ===================================
+# This is a simple example on how to use GeneticEngine to solve a GP problem.
+# We define the tree structure of the representation and then we define the fitness function for our problem
+# This Sum_of_Squares example is a combinatorial optimization problem, given an integer n,  returns the sum of squaring each integer in the range [1, n].
+# We used the Sum_of_Squares dataset stored in examples/progsys/data folder
+# Problem taken from the following paper: https://dl.acm.org/doi/abs/10.1145/2739480.2754769
+# ===================================
+
 FILE_NAME = "Sum_of_Squares"
 DATA_FILE_TRAIN = f"./examples/progsys/data/{FILE_NAME}/Train.txt"
 DATA_FILE_TEST = f"./examples/progsys/data/{FILE_NAME}/Test.txt"
