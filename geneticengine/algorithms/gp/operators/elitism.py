@@ -19,14 +19,8 @@ class ElitismStep(GeneticStep):
         population: list[Individual],
         target_size: int,
     ) -> list[Individual]:
-
-        fitnesses = [problem.evaluate(x) for x in population]
-
-        if isinstance(problem, SingleObjectiveProblem):
-            assert all(isinstance(x, float) for x in fitnesses)
-        else:
-            assert all(isinstance(x, list) for x in fitnesses)
-
         population_copy = population.copy()
-        population_copy.sort(key=lambda x: problem.overall_fitness(x))
+        population_copy.sort(
+            key=lambda ind: ind.evaluate(problem, representation.genotype_to_phenotype),
+        )
         return population_copy[:target_size]

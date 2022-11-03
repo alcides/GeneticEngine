@@ -2,14 +2,16 @@ from __future__ import annotations
 
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import Source
+from geneticengine.core.representations.tree.initializations import pi_grow_method
 from geneticengine.core.representations.tree.utils import GengyList
 from geneticengine.core.utils import build_finalizers
 from geneticengine.metahandlers.base import MetaHandlerGenerator
 
 
 class ListSizeBetween(MetaHandlerGenerator):
-    """
-    ListSizeBetween(a,b) restricts lists to be of length between a and b and implements a special list mutation.
+    """ListSizeBetween(a,b) restricts lists to be of length between a and b and
+    implements a special list mutation.
+
     The list of options can be dynamically altered before the grammar extraction (Set.__annotations__["set"] = Annotated[List[Type], ListSizeBetween(c,d)].
     The special list mutation entails three different alterations to the list in question: deletion of a random element; addition of a random element; and replacement of a random element.
     """
@@ -45,8 +47,8 @@ class ListSizeBetween(MetaHandlerGenerator):
         random_node,
         depth: int,
         base_type,
-        method,
         current_node,
+        method=pi_grow_method,
     ):
         mutation_method = r.randint(0, 1)
         if (mutation_method == 0) and (len(current_node) != self.min):  # del
@@ -103,8 +105,9 @@ class ListSizeBetween(MetaHandlerGenerator):
 
 
 class ListSizeBetweenWithoutListOperations(MetaHandlerGenerator):
-    """
-    ListSizeBetweenWithoutListOperations(a,b) restricts lists to be of length between a and b.
+    """ListSizeBetweenWithoutListOperations(a,b) restricts lists to be of
+    length between a and b.
+
     The list of options can be dynamically altered before the grammar extraction (Set.__annotations__["set"] = Annotated[List[Type], ListSizeBetweenWithoutListOperations(c,d)].
     """
 

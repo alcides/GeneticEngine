@@ -10,9 +10,13 @@ from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.algorithms.gp.operators.combinators import ParallelStep
 from geneticengine.algorithms.gp.operators.combinators import SequenceStep
 from geneticengine.algorithms.gp.operators.elitism import ElitismStep
+from geneticengine.algorithms.gp.operators.initializers import (
+    RampedHalfAndHalfInitializer,
+)
 from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
 from geneticengine.algorithms.gp.operators.mutation import HillClimbingMutationIteration
 from geneticengine.algorithms.gp.operators.selection import TournamentSelection
+from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.algorithms.gp.structure import StoppingCriterium
@@ -20,6 +24,7 @@ from geneticengine.algorithms.heuristics import Heuristics
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.problems import FitnessType
 from geneticengine.core.problems import Problem
+from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
 
@@ -41,9 +46,9 @@ class HC(GP):
         self,
         representation: Representation[Any],
         problem: Problem,
-        random_source: Source,
-        initializer: PopulationInitializer,
-        stopping_criterium: StoppingCriterium,
+        random_source: Source = RandomSource(0),
+        initializer: PopulationInitializer = RampedHalfAndHalfInitializer(),
+        stopping_criterium: StoppingCriterium = GenerationStoppingCriterium(100),
         callbacks: list[Callback] = None,
     ):
         step = HillClimbingMutationIteration(1)

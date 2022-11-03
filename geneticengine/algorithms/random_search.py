@@ -6,10 +6,15 @@ from geneticengine.algorithms.callbacks.callback import Callback
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.gp.operators.combinators import ParallelStep
 from geneticengine.algorithms.gp.operators.elitism import ElitismStep
+from geneticengine.algorithms.gp.operators.initializers import (
+    RampedHalfAndHalfInitializer,
+)
 from geneticengine.algorithms.gp.operators.novelty import NoveltyStep
+from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.algorithms.gp.structure import StoppingCriterium
 from geneticengine.core.problems import Problem
+from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
 
@@ -31,9 +36,9 @@ class RandomSearch(GP):
         self,
         representation: Representation[Any],
         problem: Problem,
-        random_source: Source,
-        initializer: PopulationInitializer,
-        stopping_criterium: StoppingCriterium,
+        random_source: Source = RandomSource(0),
+        initializer: PopulationInitializer = RampedHalfAndHalfInitializer(),
+        stopping_criterium: StoppingCriterium = GenerationStoppingCriterium(100),
         callbacks: list[Callback] = None,
     ):
         step = ParallelStep([NoveltyStep(), ElitismStep()])

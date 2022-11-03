@@ -85,7 +85,7 @@ class HillClimbingMutationIteration(GeneticStep):
         problem: Problem,
     ) -> Individual:
         def creation_new_individual():
-            return Individual(
+            i = Individual(
                 genotype=representation.mutate_individual(
                     random_source,
                     individual.genotype,
@@ -96,10 +96,14 @@ class HillClimbingMutationIteration(GeneticStep):
                 ),
                 fitness=None,
             )
+            return i
 
         new_individuals = [creation_new_individual() for _ in range(self.n_candidates)]
+
         best_individual = min(
             (new_individuals + [individual]),
-            key=problem.overall_fitness,
+            key=lambda ind: problem.overall_fitness(
+                representation.genotype_to_phenotype(ind.genotype),
+            ),
         )
         return best_individual

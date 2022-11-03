@@ -163,7 +163,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
             seed=self.seed,
         )
 
-        best_ind, fitness, phenotype = model.evolve(verbose=1)
+        best_ind, fitness, phenotype = model.evolve()
         self.evolved_phenotype = phenotype
         self.sympy_compatible_phenotype = fix_all(str(phenotype))
 
@@ -287,7 +287,7 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
             seed=self.seed,
         )
 
-        best_ind, fitness, phenotype = model.evolve(verbose=1)
+        best_ind, fitness, phenotype = model.evolve()
         self.evolved_phenotype = phenotype
         self.sympy_compatible_phenotype = fix_all(str(phenotype))
 

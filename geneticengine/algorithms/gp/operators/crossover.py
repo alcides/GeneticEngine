@@ -38,6 +38,10 @@ class GenericCrossoverStep(GeneticStep):
             (n1, n2) = self.crossover(ind1, ind2, representation, random_source)
             retlist.append(n1)
             retlist.append(n2)
+
+        # Fix odd-lengthed lists
+        if len(population) % 2 != 0:
+            retlist.append(population[-1])
         return retlist
 
     def crossover(

@@ -24,7 +24,7 @@ class Problem(ABC):
     minimize: bool | list[bool]
     fitness_function: Callable[[P], float] | Callable[[P], list[float]]
 
-    def evaluate(self, p: P) -> FitnessType:
+    def evaluate(self, phenotype: P) -> FitnessType:
         ...
 
     def solved(self, best_fitness: FitnessType):
@@ -58,11 +58,11 @@ class SingleObjectiveProblem(Problem):
         self.minimize = minimize
         self.target_fitness = target_fitness
 
-    def evaluate(self, p: P) -> float:
-        return float(self.fitness_function(p))
+    def evaluate(self, phenotype: P) -> float:
+        return float(self.fitness_function(phenotype))
 
-    def overall_fitness(self, p: P) -> float:
-        return self.evaluate(p)
+    def overall_fitness(self, phenotype: P) -> float:
+        return self.evaluate(phenotype)
 
     def solved(self, best_fitness: FitnessType):
         assert isinstance(best_fitness, float)
@@ -91,8 +91,8 @@ class MultiObjectiveProblem(Problem):
     def number_of_objectives(self):
         return len(self.minimize)
 
-    def evaluate(self, p: P) -> list[float]:
-        return [float(x) for x in self.fitness_function(p)]
+    def evaluate(self, phenotype: P) -> list[float]:
+        return [float(x) for x in self.fitness_function(phenotype)]
 
     def overall_fitness(self, p: P) -> float:
         if self.best_individual_criteria_function is None:

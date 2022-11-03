@@ -5,6 +5,14 @@ from typing import Any
 
 from geneticengine.algorithms.callbacks.callback import Callback
 from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.algorithms.gp.operators.combinators import SequenceStep
+from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
+from geneticengine.algorithms.gp.operators.initializers import (
+    RampedHalfAndHalfInitializer,
+)
+from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
+from geneticengine.algorithms.gp.operators.selection import TournamentSelection
+from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.algorithms.gp.structure import StoppingCriterium
@@ -12,8 +20,16 @@ from geneticengine.algorithms.heuristics import Heuristics
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.problems import FitnessType
 from geneticengine.core.problems import Problem
+from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
+
+
+default_generic_programming_step = SequenceStep(
+    TournamentSelection(5),
+    GenericCrossoverStep(0.01),
+    GenericMutationStep(0.9),
+)
 
 
 class GP(Heuristics):
@@ -35,11 +51,11 @@ class GP(Heuristics):
         self,
         representation: Representation[Any],
         problem: Problem,
-        random_source: Source,
-        population_size: int,
-        initializer: PopulationInitializer,
-        step: GeneticStep,
-        stopping_criterium: StoppingCriterium,
+        random_source: Source = RandomSource(0),
+        population_size: int = 200,
+        initializer: PopulationInitializer = RampedHalfAndHalfInitializer(),
+        step: GeneticStep = default_generic_programming_step,
+        stopping_criterium: StoppingCriterium = GenerationStoppingCriterium(100),
         callbacks: list[Callback] = None,
     ):
         self.representation = representation
@@ -56,10 +72,8 @@ class GP(Heuristics):
         algorithm over the set number of generations, evolving better
         solutions.
 
-        Returns a tuple with the following arguments:     individual
-        (Individual): The fittest individual after the algorithm has
-        finished.     fitness (float): The fitness of above individual.
-        phenotype (Any): The phenotype of the best individual.
+        Returns:
+            A tuple with the individual, its fitness and its phenotype.
         """
 
         population = self.initializer.initialize(
@@ -86,6 +100,7 @@ class GP(Heuristics):
                 population,
                 self.population_size,
             )
+            assert len(population) == self.population_size
             for cb in self.callbacks:
                 cb.process_iteration(generation, population, elapsed_time(), gp=self)
 

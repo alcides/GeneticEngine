@@ -64,6 +64,7 @@ class Heuristics(ABC):
         Returns:
             returns an Individual
         """
+        assert individuals
         best_individual: Individual
         fitnesses = [self.evaluate(x) for x in individuals]
 
@@ -110,10 +111,10 @@ class Heuristics(ABC):
             FitnessType: The FitnessType of the individual, either a float or a list[float]
         """
         if individual.fitness is None:
-            phenotype = self.representation.genotype_to_phenotype(
-                individual.genotype,
+            individual.fitness = individual.evaluate(
+                self.problem,
+                self.representation.genotype_to_phenotype,
             )
-            individual.fitness = self.problem.evaluate(phenotype)
         return individual.fitness
 
     def create_individual(self, depth: int) -> Individual:

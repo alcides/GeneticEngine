@@ -12,13 +12,13 @@ from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
-    dsGrammaticalEvolutionRepresentation,
+    DynamicStructuredGrammaticalEvolutionRepresentation,
 )
 from geneticengine.core.representations.grammatical_evolution.ge import (
     GrammaticalEvolutionRepresentation,
 )
 from geneticengine.core.representations.grammatical_evolution.structured_ge import (
-    sGrammaticalEvolutionRepresentation,
+    StructureGrammaticalEvolutionRepresentation,
 )
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.metahandlers.lists import ListSizeBetween
@@ -187,9 +187,9 @@ def evolve(
     if representation == "ge":
         representation = GrammaticalEvolutionRepresentation
     elif representation == "sge":
-        representation = sGrammaticalEvolutionRepresentation
+        representation = GrammaticalEvolutionRepresentation
     elif representation == "dsge":
-        representation = dsGrammaticalEvolutionRepresentation
+        representation = GrammaticalEvolutionRepresentation
     else:
         representation = TreeBasedRepresentation
 
@@ -211,7 +211,7 @@ def evolve(
         seed=seed,
         timer_stop_criteria=mode,
     )
-    (b, bf, bp) = alg.evolve(verbose=1)
+    (b, bf, bp) = alg.evolve()
     return b, bf
 
 
@@ -229,7 +229,7 @@ if __name__ == "__main__":
         number_of_generations=50,
         population_size=150,
     )
-    (b_hc, bf_hc, bp_hc) = alg_hc.evolve(verbose=1)
+    (b_hc, bf_hc, bp_hc) = alg_hc.evolve()
 
     print("\n======\nHC\n======\n")
     print(bf_hc, bp_hc, b_hc)

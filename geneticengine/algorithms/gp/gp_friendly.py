@@ -139,7 +139,7 @@ class GPFriendly(GP):
         only_record_best_inds: bool = True,
         # -----
         verbose=1,
-        base_callbacks: list[Callback] = None,
+        callbacks: list[Callback] = None,
         **kwargs,
     ):
 
@@ -200,14 +200,10 @@ class GPFriendly(GP):
             )
             step = SequenceStep(mutation_step, crossover_step)
 
-        current_population_size = population_size
-        if n_elites > 0:
-            current_population_size -= n_elites
-            step = ParallelStep([ElitismStep()], [n_elites, current_population_size])
-
-        if n_novelties > 0:
-            current_population_size -= n_novelties
-            step = ParallelStep([NoveltyStep()], [n_novelties, current_population_size])
+        step = ParallelStep(
+            [NoveltyStep(), ElitismStep(), step],
+            [n_novelties, n_elites, population_size - n_novelties - n_elites],
+        )
 
         selection_step: GeneticStep
         if selection_method[0] == "tournament":
@@ -226,11 +222,11 @@ class GPFriendly(GP):
         else:
             stopping_criterium = GenerationStoppingCriterium(number_of_generations)
 
-        callbacks: list[Callback] = []
-        callbacks.extend(base_callbacks or [])
+        self.callbacks: list[Callback] = []
+        self.callbacks.extend(callbacks or [])
 
         if evolve_grammar:
-            callbacks.append(PGECallback(evolve_learning_rate))
+            self.callbacks.append(PGECallback(evolve_learning_rate))
 
         if verbose > 2:
             self.callbacks.append(DebugCallback())

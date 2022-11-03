@@ -14,7 +14,7 @@ from geneticengine.core.representations.grammatical_evolution.ge import (
     GrammaticalEvolutionRepresentation,
 )
 from geneticengine.core.representations.grammatical_evolution.structured_ge import (
-    sGrammaticalEvolutionRepresentation,
+    StructureGrammaticalEvolutionRepresentation,
 )
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammars.coding.classes import Number
@@ -99,7 +99,7 @@ def evolve(g, seed, mode, representation=""):
     if representation == "ge":
         representation = GrammaticalEvolutionRepresentation
     elif representation == "sge":
-        representation = sGrammaticalEvolutionRepresentation
+        representation = GrammaticalEvolutionRepresentation
     else:
         representation = TreeBasedRepresentation
     alg = GPFriendly(
@@ -117,7 +117,7 @@ def evolve(g, seed, mode, representation=""):
         probability_crossover=0.9,
         timer_stop_criteria=mode,
     )
-    (b, bf, bp) = alg.evolve(verbose=1)
+    (b, bf, bp) = alg.evolve()
     return b, bf
 
 

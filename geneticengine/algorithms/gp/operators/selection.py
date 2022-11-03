@@ -36,9 +36,21 @@ class TournamentSelection(GeneticStep):
         for _ in range(target_size):
             candidates = [r.choice(population) for _ in range(self.tournament_size)]
             if problem.minimize:
-                winner = min(candidates, key=lambda x: x.evaluate(problem))
+                winner = min(
+                    candidates,
+                    key=lambda x: x.evaluate(
+                        problem,
+                        representation.genotype_to_phenotype,
+                    ),
+                )
             else:
-                winner = max(candidates, key=lambda x: x.evaluate(problem))
+                winner = max(
+                    candidates,
+                    key=lambda x: x.evaluate(
+                        problem,
+                        representation.genotype_to_phenotype,
+                    ),
+                )
             winners.append(winner)
             if self.with_replacement:
                 candidates.remove(winner)
@@ -62,6 +74,7 @@ class LexicaseSelection(GeneticStep):
     ) -> list[Individual]:
         assert isinstance(problem, MultiObjectiveProblem)
         candidates = population.copy()
+        candidates[0].evaluate(problem, representation.genotype_to_phenotype)
         assert isinstance(candidates[0].fitness, list)
         n_cases = len(candidates[0].fitness)
         cases = r.shuffle(list(range(n_cases)))
@@ -72,13 +85,16 @@ class LexicaseSelection(GeneticStep):
 
             while len(candidates_to_check) > 1 and len(cases) > 0:
                 new_candidates: list[Individual] = list()
-                for candidate in new_candidates:
-                    candidate.evaluate(problem)
                 c = cases[0]
                 min_max_value = 0
                 for i in range(len(candidates_to_check)):
                     checking_candidate = candidates_to_check[i]
+                    checking_candidate.evaluate(
+                        problem,
+                        representation.genotype_to_phenotype,
+                    )
                     assert isinstance(checking_candidate.fitness, list)
+
                     check_value = checking_candidate.fitness[c]
                     if not new_candidates:
                         min_max_value = check_value

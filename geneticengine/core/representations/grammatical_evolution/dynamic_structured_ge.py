@@ -299,7 +299,7 @@ def create_tree(g: Grammar, ind: Genotype, depth: int) -> TreeNode:
     return random_node(rand, g, depth, g.starting_symbol)
 
 
-class DynamicStructuredGrammaticalEvolutionRepresentation(Representation[Genotype]):
+class DynamicStructureGrammaticalEvolutionRepresentation(Representation[Genotype]):
     """This version uses a list of lists of integers to represent individuals,
     based on non-terminal symbols.
 

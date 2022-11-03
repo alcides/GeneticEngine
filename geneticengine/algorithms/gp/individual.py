@@ -15,9 +15,9 @@ class Individual:
     def __str__(self) -> str:
         return str(self.genotype)
 
-    def evaluate(self, problem: Problem) -> FitnessType:
+    def evaluate(self, problem: Problem, genotype_to_phenotype) -> FitnessType:
         if self.fitness is None:
-            self.fitness = problem.evaluate(self.genotype)
+            self.fitness = problem.evaluate(genotype_to_phenotype(self.genotype))
         return self.fitness
 
     def count_prods(self, genotype_to_phenotype, all_nodes):

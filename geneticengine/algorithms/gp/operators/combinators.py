@@ -32,7 +32,6 @@ class SequenceStep(GeneticStep):
                 population,
                 target_size,
             )
-            print(step)
             assert isinstance(population, list)
             assert len(population) == target_size
         return population
@@ -60,12 +59,13 @@ class ParallelStep(GeneticStep):
         target_size: int,
     ) -> list[Individual]:
         total = sum(self.weights)
-        indices = self.cumsum(
-            [round(w * len(population) / total, 0) for w in self.weights],
+        indices = [0] + self.cumsum(
+            [int(round(w * len(population) / total, 0)) for w in self.weights],
         )
-        ranges = zip(indices, indices[1:])
+        ranges = list(zip(indices, indices[1:]))
+        assert len(ranges) == len(self.steps)
 
-        return self.concat(
+        retlist = self.concat(
             [
                 step.iterate(
                     problem,
@@ -77,6 +77,8 @@ class ParallelStep(GeneticStep):
                 for ((start, end), step) in zip(ranges, self.steps)
             ],
         )
+        assert len(retlist) == target_size
+        return retlist
 
     def concat(self, ls):
         rl = []
