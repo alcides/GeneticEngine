@@ -9,7 +9,7 @@ from geneticengine.algorithms.gp.individual import Individual
 
 
 class CSVCallback(Callback):
-    """Callback that outputs to a given CSV file"""
+    """Callback that outputs to a given CSV file."""
 
     def __init__(
         self,
@@ -23,7 +23,7 @@ class CSVCallback(Callback):
             filename = "evolution_results.csv"
         self.filename = filename
         self.filter_population = filter_population
-        self.cumulative_time = 0.0
+        self.time = 0.0
         self.test_data = test_data
         self.only_record_best_ind = only_record_best_ind
         self.save_genotype_as_string = save_genotype_as_string
@@ -53,7 +53,7 @@ class CSVCallback(Callback):
         pop = self.filter_population(population)
         if self.only_record_best_ind:
             pop = [gp.get_best_individual(gp.problem, population)]
-        self.cumulative_time = self.cumulative_time + time
+        self.time = time
         for ind in pop:
             if hasattr(ind.genotype, "gengy_distance_to_term"):
                 depth = ind.genotype.gengy_distance_to_term
@@ -68,7 +68,7 @@ class CSVCallback(Callback):
                 depth,
                 nodes,
                 generation,
-                self.cumulative_time,
+                self.time,
                 gp.seed,
             ]
             if self.test_data:

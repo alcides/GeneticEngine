@@ -44,9 +44,6 @@ def target(x):
     return x**2
 
 
-# target = 234.5
-# fitness_function = lambda p: (abs(target - p.evaluate(x=1, y=2, z=3)))
-
 alg_gp = GP(
     g,
     representation=treebased_representation,
@@ -56,7 +53,6 @@ alg_gp = GP(
         target_fitness=None,
     ),
     population_size=50,
-
     max_depth=5,
     number_of_generations=10,
     minimize=True,
@@ -75,7 +71,6 @@ alg_hc = HC(
         target_fitness=None,
     ),
     population_size=50,
-
     max_depth=5,
     number_of_generations=10,
 )

@@ -173,7 +173,6 @@ def evolve(
             minimize=minimizelist,
             fitness_function=fitness_function_lexicase,
         ),
-        # As in PonyGE2:
         probability_crossover=0.75,
         probability_mutation=0.01,
         number_of_generations=50,
@@ -181,7 +180,6 @@ def evolve(
         population_size=50,
         selection_method=("lexicase",),
         n_elites=0,
-        # ----------------
         seed=seed,
         timer_stop_criteria=mode,
     )

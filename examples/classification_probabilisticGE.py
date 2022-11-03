@@ -11,6 +11,9 @@ from sklearn.model_selection import train_test_split
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.decorators import abstract
+from geneticengine.core.decorators import get_gengy
+from geneticengine.core.decorators import weight
+from geneticengine.core.grammar import EvolveGrammar
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
@@ -34,12 +37,11 @@ from geneticengine.metahandlers.floats import FloatList
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import f1_score
 
-
-# ===================================
-# This is a simple example of normal classification using normal GP, 
-# with a tournament selection algorithm as the parent selection and f1-score metric for measuring the fitness
-# We used the Banknote dataset stored in examples/data folder
-# ===================================
+# An example of classification using Probabilistic GE (https://arxiv.org/pdf/2103.08389.pdf).
+# The main differences with the normal classification example are the addition of weights/probabilities to the
+# production rules of the grammar (lines 81-83), and adding the evolve_grammar parameter in the GP class (line 159).
+# Notice that the weights don't need to be added to the grammar, as by default all production rules have the same
+# weight/probability.
 
 DATASET_NAME = "Banknote"
 DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.csv"
@@ -70,12 +72,19 @@ class Literal(Number):
         return str(self.val)
 
 
+prods = [Plus, Mul, SafeDiv, Literal, Var]
+
+
 def preprocess():
     return extract_grammar(
-        [Plus, Mul, SafeDiv, Literal, Var, SafeSqrt, SafeLog],
+        prods,
         Number,
     )
 
+
+for prod in prods:
+    get_gengy(prod)
+    prod.__dict__["__gengy__"]["weight"] = 1
 
 X_train, X_test, y_train, y_test = train_test_split(
     data.values,
@@ -131,6 +140,7 @@ def evolve(
     seed,
     mode,
     representation="treebased_representation",
+    depth_aware=True,
 ):
     if representation == "ge":
         representation = ge_representation
@@ -150,12 +160,14 @@ def evolve(
             target_fitness=None,
         ),
         probability_crossover=1,
+        evolve_grammar=EvolveGrammar(),
         probability_mutation=0.5,
         number_of_generations=50,
         max_depth=10,
-        population_size=50,
+        max_init_depth=6,
+        population_size=1000,
         selection_method=("tournament", 2),
-        n_elites=1,
+        n_elites=100,
         seed=seed,
         timer_stop_criteria=mode,
     )
@@ -167,5 +179,5 @@ if __name__ == "__main__":
     g = preprocess()
     print(g)
     b, bf = evolve(g, 123, False)
-    print(bf)
-    print(f"With fitness: {b}")
+    print(b)
+    print(f"With fitness: {bf}")

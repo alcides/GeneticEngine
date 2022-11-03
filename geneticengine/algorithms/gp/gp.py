@@ -15,6 +15,7 @@ from geneticengine.algorithms.callbacks.callback import ProgressCallback
 from geneticengine.algorithms.callbacks.csv_callback import CSVCallback
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.algorithms.heuristics import Heuristics
+from geneticengine.core.grammar import EvolveGrammar
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.problems import FitnessType
 from geneticengine.core.problems import Problem
@@ -27,8 +28,8 @@ from geneticengine.core.representations.tree.treebased import treebased_represen
 
 
 class GP(Heuristics):
-    """
-    Represents the Genetic Programming algorithm. Defaults as given in A Field Guide to GP, p.17, by Poli and Mcphee:
+    """Represents the Genetic Programming algorithm. Defaults as given in A
+    Field Guide to GP, p.17, by Poli and Mcphee:
 
     Args:
         grammar (Grammar): The grammar used to guide the search.
@@ -44,6 +45,7 @@ class GP(Heuristics):
         n_novelties (int): Number of novelties, i.e. the number of newly generated individuals added to the population each generation. (default = 10).
         number_of_generations (int): Number of generations (default = 100).
         max_depth (int): The maximum depth a tree can have (default = 15).
+        max_init_depth (int): The maximum depth a tree can have in the initialisation population (default = 15).
         selection_method (Tuple[str, int]): Allows the user to define the method to choose individuals for the next population (default = ("tournament", 5)).
 
 
@@ -68,10 +70,6 @@ class GP(Heuristics):
         only_record_best_inds (bool): Specify whether one or all individuals are saved to the csv files (default = True).
 
         callbacks (List[Callback]): The callbacks to define what is done with the returned prints from the algorithm (default = []).
-
-
-
-
     """
 
     # reason for union with noreturn in evaluation function, elitism and elitism: https://stackoverflow.com/questions/51811024/mypy-type-checking-on-callable-thinks-that-member-variable-is-a-method
@@ -111,16 +109,15 @@ class GP(Heuristics):
         ] = None,  # DEPRECATE in the next version
         minimize: bool = False,  # DEPRECATE in the next version
         target_fitness: float | None = None,  # DEPRECATE in the next version
-        favor_less_deep_trees: bool = True,  # DEPRECATE in the next version
+        evolve_grammar: EvolveGrammar | None = None,
+        favor_less_deep_trees: bool = False,  # DEPRECATE in the next version
         randomSource: Callable[[int], RandomSource] = RandomSource,
         population_size: int = 200,
-        n_elites: int = 5,  # Shouldn't this be a percentage of population size?
+        n_elites: int = 5,
         n_novelties: int = 10,
         number_of_generations: int = 100,
         max_depth: int = 15,
-        # now based on depth, maybe on number of nodes?
-        # selection-method is a tuple because tournament selection needs to receive the tournament size
-        # but lexicase does not need a tuple
+        max_init_depth: int | None = None,
         selection_method: tuple[str, int] = ("tournament", 5),
         # -----
         # As given in A Field Guide to GP, p.17, by Poli and Mcphee
@@ -136,7 +133,7 @@ class GP(Heuristics):
         force_individual: Any = None,
         seed: int = 123,
         # -----
-        timer_stop_criteria: bool = False,  # TODO: This should later be generic
+        timer_stop_criteria: bool = False,
         timer_limit: int = 60,
         # -----
         save_to_csv: str = None,
@@ -144,7 +141,7 @@ class GP(Heuristics):
         test_data: Callable[
             [Any],
             float,
-        ] = None,  # TODO: Should be part of Problem Class  [LEON]
+        ] = None,
         only_record_best_inds: bool = True,
         # -----
         callbacks: list[Callback] = None,
@@ -163,6 +160,12 @@ class GP(Heuristics):
         self.population_size = population_size
         self.elitism = selection.create_elitism(n_elites)
         self.max_depth = max_depth
+        if max_init_depth:
+            assert max_init_depth <= self.max_depth
+            self.max_init_depth = max_init_depth
+        else:
+            self.max_init_depth = self.max_depth
+        self.evolve_grammar = evolve_grammar
         self.favor_less_deep_trees = favor_less_deep_trees
         self.novelty = selection.create_novelties(
             self.create_individual,
@@ -243,8 +246,9 @@ class GP(Heuristics):
             self.callbacks.append(c)
 
     def evolve(self, verbose=1) -> tuple[Individual, FitnessType, Any]:
-        """
-        The main function of the GP object. This function runs the GP algorithm over the set number of generations, evolving better solutions
+        """The main function of the GP object. This function runs the GP
+        algorithm over the set number of generations, evolving better
+        solutions.
 
         Args:
             verbose (int): Sets the verbose level of the function (0: no prints, 1: print progress, or 2: print the best individual in each generation).
@@ -284,18 +288,21 @@ class GP(Heuristics):
         gen = 0
         start = time.time()
 
+        if self.evolve_grammar:
+            best_overall = True
+
         while (not self.timer_stop_criteria and gen < self.number_of_generations) or (
             self.timer_stop_criteria and (time.time() - start) < self.timer_limit
         ):
+
             npop = self.novelty(self.n_novelties)
-            npop.extend(
-                self.elitism(
-                    population,
-                    self.problem,
-                    self.get_best_individual,
-                    self.evaluate,
-                ),
+            elites = self.elitism(
+                population,
+                self.problem,
+                self.get_best_individual,
+                self.evaluate,
             )
+            npop.extend(elites)
             spotsLeft = self.population_size - len(npop)
             while spotsLeft > 0:
                 if self.either_mut_or_cro:
@@ -331,6 +338,26 @@ class GP(Heuristics):
             for cb in self.callbacks:
                 cb.process_iteration(gen + 1, population, time=time_gen, gp=self)
 
+            if self.evolve_grammar:
+                if best_overall:
+                    inds = elites
+                else:
+                    for e in elites:
+                        npop.remove(e)
+                    inds = npop
+                best = self.get_best_individual(self.problem, inds)
+                prob = best.production_probabilities(
+                    lambda x: self.representation.genotype_to_phenotype(
+                        self.grammar,
+                        x,
+                    ),
+                    self.grammar,
+                )
+                self.grammar = self.grammar.update_weights(
+                    self.evolve_grammar.learning_rate,
+                    prob,
+                )
+                best_overall = not best_overall
             gen += 1
         self.final_population = population
 
@@ -347,5 +374,6 @@ class GP(Heuristics):
 
     def init_population(self):
         return [
-            self.create_individual(self.max_depth) for _ in range(self.population_size)
+            self.create_individual(self.max_init_depth)
+            for _ in range(self.population_size)
         ]

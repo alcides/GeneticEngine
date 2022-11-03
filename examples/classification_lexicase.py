@@ -218,7 +218,6 @@ def evolve(
         population_size=50,
         selection_method=("lexicase",),
         n_elites=5,
-        # ----------------
         seed=seed,
         timer_stop_criteria=mode,
     )
