@@ -9,10 +9,10 @@ from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.tree.treebased import treebased_representation
 
 # ===================================
-# This is a simple example on how to use GeneticEngine to solve a GP problem.
-# We define the tree structure of the representation and we assigned weights to each tree node,
-# then we define the fitness function for our problem.
+# This is an example of how to create Probabilistic grammars.
+# In this example, we assign weights to the grammar to create Probabilistic grammars.
 # ===================================
+
 
 class R(ABC):
     pass
