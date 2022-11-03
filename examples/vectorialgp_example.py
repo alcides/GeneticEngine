@@ -3184,9 +3184,9 @@ def evolve(
     if representation == "grammatical_evolution":
         representation = GrammaticalEvolutionRepresentation
     elif representation == "sge":
-        representation = GrammaticalEvolutionRepresentation
+        representation = StructureGrammaticalEvolutionRepresentation
     elif representation == "dsge":
-        representation = GrammaticalEvolutionRepresentation
+        representation = DynamicStructureGrammaticalEvolutionRepresentation
     else:
         representation = TreeBasedRepresentation
 
