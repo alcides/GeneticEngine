@@ -21,10 +21,9 @@
 ```
 
 
-
 ### How to inject pre-existing programs into the initial population.
 
-The following class allows you to pass a list of programs to include in the initial population. The remainder of the initial population will be selected via a backup initializer.
+The `InjectInitialPopulationWrapper` class allows you to pass a list of programs to include in the initial population. The remainder of the initial population will be selected via a backup initializer.
 
 ```{eval-rst}
 .. autoapiclass:: geneticengine.algorithms.gp.generation_steps.initializers.InjectInitialPopulationWrapper
