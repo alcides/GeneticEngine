@@ -4,6 +4,7 @@ myst-parser
 numpy
 palettable
 pandas
+pathos
 pytest
 sklearn
 sphinx
