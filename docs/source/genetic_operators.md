@@ -5,19 +5,19 @@
 ### Full population initialization
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.algorithms.gp.operators.initializers.FullInitializer
+.. autoapiclass:: geneticengine.algorithms.gp.generation_steps.initializers.FullInitializer
 ```
 
 ### Grow population initialization
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.algorithms.gp.operators.initializers.GrowInitializer
+.. autoapiclass:: geneticengine.algorithms.gp.generation_steps.initializers.GrowInitializer
 ```
 
 ### Ramped Half-and-Half population initialization
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.algorithms.gp.operators.initializers.RampedHalfAndHalfInitializer
+.. autoapiclass:: geneticengine.algorithms.gp.generation_steps.initializers.RampedHalfAndHalfInitializer
 ```
 
 
@@ -26,7 +26,7 @@
 The `InjectInitialPopulationWrapper` class allows you to pass a list of programs to include in the initial population. The remainder of the initial population will be selected via a backup initializer.
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.algorithms.gp.operators.initializers.InjectInitialPopulationWrapper
+.. autoapiclass:: geneticengine.algorithms.gp.generation_steps.initializers.InjectInitialPopulationWrapper
 ```
 
 ## Selection operators
@@ -34,7 +34,7 @@ The `InjectInitialPopulationWrapper` class allows you to pass a list of programs
 ### Tournament Selection
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.algorithms.gp.operators.selection.TournamentSelection
+.. autoapiclass:: geneticengine.algorithms.gp.generation_steps.selection.TournamentSelection
 ```
 
 ### Lexicase Selection
@@ -42,7 +42,7 @@ The `InjectInitialPopulationWrapper` class allows you to pass a list of programs
 This function generates a selection operator that uses Lexicase Selection [^1]
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.algorithms.gp.operators.selection.LexicaseSelection
+.. autoapiclass:: geneticengine.algorithms.gp.generation_steps.selection.LexicaseSelection
 ```
 
 ## Elitism and Novelty
@@ -50,13 +50,13 @@ This function generates a selection operator that uses Lexicase Selection [^1]
 ### Elitism
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.algorithms.gp.operators.elitism.ElitismStep
+.. autoapiclass:: geneticengine.algorithms.gp.generation_steps.elitism.ElitismStep
 ```
 
 ### Novelty
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.algorithms.gp.operators.novelty.NoveltyStep
+.. autoapiclass:: geneticengine.algorithms.gp.generation_steps.novelty.NoveltyStep
 ```
 
 ## Mutation and Crossover
@@ -64,13 +64,13 @@ This function generates a selection operator that uses Lexicase Selection [^1]
 ### Mutation
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.algorithms.gp.operators.mutation.GenericMutationStep
+.. autoapiclass:: geneticengine.algorithms.gp.generation_steps.mutation.GenericMutationStep
 ```
 
 ### Crossover
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.algorithms.gp.operators.crossover.GenericCrossoverStep
+.. autoapiclass:: geneticengine.algorithms.gp.generation_steps.crossover.GenericCrossoverStep
 ```
 
 ## Combinators
