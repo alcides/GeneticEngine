@@ -7,8 +7,6 @@ from dataclasses import dataclass
 from typing import Annotated
 from typing import Any
 from typing import Callable
-from typing import Tuple
-from typing import Union
 
 import numpy as np
 from sklearn.metrics import f1_score
@@ -37,6 +35,14 @@ from geneticengine.grammars.coding.logical_ops import Not
 from geneticengine.grammars.coding.logical_ops import Or
 from geneticengine.grammars.coding.numbers import Literal
 from geneticengine.metahandlers.ints import IntRange
+
+# ===================================
+# This is an example on how to use GeneticEngine to solve a GP problem.
+# We define the tree structure of the representation and then we define the fitness function for our problem
+# In this example we are Reversing Game of Life Using GP
+# We used the GameOfLife dataset stored in examples/data folder.
+# This example differs from the normal game_of_life.py through the addition of Vectorial-GP-style grammar (https://link.springer.com/chapter/10.1007/978-3-030-16670-0_14).
+# ===================================
 
 MATRIX_ROW_SIZE = 3
 MATRIX_COL_SIZE = 3

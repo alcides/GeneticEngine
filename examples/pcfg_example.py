@@ -1,18 +1,17 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Annotated
-from typing import List
-from typing import NamedTuple
-from typing import Protocol
 
 from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.core.decorators import weight
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.metahandlers.ints import IntRange
-from geneticengine.metahandlers.lists import ListSizeBetween
+
+# ===================================
+# This is an example of how to create Probabilistic grammars.
+# In this example, we assign weights to the grammar to create Probabilistic grammars.
+# ===================================
 
 
 class R(ABC):
@@ -34,15 +33,19 @@ class C(R):
     pass
 
 
+def fitness_function(x) -> float:
+    return 1.0
+
+
 if __name__ == "__main__":
     g = extract_grammar([A, B, C], R)
+
     alg = GPFriendly(
         g,
         representation=TreeBasedRepresentation,
         problem=SingleObjectiveProblem(
+            fitness_function=fitness_function,
             minimize=False,
-            fitness_function=lambda x: 1,
-            target_fitness=None,
         ),
         max_depth=10,
         population_size=1000,

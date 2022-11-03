@@ -11,6 +11,13 @@ from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.vars import VarRange
 
 
+# ===================================
+# This is a simple example on how to use GeneticEngine to solve a GP problem.
+# We define the tree structure of the representation and then we define the fitness function for our problem
+# In this example we are solving a recurrence problem using normal GP
+# ===================================
+
+
 class Node(ABC):
     pass
 

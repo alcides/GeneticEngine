@@ -4,8 +4,6 @@ import os
 from dataclasses import dataclass
 from math import isinf
 from typing import Annotated
-from typing import Any
-from typing import Callable
 
 import numpy as np
 import pandas as pd
@@ -34,6 +32,12 @@ from geneticengine.grammars.sgp import Var
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import mse
+
+# ===================================
+# This is a simple example of normal regression using normal GP,
+# with a tournament selection algorithm as the parent selection and mse metric for measuring the fitness
+# We used the Vladislavleva4 data stored in examples/data folder
+# ===================================
 
 DATASET_NAME = "Vladislavleva4"
 DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.txt"

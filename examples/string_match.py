@@ -14,6 +14,11 @@ from geneticengine.core.representations.grammatical_evolution.structured_ge impo
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammars.letter import *
 
+# ===================================
+# This is a simple example on how to use GeneticEngine to solve a GP problem.
+# We define the tree structure of the representation and then we define the fitness function for our problem
+# The string match problem aims to find a string that matches the given target string.
+# ===================================
 
 # Extracted from PonyGE
 def fit(individual: String):

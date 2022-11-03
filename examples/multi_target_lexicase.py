@@ -36,6 +36,11 @@ from geneticengine.metahandlers.lists import ListSizeBetween
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import mse
 
+# ===================================
+# This is an example of a Multi target regression problem using normal GP,
+# with a lexicase selection algorithm as the parent selection.
+# We used the Linnerud dataset from sklearn library
+# ===================================
 
 # Load the data from Sklearn
 bunch = load_linnerud(as_frame=True)  # returns a Bunch instance
