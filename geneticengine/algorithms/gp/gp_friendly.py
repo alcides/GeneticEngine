@@ -82,6 +82,7 @@ class GPFriendly(GP):
         test_data (Any): Give test data (format: (X_test, y_test)) to test the individuals on test data during training and save that to the csv (default = None).
         only_record_best_inds (bool): Specify whether one or all individuals are saved to the csv files (default = True).
         callbacks (List[Callback]): The callbacks to define what is done with the returned prints from the algorithm (default = []).
+        parallel_evaluation (bool): Performs evaluation of fitness in multiprocessing (default = False).
     """
 
     def __init__(
@@ -136,6 +137,7 @@ class GPFriendly(GP):
         only_record_best_inds: bool = True,
         # -----
         verbose=1,
+        parallel_evaluation=False,
         callbacks: list[Callback] = None,
         **kwargs,
     ):
@@ -201,6 +203,13 @@ class GPFriendly(GP):
             [NoveltyStep(), ElitismStep(), step],
             [n_novelties, n_elites, population_size - n_novelties - n_elites],
         )
+
+        if parallel_evaluation:
+            from geneticengine.algorithms.gp.operators.parallel import (
+                ParallelEvaluationStep,
+            )
+
+            sept = SequenceStep(ParallelEvaluationStep(), step)
 
         selection_step: GeneticStep
         if selection_method[0] == "tournament":
