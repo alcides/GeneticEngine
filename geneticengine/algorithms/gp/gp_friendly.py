@@ -9,6 +9,7 @@ from geneticengine.algorithms.callbacks.callback import DebugCallback
 from geneticengine.algorithms.callbacks.callback import PrintBestCallback
 from geneticengine.algorithms.callbacks.callback import ProgressCallback
 from geneticengine.algorithms.callbacks.csv_callback import CSVCallback
+from geneticengine.algorithms.callbacks.pge import PGECallback
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.algorithms.gp.operators.combinators import ParallelStep
@@ -25,7 +26,6 @@ from geneticengine.algorithms.gp.operators.initializers import (
 )
 from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
 from geneticengine.algorithms.gp.operators.novelty import NoveltyStep
-from geneticengine.algorithms.gp.operators.pge import PGECallback
 from geneticengine.algorithms.gp.operators.selection import LexicaseSelection
 from geneticengine.algorithms.gp.operators.selection import TournamentSelection
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
