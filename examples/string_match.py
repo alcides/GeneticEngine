@@ -1,15 +1,17 @@
 from __future__ import annotations
 
-from geneticengine.algorithms.gp.gp import GP
+import os
+
+from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.ge import (
-    ge_representation,
+    GrammaticalEvolutionRepresentation,
 )
 from geneticengine.core.representations.grammatical_evolution.structured_ge import (
-    sge_representation,
+    StructureGrammaticalEvolutionRepresentation,
 )
-from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammars.letter import *
 
 # ===================================
@@ -47,16 +49,16 @@ def evolve(
     g,
     seed,
     mode,
-    representation="treebased_representation",
+    representation="TreeBasedRepresentation",
 ):
     if representation == "ge":
-        representation = ge_representation
+        representation = GrammaticalEvolutionRepresentation
     elif representation == "sge":
-        representation = sge_representation
+        representation = GrammaticalEvolutionRepresentation
     else:
-        representation = treebased_representation
+        representation = TreeBasedRepresentation
 
-    alg = GP(
+    alg = GPFriendly(
         g,
         representation=representation,
         problem=SingleObjectiveProblem(
@@ -75,7 +77,7 @@ def evolve(
         seed=seed,
         timer_stop_criteria=mode,
     )
-    (b, bf, bp) = alg.evolve(verbose=1)
+    (b, bf, bp) = alg.evolve()
     return b, bf
 
 

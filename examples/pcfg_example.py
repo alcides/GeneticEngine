@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from abc import ABC
 
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.core.decorators import weight
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 
 # ===================================
 # This is an example of how to create Probabilistic grammars.
@@ -33,22 +33,26 @@ class C(R):
     pass
 
 
+def fitness_function(x) -> float:
+    return 1.0
+
+
 if __name__ == "__main__":
     g = extract_grammar([A, B, C], R)
-    alg = GP(
+
+    alg = GPFriendly(
         g,
-        representation=treebased_representation,
+        representation=TreeBasedRepresentation,
         problem=SingleObjectiveProblem(
+            fitness_function=fitness_function,
             minimize=False,
-            fitness_function=lambda x: 1,
-            target_fitness=None,
         ),
         max_depth=10,
         population_size=1000,
         number_of_generations=10,
         minimize=False,
     )
-    (b, bf, bp) = alg.evolve(verbose=1)
+    (b, bf, bp) = alg.evolve()
 
     def count(xs):
         d = {}

@@ -38,7 +38,7 @@ And then you can the program using:
 
 ```python
 grammar = extract_grammar([Literal, Plus], MyExpr)
-alg = GP(
+alg = GPFriendly(
     grammar,
     fitness_function,
     minimize=True,

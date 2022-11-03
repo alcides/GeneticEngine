@@ -7,10 +7,10 @@ from typing import Any
 import numpy as np
 from sklearn.datasets import load_diabetes
 
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammars.basic_math import Exp
 from geneticengine.grammars.basic_math import SafeDiv
 from geneticengine.grammars.basic_math import SafeLog
@@ -26,7 +26,7 @@ from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import mse
 
 # ===================================
-# This is a simple example of normal regression using normal GP, 
+# This is a simple example of normal regression using normal GP,
 # with a tournament selection algorithm as the parent selection and mse metric for measuring the fitness
 # We used the diabetes dataset from sklearn library
 # ===================================
@@ -51,9 +51,9 @@ def preprocess():
 
 
 def evolve(g, seed):
-    alg = GP(
+    alg = GPFriendly(
         g,
-        treebased_representation,
+        TreeBasedRepresentation,
         problem=SingleObjectiveProblem(
             minimize=True,
             fitness_function=fitness_function,
@@ -62,7 +62,7 @@ def evolve(g, seed):
         number_of_generations=10,
         seed=seed,
     )
-    (b, bf, bp) = alg.evolve(verbose=1)
+    (b, bf, bp) = alg.evolve()
     return b, bf
 
 

@@ -4,12 +4,12 @@ from random import random
 from typing import Annotated
 
 from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.operators.stop import TimeStoppingCriterium
 from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.algorithms.random_search import RandomSearch
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
-
-from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammars.basic_math import SafeDiv
 from geneticengine.grammars.sgp import Literal
 from geneticengine.grammars.sgp import Mul
@@ -21,10 +21,10 @@ from geneticengine.metahandlers.vars import VarRange
 # ===================================
 # This is a simple example on how to use GeneticEngine to solve a GP problem.
 # We define the tree structure of the representation and then we define the fitness function for our problem
-# In this example we are solving the same problem using three different algoritms; Hill Climbing , Random Search and a GP algorithm 
+# In this example we are solving the same problem using three different algoritms; Hill Climbing , Random Search and a GP algorithm
 # ===================================
 
-Var.__init__.__annotations__["name"] = Annotated[str, VarRange("x")]
+Var.__init__.__annotations__["name"] = Annotated[str, VarRange(["x"])]
 g = extract_grammar([Plus, Mul, SafeDiv, Literal, Var], Number)
 print("Grammar:")
 print(repr(g))
@@ -44,52 +44,36 @@ def target(x):
     return x**2
 
 
-alg_gp = GP(
-    g,
-    representation=treebased_representation,
-    problem=SingleObjectiveProblem(
-        minimize=True,
-        fitness_function=fit,
-        target_fitness=None,
-    ),
-    population_size=50,
-    max_depth=5,
-    number_of_generations=10,
+representation = TreeBasedRepresentation(g, max_depth=5)
+problem = SingleObjectiveProblem(
     minimize=True,
-    n_elites=10,
-    n_novelties=10,
+    fitness_function=fit,
+    target_fitness=None,
 )
-(b_gp, bf_gp, bp_gp) = alg_gp.evolve(verbose=1)
+stopping_criterium = TimeStoppingCriterium(3)
+
+
+alg_gp = GP(
+    representation=representation,
+    problem=problem,
+    stopping_criterium=stopping_criterium,
+)
+(b_gp, bf_gp, bp_gp) = alg_gp.evolve()
 
 
 alg_hc = HC(
-    g,
-    representation=treebased_representation,
-    problem=SingleObjectiveProblem(
-        minimize=True,
-        fitness_function=fit,
-        target_fitness=None,
-    ),
-    population_size=50,
-    max_depth=5,
-    number_of_generations=10,
+    representation=representation,
+    problem=problem,
+    stopping_criterium=stopping_criterium,
 )
-(b_hc, bf_hc, bp_hc) = alg_hc.evolve(verbose=1)
+(b_hc, bf_hc, bp_hc) = alg_hc.evolve()
 
 alg_rs = RandomSearch(
-    g,
-    representation=treebased_representation,
-    problem=SingleObjectiveProblem(
-        minimize=True,
-        fitness_function=fit,
-        target_fitness=None,
-    ),
-    population_size=50,
-    max_depth=5,
-    number_of_generations=40,
-    # favor_less_deep_trees=True,
+    representation=representation,
+    problem=problem,
+    stopping_criterium=stopping_criterium,
 )
-(b_rs, bf_rs, bp_rs) = alg_rs.evolve(verbose=1)
+(b_rs, bf_rs, bp_rs) = alg_rs.evolve()
 
 print("\n======\nRS\n======\n")
 print(bf_rs, bp_rs, b_rs)

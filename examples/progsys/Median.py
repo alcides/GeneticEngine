@@ -5,16 +5,16 @@ from typing import Annotated
 from utils import get_data
 from utils import import_embedded
 
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.ge import (
-    ge_representation,
+    GrammaticalEvolutionRepresentation,
 )
 from geneticengine.core.representations.grammatical_evolution.structured_ge import (
-    sge_representation,
+    StructureGrammaticalEvolutionRepresentation,
 )
-from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammars.coding.classes import Number
 from geneticengine.grammars.coding.classes import Statement
 from geneticengine.grammars.coding.classes import XAssign
@@ -103,12 +103,12 @@ def preprocess():
 
 def evolve(g, seed, mode, representation=""):
     if representation == "ge":
-        representation = ge_representation
+        representation = GrammaticalEvolutionRepresentation
     elif representation == "sge":
-        representation = sge_representation
+        representation = GrammaticalEvolutionRepresentation
     else:
-        representation = treebased_representation
-    alg = GP(
+        representation = TreeBasedRepresentation
+    alg = GPFriendly(
         g,
         representation=representation,
         problem=SingleObjectiveProblem(
@@ -123,7 +123,7 @@ def evolve(g, seed, mode, representation=""):
         probability_crossover=0.9,
         timer_stop_criteria=mode,
     )
-    (b, bf, bp) = alg.evolve(verbose=1)
+    (b, bf, bp) = alg.evolve()
     return b, bf
 
 

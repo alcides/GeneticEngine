@@ -8,16 +8,16 @@ from typing import Callable
 import numpy as np
 from sklearn.metrics import f1_score
 
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.ge import (
-    ge_representation,
+    GrammaticalEvolutionRepresentation,
 )
 from geneticengine.core.representations.grammatical_evolution.structured_ge import (
-    sge_representation,
+    StructureGrammaticalEvolutionRepresentation,
 )
-from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammars.coding.classes import Condition
 from geneticengine.grammars.coding.classes import Expr
 from geneticengine.grammars.coding.classes import Number
@@ -95,18 +95,18 @@ def evolve(
     g,
     seed,
     mode,
-    representation="treebased_representation",
+    representation="TreeBasedRepresentation",
 ):
     if representation == "ge":
-        representation = ge_representation
+        representation = GrammaticalEvolutionRepresentation
     elif representation == "sge":
-        representation = sge_representation
+        representation = GrammaticalEvolutionRepresentation
     else:
-        representation = treebased_representation
+        representation = TreeBasedRepresentation
 
-    alg = GP(
+    alg = GPFriendly(
         g,
-        representation=sge_representation,
+        representation=GrammaticalEvolutionRepresentation,
         problem=SingleObjectiveProblem(
             minimize=False,
             fitness_function=fitness_function,
@@ -122,7 +122,7 @@ def evolve(
         seed=seed,
         timer_stop_criteria=mode,
     )
-    (b, bf, bp) = alg.evolve(verbose=1)
+    (b, bf, bp) = alg.evolve()
 
     print("Best individual:", bp)
     print("Genetic Engine Train F1 score:", bf)

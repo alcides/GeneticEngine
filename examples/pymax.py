@@ -2,19 +2,19 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
-    dsge_representation,
+    DynamicStructureGrammaticalEvolutionRepresentation,
 )
 from geneticengine.core.representations.grammatical_evolution.ge import (
-    ge_representation,
+    GrammaticalEvolutionRepresentation,
 )
 from geneticengine.core.representations.grammatical_evolution.structured_ge import (
-    sge_representation,
+    StructureGrammaticalEvolutionRepresentation,
 )
-from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammars.coding.classes import Expr
 from geneticengine.grammars.coding.classes import XAssign
 from geneticengine.grammars.coding.control_flow import Code
@@ -23,8 +23,9 @@ from geneticengine.grammars.coding.control_flow import ForLoop
 # ===================================
 # This is a simple example on how to use GeneticEngine to solve a GP problem.
 # We define the tree structure of the representation and then we define the fitness function for our problem
-# The Pymax problem is a traditional maximisation problem, where the goal is to produce as large a number as possible. 
+# The Pymax problem is a traditional maximisation problem, where the goal is to produce as large a number as possible.
 # ===================================
+
 
 class VarX(Expr):
     def evaluate(self, x=0):
@@ -83,17 +84,17 @@ def evolve(
     g,
     seed,
     mode,
-    representation="treebased_representation",
+    representation="TreeBasedRepresentation",
 ):
     if representation == "ge":
-        representation = ge_representation
+        representation = GrammaticalEvolutionRepresentation
     elif representation == "sge":
-        representation = sge_representation
+        representation = GrammaticalEvolutionRepresentation
     elif representation == "dsge":
-        representation = dsge_representation
+        representation = GrammaticalEvolutionRepresentation
     else:
-        representation = treebased_representation
-    alg = GP(
+        representation = TreeBasedRepresentation
+    alg = GPFriendly(
         g,
         representation=representation,
         problem=SingleObjectiveProblem(
@@ -107,7 +108,7 @@ def evolve(
         seed=seed,
         timer_stop_criteria=mode,
     )
-    (b, bf, bp) = alg.evolve(verbose=1)
+    (b, bf, bp) = alg.evolve()
     return b, bf
 
 

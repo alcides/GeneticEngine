@@ -8,10 +8,8 @@ from typing import Tuple
 from typing import Type
 
 from geneticengine.core.grammar import Grammar
-from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
-from geneticengine.core.representations.tree.treebased import Grow
 from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.core.tree import TreeNode
 
@@ -67,44 +65,48 @@ class ListWrapper(Source):
 
 def create_tree(g: Grammar, ind: Genotype, depth: int) -> TreeNode:
     rand: Source = ListWrapper(ind.dna)
-    return random_node(rand, g, depth, g.starting_symbol, method=Grow)
+    return random_node(rand, g, depth, g.starting_symbol)
 
 
 class GrammaticalEvolutionRepresentation(Representation[Genotype]):
-    """This representation uses a list of integers to guide the generation of trees in the phenotype."""
+    """This representation uses a list of integers to guide the generation of
+    trees in the phenotype."""
 
-    depth: int
+    def __init__(self, grammar: Grammar, max_depth: int):
+        super().__init__(grammar, max_depth)
 
-    def create_individual(self, r: Source, g: Grammar, depth: int) -> Genotype:
-        self.depth = depth
-        return random_individual(r, g, depth)
+    def create_individual(self, r: Source, depth: int | None = None) -> Genotype:
+        actual_depth = depth or self.max_depth
+        return random_individual(r, self.grammar, depth=actual_depth)
 
     def mutate_individual(
         self,
         r: Source,
-        g: Grammar,
         ind: Genotype,
         depth: int,
         ty: type,
         specific_type: type = None,
         depth_aware_mut: bool = False,
     ) -> Genotype:
-        return mutate(r, g, ind, depth)
+        return mutate(r, self.grammar, ind, depth)
 
     def crossover_individuals(
         self,
         r: Source,
-        g: Grammar,
         i1: Genotype,
         i2: Genotype,
         depth: int,
         specific_type: type = None,
         depth_aware_co: bool = False,
     ) -> tuple[Genotype, Genotype]:
-        return crossover(r, g, i1, i2, depth)
+        return crossover(r, self.grammar, i1, i2, depth)
 
-    def genotype_to_phenotype(self, g: Grammar, genotype: Genotype) -> TreeNode:
-        return create_tree(g, genotype, self.depth)
+    def genotype_to_phenotype(self, genotype: Genotype) -> TreeNode:
+        return create_tree(self.grammar, genotype, self.max_depth)
 
-
-ge_representation = GrammaticalEvolutionRepresentation()
+    def phenotype_to_genotype(self, phenotype: Any) -> Genotype:
+        """Takes an existing program and adapts it to be used in the right
+        representation."""
+        raise NotImplementedError(
+            "Reconstruction of genotype not supported in this representation.",
+        )

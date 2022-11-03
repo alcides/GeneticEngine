@@ -11,19 +11,19 @@ from typing import Callable
 import numpy as np
 from sklearn.metrics import f1_score
 
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
-    dsge_representation,
+    DynamicStructureGrammaticalEvolutionRepresentation,
 )
 from geneticengine.core.representations.grammatical_evolution.ge import (
-    ge_representation,
+    GrammaticalEvolutionRepresentation,
 )
 from geneticengine.core.representations.grammatical_evolution.structured_ge import (
-    sge_representation,
+    StructureGrammaticalEvolutionRepresentation,
 )
-from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammars.coding.classes import Condition
 from geneticengine.grammars.coding.classes import Expr
 from geneticengine.grammars.coding.classes import Number
@@ -49,7 +49,6 @@ MATRIX_COL_SIZE = 3
 
 
 def prepare_data(DATASET_NAME):
-
     DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.csv"
     DATA_FILE_TEST = f"examples/data/{DATASET_NAME}/Test.csv"
 
@@ -152,7 +151,6 @@ def flat_sum(s):
 
 
 def evaluate(e: Expr | Matrix | Number) -> Callable[[Any], float]:
-
     if isinstance(e, And):
         l = e.left
         r = e.right
@@ -210,12 +208,12 @@ def evaluate(e: Expr | Matrix | Number) -> Callable[[Any], float]:
         rn: Number = e.right
         return lambda line: evaluate(ln)(line) == evaluate(rn)(line)
     elif isinstance(e, GreaterThan):
-        ln: Number = e.left
-        rn: Number = e.right
+        lng: Number = e.left
+        rng: Number = e.right
         return lambda line: evaluate(ln)(line) > evaluate(rn)(line)
     elif isinstance(e, LessThan):
-        ln: Number = e.left
-        rn: Number = e.right
+        lnl: Number = e.left
+        rnl: Number = e.right
         return lambda line: evaluate(ln)(line) < evaluate(rn)(line)
     elif isinstance(e, Literal):
         v = e.val
@@ -225,8 +223,9 @@ def evaluate(e: Expr | Matrix | Number) -> Callable[[Any], float]:
 
 
 def preprocess(method):
-    """
-    Options for methor are [standard], [row], [col], [row_col], [cube], [row_col_cube], [sum_all].
+    """Options for methor are [standard], [row], [col], [row_col], [cube],
+
+    [row_col_cube], [sum_all].
     """
     if method == "standard":
         grammar = extract_grammar([And, Or, Not, MatrixElement], Condition)
@@ -342,17 +341,17 @@ def evolve(
     g,
     seed,
     mode,
-    representation="treebased_representation",
+    representation="TreeBasedRepresentation",
 ):
     if representation == "ge":
-        representation = ge_representation
+        representation = GrammaticalEvolutionRepresentation
     elif representation == "sge":
-        representation = sge_representation
+        representation = GrammaticalEvolutionRepresentation
     elif representation == "dsge":
-        representation = dsge_representation
+        representation = GrammaticalEvolutionRepresentation
     else:
-        representation = treebased_representation
-    alg = GP(
+        representation = TreeBasedRepresentation
+    alg = GPFriendly(
         g,
         fitness_function,
         representation=representation,
@@ -367,7 +366,7 @@ def evolve(
         seed=seed,
         timer_stop_criteria=mode,
     )
-    (b, bf, bp) = alg.evolve(verbose=1)
+    (b, bf, bp) = alg.evolve()
 
     print("Best individual:", bp)
     print("Genetic Engine Train F1 score:", bf)

@@ -4,10 +4,19 @@ from abc import ABC
 from dataclasses import dataclass
 
 from geneticengine.algorithms.callbacks.callback import Callback
+from geneticengine.algorithms.callbacks.callback import DebugCallback
 from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.operators.combinators import SequenceStep
+from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
+from geneticengine.algorithms.gp.operators.initializers import FullInitializer
+from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
+from geneticengine.algorithms.gp.operators.selection import TournamentSelection
+from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.grammar import Grammar
+from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.random.sources import RandomSource
+from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 
 
 class Root(ABC):
@@ -30,7 +39,7 @@ class UnderTest(Root):
     b: Root
 
 
-class TestCallBack(Callback):
+class TestCallback(Callback):
     def process_iteration(
         self,
         generation: int,
@@ -46,18 +55,23 @@ class TestCallBack(Callback):
 
 class TestGrammar:
     def test_safety(self):
-        r = RandomSource(seed=123)
         g: Grammar = extract_grammar([Leaf, OtherLeaf], UnderTest)
         gp = GP(
-            grammar=g,
-            randomSource=lambda x: r,
-            evaluation_function=lambda x: x.gengy_nodes,
+            representation=TreeBasedRepresentation(g, 10),
+            random_source=RandomSource(seed=123),
+            problem=SingleObjectiveProblem(
+                fitness_function=lambda x: x.gengy_nodes,
+                minimize=True,
+            ),
             population_size=20,
-            number_of_generations=10,
-            probability_mutation=1,
-            probability_crossover=1,
-            max_depth=10,
-            callbacks=[TestCallBack()],
+            stopping_criterium=GenerationStoppingCriterium(10),
+            initializer=FullInitializer(),
+            step=SequenceStep(
+                TournamentSelection(10),
+                GenericCrossoverStep(1),
+                GenericMutationStep(1),
+            ),
+            callbacks=[DebugCallback(), TestCallback()],
         )
         (_, _, x) = gp.evolve()
         assert isinstance(x, UnderTest)

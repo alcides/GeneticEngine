@@ -5,13 +5,13 @@ from geneticengine.core.decorators import abstract  # noqa
 from geneticengine.core.grammar import extract_grammar  # noqa
 from geneticengine.core.random.sources import RandomSource  # noqa
 from geneticengine.core.representations.grammatical_evolution.ge import (
-    ge_representation,
+    GrammaticalEvolutionRepresentation,
 )  # noqa
 from geneticengine.core.representations.grammatical_evolution.structured_ge import (
-    sge_representation,
+    StructureGrammaticalEvolutionRepresentation,
 )  # noqa
 from geneticengine.core.representations.tree.treebased import random_node
-from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.metahandlers.floats import FloatRange  # noqa
 from geneticengine.metahandlers.ints import IntRange  # noqa
 from geneticengine.metahandlers.lists import ListSizeBetween  # noqa

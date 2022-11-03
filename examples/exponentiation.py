@@ -4,19 +4,20 @@ import os
 from dataclasses import dataclass
 from math import isinf
 from typing import Annotated
+
 import numpy as np
 import pandas as pd
 
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.ge import (
-    ge_representation,
+    GrammaticalEvolutionRepresentation,
 )
 from geneticengine.core.representations.grammatical_evolution.structured_ge import (
-    sge_representation,
+    StructureGrammaticalEvolutionRepresentation,
 )
-from geneticengine.core.representations.tree.treebased import treebased_representation
+from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammars.basic_math import SafeDiv
 from geneticengine.grammars.basic_math import SafeLog
 from geneticengine.grammars.basic_math import SafeSqrt
@@ -106,9 +107,9 @@ def evolve(
     seed,
     mode,
 ):
-    alg = GP(
+    alg = GPFriendly(
         g,
-        representation=treebased_representation,
+        representation=TreeBasedRepresentation,
         problem=SingleObjectiveProblem(
             minimize=True,
             fitness_function=fitness_function,
@@ -124,7 +125,7 @@ def evolve(
         seed=seed,
         timer_stop_criteria=mode,
     )
-    (b, bf, bp) = alg.evolve(verbose=1)
+    (b, bf, bp) = alg.evolve()
     return b, bf
 
 

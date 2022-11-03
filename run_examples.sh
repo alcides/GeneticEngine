@@ -3,11 +3,18 @@ export PYTHONPATH="${PYTHONPATH:+${PYTHONPATH}:}."
 
 PYTHON_BINARY=python3
 
+set -o errexit
+set -o nounset
+set -o pipefail
+if [[ "${TRACE-0}" == "1" ]]; then
+    set -o xtrace
+fi
 
+cd "$(dirname "$0")"
 
 function run_example {
     printf "Running $1..."
-    $PYTHON_BINARY $1 > /dev/null && echo "(done)" || echo "(failed)"
+    $PYTHON_BINARY $1 #> /dev/null && echo "(done)"
 
 }
 

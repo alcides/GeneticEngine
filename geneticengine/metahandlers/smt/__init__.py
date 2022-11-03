@@ -11,8 +11,8 @@ import z3
 
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import Source
-from geneticengine.core.representations.tree import treebased
-from geneticengine.core.representations.tree.treebased import is_metahandler
+from geneticengine.core.representations.tree import smt
+from geneticengine.core.representations.tree.initializations import is_metahandler
 from geneticengine.metahandlers.base import MetaHandlerGenerator
 from geneticengine.metahandlers.smt.lang import dLit
 from geneticengine.metahandlers.smt.lang import dNode
@@ -45,16 +45,16 @@ class SMT(MetaHandlerGenerator):
         c = context.copy()
 
         ident = c["_"]
-        treebased.SMTResolver.register_type(ident, base_type)
+        smt.SMTResolver.register_type(ident, base_type)
 
-        treebased.SMTResolver.add_clause(
+        smt.SMTResolver.add_clause(
             [lambda types: self.restriction.translate(c, types)],
             {},
         )
 
         if base_type == int or base_type == bool or base_type == float:
             # we need the result, add receiver
-            treebased.SMTResolver.add_clause(
+            smt.SMTResolver.add_clause(
                 [],
                 {ident: rec},
             )
