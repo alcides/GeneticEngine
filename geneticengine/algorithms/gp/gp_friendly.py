@@ -157,6 +157,8 @@ class GPFriendly(GP):
         )
         random_source = source_generator(seed)
 
+        if initialization_method == "ramped":
+            assert isinstance(representation, TreeBasedRepresentation)
         population_initializer: PopulationInitializer = {
             "grow": GrowInitializer,
             "full": FullInitializer,

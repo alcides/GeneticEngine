@@ -565,6 +565,7 @@ class TreeBasedRepresentation(Representation[TreeNode, TreeNode]):
         ty: type,
         specific_type: type = None,
         depth_aware_mut: bool = False,
+        **kwargs,
     ) -> TreeNode:
         new_ind = mutate(
             r,
@@ -582,19 +583,12 @@ class TreeBasedRepresentation(Representation[TreeNode, TreeNode]):
         r: Source,
         i1: TreeNode,
         i2: TreeNode,
-        max_depth: int,
+        depth: int,
         specific_type: type = None,
         depth_aware_co: bool = False,
+        **kwargs,
     ) -> tuple[TreeNode, TreeNode]:
-        return crossover(
-            r,
-            self.grammar,
-            i1,
-            i2,
-            max_depth,
-            specific_type,
-            depth_aware_co,
-        )
+        return crossover(r, self.grammar, i1, i2, depth, specific_type, depth_aware_co)
 
     def genotype_to_phenotype(self, genotype: TreeNode) -> TreeNode:
         return genotype

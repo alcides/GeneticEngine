@@ -34,7 +34,7 @@ class RandomSearch(GP):
 
     def __init__(
         self,
-        representation: Representation[Any],
+        representation: Representation[Any, Any],
         problem: Problem,
         random_source: Source = RandomSource(0),
         initializer: PopulationInitializer = GrowInitializer(),

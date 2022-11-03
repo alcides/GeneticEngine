@@ -34,6 +34,7 @@ class Representation(Generic[g, p]):
         ty: type,
         specific_type: type = None,
         depth_aware_mut: bool = False,
+        **kwargs,
     ) -> g:
         ...
 
@@ -42,9 +43,10 @@ class Representation(Generic[g, p]):
         r: Source,
         i1: g,
         i2: g,
-        int,
+        depth: int,
         specific_type: type = None,
         depth_aware_co: bool = False,
+        **kwargs,
     ) -> tuple[g, g]:
         ...
 

@@ -49,7 +49,7 @@ class GP(Heuristics):
 
     def __init__(
         self,
-        representation: Representation[Any],
+        representation: Representation[Any, Any],
         problem: Problem,
         random_source: Source = RandomSource(0),
         population_size: int = 200,

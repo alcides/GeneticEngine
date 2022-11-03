@@ -108,6 +108,7 @@ class GrammaticalEvolutionRepresentation(Representation[Genotype, TreeNode]):
         ty: type,
         specific_type: type = None,
         depth_aware_mut: bool = False,
+        **kwargs,
     ) -> Genotype:
         return mutate(r, self.grammar, ind, depth)
 
@@ -119,6 +120,7 @@ class GrammaticalEvolutionRepresentation(Representation[Genotype, TreeNode]):
         depth: int,
         specific_type: type = None,
         depth_aware_co: bool = False,
+        **kwargs,
     ) -> tuple[Genotype, Genotype]:
         return crossover(r, self.grammar, i1, i2, depth)
 

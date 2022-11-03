@@ -7,6 +7,10 @@ from geneticengine.core.decorators import get_gengy
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
+from geneticengine.core.representations.tree.initializations import (
+    InitializationMethodType,
+)
+from geneticengine.core.representations.tree.initializations import pi_grow_method
 from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.core.tree import TreeNode
 from geneticengine.core.utils import get_arguments
@@ -294,12 +298,19 @@ class DynamicStructuredListWrapper(Source):
         return 1 * (max - min) / k + min
 
 
-def create_tree(g: Grammar, ind: Genotype, depth: int) -> TreeNode:
+def create_tree(
+    g: Grammar,
+    ind: Genotype,
+    depth: int,
+    initialization_mode: InitializationMethodType = pi_grow_method,
+) -> TreeNode:
     rand: Source = DynamicStructuredListWrapper(ind)
-    return random_node(rand, g, depth, g.starting_symbol)
+    return random_node(rand, g, depth, g.starting_symbol, initialization_mode)
 
 
-class DynamicStructureGrammaticalEvolutionRepresentation(Representation[Genotype]):
+class DynamicStructureGrammaticalEvolutionRepresentation(
+    Representation[Genotype, TreeNode],
+):
     """This version uses a list of lists of integers to represent individuals,
     based on non-terminal symbols.
 
@@ -307,10 +318,21 @@ class DynamicStructureGrammaticalEvolutionRepresentation(Representation[Genotype
     runtime.
     """
 
-    def __init__(self, grammar: Grammar, max_depth: int):
+    def __init__(
+        self,
+        grammar: Grammar,
+        max_depth: int,
+        initialization_mode: InitializationMethodType = pi_grow_method,
+    ):
         super().__init__(grammar, max_depth)
+        self.initialization_mode = initialization_mode
 
-    def create_individual(self, r: Source, depth: int | None = None) -> Genotype:
+    def create_individual(
+        self,
+        r: Source,
+        depth: int | None = None,
+        **kwargs,
+    ) -> Genotype:
         actual_depth = depth or self.max_depth
         return create_individual(r, self.grammar, max_depth=actual_depth)
 
@@ -322,6 +344,7 @@ class DynamicStructureGrammaticalEvolutionRepresentation(Representation[Genotype
         ty: type,
         specific_type: type = None,
         depth_aware_mut: bool = False,
+        **kwargs,
     ) -> Genotype:
         return mutate(r, self.grammar, ind, depth)
 
@@ -333,11 +356,17 @@ class DynamicStructureGrammaticalEvolutionRepresentation(Representation[Genotype
         depth: int,
         specific_type: type = None,
         depth_aware_co: bool = False,
+        **kwargs,
     ) -> tuple[Genotype, Genotype]:
         return crossover(r, self.grammar, i1, i2, depth)
 
     def genotype_to_phenotype(self, genotype: Genotype) -> TreeNode:
-        return create_tree(self.grammar, genotype, self.max_depth)
+        return create_tree(
+            self.grammar,
+            genotype,
+            self.max_depth,
+            self.initialization_mode,
+        )
 
     def phenotype_to_genotype(self, phenotype: Any) -> Genotype:
         """Takes an existing program and adapts it to be used in the right
