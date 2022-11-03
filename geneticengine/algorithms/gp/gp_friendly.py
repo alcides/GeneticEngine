@@ -204,13 +204,6 @@ class GPFriendly(GP):
             [n_novelties, n_elites, population_size - n_novelties - n_elites],
         )
 
-        if parallel_evaluation:
-            from geneticengine.algorithms.gp.operators.parallel import (
-                ParallelEvaluationStep,
-            )
-
-            sept = SequenceStep(ParallelEvaluationStep(), step)
-
         selection_step: GeneticStep
         if selection_method[0] == "tournament":
             selection_step = TournamentSelection(selection_method[1])
@@ -221,6 +214,13 @@ class GPFriendly(GP):
                 f"selection_method ({selection_method}) requires either tournament or lexicase",
             )
         step = SequenceStep(selection_step, step)
+
+        if parallel_evaluation:
+            from geneticengine.algorithms.gp.operators.parallel import (
+                ParallelEvaluationStep,
+            )
+
+            sept = SequenceStep(ParallelEvaluationStep(), step)
 
         stopping_criterium: StoppingCriterium
         if timer_stop_criteria:
