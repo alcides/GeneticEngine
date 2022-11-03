@@ -100,13 +100,13 @@ def evolve(
     if representation == "ge":
         representation = GrammaticalEvolutionRepresentation
     elif representation == "sge":
-        representation = StructureGrammaticalEvolutionRepresentation
+        representation = GrammaticalEvolutionRepresentation
     else:
         representation = TreeBasedRepresentation
 
     alg = GPFriendly(
         g,
-        representation=GrammaticalEvolutionRepresentation,
+        representation,
         problem=SingleObjectiveProblem(
             minimize=False,
             fitness_function=fitness_function,
@@ -136,6 +136,6 @@ def evolve(
 
 if __name__ == "__main__":
     g = preprocess()
-    bf, b = evolve(g, 0, False)
+    bf, b = evolve(g, 0, False, "ge")
     print(b)
     print(f"With fitness: {bf}")

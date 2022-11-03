@@ -126,7 +126,7 @@ def evolve(
     if representation == "ge":
         representation = GrammaticalEvolutionRepresentation
     elif representation == "sge":
-        representation = StructureGrammaticalEvolutionRepresentation
+        representation = GrammaticalEvolutionRepresentation
     else:
         representation = TreeBasedRepresentation
 
