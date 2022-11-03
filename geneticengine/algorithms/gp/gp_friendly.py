@@ -33,16 +33,13 @@ from geneticengine.algorithms.gp.operators.stop import TimeStoppingCriterium
 from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.algorithms.gp.structure import StoppingCriterium
-from geneticengine.algorithms.heuristics import Heuristics
 from geneticengine.core.grammar import Grammar
-from geneticengine.core.problems import FitnessType
 from geneticengine.core.problems import MultiObjectiveProblem
 from geneticengine.core.problems import Problem
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.problems import wrap_depth_minimization
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.api import Representation
-from geneticengine.core.representations.tree.treebased import relabel_nodes_of_trees
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 
 P = TypeVar("P")

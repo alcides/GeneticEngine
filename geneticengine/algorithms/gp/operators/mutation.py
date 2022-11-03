@@ -85,25 +85,24 @@ class HillClimbingMutationIteration(GeneticStep):
         problem: Problem,
     ) -> Individual:
         def creation_new_individual():
-            i = Individual(
-                genotype=representation.mutate_individual(
-                    random_source,
-                    individual.genotype,
-                    representation.max_depth,
-                    representation.grammar.starting_symbol,  # TODO: this does not seem okay
-                    specific_type=self.specific_type,
-                    depth_aware_mut=self.depth_aware_mut,
-                ),
-                fitness=None,
+            genotype = representation.mutate_individual(
+                random_source,
+                individual.genotype,
+                representation.max_depth,
+                representation.grammar.starting_symbol,  # TODO: this does not seem okay
+                specific_type=self.specific_type,
+                depth_aware_mut=self.depth_aware_mut,
             )
-            return i
+
+            return Individual(
+                genotype=genotype,
+                genotype_to_phenotype=representation.genotype_to_phenotype,
+            )
 
         new_individuals = [creation_new_individual() for _ in range(self.n_candidates)]
 
         best_individual = min(
             (new_individuals + [individual]),
-            key=lambda ind: problem.overall_fitness(
-                representation.genotype_to_phenotype(ind.genotype),
-            ),
+            key=lambda ind: problem.overall_fitness(ind.get_phenotype()),
         )
         return best_individual

@@ -94,7 +94,7 @@ class InjectInitialPopulationWrapper(PopulationInitializer):
     ) -> list[Individual]:
         self.programs = [
             Individual(p, genotype_to_phenotype=representation.genotype_to_phenotype)
-            for p in programs
+            for p in self.programs
         ]
         if target_size > len(self.programs):
             return self.programs[:target_size]

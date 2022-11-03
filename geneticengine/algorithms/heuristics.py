@@ -86,9 +86,10 @@ class Heuristics(ABC):
             if p.best_individual_criteria_function is None:
                 best_individual = max(individuals, key=single_criteria)
             else:
+                fun = p.best_individual_criteria_function
                 best_individual = max(
                     individuals,
-                    key=p.best_individual_criteria_function,
+                    key=lambda ind: fun(ind.get_phenotype()),
                 )
 
         return best_individual

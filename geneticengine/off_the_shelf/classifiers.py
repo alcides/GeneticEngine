@@ -12,6 +12,7 @@ from sklearn.base import BaseEstimator
 from sklearn.base import TransformerMixin
 
 from geneticengine.algorithms.gp.gp_friendly import GPFriendly
+from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import Problem
@@ -150,7 +151,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
                 fitness_function=fitness_function,
                 target_fitness=None,
             ),
-            representation=self.representation_class(self.grammar, self.max_depth),
+            representation=self.representation_class,
             population_size=self.population_size,
             n_elites=self.n_elites,
             n_novelties=self.n_novelties,
@@ -274,17 +275,14 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
             return fitness
 
         model = HC(
-            g=self.grammar,
+            representation=self.representation_class(self.grammar, self.max_depth),
             problem=SingleObjectiveProblem(
                 minimize=False,
                 fitness_function=fitness_function,
                 target_fitness=None,
             ),
-            representation=self.representation_class(self.grammar, self.max_depth),
-            population_size=self.population_size,
-            number_of_generations=self.number_of_generations,
-            max_depth=self.max_depth,
-            seed=self.seed,
+            stopping_criterium=GenerationStoppingCriterium(self.number_of_generations),
+            random_source=RandomSource(self.seed),
         )
 
         best_ind, fitness, phenotype = model.evolve()

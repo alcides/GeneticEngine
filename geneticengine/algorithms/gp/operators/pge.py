@@ -21,7 +21,6 @@ class PGECallback(Callback):
     ):
         best = gp.get_best_individual(gp.problem, population)
         prob = best.production_probabilities(
-            lambda x: gp.representation.genotype_to_phenotype(x),
             gp.representation.grammar,
         )
         gp.representation.grammar = gp.representation.grammar.update_weights(
