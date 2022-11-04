@@ -48,7 +48,8 @@ P = TypeVar("P")
 class GPFriendly(GP):
     """A simpler API to create GP instances.
 
-    Defaults as given in A Field Guide to GP, p.17, by Poli and Mcphee:
+    Defaults as given in A Field Guide to GP, p.17, by Poli and Mcphee.
+
     Args:
         grammar (Grammar): The grammar used to guide the search.
         representation (Representation): The individual representation used by the GP program. The default is TreeBasedRepresentation.
