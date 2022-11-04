@@ -126,6 +126,12 @@ class StructuredGrammaticalEvolutionRepresentation(Representation[Genotype, Tree
         max_depth: int,
         initialization_mode: InitializationMethodType = pi_grow_method,
     ):
+        """
+        Args:
+            grammar (Grammar): The grammar to use in the mapping
+            max_depth (int): the maximum depth when performing the mapping
+            initialization_mode (InitializationMethodType): method to create individuals in the mapping (e.g., pi_grow, full, grow)
+        """
         super().__init__(grammar, max_depth)
 
         self.initialization_mode = initialization_mode
