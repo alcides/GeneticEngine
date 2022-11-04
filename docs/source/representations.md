@@ -11,25 +11,25 @@ The representation can be chosen by the user. There are many discussions on whic
 ## Tree-based
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.core.representations.tree.treebased
+.. autoapiclass:: geneticengine.core.representations.tree.treebased.TreeBasedRepresentation
 ```
 
 ## Grammatical Evolution
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.core.representations.grammatical_evolution.ge
+.. autoapiclass:: geneticengine.core.representations.grammatical_evolution.ge.GrammaticalEvolutionRepresentation
 ```
 
 ## Structured Grammatical Evolution
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.core.representations.grammatical_evolution.structured_ge
+.. autoapiclass:: geneticengine.core.representations.grammatical_evolution.structured_ge.StructuredGrammaticalEvolutionRepresentation
 ```
 
 ## Dynamic Structured Grammatical Evolution
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge
+.. autoapiclass:: geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge.DynamicStructuredGrammaticalEvolutionRepresentation
 ```
 
 ## Probabilistic Grammatical Evolution (PGE)
