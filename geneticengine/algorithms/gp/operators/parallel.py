@@ -4,9 +4,7 @@ from abc import ABCMeta
 from pickle import _Pickler as StockPickler
 
 from dill import register  # type: ignore
-from pathos.multiprocessing import (
-    ProcessingPool as Pool,
-)  # type: ignore
+from pathos.multiprocessing import ProcessingPool as Pool  # type: ignore
 
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.algorithms.gp.structure import GeneticStep
