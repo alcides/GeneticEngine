@@ -23,6 +23,8 @@ extensions = [
 
 autoapi_type = "python"
 autoapi_dirs = ["../../geneticengine"]
+autoapi_python_class_content = "both"
+autoapi_add_objects_to_toctree = False
 
 autodoc_typehints = "description"
 
