@@ -69,6 +69,7 @@ metahandlers/api
 metahandlers/define
 problems
 algorithms
+stopping
 representations
 genetic_operators
 autoapi/index
