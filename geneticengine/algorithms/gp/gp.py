@@ -8,7 +8,7 @@ from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.algorithms.gp.operators.combinators import SequenceStep
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
 from geneticengine.algorithms.gp.operators.initializers import (
-    RampedHalfAndHalfInitializer,
+    GrowInitializer,
 )
 from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
 from geneticengine.algorithms.gp.operators.selection import TournamentSelection
@@ -49,11 +49,11 @@ class GP(Heuristics):
 
     def __init__(
         self,
-        representation: Representation[Any],
+        representation: Representation[Any, Any],
         problem: Problem,
         random_source: Source = RandomSource(0),
         population_size: int = 200,
-        initializer: PopulationInitializer = RampedHalfAndHalfInitializer(),
+        initializer: PopulationInitializer = GrowInitializer(),
         step: GeneticStep = default_generic_programming_step,
         stopping_criterium: StoppingCriterium = GenerationStoppingCriterium(100),
         callbacks: list[Callback] = None,

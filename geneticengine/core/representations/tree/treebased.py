@@ -8,7 +8,10 @@ from typing import TypeVar
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
-from geneticengine.core.representations.tree.initializations import MethodType
+from geneticengine.core.representations.tree.initializations import full_method
+from geneticengine.core.representations.tree.initializations import (
+    InitializationMethodType,
+)
 from geneticengine.core.representations.tree.initializations import mk_save_init
 from geneticengine.core.representations.tree.initializations import pi_grow_method
 from geneticengine.core.representations.tree.utils import relabel_nodes
@@ -29,7 +32,7 @@ def random_node(
     g: Grammar,
     max_depth: int,
     starting_symbol: type[Any] = None,
-    method: MethodType = pi_grow_method,
+    method: InitializationMethodType = pi_grow_method,
 ):
     if starting_symbol is None:
         starting_symbol = g.starting_symbol
@@ -40,7 +43,7 @@ def random_individual(
     r: Source,
     g: Grammar,
     max_depth: int = 5,
-    method: MethodType = pi_grow_method,
+    method: InitializationMethodType = pi_grow_method,
 ) -> TreeNode:
     try:
         assert max_depth >= g.get_min_tree_depth()
@@ -534,7 +537,7 @@ def crossover(
     return relabeled_new_tree1, relabeled_new_tree2
 
 
-class TreeBasedRepresentation(Representation[TreeNode]):
+class TreeBasedRepresentation(Representation[TreeNode, TreeNode]):
     """This class represents the tree representation of an individual.
 
     In this approach, the genotype and the phenotype are exactly the
@@ -544,9 +547,15 @@ class TreeBasedRepresentation(Representation[TreeNode]):
     def __init__(self, grammar: Grammar, max_depth: int):
         super().__init__(grammar, max_depth)
 
-    def create_individual(self, r: Source, depth: int | None = None) -> TreeNode:
+    def create_individual(
+        self,
+        r: Source,
+        depth: int | None = None,
+        initialization_method: InitializationMethodType = pi_grow_method,
+        **kwargs,
+    ) -> TreeNode:
         actual_depth = depth or self.max_depth
-        return random_individual(r, self.grammar, actual_depth)
+        return random_individual(r, self.grammar, actual_depth, initialization_method)
 
     def mutate_individual(
         self,
@@ -556,6 +565,7 @@ class TreeBasedRepresentation(Representation[TreeNode]):
         ty: type,
         specific_type: type = None,
         depth_aware_mut: bool = False,
+        **kwargs,
     ) -> TreeNode:
         new_ind = mutate(
             r,
@@ -573,19 +583,12 @@ class TreeBasedRepresentation(Representation[TreeNode]):
         r: Source,
         i1: TreeNode,
         i2: TreeNode,
-        max_depth: int,
+        depth: int,
         specific_type: type = None,
         depth_aware_co: bool = False,
+        **kwargs,
     ) -> tuple[TreeNode, TreeNode]:
-        return crossover(
-            r,
-            self.grammar,
-            i1,
-            i2,
-            max_depth,
-            specific_type,
-            depth_aware_co,
-        )
+        return crossover(r, self.grammar, i1, i2, depth, specific_type, depth_aware_co)
 
     def genotype_to_phenotype(self, genotype: TreeNode) -> TreeNode:
         return genotype

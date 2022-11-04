@@ -19,11 +19,11 @@ class FullInitializer(PopulationInitializer):
         representation: Representation,
         random_source: Source,
         target_size: int,
+        **kwargs,
     ) -> list[Individual]:
-        # TODO Mode: full, grow
         return [
             Individual(
-                representation.create_individual(random_source),
+                representation.create_individual(random_source, **kwargs),
                 genotype_to_phenotype=representation.genotype_to_phenotype,
             )
             for _ in range(target_size)
@@ -40,44 +40,12 @@ class GrowInitializer(PopulationInitializer):
         representation: Representation,
         random_source: Source,
         target_size: int,
+        **kwargs,
     ) -> list[Individual]:
         # TODO Mode: full, grow
         return [
             Individual(
-                representation.create_individual(
-                    random_source,
-                ),
-                genotype_to_phenotype=representation.genotype_to_phenotype,
-            )
-            for _ in range(target_size)
-        ]
-
-
-class RampedHalfAndHalfInitializer(PopulationInitializer):
-    """Half of the individuals are created with the maximum depth, and the
-    other half with different values of maximum depth between the minimum and
-    the maximum.
-
-    There's an equal chance of using full or grow method.
-    """
-
-    def initialize(
-        self,
-        p: Problem,
-        representation: Representation,
-        random_source: Source,
-        target_size: int,
-    ) -> list[Individual]:
-        # TODO Mode: full, grow
-        return [
-            Individual(
-                representation.create_individual(
-                    random_source,
-                    random_source.randint(
-                        representation.min_depth,
-                        representation.max_depth,
-                    ),
-                ),
+                representation.create_individual(random_source, **kwargs),
                 genotype_to_phenotype=representation.genotype_to_phenotype,
             )
             for _ in range(target_size)

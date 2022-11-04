@@ -17,7 +17,7 @@
 ### Ramped Half-and-Half population initialization
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.algorithms.gp.generation_steps.initializers.RampedHalfAndHalfInitializer
+.. autoapiclass:: geneticengine.algorithms.core.representations.tree.operators.RampedHalfAndHalfInitializer
 ```
 
 
