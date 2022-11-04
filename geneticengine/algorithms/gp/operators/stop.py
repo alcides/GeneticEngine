@@ -8,6 +8,12 @@ class GenerationStoppingCriterium(StoppingCriterium):
     """Runs the evolution during a number of generations."""
 
     def __init__(self, max_generations: int):
+        """Creates a limit for the evolution, based on the number of
+        generations.
+
+        Arguments:
+            max_generations (int): Number of generations to execute
+        """
         self.max_generations = max_generations
 
     def is_ended(
@@ -27,8 +33,9 @@ class TimeStoppingCriterium(StoppingCriterium):
     """
 
     def __init__(self, max_time: int):
-        """
-        Args:
+        """Creates a limit for the evolution, based on the execution time.
+
+        Arguments:
             max_time (int): Maximum time in seconds to run the evolution
         """
         self.max_time = max_time
