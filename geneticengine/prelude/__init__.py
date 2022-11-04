@@ -8,7 +8,7 @@ from geneticengine.core.representations.grammatical_evolution.ge import (
     GrammaticalEvolutionRepresentation,
 )  # noqa
 from geneticengine.core.representations.grammatical_evolution.structured_ge import (
-    StructureGrammaticalEvolutionRepresentation,
+    StructuredGrammaticalEvolutionRepresentation,
 )  # noqa
 from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
