@@ -2,14 +2,14 @@
 
 Genetic Engine suports different criteria to finish the evolution: limiting the number of generations, or limiting the execution time.
 
-## The Problem Interface
+## Generation Limit
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.algorithms.gp.stop.GenerationStoppingCriterium
+.. autoapiclass:: geneticengine.algorithms.gp.operators.stop.GenerationStoppingCriterium
 ```
 
-## Single-Objective Problem
+## Time Limit
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.algorithms.gp.stop.TimeStoppingCriterium
+.. autoapiclass:: geneticengine.algorithms.gp.operators.stop.TimeStoppingCriterium
 ```
