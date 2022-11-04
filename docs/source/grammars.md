@@ -21,9 +21,28 @@ The `geneticengine.grammars` module contains various ready implementations of gr
 
 ## Probabilistic Grammars and Evolving Grammars
 
-Genetic Engine supports Probabilistic grammars by assigning weights to classes. Weights can be added by extending classes directly with the simple `@weight` decorator (as is done in the [pcfg_example](../../examples/pcfg_example.py)), or by adding them afterwards by setting the weight of a `prod` using `prod.__dict__["__gengy__"]["weight"]` (as is done in the [classification_probabilisticGE](../../examples/classification_probabilisticGE.py)).
+Genetic Engine supports Probabilistic grammars by assigning weights to classes. Weights can be added by extending classes directly with the simple `@weight` decorator, as is done in the [pcfg_example](../../examples/pcfg_example.py).
 
-Genetic Engine also allows the evolution of the weights of the grammar, as is done in [Probabilistic GE (PGE)](https://arxiv.org/pdf/2103.08389.pdf). Evolution of the grammar is done by using the `PGECallback` callback, or the `evolve_grammar`and         `evolve_learning_rate` parameters of [GPFriendly](algorithms.md):
+```python
+class Root(ABC):
+    pass
+
+@weight(0.1)
+class OptionA(R):
+    " This option will be selected with 10% of probability "
+    pass
+
+
+@weight(0.9)
+class OptionB(R):
+    " This option will be selected with 90% of probability "
+    pass
+
+```
+
+Alternatively, the user can also programmatically define the weigth of a given production, using `prod.__dict__["__gengy__"]["weight"]` (as is done in the [classification_probabilisticGE](../../examples/classification_probabilisticGE.py)).
+
+Genetic Engine also allows the evolution of the weights of the grammar, as is done in [Probabilistic GE (PGE)](https://arxiv.org/pdf/2103.08389.pdf). Evolution of the grammar is done by using the `PGECallback` callback, or the `evolve_grammar`and         `evolve_learning_rate` parameters of [GPFriendly](algorithms.md).
 
 ```{eval-rst}
 .. autoapiclass:: geneticengine.algorithms.callbacks.pge.PGECallback
