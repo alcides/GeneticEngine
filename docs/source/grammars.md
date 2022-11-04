@@ -23,10 +23,10 @@ The `geneticengine.grammars` module contains various ready implementations of gr
 
 Genetic Engine supports Probabilistic grammars by assigning weights to classes. Weights can be added by extending classes directly with the simple `@weight` decorator (as is done in the [pcfg_example](../../examples/pcfg_example.py)), or by adding them afterwards by setting the weight of a `prod` using `prod.__dict__["__gengy__"]["weight"]` (as is done in the [classification_probabilisticGE](../../examples/classification_probabilisticGE.py)).
 
-Genetic Engine also allows the evolution of the weights of the grammar, as is done in [Probabilistic GE (PGE)](https://arxiv.org/pdf/2103.08389.pdf). Evolution of the grammar is done by setting the `evolve_grammar` parameter in the `GP` class with the `EvolveGrammar` class:
+Genetic Engine also allows the evolution of the weights of the grammar, as is done in [Probabilistic GE (PGE)](https://arxiv.org/pdf/2103.08389.pdf). Evolution of the grammar is done by using the `PGECallback` callback, or the `evolve_grammar`and         `evolve_learning_rate` parameters of [GPFriendly](algorithms.md):
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.off_the_shelf.classifiers.GeneticProgrammingClassifier
+.. autoapiclass:: geneticengine.algorithms.callbacks.pge.PGECallback
 ```
 
 ## Controlling the Depth of Individuals
