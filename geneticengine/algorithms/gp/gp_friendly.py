@@ -146,6 +146,11 @@ class GPFriendly(GP):
             grammar,
             max_depth,
         )
+        if (
+            representation_class != TreeBasedRepresentation
+            and initialization_method == "ramped"
+        ):
+            initialization_method = "full"
 
         processed_problem: Problem = self.wrap_depth(
             self.process_problem(
@@ -158,13 +163,12 @@ class GPFriendly(GP):
         )
         random_source = source_generator(seed)
 
-        if initialization_method == "ramped":
-            assert isinstance(representation, TreeBasedRepresentation)
         population_initializer: PopulationInitializer = {
             "grow": GrowInitializer,
             "full": FullInitializer,
             "ramped": RampedHalfAndHalfInitializer,
         }[initialization_method]()
+
         if force_individual:
             population_initializer = InjectInitialPopulationWrapper(
                 [representation_instance.phenotype_to_genotype(force_individual)],
