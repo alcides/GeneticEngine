@@ -11,7 +11,7 @@ from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
-from geneticengine.core.representations.tree.treebased import Grow
+from geneticengine.core.representations.tree.treebased import PI_Grow
 from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.core.tree import TreeNode
 
@@ -67,7 +67,7 @@ class ListWrapper(Source):
 
 def create_tree(g: Grammar, ind: Genotype, depth: int) -> TreeNode:
     rand: Source = ListWrapper(ind.dna)
-    return random_node(rand, g, depth, g.starting_symbol, method=Grow)
+    return random_node(rand, g, depth, g.starting_symbol, method=PI_Grow)
 
 
 class GrammaticalEvolutionRepresentation(Representation[Genotype]):
