@@ -47,7 +47,8 @@ class GP(Heuristics):
         max_depth (int): The maximum depth a tree can have (default = 15).
         max_init_depth (int): The maximum depth a tree can have in the initialisation population. Currently only working for treebased representation (default = max_depth).
         selection_method (Tuple[str, int]): Allows the user to define the method to choose individuals for the next population (default = ("tournament", 5)).
-
+        ramped_half_and_half (bool): Specify whether you want the population to be initialized ramped half and half. Currently only working for treebased representation (default = True).
+        
 
         probability_mutation (float): probability that an individual is mutated (default = 0.01).
         probability_crossover (float): probability that an individual is chosen for cross-over (default = 0.9).
@@ -119,6 +120,7 @@ class GP(Heuristics):
         max_depth: int = 15,
         max_init_depth: int | None = None,
         selection_method: tuple[str, int] = ("tournament", 5),
+        ramped_half_and_half: bool = True,
         # -----
         # As given in A Field Guide to GP, p.17, by Poli and Mcphee
         probability_mutation: float = 0.01,
@@ -222,6 +224,7 @@ class GP(Heuristics):
         else:
             self.selection = lambda r, ls, n: [x for x in ls[:n]]
         self.force_individual = force_individual
+        self.ramped_half_and_half = ramped_half_and_half
 
         if save_to_csv:
             self.test_data = test_data
@@ -276,7 +279,7 @@ class GP(Heuristics):
             self.callbacks.append(ProgressCallback())
 
         # TODO: This is not ramped half and half
-        population = self.init_population()
+        population = self.init_population(self.ramped_half_and_half)
         if self.force_individual is not None:
             population[0] = Individual(
                 genotype=relabel_nodes_of_trees(
@@ -372,8 +375,22 @@ class GP(Heuristics):
             ),
         )
 
-    def init_population(self):
-        return [
-            self.create_individual(self.max_init_depth)
-            for _ in range(self.population_size)
-        ]
+    def init_population(self, ramped_half_and_half):
+        if ramped_half_and_half:
+            n_not_ramped = int(self.population_size / 2)
+            n_ramped = self.population_size - n_not_ramped 
+            pop_ramped = [
+                self.create_individual(max((i % self.max_init_depth) + 1, self.grammar.get_min_tree_depth()))
+                for i in range(n_ramped)
+            ]
+            pop_not_ramped = [
+                self.create_individual(self.max_init_depth)
+                for _ in range(n_not_ramped)
+            ]
+                
+            return pop_ramped + pop_not_ramped
+        else:
+            return [
+                self.create_individual(self.max_init_depth)
+                for _ in range(self.population_size)
+            ]
