@@ -120,7 +120,7 @@ class GP(Heuristics):
         max_depth: int = 15,
         max_init_depth: int | None = None,
         selection_method: tuple[str, int] = ("tournament", 5),
-        ramped_half_and_half: bool = True,
+        ramped_half_and_half: bool = False,
         # -----
         # As given in A Field Guide to GP, p.17, by Poli and Mcphee
         probability_mutation: float = 0.01,
