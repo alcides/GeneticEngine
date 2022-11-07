@@ -19,6 +19,9 @@ from geneticengine.core.representations.grammatical_evolution.ge import (
 from geneticengine.core.representations.grammatical_evolution.structured_ge import (
     sge_representation,
 )
+from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
+    dsge_representation,
+)
 from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.grammars.basic_math import Exp
 from geneticengine.grammars.basic_math import SafeDiv
@@ -123,6 +126,8 @@ def evolve(
         representation = ge_representation
     elif representation == "sge":
         representation = sge_representation
+    elif representation == "dsge":
+        representation = dsge_representation
     else:
         representation = treebased_representation
 
