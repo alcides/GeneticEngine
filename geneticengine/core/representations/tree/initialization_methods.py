@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Any
 from typing import Callable
 from abc import ABC, abstractmethod
@@ -17,10 +19,10 @@ class Initialization_Method(ABC):
     def tree_init_method(self, r: Source, g: Grammar, max_depth: int, starting_symbol: type[Any]):
         ...
 
-class Random_Production():
+class Random_Production(Initialization_Method):
     def __init__(
         self, 
-        min_depth: int = None
+        min_depth: int | None = None
     ):
         self.min_depth = min_depth
     
@@ -126,7 +128,7 @@ class Random_Production():
 
     
 
-class PI_Grow():
+class PI_Grow(Initialization_Method):
     def tree_init_method(
         self,
         r: Source,

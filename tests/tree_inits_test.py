@@ -162,10 +162,12 @@ class TestRandomProductionMinDepth:
         g: Grammar = extract_grammar([Concrete, Middle, Root], RootHolder)
         for i in range(30):
             x = random_node(r, g, 20, RootHolder, method=Random_Production(5).tree_init_method)
-            print(x.gengy_distance_to_term)
             assert x.gengy_distance_to_term <= 20
             assert x.gengy_distance_to_term >= 5
             assert isinstance(x, RootHolder)
+        for i in range(30):
+            x = random_node(r, g, 17, RootHolder, method=Random_Production(10).tree_init_method)
+            assert x.gengy_distance_to_term <= 17
+            assert x.gengy_distance_to_term >= 10
+            assert isinstance(x, RootHolder)
 
-x = TestRandomProductionMinDepth
-x.test_middle_has_right_distance_to_term(x)
