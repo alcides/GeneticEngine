@@ -11,6 +11,7 @@ from typing import TypeVar
 
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import Source
+from geneticengine.core.representations.tree.initialization_methods import Initialization_Method
 from geneticengine.core.tree import TreeNode
 
 g = TypeVar("g")
@@ -18,6 +19,7 @@ g = TypeVar("g")
 
 class Representation(Generic[g]):
     depth: int
+    method: Initialization_Method
     
     @abstractmethod
     def create_individual(self, r: Source, g: Grammar, depth: int) -> g:

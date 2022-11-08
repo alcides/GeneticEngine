@@ -22,6 +22,7 @@ from geneticengine.core.representations.grammatical_evolution.ge import (
 from geneticengine.core.representations.grammatical_evolution.structured_ge import (
     sge_representation,
 )
+from geneticengine.core.representations.tree.initialization_methods import Random_Production
 from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.grammars.basic_math import SafeDiv
 from geneticengine.grammars.basic_math import SafeLog
@@ -134,6 +135,8 @@ def evolve(
     else:
         representation = treebased_representation
 
+    representation.method = Random_Production()
+
     alg = GP(
         g,
         representation=representation,
@@ -145,10 +148,12 @@ def evolve(
         probability_crossover=1,
         probability_mutation=0.5,
         number_of_generations=50,
-        max_depth=10,
+        min_init_depth=4,
+        max_init_depth=7,
+        max_depth=17,
         population_size=50,
-        selection_method=("tournament", 2),
-        n_elites=1,
+        selection_method=("tournament", 3),
+        n_elites=5,
         seed=seed,
         timer_stop_criteria=mode,
     )

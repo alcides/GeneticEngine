@@ -15,6 +15,8 @@ from geneticengine.metahandlers.base import is_metahandler
 
 
 class Initialization_Method(ABC):
+    min_depth: int | None = None
+    
     @abstractmethod
     def tree_init_method(self, r: Source, g: Grammar, max_depth: int, starting_symbol: type[Any]):
         ...

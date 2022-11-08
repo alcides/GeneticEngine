@@ -119,6 +119,7 @@ class GP(Heuristics):
         number_of_generations: int = 100,
         max_depth: int = 15,
         max_init_depth: int | None = None,
+        min_init_depth: int | None = None,
         selection_method: tuple[str, int] = ("tournament", 5),
         ramped_half_and_half: bool = False,
         # -----
@@ -167,6 +168,9 @@ class GP(Heuristics):
             self.max_init_depth = max_init_depth
         else:
             self.max_init_depth = self.max_depth
+        if min_init_depth:
+            assert min_init_depth <= self.max_init_depth
+        self.min_init_depth = min_init_depth
         self.evolve_grammar = evolve_grammar
         self.favor_less_complex_trees = favor_less_complex_trees
         self.novelty = selection.create_novelties(
@@ -376,6 +380,8 @@ class GP(Heuristics):
         )
 
     def init_population(self, ramped_half_and_half):
+        self.representation.method.min_depth = self.min_init_depth
+        
         if ramped_half_and_half:
             n_not_ramped = int(self.population_size / 2)
             n_ramped = self.population_size - n_not_ramped 
@@ -396,5 +402,6 @@ class GP(Heuristics):
             ]
         
         self.representation.depth = self.max_depth
+        self.representation.method.min_depth = None
         return pop
         
