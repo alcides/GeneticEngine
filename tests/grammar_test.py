@@ -9,8 +9,6 @@ from typing import Type
 from unittest import skip
 import pytest
 
-from scipy import rand
-
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.core.decorators import abstract
