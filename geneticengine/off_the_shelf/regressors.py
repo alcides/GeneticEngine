@@ -59,7 +59,7 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
 
     def __init__(
         self,
-        nodes: list[type[Number]] = None,
+        nodes: list[type[Number]] | None = None,
         representation: Representation = treebased_representation,
         population_size: int = 200,
         n_elites: int = 5,

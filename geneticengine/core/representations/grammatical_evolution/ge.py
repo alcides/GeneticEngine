@@ -86,7 +86,7 @@ class GrammaticalEvolutionRepresentation(Representation[Genotype]):
         ind: Genotype,
         depth: int,
         ty: type,
-        specific_type: type = None,
+        specific_type: type | None = None,
         depth_aware_mut: bool = False,
     ) -> Genotype:
         return mutate(r, g, ind, depth)
@@ -98,7 +98,7 @@ class GrammaticalEvolutionRepresentation(Representation[Genotype]):
         i1: Genotype,
         i2: Genotype,
         depth: int,
-        specific_type: type = None,
+        specific_type: type | None = None,
         depth_aware_co: bool = False,
     ) -> tuple[Genotype, Genotype]:
         return crossover(r, g, i1, i2, depth)

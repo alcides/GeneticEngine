@@ -103,7 +103,7 @@ class GP(Heuristics):
         grammar: Grammar,
         representation: Representation = treebased_representation,
         # These classes should be replaced by the problem alone.
-        problem: Problem = None,
+        problem: Problem | None = None,
         evaluation_function: Callable[
             [Any],
             float,
@@ -127,8 +127,8 @@ class GP(Heuristics):
         probability_crossover: float = 0.9,
         either_mut_or_cro: float | None = None,
         hill_climbing: bool = False,
-        specific_type_mutation: type = None,
-        specific_type_crossover: type = None,
+        specific_type_mutation: type | None = None,
+        specific_type_crossover: type | None = None,
         depth_aware_mut: bool = False,
         depth_aware_co: bool = False,
         # -----
@@ -138,15 +138,15 @@ class GP(Heuristics):
         timer_stop_criteria: bool = False,
         timer_limit: int = 60,
         # -----
-        save_to_csv: str = None,
+        save_to_csv: str | None = None,
         save_genotype_as_string: bool = True,
         test_data: Callable[
             [Any],
             float,
-        ] = None,
+        ] | None = None,
         only_record_best_inds: bool = True,
         # -----
-        callbacks: list[Callback] = None,
+        callbacks: list[Callback] | None = None,
     ):
         assert population_size > (n_elites + n_novelties + 1)
 
@@ -235,7 +235,7 @@ class GP(Heuristics):
                         grammar,
                         individual.genotype,
                     )
-                    test_fitness = test_data(phenotype)  # type: ignore
+                    test_fitness = test_data(phenotype)
                     return test_fitness
 
                 self.test_data = test_evaluate

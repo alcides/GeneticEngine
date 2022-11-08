@@ -70,7 +70,7 @@ def random_individual(
     r: Source,
     g: Grammar,
     starting_symbol: Any,
-    current_genotype: Genotype = None,
+    current_genotype: Genotype | None = None,
     max_depth: int = 5,
 ) -> Genotype:  # This whole method seems cumbersome. Why not just create an empty genotype and let it be sourced through when mapping from genotype to phenotype?
     if current_genotype == None:
@@ -180,7 +180,7 @@ def random_individual_simple(
     r: Source,
     g: Grammar,
     starting_symbol: Any,
-    current_genotype: Genotype = None,
+    current_genotype: Genotype | None = None,
     max_depth: int = 5,
 ) -> Genotype:  # In this method we let the random source use the left_overs to fill up the individual
     if current_genotype == None:
@@ -210,7 +210,7 @@ def create_individual(
     r: Source,
     g: Grammar,
     starting_symbol: Any = None,
-    current_genotype: Genotype = None,
+    current_genotype: Genotype | None = None,
     max_depth: int = 5,
 ) -> Genotype:
     if not starting_symbol:
@@ -317,7 +317,7 @@ class DynamicStructuredGrammaticalEvolutionRepresentation(Representation[Genotyp
         ind: Genotype,
         depth: int,
         ty: type,
-        specific_type: type = None,
+        specific_type: type | None = None,
         depth_aware_mut: bool = False,
     ) -> Genotype:
         return mutate(r, g, ind, depth)
@@ -329,7 +329,7 @@ class DynamicStructuredGrammaticalEvolutionRepresentation(Representation[Genotyp
         i1: Genotype,
         i2: Genotype,
         depth: int,
-        specific_type: type = None,
+        specific_type: type | None = None,
         depth_aware_co: bool = False,
     ) -> tuple[Genotype, Genotype]:
         return crossover(r, g, i1, i2, depth)

@@ -13,9 +13,9 @@ class CSVCallback(Callback):
 
     def __init__(
         self,
-        filename: str = None,
+        filename: str | None = None,
         filter_population: Callable[[list[Individual]], list[Individual]] = lambda x: x,
-        test_data: Callable[[Individual], float] = None,
+        test_data: Callable[[Individual], float] | None = None,
         only_record_best_ind: bool = True,
         save_genotype_as_string: bool = True,
     ):

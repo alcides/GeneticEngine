@@ -62,7 +62,7 @@ class Grammar:
     def __init__(
         self,
         starting_symbol: type,
-        considered_subtypes: list[type] = None,
+        considered_subtypes: list[type] | None = None,
         expansion_depthing: bool = False,
     ) -> None:
         self.alternatives: dict[type, list[type]] = {}

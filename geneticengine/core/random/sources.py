@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import random
-from abc import ABC
+from abc import ABC, abstractmethod
 from itertools import accumulate
 from typing import Any
 from typing import List
@@ -15,12 +15,15 @@ T = TypeVar("T")
 
 
 class Source(ABC):
+    @abstractmethod
     def __init__(self, seed: int = 0):
         ...
 
+    @abstractmethod
     def randint(self, min: int, max: int, prod: str = "") -> int:
         ...
 
+    @abstractmethod
     def random_float(self, min: float, max: float, prod: str = "") -> float:
         ...
 

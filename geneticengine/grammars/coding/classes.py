@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from abc import ABC
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any
 from typing import Callable
@@ -25,9 +25,11 @@ t = TypeVar("t")
 
 @abstract
 class Expr(Generic[t]):
+    @abstractmethod
     def evaluate(self, **kwargs) -> t:
         ...
 
+    @abstractmethod
     def evaluate_lines(self, **kwargs) -> Callable[[Any], t]:
         ...
 

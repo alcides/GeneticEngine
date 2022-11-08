@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from abc import ABC
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Callable
 from typing import Optional
@@ -24,6 +24,7 @@ class Problem(ABC):
     minimize: bool | list[bool]
     fitness_function: Callable[[P], float] | Callable[[P], list[float]]
 
+    @abstractmethod 
     def evaluate(self, p: P) -> FitnessType:
         ...
 
@@ -101,7 +102,7 @@ def wrap_depth_minimization(p: SingleObjectiveProblem) -> SingleObjectiveProblem
 
 def process_problem(
     problem: Problem | None,
-    evaluation_function: Callable[[P], float] = None,  # DEPRECATE in the next version
+    evaluation_function: Callable[[P], float] | None = None,  # DEPRECATE in the next version
     minimize: bool = False,  # DEPRECATE in the next version
     target_fitness: float | None = None,  # DEPRECATE in the next version
 ) -> Problem:

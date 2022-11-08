@@ -37,9 +37,9 @@ class HC(Heuristics):
     def __init__(
         self,
         g: Grammar,
-        evaluation_function: Callable[[Any], float] = None,
+        evaluation_function: Callable[[Any], float] | None = None,
         representation: Representation = treebased_representation,
-        problem: Problem = None,
+        problem: Problem | None = None,
         randomSource: Callable[[int], RandomSource] = RandomSource,
         population_size: int = 200,
         number_of_generations: int = 100,

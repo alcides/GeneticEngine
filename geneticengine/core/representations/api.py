@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Any
 from typing import Callable
@@ -16,9 +17,11 @@ g = TypeVar("g")
 
 
 class Representation(Generic[g]):
+    @abstractmethod
     def create_individual(self, r: Source, g: Grammar, depth: int) -> g:
         ...
 
+    @abstractmethod
     def mutate_individual(
         self,
         r: Source,
@@ -26,11 +29,12 @@ class Representation(Generic[g]):
         ind: g,
         depth: int,
         ty: type,
-        specific_type: type = None,
+        specific_type: type | None = None,
         depth_aware_mut: bool = False,
     ) -> g:
         ...
 
+    @abstractmethod
     def crossover_individuals(
         self,
         r: Source,
@@ -38,10 +42,11 @@ class Representation(Generic[g]):
         i1: g,
         i2: g,
         int,
-        specific_type: type = None,
+        specific_type: type | None = None,
         depth_aware_co: bool = False,
     ) -> tuple[g, g]:
         ...
 
+    @abstractmethod
     def genotype_to_phenotype(self, g: Grammar, genotype: g) -> TreeNode:
         ...

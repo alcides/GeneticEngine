@@ -130,7 +130,7 @@ def all_init_arguments_typed(t: type) -> bool:
 def build_finalizers(
     final_callback,
     n_args,
-    per_callback: list[Callable[[Any], None]] = None,
+    per_callback: list[Callable[[Any], None]] | None = None,
 ) -> list[Any]:
     """
     Builds a set of functions that accumulate the arguments provided

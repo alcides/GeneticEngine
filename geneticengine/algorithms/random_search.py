@@ -47,9 +47,9 @@ class RandomSearch(Heuristics):
     def __init__(
         self,
         grammar: Grammar,
-        evaluation_function: Callable[[Any], float] = None,
+        evaluation_function: Callable[[Any], float] | None = None,
         representation: Representation = treebased_representation,
-        problem: Problem = None,
+        problem: Problem | None = None,
         randomSource: Callable[[int], RandomSource] = RandomSource,
         population_size: int = 200,
         number_of_generations: int = 100,
@@ -59,9 +59,9 @@ class RandomSearch(Heuristics):
         minimize: bool = False,
         force_individual: Any = None,
         seed: int = 123,
-        save_to_csv: str = None,
+        save_to_csv: str | None = None,
         save_genotype_as_string: bool = True,
-        callbacks: list[Callback] = None,
+        callbacks: list[Callback] | None = None,
     ):
         assert population_size >= 1
 

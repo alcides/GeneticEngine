@@ -43,7 +43,7 @@ def create_hill_climbing_mutation(
     max_depth: int,
     fitness_function: Callable[[Individual], float],
     n_candidates: int = 5,
-    specific_type: type = None,
+    specific_type: type | None = None,
     depth_aware_mut: bool = False,
 ) -> Callable[[Individual], Individual]:
     def hill_climbing_mutation(individual: Individual):
