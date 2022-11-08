@@ -137,7 +137,7 @@ class SMTResolver:
         SMTResolver.clauses.append(lambda _: ty(ident) == val)
 
 
-def Grow(
+def Random_Production(
     r: Source,
     g: Grammar,
     depth: int,
@@ -454,14 +454,14 @@ def mutate_inner(
                     random_node,
                     max_depth - 1,
                     get_generic_parameter(arg_to_be_mutated),
-                    method=Grow,
+                    method=Random_Production,
                     current_node=args[index],
                 )
                 mk = mk_save_init(type(i), lambda x: x)(*args)
                 return mk
 
             for _ in range(5):
-                replacement = random_node(r, g, max_depth, ty, method=Grow)
+                replacement = random_node(r, g, max_depth, ty, method=Random_Production)
                 if replacement != i:
                     break
             return replacement
@@ -497,7 +497,7 @@ def mutate_inner(
             return mk
     else:
         for _ in range(5):
-            rn = random_node(r, g, max_depth, ty, method=Grow)
+            rn = random_node(r, g, max_depth, ty, method=Random_Production)
             if rn != i:
                 break
         return rn
@@ -699,7 +699,7 @@ def crossover_inner(
                 replacement = r.choice(options)
             if replacement is None:
                 for _ in range(5):
-                    replacement = random_node(r, g, max_depth, ty, method=Grow)
+                    replacement = random_node(r, g, max_depth, ty, method=Random_Production)
                     if replacement != i:
                         break
 
