@@ -79,7 +79,7 @@ class GrammaticalEvolutionRepresentation(Representation[Genotype]):
     def __init__(self, depth = None, gene_size=256, method: Initialization_Method = PI_Grow()) -> None:
         self.depth = depth
         self.gene_size = gene_size
-        self.method = method.tree_init_method
+        self.method = method
 
     def create_individual(self, r: Source, g: Grammar, depth: int) -> Genotype:
         self.depth = depth
@@ -110,7 +110,7 @@ class GrammaticalEvolutionRepresentation(Representation[Genotype]):
         return crossover(r, g, i1, i2, depth)
 
     def genotype_to_phenotype(self, g: Grammar, genotype: Genotype) -> TreeNode:
-        return create_tree(g, genotype, self.depth, self.method)
+        return create_tree(g, genotype, self.depth, self.method.tree_init_method)
 
 
 ge_representation = GrammaticalEvolutionRepresentation()

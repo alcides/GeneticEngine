@@ -45,7 +45,7 @@ class GP(Heuristics):
         n_novelties (int): Number of novelties, i.e. the number of newly generated individuals added to the population each generation. (default = 10).
         number_of_generations (int): Number of generations (default = 100).
         max_depth (int): The maximum depth a tree can have (default = 15).
-        max_init_depth (int): The maximum depth a tree can have in the initialisation population. Currently only working for treebased representation (default = max_depth).
+        max_init_depth (int): The maximum depth a tree can have in the initialisation population. Currently only working for tree-based representation and dynamic SGE (default = max_depth).
         selection_method (Tuple[str, int]): Allows the user to define the method to choose individuals for the next population (default = ("tournament", 5)).
         ramped_half_and_half (bool): Specify whether you want the population to be initialized ramped half and half. Currently only working for treebased representation (default = True).
         
@@ -388,9 +388,13 @@ class GP(Heuristics):
                 for _ in range(n_not_ramped)
             ]
                 
-            return pop_ramped + pop_not_ramped
+            pop = pop_ramped + pop_not_ramped
         else:
-            return [
+            pop = [
                 self.create_individual(self.max_init_depth)
                 for _ in range(self.population_size)
             ]
+        
+        self.representation.depth = self.max_depth
+        return pop
+        

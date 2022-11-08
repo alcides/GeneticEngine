@@ -17,6 +17,8 @@ g = TypeVar("g")
 
 
 class Representation(Generic[g]):
+    depth: int
+    
     @abstractmethod
     def create_individual(self, r: Source, g: Grammar, depth: int) -> g:
         ...

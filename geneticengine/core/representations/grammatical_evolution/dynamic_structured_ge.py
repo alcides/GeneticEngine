@@ -73,7 +73,7 @@ def random_individual(
     starting_symbol: Any,
     current_genotype: Genotype | None = None,
     max_depth: int = 5,
-) -> Genotype:  # This whole method seems cumbersome. Why not just create an empty genotype and let it be sourced through when mapping from genotype to phenotype?
+) -> Genotype: 
     if current_genotype == None:
         nodes = [str(node) for node in g.all_nodes]
         for node in g.all_nodes:
@@ -177,35 +177,6 @@ def random_individual(
     return current_genotype
 
 
-def random_individual_simple(
-    r: Source,
-    g: Grammar,
-    starting_symbol: Any,
-    current_genotype: Genotype | None = None,
-    max_depth: int = 5,
-) -> Genotype:  # In this method we let the random source use the left_overs to fill up the individual
-    if current_genotype == None:
-        nodes = [str(node) for node in g.all_nodes]
-        for node in g.all_nodes:
-            arguments = get_arguments(node)
-            for _, arg in arguments:
-                if is_generic(arg):
-                    nodes.append(str(arg))
-                base_type = str(strip_annotations(arg))
-                if base_type not in nodes:
-                    nodes.append(base_type)
-
-        dna: dict[str, list[int]] = dict()
-        for nodestr in nodes:
-            dna[nodestr] = list()
-        dna[LEFTOVER_KEY] = [
-            r.randint(0, MAX_RAND_INT) for _ in range(1000)
-        ]  # Necessary to source from when a production rule runs out of genes.
-        current_genotype = Genotype(dna)
-
-    assert type(current_genotype) == Genotype
-    return current_genotype
-
 
 def create_individual(
     r: Source,
@@ -217,7 +188,6 @@ def create_individual(
     if not starting_symbol:
         starting_symbol = g.starting_symbol
 
-    # return random_individual_simple(r, g, starting_symbol, current_genotype, max_depth)
     return random_individual(r, g, starting_symbol, current_genotype, max_depth)
 
 
@@ -307,8 +277,8 @@ class DynamicStructuredGrammaticalEvolutionRepresentation(Representation[Genotyp
 
     def __init__(self, depth = None, method: Initialization_Method = PI_Grow()) -> None:
         self.depth = depth
-        self.method = method.tree_init_method
-
+        self.method = method
+    
     def create_individual(self, r: Source, g: Grammar, depth: int) -> Genotype:
         self.depth = depth
         return create_individual(r, g, max_depth=depth)
@@ -338,7 +308,7 @@ class DynamicStructuredGrammaticalEvolutionRepresentation(Representation[Genotyp
         return crossover(r, g, i1, i2, depth)
 
     def genotype_to_phenotype(self, g: Grammar, genotype: Genotype) -> TreeNode:
-        return create_tree(g, genotype, self.depth, self.method)
+        return create_tree(g, genotype, self.depth, self.method.tree_init_method)
 
 
 dsge_representation = DynamicStructuredGrammaticalEvolutionRepresentation()

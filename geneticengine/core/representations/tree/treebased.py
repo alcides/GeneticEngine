@@ -533,10 +533,10 @@ class TreeBasedRepresentation(Representation[TreeNode]):
 
     def __init__(self, depth = None, method: Initialization_Method = PI_Grow()) -> None:
         self.depth = depth
-        self.method = method.tree_init_method
+        self.method = method
         
     def create_individual(self, r: Source, g: Grammar, depth: int) -> TreeNode:
-        return random_individual(r, g, depth, self.method)
+        return random_individual(r, g, depth, self.method.tree_init_method)
 
     def mutate_individual(
         self,
