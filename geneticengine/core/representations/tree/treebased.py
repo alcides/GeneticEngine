@@ -247,7 +247,7 @@ def random_node(
     r: Source,
     g: Grammar,
     max_depth: int,
-    starting_symbol: type[Any] = None,
+    starting_symbol: type[Any] | None = None,
     method=PI_Grow,
 ):
     if starting_symbol is None:
@@ -902,7 +902,7 @@ class TreeBasedRepresentation(Representation[TreeNode]):
         ind: TreeNode,
         depth: int,
         ty: type,
-        specific_type: type = None,
+        specific_type: type | None = None,
         depth_aware_mut: bool = False,
     ) -> TreeNode:
         new_ind = mutate(r, g, ind, depth, ty, specific_type, depth_aware_mut)
@@ -915,7 +915,7 @@ class TreeBasedRepresentation(Representation[TreeNode]):
         i1: TreeNode,
         i2: TreeNode,
         max_depth: int,
-        specific_type: type = None,
+        specific_type: type | None = None,
         depth_aware_co: bool = False,
     ) -> tuple[TreeNode, TreeNode]:
         return crossover(r, g, i1, i2, max_depth, specific_type, depth_aware_co)
