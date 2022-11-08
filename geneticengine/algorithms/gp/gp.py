@@ -107,7 +107,7 @@ class GP(Heuristics):
         evaluation_function: Callable[
             [Any],
             float,
-        ] = None,  # DEPRECATE in the next version
+        ] | None = None,  # DEPRECATE in the next version
         minimize: bool = False,  # DEPRECATE in the next version
         target_fitness: float | None = None,  # DEPRECATE in the next version
         evolve_grammar: EvolveGrammar | None = None,
@@ -235,7 +235,7 @@ class GP(Heuristics):
                         grammar,
                         individual.genotype,
                     )
-                    test_fitness = test_data(phenotype)
+                    test_fitness = test_data(phenotype) # type: ignore
                     return test_fitness
 
                 self.test_data = test_evaluate
