@@ -7,6 +7,7 @@ from geneticengine.core.decorators import get_gengy
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
+from geneticengine.core.representations.tree.initialization_methods import Initialization_Method
 from geneticengine.core.representations.tree.treebased import PI_Grow
 from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.core.tree import TreeNode
@@ -295,16 +296,18 @@ class DynamicStructuredListWrapper(Source):
         return 1 * (max - min) / k + min
 
 
-def create_tree(g: Grammar, ind: Genotype, depth: int) -> TreeNode:
+def create_tree(g: Grammar, ind: Genotype, depth: int, method) -> TreeNode:
     rand: Source = DynamicStructuredListWrapper(ind)
-    return random_node(rand, g, depth, g.starting_symbol, method=PI_Grow)
+    return random_node(rand, g, depth, g.starting_symbol, method=method)
 
 
 class DynamicStructuredGrammaticalEvolutionRepresentation(Representation[Genotype]):
     """This version uses a list of lists of integers to represent individuals, based on non-terminal
     symbols. It delays computing the expansions that have enough depth to runtime."""
 
-    depth: int
+    def __init__(self, depth = None, method: Initialization_Method = PI_Grow()) -> None:
+        self.depth = depth
+        self.method = method.tree_init_method
 
     def create_individual(self, r: Source, g: Grammar, depth: int) -> Genotype:
         self.depth = depth
@@ -335,7 +338,7 @@ class DynamicStructuredGrammaticalEvolutionRepresentation(Representation[Genotyp
         return crossover(r, g, i1, i2, depth)
 
     def genotype_to_phenotype(self, g: Grammar, genotype: Genotype) -> TreeNode:
-        return create_tree(g, genotype, self.depth)
+        return create_tree(g, genotype, self.depth, self.method)
 
 
 dsge_representation = DynamicStructuredGrammaticalEvolutionRepresentation()

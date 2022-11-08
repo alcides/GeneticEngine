@@ -17,8 +17,7 @@ from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.tree.treebased import Grow
-from geneticengine.core.representations.tree.treebased import PI_Grow
+from geneticengine.core.representations.tree.initialization_methods import PI_Grow
 from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.core.utils import get_arguments
 from geneticengine.metahandlers.ints import IntRange
@@ -75,7 +74,7 @@ class TestGrammar:
     def test_rec(self):
         r = RandomSource(seed=1)
         g: Grammar = extract_grammar([Leaf, Rec], Root)
-        x = random_node(r, g, 10, Root, method=PI_Grow)
+        x = random_node(r, g, 10, Root, method=PI_Grow().tree_init_method)
         # print(x) -- Leaf()
         assert isinstance(x, Rec)
         assert isinstance(x, Root)
@@ -88,7 +87,7 @@ class TestGrammar:
             g,
             max_depth=15,
             starting_symbol=Root,
-            method=PI_Grow,
+            method=PI_Grow().tree_init_method,
         )
         assert contains_type(x, RecAlt)
         assert isinstance(x, Root)
@@ -102,7 +101,7 @@ class TestGrammar:
             g,
             max_depth=2,
             starting_symbol=Root,
-            method=PI_Grow,
+            method=PI_Grow().tree_init_method,
         )
         assert isinstance(x, Leaf)
         assert isinstance(x, Root)

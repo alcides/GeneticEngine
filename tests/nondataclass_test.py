@@ -7,9 +7,8 @@ from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.tree.treebased import (
     crossover as tree_crossover,
 )
-from geneticengine.core.representations.tree.treebased import Grow
 from geneticengine.core.representations.tree.treebased import mutate
-from geneticengine.core.representations.tree.treebased import PI_Grow
+from geneticengine.core.representations.tree.initialization_methods import PI_Grow
 from geneticengine.core.representations.tree.treebased import random_node
 
 
@@ -31,15 +30,15 @@ class Inner(Node):
 def test_crossover():
     r = RandomSource(seed=1)
     g: Grammar = extract_grammar([Leaf, Inner], Node)
-    x = random_node(r, g, 20, Node, method=PI_Grow)
+    x = random_node(r, g, 20, Node, method=PI_Grow().tree_init_method)
     for i in range(100):
-        y = random_node(r, g, 20, Node, method=PI_Grow)
+        y = random_node(r, g, 20, Node, method=PI_Grow().tree_init_method)
         x, _ = tree_crossover(r, g, x, y, 20)
 
 
 def test_mutation():
     r = RandomSource(seed=1)
     g: Grammar = extract_grammar([Leaf, Inner], Node)
-    x = random_node(r, g, 20, Node, method=PI_Grow)
+    x = random_node(r, g, 20, Node, method=PI_Grow().tree_init_method)
     for i in range(100):
         x = mutate(r, g, x, 20, Node)

@@ -3,17 +3,12 @@ from __future__ import annotations
 from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
-from typing import List
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.tree.treebased import PI_Grow
-from geneticengine.core.representations.tree.treebased import random_node
-from geneticengine.core.representations.tree.utils import GengyList, relabel_nodes_of_trees
-from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.lists import ListSizeBetween
 
 

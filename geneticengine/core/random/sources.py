@@ -47,17 +47,17 @@ class Source(ABC):
                 return choice
         return choices[0]
 
-    def shuffle(self, l: list[T]):
+    def shuffle(self, l: list[T], prod: str = ""):
         for i in reversed(range(1, len(l))):
-            j = self.randint(0, i)
+            j = self.randint(0, i, prod)
             l[i], l[j] = l[j], l[i]
         return l
 
-    def pop_random(self, l: list[T]) -> T:
+    def pop_random(self, l: list[T], prod: str = "") -> T:
         item = l.pop()
         total_len = len(l)
 
-        i = self.randint(0, total_len)
+        i = self.randint(0, total_len, prod)
         if i == total_len:
             return item
 

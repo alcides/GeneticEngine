@@ -12,7 +12,7 @@ import z3
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.tree import treebased
-from geneticengine.core.representations.tree.treebased import is_metahandler
+from geneticengine.core.representations.tree.initialization_methods import is_metahandler
 from geneticengine.metahandlers.base import MetaHandlerGenerator
 from geneticengine.metahandlers.smt.lang import dLit
 from geneticengine.metahandlers.smt.lang import dNode
