@@ -140,7 +140,7 @@ class SMTResolver:
 def Random_Production(
     r: Source,
     g: Grammar,
-    depth: int,
+    max_depth: int,
     starting_symbol: type[Any] = int,
 ):
     def filter_choices(possible_choices: list[type], depth):
@@ -173,7 +173,7 @@ def Random_Production(
     def final_finalize(x):
         state["final"] = x
 
-    handle_symbol(starting_symbol, final_finalize, depth, "root", ctx={})
+    handle_symbol(starting_symbol, final_finalize, max_depth, "root", ctx={})
     SMTResolver.resolve_clauses()
     n = state["final"]
     relabel_nodes_of_trees(n, g)
@@ -183,7 +183,7 @@ def Random_Production(
 def PI_Grow(
     r: Source,
     g: Grammar,
-    depth: int,
+    max_depth: int,
     starting_symbol: type[Any] = int,
 ):
     state = {}
@@ -205,7 +205,7 @@ def PI_Grow(
         if next_type in g.recursive_prods:
             nRecs[0] += 1
 
-    handle_symbol(starting_symbol, final_finalize, depth, "root", ctx={})
+    handle_symbol(starting_symbol, final_finalize, max_depth, "root", ctx={})
 
     def filter_choices(possible_choices: list[type], depth):
         valid_productions = [
