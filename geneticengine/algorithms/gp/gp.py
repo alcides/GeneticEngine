@@ -38,7 +38,7 @@ class GP(Heuristics):
         evaluation_function (Callable[[Any], float]): The fitness function. Should take in any valid individual and return a float. The default is that the higher the fitness, the more applicable is the solution to the problem. Turn on the parameter minimize to switch it around.
         minimize (bool): When switch on, the fitness function is reversed, so that a higher result from the fitness function corresponds to a less fit solution (default = False).
         target_fitness (Optional[float]): Sets a target fitness. When this fitness is reached, the algorithm stops running (default = None).
-        favor_less_deep_trees (bool): If set to True, this gives a tiny penalty to deeper trees to favor simpler trees (default = False).
+        favor_less_complex_trees (bool): If set to True, this gives a tiny penalty to more complex (with more nodes) trees to favor simpler trees (default = False).
         randomSource (Callable[[int], RandomSource]): The random source function used by the program. Should take in an integer, representing the seed, and return a RandomSource.
         population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (n_elites + n_novelties + 1) must hold.
         n_elites (int): Number of elites, i.e. the number of best individuals that are preserved every generation (default = 5).
@@ -111,7 +111,7 @@ class GP(Heuristics):
         minimize: bool = False,  # DEPRECATE in the next version
         target_fitness: float | None = None,  # DEPRECATE in the next version
         evolve_grammar: EvolveGrammar | None = None,
-        favor_less_deep_trees: bool = False,  # DEPRECATE in the next version
+        favor_less_complex_trees: bool = True,  # DEPRECATE in the next version
         randomSource: Callable[[int], RandomSource] = RandomSource,
         population_size: int = 200,
         n_elites: int = 5,
@@ -152,7 +152,7 @@ class GP(Heuristics):
 
         self.problem: Problem = wrap_depth(
             process_problem(problem, evaluation_function, minimize, target_fitness),
-            favor_less_deep_trees,
+            favor_less_complex_trees,
         )
 
         self.grammar = grammar
@@ -168,7 +168,7 @@ class GP(Heuristics):
         else:
             self.max_init_depth = self.max_depth
         self.evolve_grammar = evolve_grammar
-        self.favor_less_deep_trees = favor_less_deep_trees
+        self.favor_less_complex_trees = favor_less_complex_trees
         self.novelty = selection.create_novelties(
             self.create_individual,
             max_depth=max_depth,

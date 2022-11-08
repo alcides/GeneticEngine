@@ -37,7 +37,7 @@ class RandomSearch(Heuristics):
         population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (n_elites + n_novelties + 1) must hold.
         number_of_generations (int): Number of generations (default = 100).
         max_depth (int): The maximum depth a tree can have (default = 15).
-        favor_less_deep_trees (bool): If set to True, this gives a tiny penalty to deeper trees to favor simpler trees (default = False).
+        favor_less_complex_trees (bool): If set to True, this gives a tiny penalty to more complex (with more nodes) trees to favor simpler trees (default = False).
         force_individual (Any): Allows the incorporation of an individual in the first population (default = None).
         save_to_csv (str): Saves a CSV file with the details of all the individuals of all generations.
         save_genotype_as_string (bool): Turn this off if you don't want to safe all the genotypes as strings. This saves memory and a bit of time.
@@ -55,7 +55,7 @@ class RandomSearch(Heuristics):
         number_of_generations: int = 100,
         max_depth: int = 15,
         # now based on depth, maybe on number of nodes?
-        favor_less_deep_trees: bool = False,
+        favor_less_complex_trees: bool = False,
         minimize: bool = False,
         force_individual: Any = None,
         seed: int = 123,
@@ -67,7 +67,7 @@ class RandomSearch(Heuristics):
 
         self.problem: Problem = wrap_depth(
             process_problem(problem, evaluation_function, minimize),
-            favor_less_deep_trees,
+            favor_less_complex_trees,
         )
 
         self.grammar = grammar
@@ -77,7 +77,7 @@ class RandomSearch(Heuristics):
         self.seed = seed
         self.population_size = population_size
         self.max_depth = max_depth
-        self.favor_less_deep_trees = favor_less_deep_trees
+        self.favor_less_complex_trees = favor_less_complex_trees
         self.minimize = minimize
         self.number_of_generations = number_of_generations
         self.force_individual = force_individual

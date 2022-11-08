@@ -159,6 +159,10 @@ def evolve(
 if __name__ == "__main__":
     g = preprocess()
     print(g)
-    b, bf = evolve(g, 123, False)
+    from geneticengine.core.representations.tree.treebased import Random_Production
+    from geneticengine.core.random.sources import RandomSource
+    # import IPython as ip
+    # ip.embed()
+    b, bf = evolve(g, 123, False, 'dsge')
     print(bf)
     print(f"With fitness: {b}")

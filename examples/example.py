@@ -84,7 +84,7 @@ alg_rs = RandomSearch(
     population_size=50,
     max_depth=5,
     number_of_generations=40,
-    # favor_less_deep_trees=True,
+    # favor_less_complex_trees=True,
 )
 (b_rs, bf_rs, bp_rs) = alg_rs.evolve(verbose=1)
 

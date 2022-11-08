@@ -88,9 +88,9 @@ def wrap_depth_minimization(p: SingleObjectiveProblem) -> SingleObjectiveProblem
 
     def w(i):
         if p.minimize:
-            return p.fitness_function(i) + i.gengy_distance_to_term * 10**-25
+            return p.fitness_function(i) + i.gengy_nodes * 10**-25
         else:
-            return p.fitness_function(i) - i.gengy_distance_to_term * 10**-25
+            return p.fitness_function(i) - i.gengy_nodes * 10**-25
 
     return SingleObjectiveProblem(
         minimize=p.minimize,
@@ -120,9 +120,9 @@ def process_problem(
         )
 
 
-def wrap_depth(p: Problem, favor_less_deep_trees: bool = False):
+def wrap_depth(p: Problem, favor_less_complex_trees: bool = False):
     if isinstance(p, SingleObjectiveProblem):
-        if favor_less_deep_trees:
+        if favor_less_complex_trees:
             return wrap_depth_minimization(p)
         else:
             return p

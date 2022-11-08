@@ -204,7 +204,7 @@ def evolve(
         # number_of_generations=150,
         # population_size=100,
         # max_depth=15,
-        # favor_less_deep_trees=True,
+        # favor_less_complex_trees=True,
         # probability_crossover=0.75,
         # probability_mutation=0.01,
         # selection_method=("tournament", 2),
