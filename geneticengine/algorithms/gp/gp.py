@@ -355,10 +355,7 @@ class GP(Heuristics):
                     inds = npop
                 best = self.get_best_individual(self.problem, inds)
                 prob = best.production_probabilities(
-                    lambda x: self.representation.genotype_to_phenotype(
-                        self.grammar,
-                        x,
-                    ),
+                    self.representation.genotype_to_phenotype,
                     self.grammar,
                 )
                 self.grammar = self.grammar.update_weights(

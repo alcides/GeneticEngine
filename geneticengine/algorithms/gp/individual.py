@@ -14,8 +14,8 @@ class Individual:
     def __str__(self) -> str:
         return str(self.genotype)
 
-    def count_prods(self, genotype_to_phenotype, all_nodes):
-        counts = {prod: 1 for prod in all_nodes}
+    def count_prods(self, genotype_to_phenotype, g):
+        counts = {prod: 1 for prod in g.all_nodes}
 
         def add_count(ty):
             if ty in counts.keys():
@@ -33,12 +33,12 @@ class Individual:
             for argn in get_args(node):
                 counting(getattr(node, argn))
 
-        counting(genotype_to_phenotype(self.genotype))
+        counting(genotype_to_phenotype(g, self.genotype))
         # self.counts = counts
         return counts
 
     def production_probabilities(self, genotype_to_phenotype, g):
-        counts = self.count_prods(genotype_to_phenotype, g.all_nodes)
+        counts = self.count_prods(genotype_to_phenotype, g)
         probs = counts.copy()
         for rule in g.alternatives:
             prods = g.alternatives[rule]
