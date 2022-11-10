@@ -55,4 +55,8 @@ def plot_fitness_comparison(folder_names: list, labels: list, minimize: bool, la
 def plot_test_fitness_comparison(folder_names: list, labels: list, minimize: bool, labels_name: str = 'Labels', x_axis: str = 'Generations', y_axis: str = 'Test fitness', title: str = 'Test fitness comparison', file_name = None):
     plot_comparison(folder_names=folder_names, labels=labels, minimize=minimize, labels_name=labels_name, x_axis=x_axis, y_axis=y_axis, title=title, file_name=file_name)
     
+def plot_nodes_comparison(folder_names: list, labels: list, minimize: bool, labels_name: str = 'Labels', x_axis: str = 'Generations', y_axis: str = 'Nodes', title: str = 'Nodes comparison', file_name = None):
+    raise GeneticEngineError("Not yet implemented")
+    # plot_comparison(folder_names=folder_names, labels=labels, minimize=minimize, labels_name=labels_name, x_axis=x_axis, y_axis=y_axis, title=title, file_name=file_name)
+    
     
