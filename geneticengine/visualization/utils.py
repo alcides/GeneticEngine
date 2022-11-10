@@ -25,7 +25,7 @@ def load(folder_name: str, x_axis: str, y_axis: str):
     
     return all_data
 
-def load_w_different_optimum(folder_name: str, x_axis: str, y_axis:str, extra_column: str):
+def load_w_extra(folder_name: str, x_axis: str, y_axis:str, extra_column: str):
     print(f"Loading from: {folder_name}")
     f_list = glob.glob(f"{folder_name}/*.csv")
 
