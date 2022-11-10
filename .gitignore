@@ -1,5 +1,6 @@
 dist
 .vscode
+results/*
 results/csvs/*
 !results/csvs/.gitkeep
 results/Franklin/*
