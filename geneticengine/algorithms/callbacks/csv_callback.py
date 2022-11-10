@@ -70,12 +70,16 @@ class CSVCallback(Callback):
             pop = [gp.get_best_individual(gp.problem, population)]
         self.time = time
         for ind in pop:
-            if hasattr(ind.genotype, "gengy_distance_to_term"):
-                depth = ind.genotype.gengy_distance_to_term
+            phenotype = gp.representation.genotype_to_phenotype(
+                        gp.grammar,
+                        ind.genotype,
+                    )
+            if hasattr(phenotype, "gengy_distance_to_term"):
+                depth = phenotype.gengy_distance_to_term
             else:
                 depth = -1
-            if hasattr(ind.genotype, "gengy_nodes"):
-                nodes = ind.genotype.gengy_nodes
+            if hasattr(phenotype, "gengy_nodes"):
+                nodes = phenotype.gengy_nodes
             else:
                 nodes = -1
             row = [
@@ -87,10 +91,6 @@ class CSVCallback(Callback):
                 gp.seed,
             ]
             if self.test_data:
-                phenotype = gp.representation.genotype_to_phenotype(
-                        gp.grammar,
-                        ind.genotype,
-                    )
                 row.append(self.test_data(phenotype))
             if self.save_genotype_as_string:
                 row.append(ind.genotype)
