@@ -55,24 +55,46 @@ def plot_nodes_comparison(folder_names: list, labels: list, labels_name: str = '
     # plot_comparison(folder_names=folder_names, labels=labels, labels_name=labels_name, x_axis=x_axis, y_axis=y_axis, title=title, file_name=file_name)
     
 
-def plot_prods_comparison(folder_names: list, labels: list, labels_name: str = 'Labels', x_axis: str = 'Generations', extra: str = 'Fitness', y_axis: str = 'Nodes', title: str = 'Fitness comparison', file_name = None):
+def plot_prods_comparison(folder_name: str, x_axis: str = 'Generations', extra: str = 'productions', y_axis: str = 'Fitness', title: str = 'Production comparison', file_name = None, take_out_prods: list = [ 'str', 'float', 'int' ], keep_in_prods: list = None):
     
     all_data = list()
-
-    for idx, folder_name in enumerate(folder_names):
-        data = load_w_extra(folder_name, x_axis, y_axis, extra)
-        data[labels_name] = labels[idx]
-        all_data.append(data)
-
-    all_data = pd.concat(all_data, axis=0, ignore_index=True)
-
+    
+    data = load_w_extra(folder_name, x_axis, y_axis, extra)
+    prods = data[[extra]].values[0][0].split('<class \'')[1:]
+    prods = list(map(lambda x: x.split('\'>:')[0], prods))
+    def obtain_value(dictionary, prod):
+        only_end = dictionary.split(prod+'\'>: ')[1]
+        only_beginning = only_end.split(',')[0]
+        try:
+            return int(only_beginning)
+        except:
+            return int(only_beginning.split('}')[0])
+    for prod in prods:
+        prod = prod.split('.')[-1]
+        if prod in take_out_prods:
+            continue
+        if keep_in_prods:
+            if prod not in keep_in_prods:
+                continue
+        new_data = data.copy(deep=True)
+        new_data['Occurences'] = data[['productions']].squeeze().map(lambda x: obtain_value(x, prod))
+        new_data['Production'] = prod
+        all_data.append(new_data[[x_axis, 'Occurences', 'Production']])
+    
+    df = pd.concat(all_data, axis=0, ignore_index=True)
+    
     plt.close()
     sns.set_style("darkgrid")
     sns.set(font_scale=1.2)
     sns.set_style({"font.family": "serif"})
 
-    a = sns.lineplot(data=all_data, x=x_axis, y=y_axis, hue=labels_name)
-
+    a = sns.lineplot(
+        data = df,
+        x = x_axis,
+        y = 'Occurences',
+        hue = 'Production'
+        )
+    
     sns.set(font_scale=1.4)
     a.set_title(title)
     plt.tight_layout()
