@@ -73,7 +73,7 @@ def plot_nodes_comparison(folder_names: list, labels: list, label_names: str = '
     '''
     plot_comparison(folder_names=folder_names, labels=labels, label_names=label_names, x_axis=x_axis, y_axis=y_axis, title=title, file_name=file_name)
 
-def plot_prods_comparison(folder_name: str, x_axis: str = 'Generations', extra: str = 'productions', y_axis: str = 'Fitness', title: str = 'Production comparison', file_name = None, take_out_prods: list = [ 'str', 'float', 'int' ], keep_in_prods: list = None):
+def plot_prods_comparison(folder_name: str, x_axis: str = 'Generations', extra: str = 'productions', y_axis: str = 'Fitness', title: str = 'Production comparison', file_name = None, take_out_prods: list = [ 'str', 'float', 'int' ], keep_in_prods: list | None = None):
     '''
         Plots a figure with lines for each production (average with shades for std) in the grammar (you can use take_out_prods and keep_in_prods to take out and keep in prods). Only a single folder can be given.
     '''
