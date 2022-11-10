@@ -8,7 +8,7 @@ import matplotlib  # type:ignore
 import matplotlib.pyplot as plt  # type:ignore
 import numpy as np
 import pandas as pd
-import seaborn as sns
+import seaborn as sns # type: ignore
 
 from geneticengine.exceptions import GeneticEngineError
 from geneticengine.visualization.utils import *
