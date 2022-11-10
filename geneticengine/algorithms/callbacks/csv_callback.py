@@ -18,6 +18,7 @@ class CSVCallback(Callback):
         test_data: Callable[[Individual], float] | None = None,
         only_record_best_ind: bool = True,
         save_genotype_as_string: bool = True,
+        save_productions: bool = False,
     ):
         if filename is None:
             filename = "evolution_results.csv"
@@ -27,6 +28,7 @@ class CSVCallback(Callback):
         self.test_data = test_data
         self.only_record_best_ind = only_record_best_ind
         self.save_genotype_as_string = save_genotype_as_string
+        self.save_productions = save_productions
         self.write_header()
 
     def end_evolution(self):
@@ -47,6 +49,8 @@ class CSVCallback(Callback):
             row.append("test_fitness")
         if self.save_genotype_as_string:
             row.append("genotype_as_str")
+        if self.save_productions:
+            row.append("productions")
         self.writer.writerow(row)
 
     def process_iteration(self, generation: int, population, time: float, gp):
@@ -75,4 +79,6 @@ class CSVCallback(Callback):
                 row.append(self.test_data(ind))
             if self.save_genotype_as_string:
                 row.append(ind.genotype)
+            if self.save_productions:
+                row.append(ind.count_prods(gp.representation.genotype_to_phenotype, gp.grammar))
             self.writer.writerow([str(x) for x in row])
