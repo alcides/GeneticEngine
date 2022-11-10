@@ -140,13 +140,7 @@ class GP(Heuristics):
         timer_stop_criteria: bool = False,
         timer_limit: int = 60,
         # -----
-        save_to_csv: str | None = None,
-        save_genotype_as_string: bool = True,
-        test_data: Callable[
-            [Any],
-            float,
-        ] | None = None,
-        only_record_best_inds: bool = True,
+        save_to_csv: CSVCallback | None = None,
         # -----
         callbacks: list[Callback] | None = None,
     ):
@@ -232,26 +226,7 @@ class GP(Heuristics):
         self.ramped_half_and_half = ramped_half_and_half
 
         if save_to_csv:
-            self.test_data = test_data
-            if self.test_data:
-
-                def test_evaluate(individual: Individual) -> float:
-                    phenotype = representation.genotype_to_phenotype(
-                        grammar,
-                        individual.genotype,
-                    )
-                    test_fitness = test_data(phenotype) # type: ignore
-                    return test_fitness
-
-                self.test_data = test_evaluate
-
-            c = CSVCallback(
-                save_to_csv,
-                test_data=self.test_data,
-                only_record_best_ind=only_record_best_inds,
-                save_genotype_as_string=save_genotype_as_string,
-            )
-            self.callbacks.append(c)
+            self.callbacks.append(save_to_csv)
 
     def evolve(self, verbose=1) -> tuple[Individual, FitnessType, Any]:
         """The main function of the GP object. This function runs the GP
