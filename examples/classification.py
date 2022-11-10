@@ -124,7 +124,7 @@ def evolve(
     g,
     seed,
     mode,
-    representation="treebased_representation",
+    representation="treebased",
 ):
     if representation == "ge":
         representation = ge_representation
