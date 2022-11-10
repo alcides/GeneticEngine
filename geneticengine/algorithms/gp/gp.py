@@ -46,6 +46,7 @@ class GP(Heuristics):
         number_of_generations (int): Number of generations (default = 100).
         max_depth (int): The maximum depth a tree can have (default = 15).
         max_init_depth (int): The maximum depth a tree can have in the initialisation population. Currently only working for tree-based representation and dynamic SGE (default = max_depth).
+        min_depth (int): The minimum depth a tree can have (default = None).
         min_init_depth (int): The minimum depth a tree can have in the initialisation population. Only relevant when using the Random_Production initialization method (default = None).
         selection_method (Tuple[str, int]): Allows the user to define the method to choose individuals for the next population (default = ("tournament", 5)).
         ramped_half_and_half (bool): Specify whether you want the population to be initialized ramped half and half. Currently only working for treebased representation (default = True).
@@ -117,6 +118,7 @@ class GP(Heuristics):
         number_of_generations: int = 100,
         max_depth: int = 15,
         max_init_depth: int | None = None,
+        min_depth: int | None = None,
         min_init_depth: int | None = None,
         selection_method: tuple[str, int] = ("tournament", 5),
         ramped_half_and_half: bool = False,
@@ -160,9 +162,14 @@ class GP(Heuristics):
             self.max_init_depth = max_init_depth
         else:
             self.max_init_depth = self.max_depth
+        if min_depth:
+            assert min_depth <= self.max_depth
+        self.min_depth = min_depth
         if min_init_depth:
             assert min_init_depth <= self.max_init_depth
-        self.min_init_depth = min_init_depth
+            self.min_init_depth = min_init_depth
+        else:
+            self.min_init_depth = self.min_depth
         self.evolve_grammar = evolve_grammar
         self.favor_less_complex_trees = favor_less_complex_trees
         self.novelty = selection.create_novelties(
@@ -372,6 +379,6 @@ class GP(Heuristics):
             ]
         
         self.representation.depth = self.max_depth
-        self.representation.method.min_depth = None
+        self.representation.method.min_depth = self.min_depth
         return pop
         
