@@ -8,6 +8,7 @@ from typing import Annotated
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from geneticengine.algorithms.callbacks.csv_callback import CSVCallback
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.decorators import abstract
@@ -124,7 +125,7 @@ def evolve(
     g,
     seed,
     mode,
-    representation="treebased_representation",
+    representation="treebased",
 ):
     if representation == "ge":
         representation = ge_representation
@@ -156,6 +157,7 @@ def evolve(
         n_elites=5,
         seed=seed,
         timer_stop_criteria=mode,
+        # save_to_csv=CSVCallback(save_productions=True,test_data=fitness_test_function),
     )
     (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf

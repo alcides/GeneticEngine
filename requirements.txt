@@ -1,10 +1,12 @@
 docformatter
 lark
+matplotlib
 myst-parser
 numpy
 palettable
 pandas
 pytest
+seaborn
 sklearn
 sphinx
 sphinx-autoapi

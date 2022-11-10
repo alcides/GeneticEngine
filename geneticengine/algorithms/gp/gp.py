@@ -49,7 +49,7 @@ class GP(Heuristics):
         min_init_depth (int): The minimum depth a tree can have in the initialisation population. Only relevant when using the Random_Production initialization method (default = None).
         selection_method (Tuple[str, int]): Allows the user to define the method to choose individuals for the next population (default = ("tournament", 5)).
         ramped_half_and_half (bool): Specify whether you want the population to be initialized ramped half and half. Currently only working for treebased representation (default = True).
-        
+        evolve_grammar (EvolveGrammar): You can evolve the grammar throughout the generations by assigning a EvolveGrammar to this parameter (default: None).
 
         probability_mutation (float): probability that an individual is mutated (default = 0.01).
         probability_crossover (float): probability that an individual is chosen for cross-over (default = 0.9).
@@ -66,10 +66,7 @@ class GP(Heuristics):
         timer_stop_criteria (bool): If set to True, the algorithm is stopped after the time limit (default = 60 seconds). Then the fittest individual is returned (default = False).
         timer_limit (int): The time limit of the timer.
 
-        save_to_csv (str): Saves a CSV file with the details of all the individuals of all generations.
-        save_genotype_as_string (bool): Turn this off if you don't want to safe all the genotypes as strings. This saves memory and a bit of time.
-        test_data (Any): Give test data (format: (X_test, y_test)) to test the individuals on test data during training and save that to the csv (default = None).
-        only_record_best_inds (bool): Specify whether one or all individuals are saved to the csv files (default = True).
+        save_to_csv (CSVCallback): Saves a CSV file that can be personalized in the CSVCallback class specified (default = None).
 
         callbacks (List[Callback]): The callbacks to define what is done with the returned prints from the algorithm (default = []).
     """
@@ -140,13 +137,7 @@ class GP(Heuristics):
         timer_stop_criteria: bool = False,
         timer_limit: int = 60,
         # -----
-        save_to_csv: str | None = None,
-        save_genotype_as_string: bool = True,
-        test_data: Callable[
-            [Any],
-            float,
-        ] | None = None,
-        only_record_best_inds: bool = True,
+        save_to_csv: CSVCallback | None = None,
         # -----
         callbacks: list[Callback] | None = None,
     ):
@@ -232,26 +223,7 @@ class GP(Heuristics):
         self.ramped_half_and_half = ramped_half_and_half
 
         if save_to_csv:
-            self.test_data = test_data
-            if self.test_data:
-
-                def test_evaluate(individual: Individual) -> float:
-                    phenotype = representation.genotype_to_phenotype(
-                        grammar,
-                        individual.genotype,
-                    )
-                    test_fitness = test_data(phenotype) # type: ignore
-                    return test_fitness
-
-                self.test_data = test_evaluate
-
-            c = CSVCallback(
-                save_to_csv,
-                test_data=self.test_data,
-                only_record_best_ind=only_record_best_inds,
-                save_genotype_as_string=save_genotype_as_string,
-            )
-            self.callbacks.append(c)
+            self.callbacks.append(save_to_csv)
 
     def evolve(self, verbose=1) -> tuple[Individual, FitnessType, Any]:
         """The main function of the GP object. This function runs the GP
