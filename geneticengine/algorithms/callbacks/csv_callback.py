@@ -18,7 +18,6 @@ class CSVCallback(Callback):
         filter_population: Callable[[list[Individual]], list[Individual]] = lambda x: x,
         test_data: Callable[[Individual], float] = None,
         only_record_best_ind: bool = True,
-        save_genotype_as_string: bool = True,
         extra_columns: dict[
             str,
             Callable[[int, list[Individual], float, Any, Individual], Any],
@@ -38,12 +37,12 @@ class CSVCallback(Callback):
         self.outfile = open(f"{self.filename}", "w", newline="")
         self.writer = csv.writer(self.outfile)
         row = [
-            "fitness",
-            "depth",
-            "nodes",
-            "number_of_the_generation",
-            "time_since_the_start_of_the_evolution",
-            "seed",
+            "Fitness",
+            "Depth",
+            "Nodes",
+            "Generations",
+            "Execution Time",
+            "Seed",
         ]
         for name, _ in self.extra_columns:
             row.append(name)
