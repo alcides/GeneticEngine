@@ -169,7 +169,7 @@ class GP(Heuristics):
             assert min_init_depth <= self.max_init_depth
             self.min_init_depth = min_init_depth
         else:
-            self.min_init_depth = self.min_depth
+            self.min_init_depth = self.min_depth # type: ignore
         self.evolve_grammar = evolve_grammar
         self.favor_less_complex_trees = favor_less_complex_trees
         self.novelty = selection.create_novelties(
