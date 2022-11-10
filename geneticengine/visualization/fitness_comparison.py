@@ -16,7 +16,8 @@ from geneticengine.visualization.utils import *
 matplotlib.rcParams["pdf.fonttype"] = 42
 matplotlib.rcParams["ps.fonttype"] = 42
 
-def plot_fitness_comparison(folder_names: list, labels: list, minimize: bool, labels_name: str = 'Labels', x_axis: str = 'Generations', y_axis: str = 'Fitness', title: str = 'Fitness comparison', file_name = None):
+def plot_comparison(folder_names: list, labels: list, minimize: bool, labels_name: str = 'Labels', x_axis: str = 'Generations', y_axis: str = 'Fitness', title: str = 'Fitness comparison', file_name = None):
+    assert len(folder_names) == len(labels)
     
     all_data = list()
     
@@ -47,4 +48,11 @@ def plot_fitness_comparison(folder_names: list, labels: list, minimize: bool, la
         file_name = title.replace(' ', '_') + '.pdf'
     plt.savefig(file_name)
     print(f"Saved figure to {file_name}.")
+    
+def plot_fitness_comparison(folder_names: list, labels: list, minimize: bool, labels_name: str = 'Labels', x_axis: str = 'Generations', y_axis: str = 'Fitness', title: str = 'Fitness comparison', file_name = None):
+    plot_comparison(folder_names=folder_names, labels=labels, minimize=minimize, labels_name=labels_name, x_axis=x_axis, y_axis=y_axis, title=title, file_name=file_name)
+    
+def plot_test_fitness_comparison(folder_names: list, labels: list, minimize: bool, labels_name: str = 'Labels', x_axis: str = 'Generations', y_axis: str = 'Test fitness', title: str = 'Test fitness comparison', file_name = None):
+    plot_comparison(folder_names=folder_names, labels=labels, minimize=minimize, labels_name=labels_name, x_axis=x_axis, y_axis=y_axis, title=title, file_name=file_name)
+    
     
