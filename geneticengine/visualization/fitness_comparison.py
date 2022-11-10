@@ -16,7 +16,7 @@ from geneticengine.visualization.utils import *
 matplotlib.rcParams["pdf.fonttype"] = 42
 matplotlib.rcParams["ps.fonttype"] = 42
 
-def plot_fitness_comparison(folder_names: list, labels: list, minimize: bool, labels_name: str = 'Labels', x_axis: str = 'number_of_the_generation', y_axis: str = 'fitness', title: str = 'Fitness comparison', file_name = None):
+def plot_fitness_comparison(folder_names: list, labels: list, minimize: bool, labels_name: str = 'Labels', x_axis: str = 'Generations', y_axis: str = 'Fitness', title: str = 'Fitness comparison', file_name = None):
     
     all_data = list()
     

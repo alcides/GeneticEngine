@@ -49,15 +49,15 @@ class CSVCallback(Callback):
         self.outfile = open(f"{self.filename}", "w", newline="")
         self.writer = csv.writer(self.outfile)
         row = [
-            "fitness",
-            "depth",
-            "nodes",
-            "number_of_the_generation",
+            "Fitness",
+            "Depth",
+            "Nodes",
+            "Generations",
             "time_since_the_start_of_the_evolution",
             "seed",
         ]
         if self.test_data:
-            row.append("test_fitness")
+            row.append("Test fitness")
         if self.save_genotype_as_string:
             row.append("genotype_as_str")
         if self.save_productions:
