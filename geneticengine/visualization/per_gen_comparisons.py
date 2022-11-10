@@ -111,3 +111,41 @@ def plot_nodes_comparison(
 ):
     raise GeneticEngineError("Not yet implemented")
     # plot_comparison(folder_names=folder_names, labels=labels, minimize=minimize, labels_name=labels_name, x_axis=x_axis, y_axis=y_axis, title=title, file_name=file_name)
+
+
+def plot_prods_comparison(
+    folder_names: list,
+    labels: list,
+    minimize: bool,
+    labels_name: str = "Labels",
+    x_axis: str = "Generations",
+    optimum: str = "Fitness",
+    y_axis: str = "Nodes",
+    title: str = "Fitness comparison",
+    file_name=None,
+):
+
+    all_data = list()
+
+    for idx, folder_name in enumerate(folder_names):
+        data = load_w_different_optimum(folder_name, x_axis, optimum, minimize, y_axis)
+        data[labels_name] = labels[idx]
+        all_data.append(data)
+
+    all_data = pd.concat(all_data, axis=0, ignore_index=True)
+
+    plt.close()
+    sns.set_style("darkgrid")
+    sns.set(font_scale=1.2)
+    sns.set_style({"font.family": "serif"})
+
+    a = sns.lineplot(data=all_data, x=x_axis, y=y_axis, hue=labels_name)
+
+    sns.set(font_scale=1.4)
+    a.set_title(title)
+    plt.tight_layout()
+
+    if not file_name:
+        file_name = title.replace(" ", "_") + ".pdf"
+    plt.savefig(file_name)
+    print(f"Saved figure to {file_name}.")
