@@ -15,7 +15,7 @@ class Individual:
         return str(self.genotype)
 
     def count_prods(self, genotype_to_phenotype, g):
-        counts = {prod: 1 for prod in g.all_nodes}
+        counts = {prod: 0 for prod in g.all_nodes}
 
         def add_count(ty):
             if ty in counts.keys():
