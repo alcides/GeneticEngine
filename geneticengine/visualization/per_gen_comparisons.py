@@ -31,6 +31,11 @@ def plot_comparison(folder_names: list, labels: list, labels_name: str = 'Labels
 
     all_data = pd.concat(all_data, axis=0, ignore_index=True)
 
+    # --------------------
+    palette = dict()
+    for idx, label in enumerate(labels):
+        palette[label] = f'C{idx}'
+        
     plt.close()
     sns.set_style("darkgrid")
     sns.set(font_scale=1.2)
@@ -40,7 +45,8 @@ def plot_comparison(folder_names: list, labels: list, labels_name: str = 'Labels
         data=all_data,
         x = x_axis,
         y = y_axis,
-        hue = labels_name
+        hue = labels_name,
+        palette=palette,
         )
     
     sns.set(font_scale=1.4)
@@ -83,6 +89,11 @@ def plot_prods_comparison(folder_name: str, x_axis: str = 'Generations', extra: 
     data = load_w_extra(folder_name, x_axis, y_axis, extra)
     prods = data[[extra]].values[0][0].split('<class \'')[1:]
     prods = list(map(lambda x: x.split('\'>:')[0], prods))
+    prods = list(map(lambda x: x.split('.')[-1], prods))
+    if keep_in_prods:
+        prods = [ prod for prod in prods if (prod in keep_in_prods) and (prod not in take_out_prods) ]
+    else:
+        prods = [ prod for prod in prods if (prod not in take_out_prods) ]
     def obtain_value(dictionary, prod):
         only_end = dictionary.split(prod+'\'>: ')[1]
         only_beginning = only_end.split(',')[0]
@@ -91,18 +102,17 @@ def plot_prods_comparison(folder_name: str, x_axis: str = 'Generations', extra: 
         except:
             return int(only_beginning.split('}')[0])
     for prod in prods:
-        prod = prod.split('.')[-1]
-        if prod in take_out_prods:
-            continue
-        if keep_in_prods:
-            if prod not in keep_in_prods:
-                continue
         new_data = data.copy(deep=True)
         new_data['Occurences'] = data[['productions']].squeeze().map(lambda x: obtain_value(x, prod))
         new_data['Production'] = prod
         all_data.append(new_data[[x_axis, 'Occurences', 'Production']])
     
     df = pd.concat(all_data, axis=0, ignore_index=True)
+
+    # --------------------
+    palette = dict()
+    for idx, prod in enumerate(prods):
+        palette[prod] = f'C{idx}'
     
     plt.close()
     sns.set_style("darkgrid")
@@ -113,7 +123,8 @@ def plot_prods_comparison(folder_name: str, x_axis: str = 'Generations', extra: 
         data = df,
         x = x_axis,
         y = 'Occurences',
-        hue = 'Production'
+        hue = 'Production',
+        palette=palette,
         )
     
     sns.set(font_scale=1.4)
