@@ -1,4 +1,5 @@
 from __future__ import annotations
+import copy
 
 from dataclasses import dataclass
 from typing import Any
@@ -71,7 +72,7 @@ def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
             if (key != LEFTOVER_KEY)
         ),
     )
-    dna = ind.dna
+    dna = copy.deepcopy(ind.dna)
     clone = [i for i in dna[rkey]]
     rindex = r.randint(0, len(dna[rkey]) - 1)
     clone[rindex] = r.randint(0, MAX_RAND_INT)
@@ -92,11 +93,11 @@ def crossover(
     c2 = dict()
     for k, b in mask:
         if b:
-            c1[k] = p1.dna[k]
-            c2[k] = p2.dna[k]
+            c1[k] = copy.deepcopy(p1.dna[k])
+            c2[k] = copy.deepcopy(p2.dna[k])
         else:
-            c1[k] = p2.dna[k]
-            c2[k] = p1.dna[k]
+            c1[k] = copy.deepcopy(p2.dna[k])
+            c2[k] = copy.deepcopy(p1.dna[k])
     return (Genotype(c1), Genotype(c2))
 
 
