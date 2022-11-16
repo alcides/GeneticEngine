@@ -38,9 +38,11 @@ class Genotype:
             self.dna[str(starting_symbol)] = [prod_index]
     
     def __str__(self) -> str:
+        s = ''
         for key in self.dna.keys():
             if key != LEFTOVER_KEY:
-                print(f"{key}: {self.dna[key]}")
+                s += f"{key}: {self.dna[key]} \n"
+        return s
 
 def filter_choices(possible_choices: list[type], g: Grammar, depth, starting_symbol):
     valid_productions = [
@@ -225,11 +227,13 @@ def crossover(
     c2 = dict()
     for k, b in mask:
         if b:
-            c1[k] = p1.dna[k]
-            c2[k] = p2.dna[k]
+            c1[k] = copy.deepcopy(p1.dna[k])
+            c2[k] = copy.deepcopy(p2.dna[k])
         else:
-            c1[k] = p2.dna[k]
-            c2[k] = p1.dna[k]
+            c1[k] = copy.deepcopy(p2.dna[k])
+            c2[k] = copy.deepcopy(p1.dna[k])
+    from IPython import embed
+    embed()
     return (Genotype(c1), Genotype(c2))
 
 
