@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 from dataclasses import dataclass
 from typing import Any
 
@@ -199,7 +200,7 @@ def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
             if (len(ind.dna[key]) > 0) and (key != LEFTOVER_KEY)
         ),
     )
-    dna = ind.dna
+    dna = copy.deepcopy(ind.dna)
     clone = [i for i in dna[rkey]]
     rindex = r.randint(0, len(dna[rkey]) - 1)
     clone[rindex] = r.randint(0, MAX_RAND_INT)
@@ -250,14 +251,12 @@ class DynamicStructuredListWrapper(Source):
         self.register_index(prod)
         if self.indexes[prod] >= len(
             self.ind.dna[prod],
-        ):  # We don't have a wrapper function, but we add elements to each list when there are no genes left. These are sourced from the "left_overs" in the dna.
-            self.indexes[LEFTOVER_KEY] = (self.indexes[LEFTOVER_KEY] + 1) % len(
-                self.ind.dna[LEFTOVER_KEY],
-            )
+        ):  # We don't have a wrapper function, but we add elements to each list when there are no genes left. These are sourced from the "left_overs" (LEFTOVER_KEY) in the dna.
             self.ind.register_production(
                 self.ind.dna[LEFTOVER_KEY][self.indexes[LEFTOVER_KEY]],
                 prod,
             )
+            self.ind.dna[LEFTOVER_KEY].append(self.ind.dna[LEFTOVER_KEY].pop(0))
         v = self.ind.dna[prod][self.indexes[prod] - 1]
         return v % (max - min + 1) + min
 
@@ -293,7 +292,8 @@ class DynamicStructuredGrammaticalEvolutionRepresentation(Representation[Genotyp
         specific_type: type | None = None,
         depth_aware_mut: bool = False,
     ) -> Genotype:
-        return mutate(r, g, ind, depth)
+        new_ind = mutate(r, g, ind, depth)
+        return new_ind
 
     def crossover_individuals(
         self,
