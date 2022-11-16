@@ -36,7 +36,11 @@ class Genotype:
             self.dna[str(starting_symbol)].append(prod_index)
         else:
             self.dna[str(starting_symbol)] = [prod_index]
-
+    
+    def __str__(self) -> str:
+        for key in self.dna.keys():
+            if key != LEFTOVER_KEY:
+                print(f"{key}: {self.dna[key]}")
 
 def filter_choices(possible_choices: list[type], g: Grammar, depth, starting_symbol):
     valid_productions = [
