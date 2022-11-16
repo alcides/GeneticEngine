@@ -232,8 +232,6 @@ def crossover(
         else:
             c1[k] = copy.deepcopy(p2.dna[k])
             c2[k] = copy.deepcopy(p1.dna[k])
-    from IPython import embed
-    embed()
     return (Genotype(c1), Genotype(c2))
 
 
