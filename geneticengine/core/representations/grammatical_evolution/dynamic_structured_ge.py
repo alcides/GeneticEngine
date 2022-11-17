@@ -37,7 +37,7 @@ class Genotype:
         else:
             self.dna[str(starting_symbol)] = [prod_index]
     
-    def __str__(self) -> str:
+    def pretty_print(self) -> str:
         s = ''
         for key in self.dna.keys():
             if key != LEFTOVER_KEY:
