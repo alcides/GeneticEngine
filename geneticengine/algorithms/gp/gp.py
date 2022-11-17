@@ -60,6 +60,7 @@ class GP(Heuristics):
         specific_type_crossover (type): Specify a type that is given preference when crossover occurs (default = None),
         depth_aware_mut (bool): If chosen, mutations are depth-aware, giving preference to operate on nodes closer to the root. (default = True).
         depth_aware_co (bool): If chosen, crossovers are depth-aware, giving preference to operate on nodes closer to the root. (default = True).
+        cross_over_return_one_individual (bool): If chosen, crossovers return only one individual, and the other is discarded. Notice that Genetic Engine slows down through this. (default = False)
 
         force_individual (Any): Allows the incorporation of an individual in the first population (default = None).
         seed (int): The seed of the RandomSource (default = 123).
@@ -132,6 +133,7 @@ class GP(Heuristics):
         specific_type_crossover: type | None = None,
         depth_aware_mut: bool = False,
         depth_aware_co: bool = False,
+        cross_over_return_one_individual: bool = False,
         # -----
         force_individual: Any = None,
         seed: int = 123,
@@ -215,6 +217,7 @@ class GP(Heuristics):
         self.probability_mutation = probability_mutation
         self.probability_crossover = probability_crossover
         self.either_mut_or_cro = either_mut_or_cro
+        self.cross_over_return_one_individual = cross_over_return_one_individual
         if selection_method[0] == "tournament":
             self.selection = selection.create_tournament(
                 selection_method[1],
@@ -302,8 +305,11 @@ class GP(Heuristics):
                         candidates = self.selection(self.random, population, 2)
                         (p1, p2) = self.cross_over(candidates[0], candidates[1])
                         npop.append(p1)
-                        npop.append(p2)
-                        spotsLeft -= 2
+                        if self.cross_over_return_one_individual:
+                            spotsLeft -= 1
+                        else:
+                            npop.append(p2)
+                            spotsLeft -= 2
                 else:
                     candidates = self.selection(self.random, population, 2)
                     (p1, p2) = candidates[0], candidates[1]
@@ -311,11 +317,14 @@ class GP(Heuristics):
                         (p1, p2) = self.cross_over(p1, p2)
                     if self.random.randint(0, 100) < self.probability_mutation * 100:
                         p1 = self.mutation(p1)
-                    if self.random.randint(0, 100) < self.probability_mutation * 100:
-                        p2 = self.mutation(p2)
                     npop.append(p1)
-                    npop.append(p2)
-                    spotsLeft -= 2
+                    if self.cross_over_return_one_individual:
+                        spotsLeft -= 1
+                    else:
+                        if self.random.randint(0, 100) < self.probability_mutation * 100:
+                            p2 = self.mutation(p2)
+                        npop.append(p2)
+                        spotsLeft -= 2
 
             population = npop
 
