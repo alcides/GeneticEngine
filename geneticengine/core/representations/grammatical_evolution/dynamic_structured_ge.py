@@ -203,7 +203,7 @@ def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
         list(
             key
             for key in ind.dna.keys()
-            if (len(ind.dna[key]) > 0) and (key != LEFTOVER_KEY)
+            if (len(ind.dna[key]) > 0) and (key != LEFTOVER_KEY) and (key != '')
         ),
     )
     dna = copy.deepcopy(ind.dna)
@@ -251,7 +251,7 @@ class DynamicStructuredListWrapper(Source):
             self.indexes[prod] += 1
         else:
             self.ind.dna[prod] = list()
-            self.indexes[prod] = 1
+            self.indexes[prod] = 0
 
     def randint(self, min: int, max: int, prod: str = "") -> int:
         self.register_index(prod)
