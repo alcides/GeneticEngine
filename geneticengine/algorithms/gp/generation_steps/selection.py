@@ -47,7 +47,7 @@ def create_tournament(
                     o.fitness < winner.fitness and problem.minimize
                 ):
                     winner = o
-            winners.append(winner)
+            winners.append(deepcopy(winner))
             candidates.remove(winner)
         return winners
 
