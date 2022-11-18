@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import copy
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any
 
@@ -305,7 +305,7 @@ class DynamicStructuredGrammaticalEvolutionRepresentation(Representation[Genotyp
         specific_type: type | None = None,
         depth_aware_mut: bool = False,
     ) -> Genotype:
-        new_ind = mutate(r, g, copy.deepcopy(ind), depth, self.mutation_method)
+        new_ind = mutate(r, g, deepcopy(ind), depth, self.mutation_method)
         return new_ind
 
     def crossover_individuals(
@@ -318,7 +318,7 @@ class DynamicStructuredGrammaticalEvolutionRepresentation(Representation[Genotyp
         specific_type: type | None = None,
         depth_aware_co: bool = False,
     ) -> tuple[Genotype, Genotype]:
-        return crossover(r, g, copy.deepcopy(i1), copy.deepcopy(i2), depth)
+        return crossover(r, g, deepcopy(i1), deepcopy(i2), depth)
 
     def genotype_to_phenotype(self, g: Grammar, genotype: Genotype) -> TreeNode:
         return create_tree(g, genotype, self.depth, self.method.tree_init_method)

@@ -1,5 +1,5 @@
 from __future__ import annotations
-import copy
+from copy import deepcopy
 
 from dataclasses import dataclass
 from typing import Any
@@ -72,7 +72,7 @@ def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
             if (key != LEFTOVER_KEY)
         ),
     )
-    dna = copy.deepcopy(ind.dna)
+    dna = ind.dna
     clone = [i for i in dna[rkey]]
     rindex = r.randint(0, len(dna[rkey]) - 1)
     clone[rindex] = r.randint(0, MAX_RAND_INT)
@@ -93,11 +93,11 @@ def crossover(
     c2 = dict()
     for k, b in mask:
         if b:
-            c1[k] = copy.deepcopy(p1.dna[k])
-            c2[k] = copy.deepcopy(p2.dna[k])
+            c1[k] = p1.dna[k]
+            c2[k] = p2.dna[k]
         else:
-            c1[k] = copy.deepcopy(p2.dna[k])
-            c2[k] = copy.deepcopy(p1.dna[k])
+            c1[k] = p2.dna[k]
+            c2[k] = p1.dna[k]
     return (Genotype(c1), Genotype(c2))
 
 
@@ -167,7 +167,7 @@ class StructuredGrammaticalEvolutionRepresentation(Representation[Genotype]):
         specific_type: type | None = None,
         depth_aware_mut: bool = False,
     ) -> Genotype:
-        return mutate(r, g, ind, depth)
+        return mutate(r, g, deepcopy(ind), depth)
 
     def crossover_individuals(
         self,
@@ -179,7 +179,7 @@ class StructuredGrammaticalEvolutionRepresentation(Representation[Genotype]):
         specific_type: type | None = None,
         depth_aware_co: bool = False,
     ) -> tuple[Genotype, Genotype]:
-        return crossover(r, g, i1, i2, depth)
+        return crossover(r, g, deepcopy(i1), deepcopy(i2), depth)
 
     def genotype_to_phenotype(self, g: Grammar, genotype: Genotype) -> TreeNode:
         return create_tree(g, genotype, self.depth, self.method.tree_init_method)
