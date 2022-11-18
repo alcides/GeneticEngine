@@ -198,13 +198,19 @@ def create_individual(
     return random_individual(r, g, starting_symbol, current_genotype, max_depth)
 
 
-def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
-    rkey = r.choice(
+def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int, mutation_method) -> Genotype:
+    if mutation_method == 'all_genes_equal_prob':
+        weight = lambda key: len(ind.dna[key])
+    else:
+        weight = lambda key: 1
+    
+    rkey = r.choice_weighted(
         list(
             key
             for key in ind.dna.keys()
             if (len(ind.dna[key]) > 0) and (key != LEFTOVER_KEY) and (key != '')
         ),
+        list(weight(key) for key in ind.dna.keys() if (len(ind.dna[key]) > 0) and (key != LEFTOVER_KEY) and (key != ''))
     )
     dna = ind.dna
     clone = [i for i in dna[rkey]]
@@ -280,9 +286,10 @@ class DynamicStructuredGrammaticalEvolutionRepresentation(Representation[Genotyp
     """This version uses a list of lists of integers to represent individuals, based on non-terminal
     symbols. It delays computing the expansions that have enough depth to runtime."""
 
-    def __init__(self, depth = None, method: Initialization_Method = PI_Grow()) -> None:
+    def __init__(self, depth = None, method: Initialization_Method = PI_Grow(), mutation_method = 'all_genes_equal_prob') -> None:
         self.depth = depth
         self.method = method
+        self.mutation_method = mutation_method
     
     def create_individual(self, r: Source, g: Grammar, depth: int) -> Genotype:
         self.depth = depth
