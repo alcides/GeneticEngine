@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any
 
@@ -35,7 +36,13 @@ class Genotype:
             self.dna[str(starting_symbol)].append(prod_index)
         else:
             self.dna[str(starting_symbol)] = [prod_index]
-
+    
+    def pretty_print(self) -> str:
+        s = ''
+        for key in self.dna.keys():
+            if key != LEFTOVER_KEY:
+                s += f"{key}: {self.dna[key]} \n"
+        return s
 
 def filter_choices(possible_choices: list[type], g: Grammar, depth, starting_symbol):
     valid_productions = [
@@ -191,13 +198,19 @@ def create_individual(
     return random_individual(r, g, starting_symbol, current_genotype, max_depth)
 
 
-def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
-    rkey = r.choice(
+def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int, mutation_method) -> Genotype:
+    if mutation_method == 'all_genes_equal_prob':
+        weight = lambda key: len(ind.dna[key])
+    else:
+        weight = lambda key: 1
+    
+    rkey = r.choice_weighted(
         list(
             key
             for key in ind.dna.keys()
-            if (len(ind.dna[key]) > 0) and (key != LEFTOVER_KEY)
+            if (len(ind.dna[key]) > 0) and (key != LEFTOVER_KEY) and (key != '')
         ),
+        list(weight(key) for key in ind.dna.keys() if (len(ind.dna[key]) > 0) and (key != LEFTOVER_KEY) and (key != ''))
     )
     dna = ind.dna
     clone = [i for i in dna[rkey]]
@@ -244,20 +257,18 @@ class DynamicStructuredListWrapper(Source):
             self.indexes[prod] += 1
         else:
             self.ind.dna[prod] = list()
-            self.indexes[prod] = 1
+            self.indexes[prod] = 0
 
     def randint(self, min: int, max: int, prod: str = "") -> int:
         self.register_index(prod)
         if self.indexes[prod] >= len(
             self.ind.dna[prod],
-        ):  # We don't have a wrapper function, but we add elements to each list when there are no genes left. These are sourced from the "left_overs" in the dna.
-            self.indexes[LEFTOVER_KEY] = (self.indexes[LEFTOVER_KEY] + 1) % len(
-                self.ind.dna[LEFTOVER_KEY],
-            )
+        ):  # We don't have a wrapper function, but we add elements to each list when there are no genes left. These are sourced from the "left_overs" (LEFTOVER_KEY) in the dna.
             self.ind.register_production(
                 self.ind.dna[LEFTOVER_KEY][self.indexes[LEFTOVER_KEY]],
                 prod,
             )
+            self.ind.dna[LEFTOVER_KEY].append(self.ind.dna[LEFTOVER_KEY].pop(0))
         v = self.ind.dna[prod][self.indexes[prod] - 1]
         return v % (max - min + 1) + min
 
@@ -275,9 +286,10 @@ class DynamicStructuredGrammaticalEvolutionRepresentation(Representation[Genotyp
     """This version uses a list of lists of integers to represent individuals, based on non-terminal
     symbols. It delays computing the expansions that have enough depth to runtime."""
 
-    def __init__(self, depth = None, method: Initialization_Method = PI_Grow()) -> None:
+    def __init__(self, depth = None, method: Initialization_Method = PI_Grow(), mutation_method = 'all_genes_equal_prob') -> None:
         self.depth = depth
         self.method = method
+        self.mutation_method = mutation_method
     
     def create_individual(self, r: Source, g: Grammar, depth: int) -> Genotype:
         self.depth = depth
@@ -293,7 +305,8 @@ class DynamicStructuredGrammaticalEvolutionRepresentation(Representation[Genotyp
         specific_type: type | None = None,
         depth_aware_mut: bool = False,
     ) -> Genotype:
-        return mutate(r, g, ind, depth)
+        new_ind = mutate(r, g, deepcopy(ind), depth, self.mutation_method)
+        return new_ind
 
     def crossover_individuals(
         self,
@@ -305,7 +318,7 @@ class DynamicStructuredGrammaticalEvolutionRepresentation(Representation[Genotyp
         specific_type: type | None = None,
         depth_aware_co: bool = False,
     ) -> tuple[Genotype, Genotype]:
-        return crossover(r, g, i1, i2, depth)
+        return crossover(r, g, deepcopy(i1), deepcopy(i2), depth)
 
     def genotype_to_phenotype(self, g: Grammar, genotype: Genotype) -> TreeNode:
         return create_tree(g, genotype, self.depth, self.method.tree_init_method)
