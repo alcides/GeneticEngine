@@ -162,22 +162,24 @@ def evolve(
         probability_crossover=1,
         evolve_grammar=EvolveGrammar(),
         probability_mutation=0.5,
-        number_of_generations=50,
+        number_of_generations=20,
         max_depth=10,
         max_init_depth=6,
-        population_size=1000,
+        population_size=500,
         selection_method=("tournament", 2),
-        n_elites=100,
+        n_elites=50,
         seed=seed,
         timer_stop_criteria=mode,
     )
-    (b, bf, bp) = alg.evolve()
-    return b, bf
+    (b, bf, bp) = alg.evolve(verbose=1)
+    return b, bf, alg.grammar
 
 
 if __name__ == "__main__":
     g = preprocess()
     print(g)
-    b, bf = evolve(g, 123, False)
+    b, bf, final_grammar = evolve(g, 123, False)
     print(b)
     print(f"With fitness: {bf}")
+    print("Final grammar:")
+    print(final_grammar)
