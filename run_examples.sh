@@ -14,7 +14,7 @@ cd "$(dirname "$0")"
 
 function run_example {
     printf "Running $1..."
-    $PYTHON_BINARY $1 #> /dev/null && echo "(done)"
+    $PYTHON_BINARY $1 > /dev/null && echo "(done)" || echo "(failed)"
 
 }
 
@@ -27,8 +27,8 @@ run_example examples/vectorialgp_example.py
 run_example examples/regression.py
 run_example examples/regression_lexicase.py
 run_example examples/classification.py
-run_example examples/classification_lexicase.py
 run_example examples/classification_probabilisticGE.py
+run_example examples/classification_lexicase.py
 run_example examples/sklearn-type-examples.py
 run_example examples/santafe.py
 run_example examples/game_of_life.py
