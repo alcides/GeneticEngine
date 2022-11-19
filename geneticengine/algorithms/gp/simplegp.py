@@ -83,6 +83,7 @@ class SimpleGP(GP):
         test_data (Callable[[Any], Any]): Give test data (format: (X_test, y_test)) to test the individuals on test data during training and save that to the csv (default = None).
         only_record_best_inds (bool): Specify whether one or all individuals are saved to the csv files (default = True).
         callbacks (List[Callback]): The callbacks to define what is done with the returned prints from the algorithm (default = []).
+        parallel_evaluation (bool): Performs evaluation of fitness in multiprocessing (default = False).
     """
 
     def __init__(
@@ -137,6 +138,7 @@ class SimpleGP(GP):
         only_record_best_inds: bool = True,
         # -----
         verbose=1,
+        parallel_evaluation=False,
         callbacks: list[Callback] = None,
         **kwargs,
     ):
@@ -219,6 +221,13 @@ class SimpleGP(GP):
                 f"selection_method ({selection_method}) requires either tournament or lexicase",
             )
         step = SequenceStep(selection_step, step)
+
+        if parallel_evaluation:
+            from geneticengine.algorithms.gp.operators.parallel import (
+                ParallelEvaluationStep,
+            )
+
+            sept = SequenceStep(ParallelEvaluationStep(), step)
 
         stopping_criterium: StoppingCriterium
         if timer_stop_criteria:

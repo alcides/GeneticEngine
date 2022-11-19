@@ -88,6 +88,22 @@ default_generic_programming_step = SequenceStep(
 )
 ```
 
+```{eval-rst}
+.. autoapiclass:: geneticengine.algorithms.gp.operators.combinators.SequenceStep
+```
+
+```{eval-rst}
+.. autoapiclass:: geneticengine.algorithms.gp.operators.crossover.ParallelStep
+```
+
+
+## Parallel Evaluation
+
+On linux and macos, it is possible to perform evaluation in parallel, using multiple cores. For that, introduce this step before your selection operator.
+
+```{eval-rst}
+.. autoapiclass:: geneticengine.algorithms.gp.operators.parallel.ParallelEvaluationStep
+```
 
 ##### References
 
