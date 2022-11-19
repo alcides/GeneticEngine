@@ -57,7 +57,7 @@ class SimpleGP(GP):
         evaluation_function (Callable[[Any], float]): The fitness function. Should take in any valid individual and return a float. The default is that the higher the fitness, the more applicable is the solution to the problem. Turn on the parameter minimize to switch it around.
         minimize (bool): When switch on, the fitness function is reversed, so that a higher result from the fitness function corresponds to a less fit solution (default = False).
         target_fitness (Optional[float]): Sets a target fitness. When this fitness is reached, the algorithm stops running (default = None).
-        favor_less_deep_trees (bool): If set to True, this gives a tiny penalty to deeper trees to favor simpler trees (default = False).
+        favor_less_complex_trees (bool): If set to True, this gives a tiny penalty to deeper trees to favor simpler trees (default = False).
         randomSource (Callable[[int], RandomSource]): The random source function used by the program. Should take in an integer, representing the seed, and return a RandomSource.
         population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (n_elites + n_novelties + 1) must hold.
         n_elites (int): Number of elites, i.e. the number of best individuals that are preserved every generation (default = 5).
@@ -96,7 +96,7 @@ class SimpleGP(GP):
         ] = None,  # DEPRECATE in the next version
         minimize: bool = False,  # DEPRECATE in the next version
         target_fitness: float | None = None,  # DEPRECATE in the next version
-        favor_less_deep_trees: bool = True,  # DEPRECATE in the next version
+        favor_less_complex_trees: bool = True,  # DEPRECATE in the next version
         source_generator: Callable[[int], RandomSource] = RandomSource,
         seed: int = 123,
         population_size: int = 200,
@@ -159,7 +159,7 @@ class SimpleGP(GP):
                 minimize,
                 target_fitness,
             ),
-            favor_less_deep_trees,
+            favor_less_complex_trees,
         )
         random_source = source_generator(seed)
 
@@ -292,9 +292,9 @@ class SimpleGP(GP):
                 "This combination of parameters to define the problem is not valid",
             )
 
-    def wrap_depth(self, p: Problem, favor_less_deep_trees: bool = False):
+    def wrap_depth(self, p: Problem, favor_less_complex_trees: bool = False):
         if isinstance(p, SingleObjectiveProblem):
-            if favor_less_deep_trees:
+            if favor_less_complex_trees:
                 return wrap_depth_minimization(p)
             else:
                 return p

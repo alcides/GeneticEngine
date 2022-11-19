@@ -49,7 +49,7 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
         n_novelties (int): Number of novelties, i.e. the number of newly generated individuals added to the population each generation. (default = 10).
         number_of_generations (int): Number of generations (default = 100).
         max_depth (int): The maximum depth a tree can have (default = 15).
-        favor_less_deep_trees (bool): If set to True, this gives a tiny penalty to deeper trees to favor simpler trees (default = False).
+        favor_less_complex_trees (bool): If set to True, this gives a tiny penalty to deeper trees to favor simpler trees (default = False).
         hill_climbing (bool): Allows the user to change the standard mutation operations to the hill-climbing mutation operation, in which an individual is mutated to 5 different new individuals, after which the best is chosen to survive (default = False).
         metric (str): Choose the metric used in the fitness function. Currently available: mean square error (mse), and the r2 measure (r2), new once can be requested or easily implemented by the user (default = 'mse').
 
@@ -66,7 +66,7 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
         n_novelties: int = 10,
         number_of_generations: int = 100,
         max_depth: int = 15,
-        favor_less_deep_trees: bool = True,
+        favor_less_complex_trees: bool = True,
         hill_climbing: bool = False,
         seed: int = 123,
         metric: str = "mse",
@@ -100,7 +100,7 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
         self.seed = seed
         self.population_size = population_size
         self.max_depth = max_depth
-        self.favor_less_deep_trees = favor_less_deep_trees
+        self.favor_less_complex_trees = favor_less_complex_trees
         self.n_elites = n_elites
         self.n_novelties = n_novelties
         self.hill_climbing = hill_climbing
@@ -170,7 +170,7 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
             n_novelties=self.n_novelties,
             number_of_generations=self.number_of_generations,
             max_depth=self.max_depth,
-            favor_less_deep_trees=self.favor_less_deep_trees,
+            favor_less_complex_trees=self.favor_less_complex_trees,
             probability_mutation=self.probability_mutation,
             probability_crossover=self.probability_crossover,
             hill_climbing=self.hill_climbing,
