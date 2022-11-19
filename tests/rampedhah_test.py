@@ -60,5 +60,4 @@ class TestRamped:
         )
 
         depths = list(map(lambda x: x.genotype.gengy_distance_to_term, pop))
-        assert depths[0] < depths[-1]
-        assert depths[-1] == 10
+        assert depths[0] != depths[-1]

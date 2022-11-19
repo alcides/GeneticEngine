@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+from typing import Any
 from typing import Callable
 from typing import Optional
 
@@ -13,20 +14,21 @@ class CSVCallback(Callback):
 
     def __init__(
         self,
-        filename: str = None,
+        filename: str = "evolution_results.csv",
         filter_population: Callable[[list[Individual]], list[Individual]] = lambda x: x,
         test_data: Callable[[Individual], float] = None,
         only_record_best_ind: bool = True,
         save_genotype_as_string: bool = True,
+        extra_columns: dict[
+            str,
+            Callable[[int, list[Individual], float, Any, Individual], Any],
+        ] = None,
     ):
-        if filename is None:
-            filename = "evolution_results.csv"
         self.filename = filename
         self.filter_population = filter_population
         self.time = 0.0
-        self.test_data = test_data
         self.only_record_best_ind = only_record_best_ind
-        self.save_genotype_as_string = save_genotype_as_string
+        self.extra_columns = extra_columns or {}
         self.write_header()
 
     def end_evolution(self):
@@ -43,10 +45,8 @@ class CSVCallback(Callback):
             "time_since_the_start_of_the_evolution",
             "seed",
         ]
-        if self.test_data:
-            row.append("test_fitness")
-        if self.save_genotype_as_string:
-            row.append("genotype_as_str")
+        for name, _ in self.extra_columns:
+            row.append(name)
         self.writer.writerow(row)
 
     def process_iteration(self, generation: int, population, time: float, gp):
@@ -71,8 +71,8 @@ class CSVCallback(Callback):
                 self.time,
                 gp.seed,
             ]
-            if self.test_data:
-                row.append(self.test_data(ind))
-            if self.save_genotype_as_string:
-                row.append(ind.genotype)
+
+            for (name, fun) in self.extra_columns.items():
+                row.append(fun(generation, population, time, gp, ind))
+
             self.writer.writerow([str(x) for x in row])

@@ -80,7 +80,7 @@ class SimpleGP(GP):
         timer_limit (int): The time limit of the timer.
         save_to_csv (str): Saves a CSV file with the details of all the individuals of all generations.
         save_genotype_as_string (bool): Turn this off if you don't want to safe all the genotypes as strings. This saves memory and a bit of time.
-        test_data (Any): Give test data (format: (X_test, y_test)) to test the individuals on test data during training and save that to the csv (default = None).
+        test_data (Callable[[Any], Any]): Give test data (format: (X_test, y_test)) to test the individuals on test data during training and save that to the csv (default = None).
         only_record_best_inds (bool): Specify whether one or all individuals are saved to the csv files (default = True).
         callbacks (List[Callback]): The callbacks to define what is done with the returned prints from the algorithm (default = []).
     """
@@ -240,22 +240,20 @@ class SimpleGP(GP):
             self.callbacks.append(ProgressCallback())
 
         if save_to_csv:
-            self.test_data = test_data
-            if self.test_data:
-
-                def test_evaluate(individual: Individual) -> float:
-                    phenotype = representation_instance.genotype_to_phenotype(
-                        individual.genotype,
-                    )
-                    test_fitness = test_data(phenotype)  # type: ignore
-                    return test_fitness
-
-                self.test_data = test_evaluate
+            extra_columns = {}
+            if test_data != None:
+                extra_columns["test_data"] = lambda gen, pop, time, gp, ind: str(
+                    test_data(ind.get_phenotype()),
+                )
+            if save_genotype_as_string:
+                extra_columns["genotype_as_str"] = lambda gen, pop, time, gp, ind: str(
+                    ind.genotype,
+                )
 
             c = CSVCallback(
                 save_to_csv,
-                test_data=self.test_data,
                 only_record_best_ind=only_record_best_inds,
+                extra_columns=extra_columns,
                 save_genotype_as_string=save_genotype_as_string,
             )
             self.callbacks.append(c)
