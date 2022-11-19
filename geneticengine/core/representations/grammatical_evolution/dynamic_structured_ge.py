@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any
 
@@ -231,11 +232,9 @@ def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
             if (len(ind.dna[key]) > 0) and (key != LEFTOVER_KEY)
         ),
     )
-    dna = ind.dna
-    clone = [i for i in dna[rkey]]
     rindex = r.randint(0, len(dna[rkey]) - 1)
-    clone[rindex] = r.randint(0, MAX_RAND_INT)
-    dna[rkey] = clone
+    dna = deepcopy(ind.dna)
+    dna[rkey][rindex] = r.randint(0, MAX_RAND_INT)
     return Genotype(dna)
 
 

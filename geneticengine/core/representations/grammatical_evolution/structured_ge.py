@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any
 from typing import Dict
@@ -56,11 +57,10 @@ def random_individual(
 
 def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
     rkey = r.choice(list(ind.dna.keys()))
-    dna = ind.dna
-    clone = [i for i in dna[rkey]]
     rindex = r.randint(0, len(dna[rkey]) - 1)
-    clone[rindex] = r.randint(0, MAX_RAND_INT)
-    dna[rkey] = clone
+
+    dna = deepcopy(ind.dna)
+    dna[rkey][rindex] = r.randint(0, MAX_RAND_INT)
     return Genotype(dna)
 
 
@@ -77,11 +77,11 @@ def crossover(
     c2 = dict()
     for k, b in mask:
         if b:
-            c1[k] = p1.dna[k]
-            c2[k] = p2.dna[k]
+            c1[k] = deepcopy(p1.dna[k])
+            c2[k] = deepcopy(p2.dna[k])
         else:
-            c1[k] = p2.dna[k]
-            c2[k] = p1.dna[k]
+            c1[k] = deepcopy(p2.dna[k])
+            c2[k] = deepcopy(p1.dna[k])
     return (Genotype(c1), Genotype(c2))
 
 
