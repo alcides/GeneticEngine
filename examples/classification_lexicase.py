@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-from geneticengine.algorithms.gp.gp_friendly import GPFriendly
+from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import MultiObjectiveProblem
@@ -204,7 +204,7 @@ def evolve(
         fitnesses = fitness_function_lexicase(n)
         return sum((m and -f or f) for (f, m) in zip(fitnesses, minimizelist))
 
-    alg = GPFriendly(
+    alg = SimpleGP(
         g,
         representation=representation,
         problem=MultiObjectiveProblem(

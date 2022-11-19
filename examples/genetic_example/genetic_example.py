@@ -9,7 +9,7 @@ import pandas as pd
 from sklearn import metrics
 from sympy import E
 
-from geneticengine.algorithms.gp.gp_friendly import GPFriendly
+from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.metahandlers.ints import IntRange
@@ -94,7 +94,7 @@ def main():
 
     g = extract_grammar([Variable, And, LessThan, TotalCount], DecisionNode)
 
-    alg = GPFriendly(
+    alg = SimpleGP(
         g,
         fitness_function,
         TreeBasedRepresentation,

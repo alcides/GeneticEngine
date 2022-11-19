@@ -11,8 +11,8 @@ import pandas as pd
 from sklearn.base import BaseEstimator
 from sklearn.base import TransformerMixin
 
-from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
+from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
@@ -157,7 +157,7 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
                 fitness = 100000000
             return fitness
 
-        model = GPFriendly(
+        model = SimpleGP(
             grammar=self.grammar,
             problem=SingleObjectiveProblem(
                 minimize=minimise,

@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-from geneticengine.algorithms.gp.gp_friendly import GPFriendly
+from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.decorators import abstract
 from geneticengine.core.decorators import get_gengy
 from geneticengine.core.decorators import weight
@@ -151,7 +151,7 @@ def evolve(
     else:
         representation = TreeBasedRepresentation
 
-    alg = GPFriendly(
+    alg = SimpleGP(
         g,
         representation=representation,
         problem=SingleObjectiveProblem(

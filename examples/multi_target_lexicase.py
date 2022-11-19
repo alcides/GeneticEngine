@@ -10,7 +10,7 @@ import pandas as pd
 from sklearn.datasets import load_linnerud
 from sklearn.model_selection import train_test_split
 
-from geneticengine.algorithms.gp.gp_friendly import GPFriendly
+from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import MultiObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.ge import (
@@ -166,7 +166,7 @@ def evolve(
 
     minimizelist = [True for _ in X.values.tolist()]
 
-    alg = GPFriendly(
+    alg = SimpleGP(
         g,
         representation=representation,
         problem=MultiObjectiveProblem(

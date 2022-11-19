@@ -7,8 +7,8 @@ from typing import Annotated
 from typing import List
 from typing import Tuple
 
-from geneticengine.algorithms.gp.gp_friendly import GPFriendly
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
+from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
@@ -200,7 +200,7 @@ def evolve(
     else:
         representation = TreeBasedRepresentation
 
-    alg = GPFriendly(
+    alg = SimpleGP(
         g,
         representation=representation,
         problem=SingleObjectiveProblem(

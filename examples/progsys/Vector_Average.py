@@ -7,7 +7,7 @@ from utils import import_embedded
 
 import geneticengine.grammars.coding.lists as lists
 import geneticengine.grammars.coding.numbers as numbers
-from geneticengine.algorithms.gp.gp_friendly import GPFriendly
+from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.ge import (
@@ -112,7 +112,7 @@ def evolve(g, seed, mode, representation=""):
         representation = GrammaticalEvolutionRepresentation
     else:
         representation = TreeBasedRepresentation
-    alg = GPFriendly(
+    alg = SimpleGP(
         g,
         representation=representation,
         problem=SingleObjectiveProblem(

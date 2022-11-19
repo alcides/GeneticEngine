@@ -5,11 +5,11 @@ Genetic Engine suports a list of different algorithms:
 
 ## Genetic Programming
 
-Genetic Programming is supported via two interfaces. `GPFriendly` allows you defined all paramaters without creating objects or importing functions.
+Genetic Programming is supported via two interfaces. `SimpleGP` allows you defined all paramaters without creating objects or importing functions.
 It is easier to use, if you are looking for a standard GP implementation.
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.algorithms.gp.gp_friendly.GPFriendly
+.. autoapiclass:: geneticengine.algorithms.gp.simplegp.SimpleGP
 ```
 
 However, if you are looking to implement your own algorithm, or variation of GP, the `GP` class is the most suitable.

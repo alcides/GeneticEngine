@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from examples.archived.regex_fitness.RegexEval import RegexEval
-from geneticengine.algorithms.gp.gp_friendly import GPFriendly
+from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammars.regex import *
@@ -42,7 +42,7 @@ def preprocess():
 
 
 def evolve(g, seed, mode):
-    alg = GPFriendly(
+    alg = SimpleGP(
         g,
         fitness_function,
         representation=TreeBasedRepresentation,

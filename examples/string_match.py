@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 
-from geneticengine.algorithms.gp.gp_friendly import GPFriendly
+from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.ge import (
@@ -58,7 +58,7 @@ def evolve(
     else:
         representation = TreeBasedRepresentation
 
-    alg = GPFriendly(
+    alg = SimpleGP(
         g,
         representation=representation,
         problem=SingleObjectiveProblem(

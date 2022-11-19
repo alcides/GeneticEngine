@@ -42,7 +42,7 @@ class OptionB(R):
 
 Alternatively, the user can also programmatically define the weigth of a given production, using `prod.__dict__["__gengy__"]["weight"]` (as is done in the [classification_probabilisticGE](../../examples/classification_probabilisticGE.py)).
 
-Genetic Engine also allows the evolution of the weights of the grammar, as is done in [Probabilistic GE (PGE)](https://arxiv.org/pdf/2103.08389.pdf). Evolution of the grammar is done by using the `PGECallback` callback, or the `evolve_grammar`and         `evolve_learning_rate` parameters of [GPFriendly](algorithms.md).
+Genetic Engine also allows the evolution of the weights of the grammar, as is done in [Probabilistic GE (PGE)](https://arxiv.org/pdf/2103.08389.pdf). Evolution of the grammar is done by using the `PGECallback` callback, or the `evolve_grammar`and         `evolve_learning_rate` parameters of [SimpleGP](algorithms.md).
 
 ```{eval-rst}
 .. autoapiclass:: geneticengine.algorithms.callbacks.pge.PGECallback

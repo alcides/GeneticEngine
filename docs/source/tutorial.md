@@ -140,7 +140,7 @@ This fitness function will give all individuals the same fitness (0), turning th
 Now we can run Genetic Engine, parameterized with this grammar and this fitness function:
 
 ```python
-alg = GPFriendly(g, fitness_function, TreeBasedRepresentation, minimize=True, population_size=10, number_of_generations=5)
+alg = SimpleGP(g, fitness_function, TreeBasedRepresentation, minimize=True, population_size=10, number_of_generations=5)
 (b, bf) = alg.evolve()
 print(bf, b)
 ```
@@ -202,7 +202,7 @@ This version pattern matches on the type of the node and recursively computes th
 Finally, run with a larger population for a longer time, you will see the best fitness decrease over time:
 
 ```python
-alg = GPFriendly(
+alg = SimpleGP(
     g,
     TreeBasedRepresentation,
     fitness_function,

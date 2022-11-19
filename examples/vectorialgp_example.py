@@ -9,7 +9,7 @@ from typing import Any
 import numpy as np
 from sklearn.metrics import mean_squared_error
 
-from geneticengine.algorithms.gp.gp_friendly import GPFriendly
+from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
@@ -3190,7 +3190,7 @@ def evolve(
     else:
         representation = TreeBasedRepresentation
 
-    alg = GPFriendly(
+    alg = SimpleGP(
         g,
         representation=representation,
         problem=SingleObjectiveProblem(

@@ -8,7 +8,7 @@ from typing import Annotated
 import numpy as np
 import pandas as pd
 
-from geneticengine.algorithms.gp.gp_friendly import GPFriendly
+from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.ge import (
@@ -107,7 +107,7 @@ def evolve(
     seed,
     mode,
 ):
-    alg = GPFriendly(
+    alg = SimpleGP(
         g,
         representation=TreeBasedRepresentation,
         problem=SingleObjectiveProblem(

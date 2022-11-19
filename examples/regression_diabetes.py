@@ -7,7 +7,7 @@ from typing import Any
 import numpy as np
 from sklearn.datasets import load_diabetes
 
-from geneticengine.algorithms.gp.gp_friendly import GPFriendly
+from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
@@ -51,7 +51,7 @@ def preprocess():
 
 
 def evolve(g, seed):
-    alg = GPFriendly(
+    alg = SimpleGP(
         g,
         TreeBasedRepresentation,
         problem=SingleObjectiveProblem(

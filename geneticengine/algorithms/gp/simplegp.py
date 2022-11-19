@@ -45,7 +45,7 @@ from geneticengine.core.representations.tree.treebased import TreeBasedRepresent
 P = TypeVar("P")
 
 
-class GPFriendly(GP):
+class SimpleGP(GP):
     """A simpler API to create GP instances.
 
     Defaults as given in A Field Guide to GP, p.17, by Poli and Mcphee.

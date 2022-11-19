@@ -11,7 +11,7 @@ from typing import Callable
 import numpy as np
 from sklearn.metrics import f1_score
 
-from geneticengine.algorithms.gp.gp_friendly import GPFriendly
+from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
@@ -351,7 +351,7 @@ def evolve(
         representation = GrammaticalEvolutionRepresentation
     else:
         representation = TreeBasedRepresentation
-    alg = GPFriendly(
+    alg = SimpleGP(
         g,
         fitness_function,
         representation=representation,

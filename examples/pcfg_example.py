@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC
 
-from geneticengine.algorithms.gp.gp_friendly import GPFriendly
+from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.decorators import weight
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
@@ -40,7 +40,7 @@ def fitness_function(x) -> float:
 if __name__ == "__main__":
     g = extract_grammar([A, B, C], R)
 
-    alg = GPFriendly(
+    alg = SimpleGP(
         g,
         representation=TreeBasedRepresentation,
         problem=SingleObjectiveProblem(
