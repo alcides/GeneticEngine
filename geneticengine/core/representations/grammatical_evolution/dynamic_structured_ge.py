@@ -232,7 +232,7 @@ def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
             if (len(ind.dna[key]) > 0) and (key != LEFTOVER_KEY)
         ),
     )
-    rindex = r.randint(0, len(dna[rkey]) - 1)
+    rindex = r.randint(0, len(ind.dna[rkey]) - 1)
     dna = deepcopy(ind.dna)
     dna[rkey][rindex] = r.randint(0, MAX_RAND_INT)
     return Genotype(dna)

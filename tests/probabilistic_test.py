@@ -6,8 +6,14 @@ from geneticengine.core.decorators import abstract
 from geneticengine.core.decorators import weight
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
+from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
+    DynamicStructuredGrammaticalEvolutionRepresentation,
+)
 from geneticengine.core.representations.grammatical_evolution.ge import (
     GrammaticalEvolutionRepresentation,
+)
+from geneticengine.core.representations.grammatical_evolution.structured_ge import (
+    StructuredGrammaticalEvolutionRepresentation,
 )
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 
@@ -49,6 +55,44 @@ class TestProbabilisticGrammar:
 
         gp = GP(
             representation=GrammaticalEvolutionRepresentation(grammar=g, max_depth=10),
+            problem=SingleObjectiveProblem(
+                lambda p: isinstance(p, OptionA) and 1 or 2,
+                minimize=True,
+                target_fitness=0,
+            ),
+            population_size=1000,
+            stopping_criterium=GenerationStoppingCriterium(max_generations=50),
+        )
+        a, b, c = gp.evolve()
+        assert isinstance(c, OptionA)
+
+    def test_probabilistic_grammar_sge(self):
+        g = extract_grammar([OptionA, OptionB], Option)
+
+        gp = GP(
+            representation=StructuredGrammaticalEvolutionRepresentation(
+                grammar=g,
+                max_depth=10,
+            ),
+            problem=SingleObjectiveProblem(
+                lambda p: isinstance(p, OptionA) and 1 or 2,
+                minimize=True,
+                target_fitness=0,
+            ),
+            population_size=1000,
+            stopping_criterium=GenerationStoppingCriterium(max_generations=50),
+        )
+        a, b, c = gp.evolve()
+        assert isinstance(c, OptionA)
+
+    def test_probabilistic_grammar_dsge(self):
+        g = extract_grammar([OptionA, OptionB], Option)
+
+        gp = GP(
+            representation=DynamicStructuredGrammaticalEvolutionRepresentation(
+                grammar=g,
+                max_depth=10,
+            ),
             problem=SingleObjectiveProblem(
                 lambda p: isinstance(p, OptionA) and 1 or 2,
                 minimize=True,

@@ -25,6 +25,7 @@ from geneticengine.core.utils import strip_annotations
 
 GENE_SIZE = 100
 MAX_RAND_INT = 100000
+INFRASTRUCTURE_KEY = "$infrastructure"
 
 
 @dataclass
@@ -48,6 +49,8 @@ def random_individual(
             if base_type not in nodes:
                 nodes.append(base_type)
 
+    """ Implementer's decision: There are some random choices not related to productions. E.g., the choice of production in PI-grow, metahandlers, etc. """
+    nodes.append(INFRASTRUCTURE_KEY)
     dna: dict[str, list[int]] = dict()
     for nodestr in nodes:
         dna[nodestr] = [r.randint(0, MAX_RAND_INT) for _ in range(GENE_SIZE)]
@@ -57,7 +60,7 @@ def random_individual(
 
 def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
     rkey = r.choice(list(ind.dna.keys()))
-    rindex = r.randint(0, len(dna[rkey]) - 1)
+    rindex = r.randint(0, len(ind.dna[rkey]) - 1)
 
     dna = deepcopy(ind.dna)
     dna[rkey][rindex] = r.randint(0, MAX_RAND_INT)
@@ -96,12 +99,17 @@ class StructuredListWrapper(Source):
             indexes[k] = 0
         self.indexes = indexes
 
-    def randint(self, min: int, max: int, prod: str = "") -> int:
+    def randint(self, min: int, max: int, prod: str = INFRASTRUCTURE_KEY) -> int:
         self.indexes[prod] = (self.indexes[prod] + 1) % len(self.dna[prod])
         v = self.dna[prod][self.indexes[prod]]
         return v % (max - min + 1) + min
 
-    def random_float(self, min: float, max: float, prod: str = "") -> float:
+    def random_float(
+        self,
+        min: float,
+        max: float,
+        prod: str = INFRASTRUCTURE_KEY,
+    ) -> float:
         k = self.randint(1, MAX_RAND_INT, prod)
         return 1 * (max - min) / k + min
 
