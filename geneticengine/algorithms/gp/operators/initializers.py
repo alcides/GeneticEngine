@@ -23,7 +23,11 @@ class FullInitializer(PopulationInitializer):
     ) -> list[Individual]:
         return [
             Individual(
-                representation.create_individual(random_source, **kwargs),
+                representation.create_individual(
+                    random_source,
+                    representation.max_depth,
+                    **kwargs,
+                ),
                 genotype_to_phenotype=representation.genotype_to_phenotype,
             )
             for _ in range(target_size)
@@ -42,10 +46,13 @@ class GrowInitializer(PopulationInitializer):
         target_size: int,
         **kwargs,
     ) -> list[Individual]:
-        # TODO Mode: full, grow
         return [
             Individual(
-                representation.create_individual(random_source, **kwargs),
+                representation.create_individual(
+                    random_source,
+                    representation.max_depth,
+                    **kwargs,
+                ),
                 genotype_to_phenotype=representation.genotype_to_phenotype,
             )
             for _ in range(target_size)

@@ -29,8 +29,8 @@ class RampedHalfAndHalfInitializer(PopulationInitializer):
         return [
             Individual(
                 representation.create_individual(
-                    random_source,
-                    random_source.randint(
+                    r=random_source,
+                    depth=random_source.randint(
                         representation.min_depth,
                         representation.max_depth,
                     ),
