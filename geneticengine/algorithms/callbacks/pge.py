@@ -9,7 +9,7 @@ class PGECallback(Callback):
     """This callback updates the weight of a probabilistic grammar to bias
     towards the best individuals."""
 
-    def __init__(self, learning_rate: float):
+    def __init__(self, learning_rate: float = 0.01):
         self.learning_rate = learning_rate
 
     def process_iteration(
@@ -21,7 +21,7 @@ class PGECallback(Callback):
     ):
         best = gp.get_best_individual(gp.problem, population)
         prob = best.production_probabilities(
-            gp.representation.grammar,
+            gp.representation.genotype_to_phenotype, gp.representation.grammar
         )
         gp.representation.grammar = gp.representation.grammar.update_weights(
             self.learning_rate,

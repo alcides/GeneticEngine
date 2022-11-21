@@ -50,6 +50,23 @@ class Individual(Generic[G, P]):
         counting(genotype_to_phenotype(self.genotype))
         return counts
 
+    def production_probabilities(self, genotype_to_phenotype, g):
+        counts = self.count_prods(genotype_to_phenotype, g)
+        probs = counts.copy()
+        for rule in g.alternatives:
+            prods = g.alternatives[rule]
+            total_counts = 0
+            for prod in prods:
+                total_counts += counts[prod]
+            for prod in prods:
+                probs[prod] = counts[prod] / total_counts
+
+        for prod in probs.keys():
+            if probs[prod] > 1:
+                probs[prod] = 1
+
+        return probs
+
     def evaluate(self, problem: Problem) -> FitnessType:
         if self.fitness is None:
             self.fitness = problem.evaluate(self.get_phenotype())

@@ -36,17 +36,6 @@ class InvalidGrammarException(Exception):
     pass
 
 
-class EvolveGrammar:
-    """Class to be assigned to the evolve_grammar parameter in the GP class.
-
-    Args:
-        learning_rate (float): The learning rate with which the grammar is updated each generation (default as in https://arxiv.org/pdf/2103.08389.pdf = 0.01).
-    """
-
-    def __init__(self, learning_rate=0.01) -> None:
-        self.learning_rate = learning_rate
-
-
 class Grammar:
     starting_symbol: type
     alternatives: dict[type, list[type]]

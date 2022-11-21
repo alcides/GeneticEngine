@@ -8,12 +8,10 @@ from typing import Annotated
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from geneticengine.algorithms.callbacks.pge import PGECallback
 
 from geneticengine.algorithms.gp.simplegp import SimpleGP
-from geneticengine.core.decorators import abstract
 from geneticengine.core.decorators import get_gengy
-from geneticengine.core.decorators import weight
-from geneticengine.core.grammar import EvolveGrammar
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
@@ -160,7 +158,7 @@ def evolve(
             target_fitness=None,
         ),
         probability_crossover=1,
-        evolve_grammar=EvolveGrammar(),
+        evolve_grammar=PGECallback(),
         probability_mutation=0.5,
         number_of_generations=20,
         max_depth=10,
@@ -171,7 +169,7 @@ def evolve(
         seed=seed,
         timer_stop_criteria=mode,
     )
-    (b, bf, bp) = alg.evolve(verbose=1)
+    (b, bf, bp) = alg.evolve()
     return b, bf, alg.grammar
 
 
