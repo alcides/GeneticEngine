@@ -28,6 +28,28 @@ class Individual(Generic[G, P]):
             self.phenotype = self.genotype_to_phenotype(self.genotype)
         return self.phenotype
 
+    def count_prods(self, genotype_to_phenotype, g):
+        counts = {prod: 0 for prod in g.all_nodes}
+
+        def add_count(ty):
+            if ty in counts.keys():
+                counts[ty] += 1
+
+        def get_args(no):
+            if hasattr(type(no), "__annotations__"):
+                return type(no).__annotations__.keys()
+            return []
+
+        def counting(node: Any):
+            add_count(type(node))
+            for base in type(node).__bases__:
+                add_count(base)
+            for argn in get_args(node):
+                counting(getattr(node, argn))
+
+        counting(genotype_to_phenotype(self.genotype))
+        return counts
+
     def evaluate(self, problem: Problem) -> FitnessType:
         if self.fitness is None:
             self.fitness = problem.evaluate(self.get_phenotype())

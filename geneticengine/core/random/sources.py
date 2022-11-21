@@ -89,6 +89,7 @@ class Source(ABC):
 
 class RandomSource(Source):
     def __init__(self, seed: int = 0):
+        self.seed = seed
         self.random = random.Random(seed)
 
     def randint(self, min, max, prod: str = "") -> int:
