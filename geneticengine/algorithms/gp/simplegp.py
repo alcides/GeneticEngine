@@ -276,7 +276,7 @@ class SimpleGP(GP):
             population_initializer,
             step,
             stopping_criterium,
-            callbacks,
+            self.callbacks,
         )
 
     def process_problem(
