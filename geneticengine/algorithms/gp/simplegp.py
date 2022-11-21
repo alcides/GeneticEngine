@@ -129,13 +129,7 @@ class SimpleGP(GP):
         evolve_grammar: bool = False,
         evolve_learning_rate: float = 0.01,
         # -----
-        save_to_csv: str = None,
-        save_genotype_as_string: bool = True,
-        test_data: Callable[
-            [Any],
-            float,
-        ] = None,  # TODO: Should be part of Problem Class  [LEON]
-        only_record_best_inds: bool = True,
+        save_to_csv: CSVCallback = None,
         # -----
         verbose=1,
         parallel_evaluation=False,
@@ -249,23 +243,7 @@ class SimpleGP(GP):
             self.callbacks.append(ProgressCallback())
 
         if save_to_csv:
-            extra_columns = {}
-            if test_data != None:
-                extra_columns["test_data"] = lambda gen, pop, time, gp, ind: str(
-                    test_data(ind.get_phenotype()),
-                )
-            if save_genotype_as_string:
-                extra_columns["genotype_as_str"] = lambda gen, pop, time, gp, ind: str(
-                    ind.genotype,
-                )
-
-            c = CSVCallback(
-                save_to_csv,
-                only_record_best_ind=only_record_best_inds,
-                extra_columns=extra_columns,
-                save_genotype_as_string=save_genotype_as_string,
-            )
-            self.callbacks.append(c)
+            self.callbacks.append(save_to_csv)
 
         GP.__init__(
             self,
