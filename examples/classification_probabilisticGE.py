@@ -8,8 +8,8 @@ from typing import Annotated
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from geneticengine.algorithms.callbacks.pge import PGECallback
 
+from geneticengine.algorithms.callbacks.pge import PGECallback
 from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.decorators import get_gengy
 from geneticengine.core.grammar import extract_grammar
@@ -170,7 +170,7 @@ def evolve(
         timer_stop_criteria=mode,
     )
     (b, bf, bp) = alg.evolve()
-    return b, bf, alg.grammar
+    return b, bf, g
 
 
 if __name__ == "__main__":
