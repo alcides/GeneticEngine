@@ -245,7 +245,7 @@ class SimpleGP(GP):
             self.callbacks.append(DebugCallback())
         if verbose > 1:
             self.callbacks.append(PrintBestCallback())
-        if verbose > 0:
+        if verbose == 1:
             self.callbacks.append(ProgressCallback())
 
         if save_to_csv:
