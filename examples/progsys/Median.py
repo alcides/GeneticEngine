@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Annotated
+from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import DynamicStructuredGrammaticalEvolutionRepresentation
 
 from utils import get_data
 from utils import import_embedded
@@ -105,7 +106,9 @@ def evolve(g, seed, mode, representation=""):
     if representation == "ge":
         representation = GrammaticalEvolutionRepresentation
     elif representation == "sge":
-        representation = GrammaticalEvolutionRepresentation
+        representation = StructuredGrammaticalEvolutionRepresentation
+    elif representation == "dsge":
+        representation = DynamicStructuredGrammaticalEvolutionRepresentation
     else:
         representation = TreeBasedRepresentation
     alg = SimpleGP(

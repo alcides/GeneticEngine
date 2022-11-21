@@ -11,6 +11,7 @@ from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import MultiObjectiveProblem
+from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import DynamicStructuredGrammaticalEvolutionRepresentation
 from geneticengine.core.representations.grammatical_evolution.ge import (
     GrammaticalEvolutionRepresentation,
 )
@@ -194,7 +195,9 @@ def evolve(
     if representation == "ge":
         representation = GrammaticalEvolutionRepresentation
     elif representation == "sge":
-        representation = GrammaticalEvolutionRepresentation
+        representation = StructuredGrammaticalEvolutionRepresentation
+    elif representation == "dsge":
+        representation = DynamicStructuredGrammaticalEvolutionRepresentation
     else:
         representation = TreeBasedRepresentation
 

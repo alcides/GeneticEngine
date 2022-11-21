@@ -3181,12 +3181,12 @@ def evolve(
     mode,
     representation="TreeBasedRepresentation",
 ):
-    if representation == "grammatical_evolution":
+    if representation == "ge":
         representation = GrammaticalEvolutionRepresentation
     elif representation == "sge":
-        representation = GrammaticalEvolutionRepresentation
+        representation = StructuredGrammaticalEvolutionRepresentation
     elif representation == "dsge":
-        representation = GrammaticalEvolutionRepresentation
+        representation = DynamicStructuredGrammaticalEvolutionRepresentation
     else:
         representation = TreeBasedRepresentation
 
