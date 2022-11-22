@@ -16,6 +16,7 @@ from geneticengine.core.representations.tree.initialization_methods import Initi
 from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.core.tree import TreeNode
 
+MAX_RAND_INT = 100000
 
 @dataclass
 class Genotype:
@@ -29,14 +30,28 @@ def random_individual(
     starting_symbol: Any = None,
     gene_size: int = 256,
 ) -> Genotype:
-    return Genotype([r.randint(0, 10000) for _ in range(gene_size)])
+    return Genotype([r.randint(0, MAX_RAND_INT) for _ in range(gene_size)])
 
 
-def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
-    rindex = r.randint(0, len(ind.dna) - 1)
-    clone = [i for i in ind.dna]
-    clone[rindex] = r.randint(0, 10000)
-    return Genotype(clone)
+def standard_mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int, mutation_method) -> Genotype:
+    dna = ind.dna
+    rindex = r.randint(0, len(dna) - 1)
+    dna[rindex] = r.randint(0, MAX_RAND_INT)
+    return Genotype(dna)
+
+def per_codon_mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int, codon_prob) -> Genotype:
+    dna = ind.dna
+    for i in range(len(dna)):
+        if r.random_float(0,1) < codon_prob:
+            dna[i] = r.randint(0,MAX_RAND_INT)
+    return Genotype(dna)
+    
+def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int, mutation_method, codon_prob) -> Genotype:
+    if mutation_method == 'per_codon_mutate':
+        return per_codon_mutate(r, g, ind, max_depth, codon_prob)
+    else:
+        return standard_mutate(r, g, ind, max_depth, mutation_method)
+        
 
 
 def crossover(
@@ -75,12 +90,19 @@ def create_tree(g: Grammar, ind: Genotype, depth: int, method) -> TreeNode:
 
 
 class GrammaticalEvolutionRepresentation(Representation[Genotype]):
-    """This representation uses a list of integers to guide the generation of trees in the phenotype."""
+    """This representation uses a list of integers to guide the generation of trees in the phenotype.
+        
+    You can specify the [mutation_method] as follows:
+    - One mutation with all codons equal probabilities: all_codons_equal_prob
+    - Mutation possibility for each codon (this also allows you to specify the [codon_prob]): per_codon_mutate
+    """
 
-    def __init__(self, depth = None, gene_size=256, method: Initialization_Method = PI_Grow()) -> None:
+    def __init__(self, depth = None, gene_size=256, method: Initialization_Method = PI_Grow(), mutation_method = 'all_codons_equal_prob', codon_prob = 0.05) -> None:
         self.depth = depth
         self.gene_size = gene_size
         self.method = method
+        self.mutation_method = mutation_method
+        self.codon_prob = codon_prob
 
     def create_individual(self, r: Source, g: Grammar, depth: int) -> Genotype:
         self.depth = depth
@@ -96,7 +118,8 @@ class GrammaticalEvolutionRepresentation(Representation[Genotype]):
         specific_type: type | None = None,
         depth_aware_mut: bool = False,
     ) -> Genotype:
-        return mutate(r, g, deepcopy(ind), depth)
+        new_ind = mutate(r, g, deepcopy(ind), depth, self.mutation_method, self.codon_prob)
+        return new_ind
 
     def crossover_individuals(
         self,

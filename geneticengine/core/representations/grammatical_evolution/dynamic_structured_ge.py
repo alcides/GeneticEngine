@@ -198,8 +198,8 @@ def create_individual(
     return random_individual(r, g, starting_symbol, current_genotype, max_depth)
 
 
-def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int, mutation_method) -> Genotype:
-    if mutation_method == 'all_genes_equal_prob':
+def standard_mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int, mutation_method) -> Genotype:
+    if mutation_method == 'all_codons_equal_prob':
         weight = lambda key: len(ind.dna[key])
     else:
         weight = lambda key: 1
@@ -218,6 +218,22 @@ def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int, mutation_method
     clone[rindex] = r.randint(0, MAX_RAND_INT)
     dna[rkey] = clone
     return Genotype(dna)
+
+def per_codon_mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int, codon_prob) -> Genotype:
+    dna = ind.dna
+    for key in dna.keys():
+        if key != LEFTOVER_KEY and key != '':
+            for i in range(len(dna[key])):
+                if r.random_float(0,1) < codon_prob:
+                    dna[key][i] = r.randint(0,MAX_RAND_INT)
+    return Genotype(dna)
+    
+def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int, mutation_method, codon_prob) -> Genotype:
+    if mutation_method == 'per_codon_mutate':
+        return per_codon_mutate(r, g, ind, max_depth, codon_prob)
+    else:
+        return standard_mutate(r, g, ind, max_depth, mutation_method)
+        
 
 
 def crossover(
@@ -284,12 +300,19 @@ def create_tree(g: Grammar, ind: Genotype, depth: int, method) -> TreeNode:
 
 class DynamicStructuredGrammaticalEvolutionRepresentation(Representation[Genotype]):
     """This version uses a list of lists of integers to represent individuals, based on non-terminal
-    symbols. It delays computing the expansions that have enough depth to runtime."""
+    symbols. It delays computing the expansions that have enough depth to runtime.
 
-    def __init__(self, depth = None, method: Initialization_Method = PI_Grow(), mutation_method = 'all_genes_equal_prob') -> None:
+    You can specify the [mutation_method] as follows:
+    - One mutation with all codons equal probabilities: all_codons_equal_prob
+    - One mutation with all genes equal probabilities: all_genes_equal_prob
+    - Mutation possibility for each codon (this also allows you to specify the [codon_prob]): per_codon_mutate
+    """
+
+    def __init__(self, depth = None, method: Initialization_Method = PI_Grow(), mutation_method = 'all_codons_equal_prob', codon_prob = 0.05) -> None:
         self.depth = depth
         self.method = method
         self.mutation_method = mutation_method
+        self.codon_prob = codon_prob
     
     def create_individual(self, r: Source, g: Grammar, depth: int) -> Genotype:
         self.depth = depth
@@ -305,7 +328,7 @@ class DynamicStructuredGrammaticalEvolutionRepresentation(Representation[Genotyp
         specific_type: type | None = None,
         depth_aware_mut: bool = False,
     ) -> Genotype:
-        new_ind = mutate(r, g, deepcopy(ind), depth, self.mutation_method)
+        new_ind = mutate(r, g, deepcopy(ind), depth, self.mutation_method, self.codon_prob)
         return new_ind
 
     def crossover_individuals(
