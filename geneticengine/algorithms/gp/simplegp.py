@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 from typing import Callable
+from typing import Optional
 from typing import TypeVar
 
 from geneticengine.algorithms.callbacks.callback import Callback
@@ -12,6 +13,7 @@ from geneticengine.algorithms.callbacks.csv_callback import CSVCallback
 from geneticengine.algorithms.callbacks.pge import PGECallback
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.algorithms.gp.operators.combinators import ExclusiveParallelStep
 from geneticengine.algorithms.gp.operators.combinators import ParallelStep
 from geneticengine.algorithms.gp.operators.combinators import SequenceStep
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
@@ -131,10 +133,13 @@ class SimpleGP(GP):
         # -----
         save_to_csv: str = None,
         save_genotype_as_string: bool = True,
-        test_data: Callable[
-            [Any],
-            float,
-        ] = None,  # TODO: Should be part of Problem Class  [LEON]
+        test_data: None
+        | (
+            Callable[
+                [Any],
+                float,
+            ]
+        ) = None,
         only_record_best_inds: bool = True,
         # -----
         verbose=1,
@@ -189,7 +194,7 @@ class SimpleGP(GP):
                 specific_type=specific_type_crossover,
                 depth_aware_co=depth_aware_co,
             )
-            step = ParallelStep(
+            step = ExclusiveParallelStep(
                 [mutation_step, crossover_step],
                 [either_mut_or_cro, 1 - either_mut_or_cro],
             )
@@ -210,6 +215,7 @@ class SimpleGP(GP):
             [NoveltyStep(), ElitismStep(), step],
             [n_novelties, n_elites, population_size - n_novelties - n_elites],
         )
+        print(str(step))
 
         selection_step: GeneticStep
         if selection_method[0] == "tournament":
@@ -250,9 +256,10 @@ class SimpleGP(GP):
 
         if save_to_csv:
             extra_columns = {}
-            if test_data != None:
+            if not test_data is None:
+                tf: Callable[[Any], float] = test_data
                 extra_columns["test_data"] = lambda gen, pop, time, gp, ind: str(
-                    test_data(ind.get_phenotype()),
+                    tf(ind.get_phenotype()),
                 )
             if save_genotype_as_string:
                 extra_columns["genotype_as_str"] = lambda gen, pop, time, gp, ind: str(
@@ -263,7 +270,6 @@ class SimpleGP(GP):
                 save_to_csv,
                 only_record_best_ind=only_record_best_inds,
                 extra_columns=extra_columns,
-                save_genotype_as_string=save_genotype_as_string,
             )
             self.callbacks.append(c)
 

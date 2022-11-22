@@ -28,9 +28,10 @@ class GenericMutationStep(GeneticStep):
         population: list[Individual],
         target_size: int,
     ) -> list[Individual]:
-        assert len(population) == target_size
-
-        return [self.mutate(ind, representation, random_source) for ind in population]
+        return [
+            self.mutate(ind, representation, random_source)
+            for ind in population[:target_size]
+        ]
 
     def mutate(
         self,

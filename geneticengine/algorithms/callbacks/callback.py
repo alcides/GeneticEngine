@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from abc import ABC
 
+from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.algorithms.gp.operators.stop import TimeStoppingCriterium
 from geneticengine.core.problems import FitnessType
@@ -18,13 +19,36 @@ class Callback(ABC):
         ...
 
 
+def pretty_print_fitness(best_individual: Individual, gp) -> str:
+    fitness: FitnessType
+    if isinstance(gp.problem, SingleObjectiveProblem):
+        fitness = best_individual.evaluate(gp.problem)
+
+    elif isinstance(gp.problem, MultiObjectiveProblem):
+        if gp.problem.number_of_objectives() > 10:
+            fitness = average_fitness(best_individual)
+        else:
+            fitness = [
+                fitness
+                for fitness in gp.problem.evaluate(best_individual.get_phenotype())
+            ]
+
+    else:
+        assert False
+
+    if isinstance(fitness, float):
+        return f"{fitness:.4f}"
+    else:
+        return ", ".join([f"{component:.4f}" for component in fitness])
+
+
 class DebugCallback(Callback):
     """Example of a callback that prints all the individuals in the
     population."""
 
     def process_iteration(self, generation: int, population, time: float, gp):
         for p in population:
-            print(f"[{self.__class__}] {p} at generation {generation}")
+            print(f"[{self.__class__.__name__}] {p} at generation {generation}")
 
 
 class ProgressCallback(Callback):
@@ -34,21 +58,10 @@ class ProgressCallback(Callback):
     def process_iteration(self, generation: int, population, time: float, gp):
 
         best_individual = gp.get_best_individual(gp.problem, population)
-
-        fitness: FitnessType
-        if isinstance(gp.problem, SingleObjectiveProblem):
-            fitness = round(gp.evaluate(best_individual), 4)
-
-        elif isinstance(gp.problem, MultiObjectiveProblem):
-            fitness = [
-                round(fitness, 4)
-                for fitness in gp.problem.evaluate(best_individual.get_phenotype())
-            ]
-            if len(fitness) > 10:
-                fitness = round(average_fitness(best_individual), 4)
+        best_fitness = pretty_print_fitness(best_individual, gp)
 
         print(
-            f"[{self.__class__}] Generation {generation}. Time {round(time, 2)}. Best fitness: {fitness}",
+            f"[{self.__class__.__name__}] Generation {generation}. Time {time:.2f}. Best fitness: {best_fitness}",
         )
 
 
@@ -58,25 +71,16 @@ class PrintBestCallback(Callback):
     def process_iteration(self, generation: int, population, time: float, gp):
         fitness: FitnessType
 
-        best_individual = gp.get_best_individual(gp.problem, population)
-
-        if isinstance(gp.problem, SingleObjectiveProblem):
-            fitness = round(gp.evaluate(best_individual), 4)
-        elif isinstance(gp.problem, MultiObjectiveProblem):
-            fitness = [
-                round(fitness, 4)
-                for fitness in gp.problem.evaluate(best_individual.get_phenotype())
-            ]
-            if len(fitness) > 10:
-                fitness = sum(fitness) / len(fitness)
+        best_individual: Individual = gp.get_best_individual(gp.problem, population)
+        best_fitness = pretty_print_fitness(best_individual, gp)
 
         if isinstance(gp.stopping_criterium, TimeStoppingCriterium):
             print(
-                f"[{self.__class__}] Generation {generation}. Time {round(time, 2)} / {gp.stopping_criterium.max_time}",
+                f"[{self.__class__.__name__}] Generation {generation}. Time {time:.2f} / {gp.stopping_criterium.max_time}",
             )
         elif isinstance(gp.stopping_criterium, GenerationStoppingCriterium):
             print(
-                f"[{self.__class__}] Generation {generation} / {gp.stopping_criterium.max_generations}. Time {time}",
+                f"[{self.__class__.__name__}] Generation {generation} / {gp.stopping_criterium.max_generations}. Time {time:.2f}",
             )
-        print(f"[{self.__class__}] Best fitness: {fitness}")
-        print(f"[{self.__class__}] Best genotype: {population[0].genotype}")
+        print(f"[{self.__class__.__name__}] Best fitness: {best_fitness}")
+        print(f"[{self.__class__.__name__}] Best genotype: {best_individual}")

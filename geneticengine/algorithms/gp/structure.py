@@ -30,6 +30,9 @@ class GeneticStep(ABC):
     ) -> list[Individual]:
         ...
 
+    def __str__(self):
+        return f"{self.__class__.__name__}"
+
 
 class StoppingCriterium(ABC):
     """TerminationCondition provides information when to terminate

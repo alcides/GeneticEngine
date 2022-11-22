@@ -30,6 +30,10 @@ class Problem(ABC):
         return False
 
     def overall_fitness(self, p: P) -> float:
+        """Returns the evaluation of an individual, combining all scores.
+
+        This function is going to be maximized.
+        """
         ...
 
 
@@ -61,7 +65,10 @@ class SingleObjectiveProblem(Problem):
         return float(self.fitness_function(phenotype))
 
     def overall_fitness(self, phenotype: P) -> float:
-        return self.evaluate(phenotype)
+        if self.minimize:
+            return -self.evaluate(phenotype)
+        else:
+            return self.evaluate(phenotype)
 
     def solved(self, best_fitness: FitnessType):
         assert isinstance(best_fitness, float)
@@ -91,13 +98,14 @@ class MultiObjectiveProblem(Problem):
         return len(self.minimize)
 
     def evaluate(self, phenotype: P) -> list[float]:
-        assert not "Individual" in str(type(phenotype))  # DEBUG
         return [float(x) for x in self.fitness_function(phenotype)]
 
     def overall_fitness(self, phenotype: P) -> float:
-        assert not "Individual" in str(type(phenotype))  # DEBUG
         if self.best_individual_criteria_function is None:
-            return sum(self.evaluate(phenotype))
+            return sum(
+                m and -fit or +fit
+                for (fit, m) in zip(self.evaluate(phenotype), self.minimize)
+            )
         else:
             return self.best_individual_criteria_function(phenotype)
 

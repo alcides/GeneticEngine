@@ -19,8 +19,18 @@ class ElitismStep(GeneticStep):
         population: list[Individual],
         target_size: int,
     ) -> list[Individual]:
+
         population_copy = population.copy()
+
+        print("==========")
+        for ind in population:
+            print(".", ind.genotype)
+        print(" . .  ")
         population_copy.sort(
-            key=lambda ind: ind.evaluate(problem),
+            key=lambda ind: problem.overall_fitness(ind.get_phenotype()),
+            reverse=True,
         )
+        for ind in population_copy[:target_size]:
+            print(".", ind.genotype)
+        print(".....")
         return population_copy[:target_size]
