@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC
+from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium, TimeStoppingCriterium
 
 from geneticengine.core.problems import MultiObjectiveProblem
@@ -30,13 +31,13 @@ class ProgressCallback(Callback):
     # Currently this only work with GP, doesnt work with Hill Climbing and Random Search
     def process_iteration(self, generation: int, population, time: float, gp):
 
-        best_individual = gp.get_best_individual(gp.problem, population)
+        best_individual : Individual = gp.get_best_individual(gp.problem, population)
 
         if isinstance(gp.problem, SingleObjectiveProblem):
-            fitness = round(gp.problem.evaluate(best_individual.get_phenotype()), 4)
+            fitness = round(best_individual.evaluate(gp.problem), 4)
 
         elif isinstance(gp.problem, MultiObjectiveProblem):
-            fitness = [round(fitness, 4) for fitness in gp.problem.evaluate(best_individual.get_phenotype())]
+            fitness = [round(fitness, 4) for fitness in best_individual.evaluate(gp.problem)]
             if len(fitness) > 10:
                 fitness = round(average_fitness(best_individual), 4)
 
