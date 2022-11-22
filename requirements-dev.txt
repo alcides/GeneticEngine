@@ -1,0 +1,8 @@
+black
+docformatter
+pre-commit
+pycln
+sphinx
+sphinx-autoapi
+sphinx-rtd-theme
+sphinxcontrib-fulltoc

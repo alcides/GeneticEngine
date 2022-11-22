@@ -1,4 +1,4 @@
 #!/bin/bash
 python3 -m pip install -r requirements.txt
-python3 -m pip install pre-commit
+python3 -m pip install -r requirements-dev.txt
 pre-commit install
