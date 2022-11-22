@@ -37,7 +37,7 @@ class ProgressCallback(Callback):
 
         fitness: FitnessType
         if isinstance(gp.problem, SingleObjectiveProblem):
-            fitness = round(gp.problem.evaluate(best_individual.get_phenotype()), 4)
+            fitness = round(gp.evaluate(best_individual), 4)
 
         elif isinstance(gp.problem, MultiObjectiveProblem):
             fitness = [
@@ -61,7 +61,7 @@ class PrintBestCallback(Callback):
         best_individual = gp.get_best_individual(gp.problem, population)
 
         if isinstance(gp.problem, SingleObjectiveProblem):
-            fitness = round(gp.problem.evaluate(best_individual.get_phenotype()), 4)
+            fitness = round(gp.evaluate(best_individual), 4)
         elif isinstance(gp.problem, MultiObjectiveProblem):
             fitness = [
                 round(fitness, 4)

@@ -60,22 +60,6 @@ Var.__init__.__annotations__["name"] = Annotated[str, VarRange(feature_names)]
 Var.feature_indices = feature_indices  # type: ignore
 
 
-class GrammarDebugCallback(Callback):
-    def __init__(self, g):
-        self.grammar = g
-
-    def process_iteration(self, generation: int, population, time: float, gp):
-        print("----")
-        for ind in population:
-            ind.evaluate(gp.problem)
-            print(ind.genotype, ind.phenotype, ind.fitness)
-        print(g)
-        print(".....")
-
-    def end_evolution(self):
-        pass
-
-
 @dataclass
 class Literal(Number):
     val: Annotated[float, FloatList([-1, -0.1, -0.01, -0.001, 1, 0.1, 0.01, 0.001])]
@@ -87,7 +71,7 @@ class Literal(Number):
         return str(self.val)
 
 
-prods = [Var, Plus, Mul, SafeDiv, Literal]
+prods = [Plus, Mul, SafeDiv, Literal, Var]
 
 
 def preprocess():
@@ -185,7 +169,6 @@ def evolve(
         n_elites=5,
         seed=seed,
         timer_stop_criteria=mode,
-        callbacks=[GrammarDebugCallback(g)],
     )
     (b, bf, bp) = alg.evolve()
     return b, bf, g
