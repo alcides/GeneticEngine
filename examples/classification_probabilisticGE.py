@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
+from geneticengine.algorithms.callbacks.callback import Callback
 from geneticengine.algorithms.callbacks.pge import PGECallback
 from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.decorators import get_gengy
@@ -59,6 +60,22 @@ Var.__init__.__annotations__["name"] = Annotated[str, VarRange(feature_names)]
 Var.feature_indices = feature_indices  # type: ignore
 
 
+class GrammarDebugCallback(Callback):
+    def __init__(self, g):
+        self.grammar = g
+
+    def process_iteration(self, generation: int, population, time: float, gp):
+        print("----")
+        for ind in population:
+            ind.evaluate(gp.problem)
+            print(ind.genotype, ind.phenotype, ind.fitness)
+        print(g)
+        print(".....")
+
+    def end_evolution(self):
+        pass
+
+
 @dataclass
 class Literal(Number):
     val: Annotated[float, FloatList([-1, -0.1, -0.01, -0.001, 1, 0.1, 0.01, 0.001])]
@@ -70,7 +87,7 @@ class Literal(Number):
         return str(self.val)
 
 
-prods = [Plus, Mul, SafeDiv, Literal, Var]
+prods = [Var, Plus, Mul, SafeDiv, Literal]
 
 
 def preprocess():
@@ -163,11 +180,12 @@ def evolve(
         number_of_generations=20,
         max_depth=10,
         max_init_depth=6,
-        population_size=500,
+        population_size=50,
         selection_method=("tournament", 2),
-        n_elites=50,
+        n_elites=5,
         seed=seed,
         timer_stop_criteria=mode,
+        callbacks=[GrammarDebugCallback(g)],
     )
     (b, bf, bp) = alg.evolve()
     return b, bf, g
@@ -176,7 +194,7 @@ def evolve(
 if __name__ == "__main__":
     g = preprocess()
     print(g)
-    b, bf, final_grammar = evolve(g, 123, False)
+    b, bf, final_grammar = evolve(g, 123, False, representation="ge")
     print(b)
     print(f"With fitness: {bf}")
     print("Final grammar:")

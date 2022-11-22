@@ -35,13 +35,14 @@ class Source(ABC):
         weights: list[float],
         prod: str = "",
     ) -> T:
-        acc_weights = list(accumulate(weights))
-        total = acc_weights[-1] + 0.0
-        rand_value: float = self.random_float(0, total, prod)
+        acc_weights: list[int] = [int(x * 100000) for x in accumulate(weights)]
+        total = acc_weights[-1]
+        rand_value: float = self.randint(0, total, prod)
 
         for (choice, acc) in zip(choices, acc_weights):
             if rand_value < acc:
                 return choice
+        print("hello")
         return choices[0]
 
     def shuffle(self, l: list[T]):

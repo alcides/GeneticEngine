@@ -44,7 +44,7 @@ class Representation(Generic[g, p]):
         i1: g,
         i2: g,
         depth: int,
-        specific_type: type = None,
+        specific_type: type = None,  # TODO: remove these 2 parameters into custom operators.
         depth_aware_co: bool = False,
         **kwargs,
     ) -> tuple[g, g]:

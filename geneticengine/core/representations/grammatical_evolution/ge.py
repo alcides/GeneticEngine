@@ -18,6 +18,9 @@ from geneticengine.core.representations.tree.initializations import pi_grow_meth
 from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.core.tree import TreeNode
 
+MAX_VALUE = 1000000
+GENE_LENGTH = 256
+
 
 @dataclass
 class Genotype:
@@ -30,7 +33,7 @@ def random_individual(
     depth: int = 5,
     starting_symbol: Any = None,
 ) -> Genotype:
-    return Genotype([r.randint(0, 10000) for _ in range(256)])
+    return Genotype([r.randint(0, MAX_VALUE) for _ in range(GENE_LENGTH)])
 
 
 def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
@@ -64,7 +67,7 @@ class ListWrapper(Source):
         return v % (max - min + 1) + min
 
     def random_float(self, min: float, max: float, prod: str = "") -> float:
-        k = self.randint(1, 100000000, prod)
+        k = self.randint(1, MAX_VALUE, prod)
         return 1 * (max - min) / k + min
 
 

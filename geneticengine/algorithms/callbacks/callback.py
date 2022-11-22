@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from abc import ABC
-from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium, TimeStoppingCriterium
 
+from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
+from geneticengine.algorithms.gp.operators.stop import TimeStoppingCriterium
+from geneticengine.core.problems import FitnessType
 from geneticengine.core.problems import MultiObjectiveProblem
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.utils import average_fitness
@@ -17,7 +19,8 @@ class Callback(ABC):
 
 
 class DebugCallback(Callback):
-    """Example of a callback that prints all the individuals in the population"""
+    """Example of a callback that prints all the individuals in the
+    population."""
 
     def process_iteration(self, generation: int, population, time: float, gp):
         for p in population:
@@ -25,18 +28,22 @@ class DebugCallback(Callback):
 
 
 class ProgressCallback(Callback):
-    """Prints the number of the generation"""
+    """Prints the number of the generation."""
 
     # Currently this only work with GP, doesnt work with Hill Climbing and Random Search
     def process_iteration(self, generation: int, population, time: float, gp):
 
         best_individual = gp.get_best_individual(gp.problem, population)
 
+        fitness: FitnessType
         if isinstance(gp.problem, SingleObjectiveProblem):
             fitness = round(gp.problem.evaluate(best_individual.get_phenotype()), 4)
 
         elif isinstance(gp.problem, MultiObjectiveProblem):
-            fitness = [round(fitness, 4) for fitness in gp.problem.evaluate(best_individual.get_phenotype())]
+            fitness = [
+                round(fitness, 4)
+                for fitness in gp.problem.evaluate(best_individual.get_phenotype())
+            ]
             if len(fitness) > 10:
                 fitness = round(average_fitness(best_individual), 4)
 
@@ -46,16 +53,20 @@ class ProgressCallback(Callback):
 
 
 class PrintBestCallback(Callback):
-    """Prints the number of the generation"""
+    """Prints the number of the generation."""
 
     def process_iteration(self, generation: int, population, time: float, gp):
+        fitness: FitnessType
 
         best_individual = gp.get_best_individual(gp.problem, population)
 
         if isinstance(gp.problem, SingleObjectiveProblem):
             fitness = round(gp.problem.evaluate(best_individual.get_phenotype()), 4)
         elif isinstance(gp.problem, MultiObjectiveProblem):
-            fitness = [round(fitness, 4) for fitness in gp.problem.evaluate(best_individual.get_phenotype())]
+            fitness = [
+                round(fitness, 4)
+                for fitness in gp.problem.evaluate(best_individual.get_phenotype())
+            ]
             if len(fitness) > 10:
                 fitness = sum(fitness) / len(fitness)
 
