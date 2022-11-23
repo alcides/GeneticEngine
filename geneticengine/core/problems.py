@@ -61,8 +61,8 @@ class SingleObjectiveProblem(Problem):
     """
 
     minimize: bool
-    fitness_function: SingleObjectiveCallable
-    target_fitness: float | None
+    fitness_function: Callable[[P], float]
+    target_fitness: float | None = None
 
     def __init__(
         self,
