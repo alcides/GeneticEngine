@@ -372,8 +372,6 @@ class GP(Heuristics):
                 phenotype = self.representation.genotype_to_phenotype(self.grammar, ind.genotype)
                 conforms_min_depth = True if not min_init else (phenotype.gengy_distance_to_term >= min_init)
                 conforms_max_depth = True if not max_init else (phenotype.gengy_distance_to_term <= max_init)
-                if not (conforms_min_depth and conforms_max_depth):
-                    print(phenotype.gengy_distance_to_term)
                 return conforms_min_depth and conforms_max_depth
             
             conforms_depth = False
