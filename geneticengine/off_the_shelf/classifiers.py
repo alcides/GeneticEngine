@@ -104,7 +104,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
         self.probability_mutation = probability_mutation
         self.probability_crossover = probability_crossover
 
-    def fit(self, X, y):
+    def fit(self, X, y, verbose=0):
         """
         Fits the classifier with data X and target y.
         """
@@ -167,7 +167,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
             seed=self.seed,
         )
 
-        best_ind, fitness, phenotype = model.evolve(verbose=1)
+        best_ind, fitness, phenotype = model.evolve(verbose=verbose)
         self.evolved_phenotype = phenotype
         self.sympy_compatible_phenotype = fix_all(str(phenotype))
 
@@ -236,7 +236,7 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
         self.max_depth = max_depth
         self.number_of_generations = number_of_generations
 
-    def fit(self, X, y):
+    def fit(self, X, y, verbose=0):
         """
         Fits the classifier with data X and target y.
         """
@@ -293,7 +293,7 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
             seed=self.seed,
         )
 
-        best_ind, fitness, phenotype = model.evolve(verbose=1)
+        best_ind, fitness, phenotype = model.evolve(verbose=verbose)
         self.evolved_phenotype = phenotype
         self.sympy_compatible_phenotype = fix_all(str(phenotype))
 

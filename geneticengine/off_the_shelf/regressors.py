@@ -111,7 +111,7 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
         self.timer_limit = timer_limit
         self.metric = metric
 
-    def fit(self, X, y):
+    def fit(self, X, y, verbose=0):
         """
         Fits the regressor with data X and target y.
         """
@@ -181,7 +181,7 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
             timer_limit=self.timer_limit,
         )
 
-        best_ind, fitness, phenotype = model.evolve(verbose=0)
+        best_ind, fitness, phenotype = model.evolve(verbose=verbose)
         self.evolved_phenotype = phenotype
         self.sympy_compatible_phenotype = fix_all(str(phenotype))
 
@@ -262,7 +262,7 @@ class HillClimbingRegressor(BaseEstimator, TransformerMixin):
             self.metric = mse
             self.minimise = True
 
-    def fit(self, X, y):
+    def fit(self, X, y, verbose=0):
         """
         Fits the regressor with data X and target y.
         """
@@ -317,7 +317,7 @@ class HillClimbingRegressor(BaseEstimator, TransformerMixin):
             seed=self.seed,
         )
 
-        best_ind, fitness, phenotype = model.evolve(verbose=0)
+        best_ind, fitness, phenotype = model.evolve(verbose=verbose)
         self.evolved_phenotype = phenotype
         self.sympy_compatible_phenotype = fix_all(str(phenotype))
 
