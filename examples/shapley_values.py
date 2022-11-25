@@ -10,7 +10,7 @@ X, y = shap.datasets.boston()
 
 print("GP Regressor")
 model = GeneticProgrammingRegressor(metric="r2")
-model.fit(X, y)
+model.fit(X, y, verbose=1)
 
 X_train_summary = shap.kmeans(X, 10)
 explainer = shap.KernelExplainer(model.predict, X_train_summary)
