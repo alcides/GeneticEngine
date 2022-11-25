@@ -78,6 +78,13 @@ def plot_nodes_comparison(folder_names: list, labels: list, labels_name: str = '
         In this case, the nodes are plotted
     '''
     plot_comparison(folder_names=folder_names, labels=labels, labels_name=labels_name, x_axis=x_axis, y_axis=y_axis, title=title, file_name=file_name)
+    
+def plot_depth_comparison(folder_names: list, labels: list, labels_name: str = 'Labels', x_axis: str = 'Generations', y_axis: str = 'Depth', title: str = 'Depth comparison', file_name = None):
+    '''
+        Plots a figure with lines for each folder (average with shades for std) with each folder from folder_names named with the corresponding labels_name.
+        In this case, the depth is plotted
+    '''
+    plot_comparison(folder_names=folder_names, labels=labels, labels_name=labels_name, x_axis=x_axis, y_axis=y_axis, title=title, file_name=file_name)
 
 def plot_prods_comparison(folder_name: str, x_axis: str = 'Generations', extra: str = 'productions', y_axis: str = 'Fitness', title: str = 'Production comparison', file_name = None, take_out_prods: list = [ 'str', 'float', 'int' ], keep_in_prods: list | None = None):
     '''
