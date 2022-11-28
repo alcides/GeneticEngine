@@ -143,10 +143,8 @@ def evolve(
 
     minimizelist = [True for _ in data.values.tolist()]
 
-    def single_criteria_test(n: Number) -> float:
-        assert isinstance(n, Number)
-        fitnesses = fitness_function_lexicase(n)
-        return sum((m and -f or f) for (f, m) in zip(fitnesses, minimizelist))
+    def single_criteria_test(ind) -> float:
+        return sum((m and -f or f) for (f, m) in zip(ind.fitness, minimizelist))
 
     alg = SimpleGP(
         g,
