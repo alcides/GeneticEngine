@@ -387,7 +387,7 @@ class GP(Heuristics):
             n_not_ramped = int(self.population_size / 2)
             n_ramped = self.population_size - n_not_ramped 
             pop_ramped = [
-                create_ind_w_restrictions(self.max_depth, min_init=self.min_init_depth, max_init=max((i % self.max_init_depth) + 1, self.grammar.get_min_tree_depth()))
+                create_ind_w_restrictions(self.max_depth, min_init=self.min_init_depth, max_init=max((i % self.max_init_depth) + 1, self.grammar.get_min_tree_depth(), self.min_init_depth))
                 for i in range(n_ramped)
             ]
             pop_not_ramped = [
