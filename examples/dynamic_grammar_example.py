@@ -3,6 +3,7 @@ from __future__ import annotations
 from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
+from geneticengine.grammars.dynamic_grammar import edit_distance
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.problems import SingleObjectiveProblem
 
@@ -12,33 +13,28 @@ from geneticengine.core.representations.tree.treebased import treebased_represen
 from geneticengine.grammars.dynamic_grammar import create_grammar_nodes
 from geneticengine.metahandlers.ints import IntRange
 
-
-list = create_grammar_nodes(
+(list, starting_node) = create_grammar_nodes(
     123,
     n_class_abc=2,
     n_class_0_children=3,
     n_class_2_children=3,
 )
 
-for i in range(len(list)):
-    print(list[i])
-    print(list[i].mro())
-    print("------------------")
-
-g = extract_grammar(list[2:], list[1])
+print(list)
+print()
+g = extract_grammar(list, starting_node)
 print(g)
+ 
 
-# abc_1 -> terminal_1()
-# abc_1 -> non_terminal_2(x: terminal_0)
-# abc_0 -> terminal_2()
-# abc_0 -> non_terminal_0(x: terminal_1)
-# abc_0 -> non_terminal_1(x: terminal_1)
-# abc_0 -> terminal_0()
+# TODO: nodes with the same name length
 
+
+#target_individual = generateIndividual(depth= 10)
 
 def fitness_function(n):
+    
+    #return edit_distance(str(n), str(target_individual))
     return 0
-
 
 def evolve(g, seed, mode):
     alg = GP(
