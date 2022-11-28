@@ -6,6 +6,7 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from dataclasses import make_dataclass
 from math import isnan
+import string
 from typing import Annotated
 from typing import Any
 from typing import Callable
@@ -21,6 +22,8 @@ from geneticengine.grammars.sgp import Number
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.vars import VarRange
 
+#TODO: add more types for the grammar terminals
+primitive_types= [int, float]
 
 # type (object, bases, dict)
 def create_dataclass_dynamically(
@@ -29,18 +32,13 @@ def create_dataclass_dynamically(
     annotations: dict[str, Any] = {},
     parent_class: object = ABC,
 ) -> type:
-    def init(self, *x, **y):
-        pass
-
-    args["__init__"] = init
     new_data_class = type(name, (parent_class,), args)
-
+    
     if annotations:
-        assert hasattr(new_data_class.__init__, "__annotations__")
         for key in annotations:
-            new_data_class.__init__.__annotations__[key] = annotations[key]
+            new_data_class.__annotations__[key] = annotations[key]
 
-    return new_data_class
+    return dataclass(new_data_class)
 
 
 def create_grammar_nodes(
@@ -50,8 +48,9 @@ def create_grammar_nodes(
     n_class_2_children: int,
     min_depth: int = 0,
     recursion_p=0,
-) -> list[type]:
-    # how to choose the parent class??? randomly???
+) -> tuple[list[type], type]:
+    
+    # TODO making sure that the generated classes have the same name length 
     nodes = []
     abc_classes = create_nodes_list_aux(seed, "abc_", n_class_abc)
 
@@ -70,9 +69,13 @@ def create_grammar_nodes(
         terminals=children0_classes,
     )
 
-    nodes = abc_classes + children0_classes + children2_classes
-
-    return nodes
+    nodes =  children0_classes + children2_classes
+    
+    random_source = RandomSource(seed)
+    rand_idx_abc = random_source.randint(0, len(abc_classes) - 1)
+    random_starting_node = abc_classes[rand_idx_abc]
+    
+    return (nodes, random_starting_node)
 
 
 def create_nodes_list_aux(
@@ -84,25 +87,22 @@ def create_nodes_list_aux(
 ) -> list[type]:
     return_list = []
     random_source = RandomSource(seed)
+    
     for i in range(size):
+        
         if not parent_list:
             node = abstract(create_dataclass_dynamically(name + str(i)))
         else:
             rand_idx_abc = random_source.randint(0, len(parent_list) - 1)
             random_parent = parent_list[rand_idx_abc]
-            annotation = {}
-
-            if terminals:
-                rand_idx_terminals = random_source.randint(0, len(terminals) - 1)
-                random_terminal = terminals[rand_idx_terminals]
-                annotation["x"] = random_terminal
-            else:
-                annotation["x"] = int
+            
+            annotations_aux = create_random_annotations(
+                random_source, terminals)
 
             node = create_dataclass_dynamically(
                 name=name + str(i),
                 parent_class=random_parent,
-                annotations=annotation,
+                annotations=annotations_aux,
             )
 
         return_list.append(node)
@@ -110,42 +110,43 @@ def create_nodes_list_aux(
     return return_list
 
 
-def create_grammar_dynamically(
-    seed: int,
-    class_abc: list[object],
-    class_0_children: list[object],
-    class_2_children: list[object],
-    min_depth: int,
-    recursion_p,
-) -> Grammar:
+def create_random_annotations (
+    random_source : RandomSource,
+    terminals: list ,
+)-> dict[str, type]:
+    annotations= {}
+    var_letters = list(string.ascii_lowercase)
+    
+    #I tried it with 10 random annotations, but the grammar was getting too long
+    for i in range(random_source.randint(1, 6)):
+        if terminals:
+            rand_idx_terminals = random_source.randint(0, len(terminals) - 1)
+            random_terminal = terminals[rand_idx_terminals]
+            annotations[var_letters[i]] = random_terminal
+            
+        else:
+            rand_idx_types = random_source.randint(0, len(primitive_types) - 1)
+            random_type = primitive_types[rand_idx_types]
+            annotations[var_letters[i]] = random_type
+            
+    return annotations
 
-    random_source = RandomSource(seed)
-    rand_idx_abc = random_source.randint(0, len(class_abc))
-    starting_symbol = class_abc[rand_idx_abc]
 
-    if isinstance(starting_symbol, tuple):
-        starting_symbol = create_dataclass_dynamically(
-            starting_symbol[0],
-            starting_symbol[1],
-            starting_symbol[2],
-            starting_symbol[3],
-        )
+def edit_distance(string1, string2):
 
-    children_classes = class_0_children + class_2_children
+    if len(string1) > len(string2):
+        difference = len(string1) - len(string2)
+        string1[:difference]
 
-    children_classes.append(c for c in class_abc if c is not starting_symbol)
+    elif len(string2) > len(string1):
+        difference = len(string2) - len(string1)
+        string2[:difference]
 
-    considered_subtypes = []
-    for c in children_classes:
-        if isinstance(c, type):
-            considered_subtypes.append(c)
-        elif isinstance(c, tuple):
-            c_aux = create_dataclass_dynamically(c[0], c[1], c[2], c[3])
-            considered_subtypes.append(c_aux)
+    else:
+        difference = 0
 
-    assert isinstance(starting_symbol, type)
-    assert isinstance(children_classes, list)
-    return extract_grammar(
-        children_classes,
-        starting_symbol,
-    )
+    for i in range(len(string1)):
+        if string1[i] != string2[i]:
+            difference += 1
+
+    return difference
