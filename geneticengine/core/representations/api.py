@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-from typing import Any
 from typing import Generic
 from typing import TypeVar
 
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import Source
-from geneticengine.core.tree import TreeNode
 
 g = TypeVar("g")
 p = TypeVar("p")
@@ -19,8 +17,8 @@ class Representation(Generic[g, p]):
 
     def __init__(self, grammar: Grammar, max_depth: int):
         self.grammar = grammar
-        self.min_depth = self.grammar.distanceToTerminal[self.grammar.starting_symbol]
-        self.max_depth = max_depth
+        self.min_depth = self.grammar.get_min_tree_depth()
+        self.max_depth = min(max_depth, self.grammar.get_max_node_depth())
         assert self.min_depth <= self.max_depth
 
     def create_individual(self, r: Source, depth: int | None = None, **kwargs) -> g:

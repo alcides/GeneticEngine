@@ -3,9 +3,7 @@ from __future__ import annotations
 from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
-from typing import List
 
-from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.problems import SingleObjectiveProblem
@@ -58,6 +56,6 @@ class TestRamped:
             r,
             2,
         )
-
+        print([i.genotype for i in pop])
         depths = list(map(lambda x: x.genotype.gengy_distance_to_term, pop))
         assert depths[0] != depths[-1]
