@@ -88,7 +88,7 @@ class CSVCallback(Callback):
                 if gp.problem.best_individual_criteria_function:
                     fitness = gp.problem.best_individual_criteria_function(ind)
                 else:
-                    fitness = sum(ind.fitness)/len(ind.fitness)
+                    fitness = sum(ind.fitness)/len(ind.fitness) # type: ignore
             row = [
                 fitness,
                 depth,
