@@ -87,8 +87,6 @@ class CSVCallback(Callback):
             if isinstance(gp.problem, MultiObjectiveProblem):
                 if gp.problem.best_individual_criteria_function:
                     fitness = gp.problem.best_individual_criteria_function(ind)
-                else:
-                    fitness = sum(ind.fitness)/len(ind.fitness) # type: ignore
             row = [
                 fitness,
                 depth,
