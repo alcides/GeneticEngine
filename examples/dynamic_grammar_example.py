@@ -1,18 +1,11 @@
 from __future__ import annotations
 
-from abc import ABC
-from dataclasses import dataclass
-from typing import Annotated
 from geneticengine.grammars.dynamic_grammar import edit_distance
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.problems import SingleObjectiveProblem
-
-
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.representations.tree.treebased import treebased_representation
 from geneticengine.grammars.dynamic_grammar import create_grammar_nodes
-from geneticengine.metahandlers.ints import IntRange
-
 from geneticengine.core.random.sources import RandomSource
 
 seed = 123
@@ -23,17 +16,14 @@ seed = 123
     n_class_2_children=3,
 )
 
-print(list)
-print()
 g = extract_grammar(list, starting_node)
 print(g)
 
 r = RandomSource(seed)
 
 representation = treebased_representation
-target_individual = representation.create_individual(r, g, depth= 10)
+target_individual = representation.create_individual(r, g, depth=10)
 individual_phenotype = representation.genotype_to_phenotype(g, target_individual)
-
 
 def fitness_function(n):
     return edit_distance(str(n), str(individual_phenotype))
@@ -55,7 +45,6 @@ def evolve(g, seed, mode):
     )
     (b, bf, bp) = alg.evolve()
     return b, bf
-
 
 if __name__ == "__main__":
     bf, b = evolve(g, 0, False)
