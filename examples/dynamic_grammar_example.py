@@ -13,8 +13,11 @@ from geneticengine.core.representations.tree.treebased import treebased_represen
 from geneticengine.grammars.dynamic_grammar import create_grammar_nodes
 from geneticengine.metahandlers.ints import IntRange
 
+from geneticengine.core.random.sources import RandomSource
+
+seed = 123
 (list, starting_node) = create_grammar_nodes(
-    123,
+    seed,
     n_class_abc=2,
     n_class_0_children=3,
     n_class_2_children=3,
@@ -24,17 +27,17 @@ print(list)
 print()
 g = extract_grammar(list, starting_node)
 print(g)
- 
 
-# TODO: nodes with the same name length
+r = RandomSource(seed)
 
+representation = treebased_representation
+target_individual = representation.create_individual(r, g, depth= 10)
+individual_phenotype = representation.genotype_to_phenotype(g, target_individual)
 
-#target_individual = generateIndividual(depth= 10)
 
 def fitness_function(n):
-    
-    #return edit_distance(str(n), str(target_individual))
-    return 0
+    return edit_distance(str(n), str(individual_phenotype))
+    #return 0
 
 def evolve(g, seed, mode):
     alg = GP(
@@ -45,8 +48,8 @@ def evolve(g, seed, mode):
             minimize=True,
             target_fitness=0,
         ),
-        population_size=20,
-        number_of_generations=5,
+        population_size=50,
+        number_of_generations=50,
         timer_stop_criteria=mode,
         seed=seed,
     )
