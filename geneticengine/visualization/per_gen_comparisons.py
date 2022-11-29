@@ -79,14 +79,17 @@ def plot_nodes_comparison(folder_names: list, labels: list, labels_name: str = '
     '''
     plot_comparison(folder_names=folder_names, labels=labels, labels_name=labels_name, x_axis=x_axis, y_axis=y_axis, title=title, file_name=file_name)
 
-def plot_prods_comparison(folder_name: str, x_axis: str = 'Generations', extra: str = 'productions', y_axis: str = 'Fitness', title: str = 'Production comparison', file_name = None, take_out_prods: list = [ 'str', 'float', 'int' ], keep_in_prods: list | None = None):
+def plot_prods_comparison(folder_name: str, x_axis: str = 'Generations', extra: str = 'productions', y_axis: str = 'Fitness', title: str = 'Production comparison', file_name = None, take_out_prods: list = [ 'str', 'float', 'int' ], keep_in_prods: list | None = None, normalized_on_nodes: bool = False):
     '''
         Plots a figure with lines for each production (average with shades for std) in the grammar (you can use take_out_prods and keep_in_prods to take out and keep in prods). Only a single folder can be given.
     '''
     
     all_data = list()
     
-    data = load_w_extra(folder_name, x_axis, y_axis, extra)
+    extra_cols = [extra]
+    if normalized_on_nodes:
+        extra_cols = [extra, 'Nodes']
+    data = load_w_extra(folder_name, x_axis, y_axis, extra_cols)
     prods = data[[extra]].values[0][0].split('<class \'')[1:]
     prods = list(map(lambda x: x.split('\'>:')[0], prods))
     prods = list(map(lambda x: x.split('.')[-1], prods))
@@ -104,6 +107,8 @@ def plot_prods_comparison(folder_name: str, x_axis: str = 'Generations', extra: 
     for prod in prods:
         new_data = data.copy(deep=True)
         new_data['Occurences'] = data[['productions']].squeeze().map(lambda x: obtain_value(x, prod))
+        if normalized_on_nodes:
+            new_data['Occurences'] = new_data['Occurences'] / new_data['Nodes']
         new_data['Production'] = prod
         all_data.append(new_data[[x_axis, 'Occurences', 'Production']])
     

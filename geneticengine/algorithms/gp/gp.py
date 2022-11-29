@@ -366,24 +366,39 @@ class GP(Heuristics):
         )
 
     def init_population(self, ramped_half_and_half):
-        self.representation.method.min_depth = self.min_init_depth
+        
+        def create_ind_w_restrictions(max_depth, min_init, max_init):
+            def check_depths(ind: Individual):
+                phenotype = self.representation.genotype_to_phenotype(self.grammar, ind.genotype)
+                conforms_min_depth = True if not min_init else (phenotype.gengy_distance_to_term >= min_init)
+                conforms_max_depth = True if not max_init else (phenotype.gengy_distance_to_term <= max_init)
+                return conforms_min_depth and conforms_max_depth
+            
+            conforms_depth = False
+            while not conforms_depth:
+                self.representation.method.min_depth = self.min_init_depth
+                ind = self.create_individual(max_init)
+                self.representation.method.min_depth = self.min_depth # Used for genotype-to-phenotype mapping
+                self.representation.depth = self.max_depth # Used for genotype-to-phenotype mapping
+                conforms_depth = check_depths(ind)
+            return ind
         
         if ramped_half_and_half:
             n_not_ramped = int(self.population_size / 2)
             n_ramped = self.population_size - n_not_ramped 
             pop_ramped = [
-                self.create_individual(max((i % self.max_init_depth) + 1, self.grammar.get_min_tree_depth()))
+                create_ind_w_restrictions(self.max_depth, min_init=self.min_init_depth, max_init=max((i % self.max_init_depth) + 1, self.grammar.get_min_tree_depth(), (0 if not self.min_init_depth else self.min_init_depth)))
                 for i in range(n_ramped)
             ]
             pop_not_ramped = [
-                self.create_individual(self.max_init_depth)
+                create_ind_w_restrictions(self.max_depth, min_init=self.min_init_depth, max_init=self.max_init_depth)
                 for _ in range(n_not_ramped)
             ]
                 
             pop = pop_ramped + pop_not_ramped
         else:
             pop = [
-                self.create_individual(self.max_init_depth)
+                create_ind_w_restrictions(self.max_depth, min_init=self.min_init_depth, max_init=self.max_init_depth)
                 for _ in range(self.population_size)
             ]
         

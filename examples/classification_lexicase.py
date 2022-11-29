@@ -10,6 +10,7 @@ from typing import Callable
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from geneticengine.algorithms.callbacks.csv_callback import CSVCallback
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.decorators import abstract
@@ -182,6 +183,13 @@ def fitness_function_lexicase(n: Number):
         """If n does not use variables, the output will be scalar."""
         y_pred = np.full(len(y), y_pred)
 
+    def classify(pred):
+        if pred > 0:
+            return 1
+        else:
+            return -1
+    y_pred = [classify(p) for p in y_pred]
+
     return [int(p == r) for (p, r) in zip(y, y_pred)]
 
 
@@ -200,8 +208,8 @@ def evolve(
 
     minimizelist = [False for _ in data.values.tolist()]
 
-    def single_criteria_test(n: Number) -> float:
-        return sum((m and -f or f) for (f, m) in zip(n.fitness, minimizelist))
+    def single_criteria_test(n) -> float:
+        return sum((m and -f or f) for (f, m) in zip(n.fitness, minimizelist))/len(n.fitness)
 
     alg = GP(
         g,
@@ -220,6 +228,7 @@ def evolve(
         n_elites=5,
         seed=seed,
         timer_stop_criteria=mode,
+        # save_to_csv=CSVCallback(save_productions=True),
     )
     (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf

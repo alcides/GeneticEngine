@@ -36,7 +36,9 @@ class ProgressCallback(Callback):
 
         elif isinstance(gp.problem, MultiObjectiveProblem):
             fitness = [round(fitness, 4) for fitness in gp.evaluate(best_individual)]
-            if len(fitness) > 10:
+            if gp.problem.best_individual_criteria_function:
+                fitness = gp.problem.best_individual_criteria_function(best_individual)
+            elif len(fitness) > 10:
                 fitness = round(average_fitness(best_individual), 4)
 
         print(
@@ -48,11 +50,16 @@ class PrintBestCallback(Callback):
     """Prints the number of the generation"""
 
     def process_iteration(self, generation: int, population, time: float, gp):
+        
+        best_individual = gp.get_best_individual(gp.problem, population)
+
         if isinstance(gp.problem, SingleObjectiveProblem):
-            fitness = round(gp.evaluate(population[0]), 4)
+            fitness = round(gp.evaluate(best_individual), 4)
         elif isinstance(gp.problem, MultiObjectiveProblem):
-            fitness = [round(fitness, 4) for fitness in gp.evaluate(population[0])]
-            if len(fitness) > 10:
+            fitness = [round(fitness, 4) for fitness in gp.evaluate(best_individual)]
+            if gp.problem.best_individual_criteria_function:
+                fitness = gp.problem.best_individual_criteria_function(best_individual)
+            elif len(fitness) > 10:
                 fitness = sum(fitness) / len(fitness)
 
         if not gp.timer_stop_criteria:
