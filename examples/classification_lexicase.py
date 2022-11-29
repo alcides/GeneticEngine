@@ -10,6 +10,7 @@ from typing import Callable
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from geneticengine.algorithms.callbacks.csv_callback import CSVCallback
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.decorators import abstract
@@ -208,7 +209,7 @@ def evolve(
     minimizelist = [False for _ in data.values.tolist()]
 
     def single_criteria_test(n) -> float:
-        return sum((m and -f or f) for (f, m) in zip(n.fitness, minimizelist))
+        return sum((m and -f or f) for (f, m) in zip(n.fitness, minimizelist))/len(n.fitness)
 
     alg = GP(
         g,
@@ -227,6 +228,7 @@ def evolve(
         n_elites=5,
         seed=seed,
         timer_stop_criteria=mode,
+        # save_to_csv=CSVCallback(save_productions=True),
     )
     (b, bf, bp) = alg.evolve(verbose=1)
     return b, bf

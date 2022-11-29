@@ -6,6 +6,7 @@ from typing import Optional
 
 from geneticengine.algorithms.callbacks.callback import Callback
 from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.core.problems import MultiObjectiveProblem
 
 
 class CSVCallback(Callback):
@@ -82,8 +83,14 @@ class CSVCallback(Callback):
                 nodes = phenotype.gengy_nodes
             else:
                 nodes = -1
+            fitness = ind.fitness
+            if isinstance(gp.problem, MultiObjectiveProblem):
+                if gp.problem.best_individual_criteria_function:
+                    fitness = gp.problem.best_individual_criteria_function(ind)
+                else:
+                    fitness = sum(ind.fitness)/len(ind.fitness)
             row = [
-                ind.fitness,
+                fitness,
                 depth,
                 nodes,
                 generation,
