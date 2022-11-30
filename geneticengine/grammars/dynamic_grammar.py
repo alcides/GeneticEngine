@@ -3,29 +3,13 @@ from __future__ import annotations
 from abc import ABC
 from dataclasses import dataclass
 import string
+from typing import Any
 
 from geneticengine.core.decorators import abstract
 from geneticengine.core.random.sources import RandomSource
 
-
 #TODO: add more types for the grammar terminals
 primitive_types= [int, float]
-
-# type (object, bases, dict)
-def create_dataclass_dynamically(
-    name: str,
-    args: dict[str, Any] = {},
-    annotations: dict[str, Any] = {},
-    parent_class: object = ABC,
-) -> type:
-    new_data_class = type(name, (parent_class,), args)
-    
-    if annotations:
-        for key in annotations:
-            new_data_class.__annotations__[key] = annotations[key]
-
-    return dataclass(new_data_class)
-
 
 def create_grammar_nodes(
     seed: int,
@@ -67,6 +51,22 @@ def create_grammar_nodes(
     return (nodes, random_starting_node)
 
 
+# type (object, bases, dict)
+def create_dataclass_dynamically(
+    name: str,
+    args: dict[str, Any] = {},
+    annotations: dict[str, Any] = {},
+    parent_class: object = ABC,
+) -> type:
+    new_data_class = type(name, (parent_class,), args)
+
+    if annotations:
+        for key in annotations:
+            new_data_class.__annotations__[key] = annotations[key]
+
+    return dataclass(new_data_class)
+
+
 def create_nodes_list_aux(
     random_source: RandomSource,
     name: str,
@@ -79,7 +79,7 @@ def create_nodes_list_aux(
     
     for i in range(size):
         
-        name_class = (name + str(i)).ljust(name_length, '0')
+        name_class = (name + str(i)).ljust(name_length, 'x')
         
         if not parent_list:
             node = abstract(create_dataclass_dynamically(name_class))
@@ -109,13 +109,8 @@ def create_random_annotations (
     var_letters = list(string.ascii_lowercase)
     
     for i in range(random_source.randint(1, n_annotations)):
-        if terminals:
-            random_terminal = random_node_from_list(random_source, terminals)
-            annotations[var_letters[i]] = random_terminal
-            
-        else:
-            random_type = random_node_from_list(random_source, primitive_types)
-            annotations[var_letters[i]] = random_type
+        random_terminal = random_node_from_list(random_source, terminals if terminals else primitive_types)
+        annotations[var_letters[i]] = random_terminal
             
     return annotations
 
