@@ -38,7 +38,7 @@ def evolve(g, seed, mode):
             minimize=True,
             target_fitness=0,
         ),
-        population_size=50,
+        population_size=100,
         number_of_generations=50,
         timer_stop_criteria=mode,
         seed=seed,
@@ -47,6 +47,6 @@ def evolve(g, seed, mode):
     return b, bf
 
 if __name__ == "__main__":
-    bf, b = evolve(g, 0, False)
+    bf, b = evolve(g, 1123, False)
     print(b)
     print(f"With fitness: {bf}")

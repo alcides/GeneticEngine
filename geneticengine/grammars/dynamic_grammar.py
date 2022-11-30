@@ -35,6 +35,7 @@ def create_grammar_nodes(
     min_depth: int = 0,
     recursion_p=0,
 ) -> tuple[list[type], type]:
+    random_source = RandomSource(seed)
     
     max_digit = max([str(n_class_abc), str(n_class_0_children), str(n_class_2_children)], key= len)
     max_class_name_length= 10 + int(max_digit)
@@ -43,7 +44,7 @@ def create_grammar_nodes(
     abc_classes = create_nodes_list_aux(seed, "class_abc_", max_class_name_length, n_class_abc)
 
     children0_classes = create_nodes_list_aux(
-        seed,
+        random_source,
         "tterminal_",
         max_class_name_length,
         n_class_0_children,
@@ -51,7 +52,7 @@ def create_grammar_nodes(
     )
 
     children2_classes = create_nodes_list_aux(
-        seed,
+        random_source,
         "nterminal_",
         max_class_name_length,
         n_class_2_children,
@@ -61,15 +62,13 @@ def create_grammar_nodes(
 
     nodes =  children0_classes + children2_classes
     
-    random_source = RandomSource(seed)
-    rand_idx_abc = random_source.randint(0, len(abc_classes) - 1)
-    random_starting_node = abc_classes[rand_idx_abc]
+    random_starting_node = random_node_from_list(random_source, abc_classes)
     
     return (nodes, random_starting_node)
 
 
 def create_nodes_list_aux(
-    seed: int,
+    random_source: RandomSource,
     name: str,
     name_length: int,
     size: int,
@@ -77,7 +76,6 @@ def create_nodes_list_aux(
     terminals: list = [],
 ) -> list[type]:
     return_list = []
-    random_source = RandomSource(seed)
     
     for i in range(size):
         
@@ -85,17 +83,16 @@ def create_nodes_list_aux(
         
         if not parent_list:
             node = abstract(create_dataclass_dynamically(name_class))
-        else:
-            rand_idx_abc = random_source.randint(0, len(parent_list) - 1)
-            random_parent = parent_list[rand_idx_abc]
+        else: 
+            random_parent= random_node_from_list(random_source, parent_list)
             
-            annotations_aux = create_random_annotations(
-                random_source, terminals, 10)
+            random_annotations = create_random_annotations(
+                random_source, terminals, 8)
             
             node = create_dataclass_dynamically(
                 name=name_class,
                 parent_class=random_parent,
-                annotations=annotations_aux,
+                annotations=random_annotations,
             )
 
         return_list.append(node)
@@ -113,16 +110,19 @@ def create_random_annotations (
     
     for i in range(random_source.randint(1, n_annotations)):
         if terminals:
-            rand_idx_terminals = random_source.randint(0, len(terminals) - 1)
-            random_terminal = terminals[rand_idx_terminals]
+            random_terminal = random_node_from_list(random_source, terminals)
             annotations[var_letters[i]] = random_terminal
             
         else:
-            rand_idx_types = random_source.randint(0, len(primitive_types) - 1)
-            random_type = primitive_types[rand_idx_types]
+            random_type = random_node_from_list(random_source, primitive_types)
             annotations[var_letters[i]] = random_type
             
     return annotations
+
+
+def random_node_from_list(random_source: RandomSource, node_list: list) -> type:
+    rand_idx = random_source.randint(0, len(node_list) - 1)
+    return node_list[rand_idx]
 
 
 def edit_distance(string1: str, string2: str) -> int:
