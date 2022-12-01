@@ -16,8 +16,7 @@ def create_grammar_nodes(
     n_class_abc: int,
     n_class_0_children: int,
     n_class_2_children: int,
-    min_depth: int = 0,
-    recursion_p=0,
+    max_var_per_class: int = 5,
 ) -> tuple[list[type], type]:
     random_source = RandomSource(seed)
     
@@ -32,6 +31,7 @@ def create_grammar_nodes(
         "tterminal_",
         max_class_name_length,
         n_class_0_children,
+        max_vars=max_var_per_class,
         parent_list=abc_classes,
     )
 
@@ -40,6 +40,7 @@ def create_grammar_nodes(
         "nterminal_",
         max_class_name_length,
         n_class_2_children,
+        max_vars= max_var_per_class,
         parent_list=abc_classes,
         terminals=children0_classes,
     )
@@ -72,8 +73,10 @@ def create_nodes_list_aux(
     name: str,
     name_length: int,
     size: int,
+    max_vars: int= 5,
     parent_list: list = [],
     terminals: list = [],
+    
 ) -> list[type]:
     return_list = []
     
@@ -87,7 +90,7 @@ def create_nodes_list_aux(
             random_parent= random_node_from_list(random_source, parent_list)
             
             random_annotations = create_random_annotations(
-                random_source, terminals, 8)
+                random_source, terminals, max_vars)
             
             node = create_dataclass_dynamically(
                 name=name_class,
