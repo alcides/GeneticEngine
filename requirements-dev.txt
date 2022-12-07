@@ -1,6 +1,7 @@
 black
 docformatter
 mypy==0.991
+myst_parser
 pre-commit
 pycln
 sphinx
