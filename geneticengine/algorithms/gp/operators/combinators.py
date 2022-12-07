@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-from operator import concat
-from typing import Union
-
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.core.problems import Problem
@@ -32,7 +29,6 @@ class SequenceStep(GeneticStep):
                 population,
                 target_size,
             )
-            print(len(population), "pop", target_size, step)
             assert isinstance(population, list)
             assert len(population) == target_size
         return population

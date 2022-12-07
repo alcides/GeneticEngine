@@ -3,8 +3,6 @@ from __future__ import annotations
 import random
 from abc import ABC
 from itertools import accumulate
-from typing import Any
-from typing import List
 from typing import TypeVar
 
 from geneticengine.core.representations.tree.utils import GengyList
@@ -42,7 +40,6 @@ class Source(ABC):
         for (choice, acc) in zip(choices, acc_weights):
             if rand_value < acc:
                 return choice
-        print("hello")
         return choices[0]
 
     def shuffle(self, l: list[T]):

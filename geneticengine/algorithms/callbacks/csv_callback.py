@@ -3,7 +3,6 @@ from __future__ import annotations
 import csv
 from typing import Any
 from typing import Callable
-from typing import Optional
 
 from geneticengine.algorithms.callbacks.callback import Callback
 from geneticengine.algorithms.gp.individual import Individual
@@ -46,7 +45,7 @@ class CSVCallback(Callback):
             "Execution Time",
             "Seed",
         ]
-        for name, _ in self.extra_columns:
+        for name in self.extra_columns:
             row.append(name)
         self.writer.writerow(row)
 

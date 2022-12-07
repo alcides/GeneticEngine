@@ -3,6 +3,7 @@ from __future__ import annotations
 from geneticengine.algorithms.callbacks.callback import Callback
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.analysis.production_analysis import production_probabilities
 
 
 class PGECallback(Callback):
@@ -20,9 +21,7 @@ class PGECallback(Callback):
         gp: GP,
     ):
         best = gp.get_best_individual(gp.problem, population)
-        prob = best.production_probabilities(
-            gp.representation.genotype_to_phenotype, gp.representation.grammar
-        )
+        prob = production_probabilities(best, gp.representation.grammar)
         gp.representation.grammar = gp.representation.grammar.update_weights(
             self.learning_rate,
             prob,

@@ -3,12 +3,25 @@ from __future__ import annotations
 from abc import ABC
 from dataclasses import dataclass
 from typing import Callable
-from typing import Optional
+from typing import Generic
 from typing import TypeVar
 from typing import Union
 
+
 FitnessType = Union[float, list[float]]
 P = TypeVar("P")
+
+
+SingleObjectiveCallable = Callable[[P], float]
+MultiObjectiveCallable = Callable[[P], list[float]]
+
+
+class SingleObjectiveWrapper(Generic[P]):
+    def __init__(self, fun: Callable[[P], float]):
+        self.fun = fun
+
+    def __call__(self, *args, **kwargs):
+        return self.fun(*args, **kwargs)
 
 
 class Problem(ABC):
@@ -21,7 +34,7 @@ class Problem(ABC):
     """
 
     minimize: bool | list[bool]
-    fitness_function: Callable[[P], float] | Callable[[P], list[float]]
+    fitness_function: SingleObjectiveCallable | MultiObjectiveCallable
 
     def evaluate(self, phenotype: P) -> FitnessType:
         ...
@@ -48,12 +61,12 @@ class SingleObjectiveProblem(Problem):
     """
 
     minimize: bool
-    fitness_function: Callable[[P], float]
+    fitness_function: SingleObjectiveCallable
     target_fitness: float | None
 
     def __init__(
         self,
-        fitness_function: Callable[[P], float],
+        fitness_function: SingleObjectiveCallable,
         minimize: bool = False,
         target_fitness: float | None = None,
     ):
@@ -62,7 +75,8 @@ class SingleObjectiveProblem(Problem):
         self.target_fitness = target_fitness
 
     def evaluate(self, phenotype: P) -> float:
-        return float(self.fitness_function(phenotype))
+        c: SingleObjectiveCallable = self.fitness_function
+        return float(c(phenotype))
 
     def overall_fitness(self, phenotype: P) -> float:
         if self.minimize:
@@ -91,8 +105,8 @@ class MultiObjectiveProblem(Problem):
     """
 
     minimize: list[bool]
-    fitness_function: Callable[[P], list[float]]
-    best_individual_criteria_function: Callable[[P], float] | None = None
+    fitness_function: MultiObjectiveCallable
+    best_individual_criteria_function: SingleObjectiveCallable | None = None
 
     def number_of_objectives(self):
         return len(self.minimize)
@@ -102,10 +116,7 @@ class MultiObjectiveProblem(Problem):
 
     def overall_fitness(self, phenotype: P) -> float:
         if self.best_individual_criteria_function is None:
-            return sum(
-                m and -fit or +fit
-                for (fit, m) in zip(self.evaluate(phenotype), self.minimize)
-            )
+            return sum(m and -fit or +fit for (fit, m) in zip(self.evaluate(phenotype), self.minimize))
         else:
             return self.best_individual_criteria_function(phenotype)
 

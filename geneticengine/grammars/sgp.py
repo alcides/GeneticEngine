@@ -9,9 +9,7 @@ from geneticengine.metahandlers.vars import VarRange
 
 
 class Number(ABC):
-    """
-    Standard Number object.
-    """
+    """Standard Number object."""
 
     def evaluate(self, **kwargs):
         return 0.0
@@ -19,8 +17,7 @@ class Number(ABC):
 
 @dataclass
 class Plus(Number):
-    """
-    Standard Plus object.
+    """Standard Plus object.
 
     Args:
         left  (Number)
@@ -42,8 +39,7 @@ class Plus(Number):
 
 @dataclass
 class Minus(Number):
-    """
-    Standard Minus object.
+    """Standard Minus object.
 
     Args:
         left  (Number)
@@ -65,8 +61,7 @@ class Minus(Number):
 
 @dataclass
 class Mul(Number):
-    """
-    Standard Multiplication object.
+    """Standard Multiplication object.
 
     Args:
         left  (Number)
@@ -88,8 +83,7 @@ class Mul(Number):
 
 @dataclass
 class Literal(Number):
-    """
-    Standard Literal object.
+    """Standard Literal object.
 
     Args:
         val  (Number)
@@ -109,8 +103,7 @@ class Literal(Number):
 
 @dataclass
 class Var(Number):
-    """
-    Standard Variable object. Used to introduce variables.
+    """Standard Variable object. Used to introduce variables.
 
     Args:
         name  (str)
@@ -126,3 +119,48 @@ class Var(Number):
 
     def __str__(self) -> str:
         return self.name
+
+
+def simplify(x: Number) -> Number:
+    if isinstance(x, Plus):
+        l = simplify(x.left)
+        r = simplify(x.right)
+        if isinstance(l, Literal) and isinstance(r, Literal):
+            return Literal(l.val + r.val)
+        elif isinstance(r, Literal):
+            l, r = r, l
+
+        if isinstance(l, Literal) and l.val == 0:
+            return r
+
+        if isinstance(l, Literal) and isinstance(r, Plus) and isinstance(r.left, Literal):
+            return simplify(Plus(Plus(l, r.left), r.right))
+
+        if isinstance(l, Plus):
+            return Plus(l.left, Plus(l.right, r))
+
+        return Plus(l, r)
+    elif isinstance(x, Mul):
+        l = simplify(x.left)
+        r = simplify(x.right)
+        if isinstance(l, Literal) and isinstance(r, Literal):
+            return Literal(l.val * r.val)
+        elif isinstance(r, Literal):
+            l, r = r, l
+
+        if isinstance(l, Literal) and l.val == 1:
+            return r
+
+        if isinstance(l, Literal) and l.val == 0:
+            return l
+
+        if isinstance(r, Mul) and isinstance(r.left, Literal):
+            return simplify(Mul(Mul(l, r.left), r.right))
+
+        if isinstance(l, Mul):
+            return Mul(l.left, Mul(l.right, r))
+
+        return Plus(l, r)
+
+    else:
+        return x
