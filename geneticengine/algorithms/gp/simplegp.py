@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import Any
 from typing import Callable
-from typing import Optional
 from typing import TypeVar
 
 from geneticengine.algorithms.callbacks.callback import Callback
@@ -12,7 +11,6 @@ from geneticengine.algorithms.callbacks.callback import ProgressCallback
 from geneticengine.algorithms.callbacks.csv_callback import CSVCallback
 from geneticengine.algorithms.callbacks.pge import PGECallback
 from geneticengine.algorithms.gp.gp import GP
-from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.algorithms.gp.operators.combinators import ExclusiveParallelStep
 from geneticengine.algorithms.gp.operators.combinators import ParallelStep
 from geneticengine.algorithms.gp.operators.combinators import SequenceStep
@@ -153,10 +151,7 @@ class SimpleGP(GP):
             grammar,
             max_depth,
         )
-        if (
-            representation_class != TreeBasedRepresentation
-            and initialization_method == "ramped"
-        ):
+        if representation_class != TreeBasedRepresentation and initialization_method == "ramped":
             initialization_method = "full"
 
         processed_problem: Problem = self.wrap_depth(
@@ -215,7 +210,6 @@ class SimpleGP(GP):
             [NoveltyStep(), ElitismStep(), step],
             [n_novelties, n_elites, population_size - n_novelties - n_elites],
         )
-        print(str(step))
 
         selection_step: GeneticStep
         if selection_method[0] == "tournament":
