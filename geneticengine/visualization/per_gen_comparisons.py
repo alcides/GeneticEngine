@@ -16,16 +16,25 @@ from geneticengine.visualization.utils import *
 matplotlib.rcParams["pdf.fonttype"] = 42
 matplotlib.rcParams["ps.fonttype"] = 42
 
-def plot_comparison(folder_names: list, labels: list, labels_name: str = 'Labels', x_axis: str = 'Generations', y_axis: str = 'Fitness', title: str = 'Fitness comparison', file_name = None):
+def plot_comparison(folder_names: list, labels: list, labels_name: str = 'Labels', x_axis: str = 'Generations', y_axis: str = 'Fitness', title: str = 'Fitness comparison', file_name = None, normalize_with_first_value = False):
     '''
         Plots a figure with lines for each folder (average with shades for std) with each folder from folder_names named with the corresponding labels_name.
     '''
     assert len(folder_names) == len(labels)
 
     all_data = list()
-
+    if normalize_with_first_value:
+        first_value = None
+    
     for idx, folder_name in enumerate(folder_names):
+
         data = load(folder_name, x_axis, y_axis)
+        if normalize_with_first_value:
+            if not first_value:
+                min_x_axis = min(data[x_axis].values)
+                first_values = data[data[x_axis] == min_x_axis][y_axis].values
+                first_value = sum(first_values)/len(first_values)
+            data[y_axis] = data[y_axis]/first_value
         data[labels_name] = labels[idx]
         all_data.append(data)
 
@@ -58,26 +67,26 @@ def plot_comparison(folder_names: list, labels: list, labels_name: str = 'Labels
     plt.savefig(file_name)
     print(f"Saved figure to {file_name}.")
     
-def plot_fitness_comparison(folder_names: list, labels: list, labels_name: str = 'Labels', x_axis: str = 'Generations', y_axis: str = 'Fitness', title: str = 'Fitness comparison', file_name = None):
+def plot_fitness_comparison(folder_names: list, labels: list, labels_name: str = 'Labels', x_axis: str = 'Generations', y_axis: str = 'Fitness', title: str = 'Fitness comparison', file_name = None, normalize_with_first_value = False):
     '''
         Plots a figure with lines for each folder (average with shades for std) with each folder from folder_names named with the corresponding labels_name.
         In this case, the fitness is plotted
     '''
-    plot_comparison(folder_names=folder_names, labels=labels, labels_name=labels_name, x_axis=x_axis, y_axis=y_axis, title=title, file_name=file_name)
+    plot_comparison(folder_names=folder_names, labels=labels, labels_name=labels_name, x_axis=x_axis, y_axis=y_axis, title=title, file_name=file_name, normalize_with_first_value=normalize_with_first_value)
     
-def plot_test_fitness_comparison(folder_names: list, labels: list, labels_name: str = 'Labels', x_axis: str = 'Generations', y_axis: str = 'Test fitness', title: str = 'Test fitness comparison', file_name = None):
+def plot_test_fitness_comparison(folder_names: list, labels: list, labels_name: str = 'Labels', x_axis: str = 'Generations', y_axis: str = 'Test fitness', title: str = 'Test fitness comparison', file_name = None, normalize_with_first_value = False):
     '''
         Plots a figure with lines for each folder (average with shades for std) with each folder from folder_names named with the corresponding labels_name.
         In this case, the test fitness is plotted
     '''
-    plot_comparison(folder_names=folder_names, labels=labels, labels_name=labels_name, x_axis=x_axis, y_axis=y_axis, title=title, file_name=file_name)
+    plot_comparison(folder_names=folder_names, labels=labels, labels_name=labels_name, x_axis=x_axis, y_axis=y_axis, title=title, file_name=file_name, normalize_with_first_value=normalize_with_first_value)
     
-def plot_nodes_comparison(folder_names: list, labels: list, labels_name: str = 'Labels', x_axis: str = 'Generations', y_axis: str = 'Nodes', title: str = 'Nodes comparison', file_name = None):
+def plot_nodes_comparison(folder_names: list, labels: list, labels_name: str = 'Labels', x_axis: str = 'Generations', y_axis: str = 'Nodes', title: str = 'Nodes comparison', file_name = None, normalize_with_first_value = False):
     '''
         Plots a figure with lines for each folder (average with shades for std) with each folder from folder_names named with the corresponding labels_name.
         In this case, the nodes are plotted
     '''
-    plot_comparison(folder_names=folder_names, labels=labels, labels_name=labels_name, x_axis=x_axis, y_axis=y_axis, title=title, file_name=file_name)
+    plot_comparison(folder_names=folder_names, labels=labels, labels_name=labels_name, x_axis=x_axis, y_axis=y_axis, title=title, file_name=file_name, normalize_with_first_value=normalize_with_first_value)
 
 def plot_prods_comparison(folder_name: str, x_axis: str = 'Generations', extra: str = 'productions', y_axis: str = 'Fitness', title: str = 'Production comparison', file_name = None, take_out_prods: list = [ 'str', 'float', 'int' ], keep_in_prods: list = None):
     '''
