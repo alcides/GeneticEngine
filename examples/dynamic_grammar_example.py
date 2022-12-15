@@ -1,4 +1,6 @@
 from __future__ import annotations
+import pandas as pd
+import numpy as np
 import random
 import sys
 
@@ -12,6 +14,9 @@ from geneticengine.core.random.sources import RandomSource
 
 from geneticengine.algorithms.callbacks.csv_callback import CSVCallback
 
+# $ python3 dynamic_grammar_example.py <number_abc_class> <number_terminal_class> <number_nterminal_class> <max_vars_per_class> <number_of_csv_files>
+# $ python3 dynamic_grammar_example.py 2 3 3 5 5
+# it will create 5 different csv files, with a grammar that contains 2 abstract classes, 3 terminal classes, 3 non-terminal classes, with a maximum of 5 attributes per class
 
 def create_dynamic_grammar(grammar_seed, n_class_abc, n_class_0_children, n_class_2_children, max_var_per_class):
     
@@ -60,6 +65,7 @@ if __name__ == "__main__":
         def fitness_function(n):
             return edit_distance(str(n), str(target_individual))
         
+        n_generations = 25;
         def evolve(g, seed, mode):
             alg = GP(
                 g,
@@ -70,7 +76,7 @@ if __name__ == "__main__":
                     target_fitness=0,
                 ),
                 population_size=100,
-                number_of_generations=25,
+                number_of_generations=n_generations,
                 timer_stop_criteria=mode,
                 seed=seed,
                 save_to_csv=CSVCallback(
@@ -82,3 +88,11 @@ if __name__ == "__main__":
         bf, b = evolve(g, 1123, False)
         print(b)
         print(f"With fitness: {bf}")
+        
+        df = pd.read_csv("dynamic_grammar_"+str(grammar_seed))
+        
+        df["abc_classes"] = np.full(n_generations,  int(args[0]))
+        df["terminal_classes"] = np.full(n_generations,  int(args[1]))
+        df["non_terminal_classes"] = np.full(n_generations,  int(args[2]))
+        
+        df.to_csv("dynamic_grammar_"+str(grammar_seed), index=False)
