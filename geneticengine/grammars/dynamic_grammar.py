@@ -24,7 +24,8 @@ def create_grammar_nodes(
     max_class_name_length= 10 + int(max_digit)
     
     nodes = []                                 
-    abc_classes = create_nodes_list_aux(seed, "class_abc_", max_class_name_length, n_class_abc)
+    abc_classes = create_nodes_list_aux(
+        random_source, "class_abc_", max_class_name_length, n_class_abc)
 
     children0_classes = create_nodes_list_aux(
         random_source,
@@ -57,7 +58,7 @@ def create_dataclass_dynamically(
     name: str,
     args: dict[str, Any] = {},
     annotations: dict[str, Any] = {},
-    parent_class: object = ABC,
+    parent_class: type = ABC,
 ) -> type:
     new_data_class = type(name, (parent_class,), args)
 
@@ -128,7 +129,7 @@ def edit_distance(string1: str, string2: str) -> int:
     if len(string1) > len(string2):
         string1, string2 = string2, string1
 
-    distances = range(len(string1) + 1)
+    distances = list(range(len(string1) + 1))
     for i2, c2 in enumerate(string2):
         distances_ = [i2+1]
         for i1, c1 in enumerate(string1):
