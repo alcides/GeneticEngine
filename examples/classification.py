@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass
 from math import isinf
 from typing import Annotated
@@ -10,7 +9,6 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 from geneticengine.algorithms.gp.simplegp import SimpleGP
-from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
@@ -81,6 +79,7 @@ X_train, X_test, y_train, y_test = train_test_split(
     data.values,
     target.values,
     test_size=0.75,
+    random_state=10,
 )
 
 
@@ -166,6 +165,6 @@ def evolve(
 if __name__ == "__main__":
     g = preprocess()
     print(g)
-    b, bf = evolve(g, 123, False)
+    b, bf = evolve(g, 1234, False)
     print(bf)
     print(f"With fitness: {b}")
