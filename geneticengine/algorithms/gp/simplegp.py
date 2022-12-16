@@ -206,11 +206,6 @@ class SimpleGP(GP):
             )
             step = SequenceStep(mutation_step, crossover_step)
 
-        step = ParallelStep(
-            [NoveltyStep(), ElitismStep(), step],
-            [n_novelties, n_elites, population_size - n_novelties - n_elites],
-        )
-
         selection_step: GeneticStep
         if selection_method[0] == "tournament":
             selection_step = TournamentSelection(selection_method[1])
@@ -228,6 +223,11 @@ class SimpleGP(GP):
             )
 
             sept = SequenceStep(ParallelEvaluationStep(), step)
+
+        step = ParallelStep(
+            [NoveltyStep(), ElitismStep(), step],
+            [n_novelties, n_elites, population_size - n_novelties - n_elites],
+        )
 
         stopping_criterium: StoppingCriterium
         if timer_stop_criteria:
