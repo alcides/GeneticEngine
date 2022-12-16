@@ -45,7 +45,7 @@ class SingleObjectiveProblem(Problem):
 
     minimize: bool
     fitness_function: Callable[[P], float]
-    target_fitness: float | None
+    target_fitness: float | None = None
 
     def evaluate(self, p: P) -> float:
         return float(self.fitness_function(p))

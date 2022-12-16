@@ -7,7 +7,7 @@ palettable
 pandas
 pytest
 seaborn
-sklearn
+scikit-learn
 sphinx
 sphinx-autoapi
 sphinx-rtd-theme
