@@ -18,6 +18,19 @@ def create_grammar_nodes(
     n_class_2_children: int,
     max_var_per_class: int = 5,
 ) -> tuple[list[type], type]:
+    """
+    Creates a list of data classes and a starting data class for a grammar.
+
+    Args:
+        seed (int): the seed for the random number generator.
+        n_class_abc (int): the number of abstract base classes to create.
+        n_class_0_children (int): the number of terminal classes to create.
+        n_class_2_children (int): the number of non-terminal classes to create.
+        max_var_per_class (int): the maximum number of variables that each data class can have. Default is 5.
+
+    Returns:
+        tuple[list[type], type]: a tuple containing a list of the new data classes and the starting data class for a grammar.
+    """
     random_source = RandomSource(seed)
     
     max_digit = max([str(n_class_abc), str(n_class_0_children), str(n_class_2_children)], key= len)
@@ -60,6 +73,18 @@ def create_dataclass_dynamically(
     annotations: dict[str, Any] = {},
     parent_class: type = ABC,
 ) -> type:
+    """
+    Dynamically creates a new data class with the given name and arguments.
+
+    Args:
+        name (str): the name of the new data class
+        args (dict[str, Any]): the attributes and values for the new data class. Default is an empty dictionary.
+        annotations (dict[str, Any]): the type annotations for the new data class. Default is an empty dictionary.
+        parent_class (type): the parent class for the new data class. Default is ABC (abstract base class).
+
+    Returns:
+        The new data class created
+    """
     new_data_class = type(name, (parent_class,), args)
 
     if annotations:
@@ -79,6 +104,21 @@ def create_nodes_list_aux(
     terminals: list = [],
     
 ) -> list[type]:
+    """
+    Creates a list of data classes with the given size, max variables, parent classes and annotations.
+
+    Args:
+        random_source (RandomSource):  an instance of the `RandomSource` class, which is used to generate random values.
+        name (str): the base name for the new data classes.
+        name_length (int): the desired length of the names of the new data classes.
+        size (int): the number of data classes to be created.
+        max_vars (int): the maximum number of variables that each data class can have. Default is 5.
+        parent_list (list): the list of parent classes for the new data classes. Default is an empty list.
+        terminals (list): the list of terminal symbols for the new data classes. Default is an empty list.
+
+    Returns:
+        a list of the new data classes.
+    """
     return_list = []
     
     for i in range(size):
@@ -109,7 +149,19 @@ def create_random_annotations (
     terminals: list ,
     n_annotations:int,
 )-> dict[str, type]:
-    annotations= {}
+    """
+    Create a dictionary of random annotations.
+    
+    Args:
+        random_source (RandomSource): an instance of the `RandomSource` class, which is used to generate a random integer.
+        terminals (list): a list of terminal nodes from which to select random nodes.
+        n_annotations (int): the maximum number of annotations to create.
+    
+    Returns:
+        A dictionary of random annotations, where the keys are strings (representing variable names) and the values are objects of some unspecified type (representing the type of the variable).
+    """
+    
+    annotations = {}
     var_letters = list(string.ascii_lowercase)
     
     for i in range(random_source.randint(1, n_annotations)):
@@ -120,11 +172,32 @@ def create_random_annotations (
 
 
 def random_node_from_list(random_source: RandomSource, node_list: list) -> type:
+    """
+    Return a random node from a list of nodes.
+    
+    Args:
+        random_source (RandomSource): an instance of the `RandomSource` class, which is used to generate a random integer.
+        node_list (list): a list of nodes from which to select a random node.
+    
+    Returns:
+        A random node from the list of nodes.
+    """
     rand_idx = random_source.randint(0, len(node_list) - 1)
     return node_list[rand_idx]
 
 
 def edit_distance(string1: str, string2: str) -> int:
+    """
+    The edit distance is the minimum number of operations (insertions, deletions, or substitutions)
+    needed to transform one string into another.
+    
+    Args:
+        string1 (str) - The first string to compare.
+        string2 (str) - The second string to compare.
+        
+    Returns:
+        The edit distance (int) between `string1` and `string2`.
+    """
 
     if len(string1) > len(string2):
         string1, string2 = string2, string1
