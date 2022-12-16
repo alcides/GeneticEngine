@@ -2,16 +2,11 @@ from __future__ import annotations
 
 from abc import ABC
 from abc import abstractmethod
-from operator import attrgetter
-from typing import Any
 from typing import Callable
 
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.core.grammar import Grammar
-from geneticengine.core.problems import FitnessType
-from geneticengine.core.problems import MultiObjectiveProblem
 from geneticengine.core.problems import Problem
-from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.api import Representation
 
@@ -65,38 +60,5 @@ class Heuristics(ABC):
             returns an Individual
         """
         assert individuals
-        best_individual: Individual
-        fitnesses = [x.evaluate(self.problem) for x in individuals]
-
-        if isinstance(p, SingleObjectiveProblem):
-            assert all(isinstance(x, float) for x in fitnesses)
-            if p.minimize:
-                best_individual = min(individuals, key=attrgetter("fitness"))
-            else:
-                best_individual = max(individuals, key=attrgetter("fitness"))
-
-        elif isinstance(p, MultiObjectiveProblem):
-            assert all(isinstance(x, list) for x in fitnesses)
-
-            def single_criteria(i: Individual) -> float:
-                assert isinstance(p.minimize, list)
-                assert isinstance(i.fitness, list)
-                return sum((m and -f or f) for (f, m) in zip(i.fitness, p.minimize))
-
-            if p.best_individual_criteria_function is None:
-                best_individual = max(individuals, key=single_criteria)
-            else:
-                fun = p.best_individual_criteria_function
-                best_individual = max(
-                    individuals,
-                    key=lambda ind: fun(ind.get_phenotype()),
-                )
-
+        best_individual = max(individuals, key=lambda ind: p.overall_fitness(ind.get_phenotype()))
         return best_individual
-
-    # this only works with SingleObjectiveProblem
-    def keyfitness(self):
-        if self.problem.minimize:
-            return lambda x: x.evaluate(self.problem)
-        else:
-            return lambda x: -x.evaluate(self.problem)
