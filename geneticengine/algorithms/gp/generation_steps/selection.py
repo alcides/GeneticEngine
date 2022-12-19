@@ -175,15 +175,11 @@ def create_lexicase(
                 candidates_to_check = new_candidates.copy()
                 cases.remove(c)
 
-            try:
-                winner = (
-                    r.choice(candidates_to_check)
-                    if len(candidates_to_check) > 1
-                    else candidates_to_check[0]
-                )
-            except:
-                import IPython as ip
-                ip.embed()
+            winner = (
+                r.choice(candidates_to_check)
+                if len(candidates_to_check) > 1
+                else candidates_to_check[0]
+            )
             assert isinstance(winner.fitness, list)
             winners.append(winner)
             candidates.remove(winner)
