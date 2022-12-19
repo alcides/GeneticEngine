@@ -157,6 +157,7 @@ def create_lexicase(
 
             while len(candidates_to_check) > 1 and len(cases) > 0:
                 new_candidates: list[Individual] = list()
+                assert isinstance(checking_candidate.fitness, list)
                 c = cases[0]
                 min_max_value = 0
                 best_fitness = min(list(map(lambda x: x.fitness[c], candidates_to_check))) if problem.minimize[c] else max(list(map(lambda x: x.fitness[c], candidates_to_check)))
