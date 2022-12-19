@@ -93,29 +93,37 @@ def preprocess():
     #       <c>
     # <c>  ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 
+def lexicase_parameters():
+    X = data.values
+    n_cases = 50
+    case_size = int(len(X) / n_cases)
+    if len(X) % case_size == 0:
+        minimize_list = [True for _ in range(n_cases)]
+    else:
+        minimize_list = [True for _ in range(n_cases + 1)]
+            
+    def lexicase_fitness_function(n: Number):
+        X = data.values
+        y = target.values
 
-def fitness_function_lexicase(n: Number):
-    cases = data.values.tolist()
-    y = target.values
-
-    fitnesses = list()
-
-    for c in cases:
         variables = {}
         for x in feature_names:
             i = feature_indices[x]
-            variables[x] = c[i]
+            variables[x] = X[:, i]
 
-        y_pred = n.evaluate(**variables)
-
-        # mse is used in PonyGE, as the error metric is not None!
-        fitness = mse(y_pred, y[cases.index(c)])
-        if isinf(fitness) or np.isnan(fitness):
-            fitness = 100000000
-
-        fitnesses.append(fitness)
-
-    return fitnesses
+        try:
+            y_pred = n.evaluate(**variables)
+            pred_error = np.power(y_pred - y, 2)
+            grouped_errors = list()
+            for i in range(n_cases):
+                grouped_errors.append(sum(pred_error[case_size*i:case_size*(i+1)])/len(pred_error[case_size*i:case_size*(i+1)]))
+            if len(X) % case_size != 0:
+                grouped_errors.append(sum(pred_error[(case_size*n_cases):])/len(pred_error[(case_size*n_cases):]))
+        except (OverflowError, ValueError) as e:
+            return np.full(len(y), 99999999999)
+        return grouped_errors
+        
+    return lexicase_fitness_function, minimize_list
 
 
 def evolve(
@@ -131,7 +139,7 @@ def evolve(
     else:
         representation = treebased_representation
 
-    minimizelist = [True for _ in data.values.tolist()]
+    fitness_function_lexicase, minimizelist = lexicase_parameters()
 
     def single_criteria_test(ind) -> float:
         return sum((m and -f or f) for (f, m) in zip(ind.fitness, minimizelist))
@@ -149,7 +157,7 @@ def evolve(
         number_of_generations=10,
         max_depth=8,
         population_size=50,
-        selection_method=("lexicase",),
+        selection_method=("lexicase","epsilon"),
         n_elites=0,
         seed=seed,
         timer_stop_criteria=mode,
@@ -160,6 +168,6 @@ def evolve(
 
 if __name__ == "__main__":
     g = preprocess()
-    bf, b = evolve(g, 0, False)
+    b, bf = evolve(g, 0, False)
     print(b)
-    print(f"With fitness: {bf}")
+    print(f"With fitness: {sum(bf)/len(bf)}")
