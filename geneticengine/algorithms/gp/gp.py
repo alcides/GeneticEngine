@@ -224,8 +224,12 @@ class GP(Heuristics):
                 self.problem,
             )
         elif selection_method[0] == "lexicase":
+            epsilon = False
+            if len(selection_method) > 1:
+                epsilon = selection_method[1] == "epsilon"
             self.selection = selection.create_lexicase(
                 self.problem,
+                epsilon,
             )
         else:
             self.selection = lambda r, ls, n: [x for x in ls[:n]]

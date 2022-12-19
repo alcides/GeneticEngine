@@ -4,6 +4,7 @@ from copy import deepcopy
 from typing import Callable
 from typing import List
 from typing import Union
+import numpy as np
 
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.core.problems import MultiObjectiveProblem
@@ -124,6 +125,7 @@ def create_novelties(
 
 def create_lexicase(
     problem: Problem,
+    epsilon: bool = False,
 ) -> Callable[[RandomSource, list[Individual], int], list[Individual]]:
     """
     The create_lexicase is a function that uses the lexicase selection algorithm to select a list of
@@ -131,6 +133,7 @@ def create_lexicase(
 
     Args:
         problem: type of problem that you are trying to solve
+        epsilon: if True, espilon-lexicase is performed. We use the method given by equation 5 in https://dl.acm.org/doi/pdf/10.1145/2908812.2908898.
 
     Returns:
         A callable object that returns a list of the selected Individuals
@@ -156,30 +159,31 @@ def create_lexicase(
                 new_candidates: list[Individual] = list()
                 c = cases[0]
                 min_max_value = 0
+                best_fitness = min(list(map(lambda x: x.fitness[c], candidates_to_check))) if problem.minimize[c] else max(list(map(lambda x: x.fitness[c], candidates_to_check)))
+                checking_value = best_fitness
+                if epsilon:
+                    fitness_values = [ x for x in  map(lambda x: x.fitness[c], candidates_to_check) if not np.isnan(x) ]
+                    mad = np.median(np.absolute(fitness_values - np.median(fitness_values)))
+                    checking_value = best_fitness + mad if problem.minimize[c] else best_fitness - mad
                 for i in range(len(candidates_to_check)):
                     checking_candidate = candidates_to_check[i]
-                    assert isinstance(checking_candidate.fitness, list)
-                    check_value = checking_candidate.fitness[c]
-                    if not new_candidates:
-                        min_max_value = check_value
+                    add_candidate = checking_candidate.fitness[c] <= checking_value if problem.minimize[c] else checking_candidate.fitness[c] >= checking_value
+                    if add_candidate:
                         new_candidates.append(checking_candidate)
-                    elif (check_value < min_max_value and problem.minimize[c]) or (
-                        check_value > min_max_value and not problem.minimize[c]
-                    ):
-                        new_candidates.clear()
-                        min_max_value = check_value
-                        new_candidates.append(checking_candidate)
-                    elif check_value == min_max_value:
-                        new_candidates.append(checking_candidate)
+
 
                 candidates_to_check = new_candidates.copy()
                 cases.remove(c)
 
-            winner = (
-                r.choice(candidates_to_check)
-                if len(candidates_to_check) > 1
-                else candidates_to_check[0]
-            )
+            try:
+                winner = (
+                    r.choice(candidates_to_check)
+                    if len(candidates_to_check) > 1
+                    else candidates_to_check[0]
+                )
+            except:
+                import IPython as ip
+                ip.embed()
             assert isinstance(winner.fitness, list)
             winners.append(winner)
             candidates.remove(winner)
