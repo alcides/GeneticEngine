@@ -233,5 +233,5 @@ if __name__ == "__main__":
     g = preprocess()
     print(g)
     b, bf = evolve(g, 123, False)
-    print(bf)
-    print(f"With fitness: {b}")
+    print(b)
+    print(f"With fitness: {sum(bf)/len(bf)}")
