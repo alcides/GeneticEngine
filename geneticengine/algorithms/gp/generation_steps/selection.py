@@ -157,18 +157,17 @@ def create_lexicase(
 
             while len(candidates_to_check) > 1 and len(cases) > 0:
                 new_candidates: list[Individual] = list()
-                assert isinstance(checking_candidate.fitness, list)
                 c = cases[0]
                 min_max_value = 0
-                best_fitness = min(list(map(lambda x: x.fitness[c], candidates_to_check))) if problem.minimize[c] else max(list(map(lambda x: x.fitness[c], candidates_to_check)))
+                best_fitness = min(list(map(lambda x: x.fitness[c], candidates_to_check))) if problem.minimize[c] else max(list(map(lambda x: x.fitness[c], candidates_to_check))) # type: ignore
                 checking_value = best_fitness
                 if epsilon:
-                    fitness_values = [ x for x in  map(lambda x: x.fitness[c], candidates_to_check) if not np.isnan(x) ]
+                    fitness_values = [ x for x in  map(lambda x: x.fitness[c], candidates_to_check) if not np.isnan(x) ] # type: ignore
                     mad = np.median(np.absolute(fitness_values - np.median(fitness_values)))
                     checking_value = best_fitness + mad if problem.minimize[c] else best_fitness - mad
                 for i in range(len(candidates_to_check)):
                     checking_candidate = candidates_to_check[i]
-                    add_candidate = checking_candidate.fitness[c] <= checking_value if problem.minimize[c] else checking_candidate.fitness[c] >= checking_value
+                    add_candidate = checking_candidate.fitness[c] <= checking_value if problem.minimize[c] else checking_candidate.fitness[c] >= checking_value # type: ignore
                     if add_candidate:
                         new_candidates.append(checking_candidate)
 
