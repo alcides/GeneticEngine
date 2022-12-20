@@ -6,7 +6,6 @@ from typing import Callable
 from geneticengine.core.decorators import get_gengy
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import Source
-from geneticengine.core.representations.api import Representation
 from geneticengine.core.representations.tree.smt import SMTResolver
 from geneticengine.core.representations.tree.utils import GengyList
 from geneticengine.core.representations.tree.utils import relabel_nodes_of_trees
@@ -32,7 +31,7 @@ def apply_metahandler(
     of a given type.
 
     As an example, AnnotatedType[int, IntRange(3,10)] will use the
-    IntRange.generate(r, recursive_generator) The generator is the
+    IntRange.generate(r, recursive_generator). The generator is the
     annotation on the type ("__metadata__").
     """
     metahandler = ty.__metadata__[0]
@@ -61,9 +60,7 @@ def grow_method(
     naturally grown from the grammar."""
 
     def filter_choices(possible_choices: list[type], depth):
-        valid_productions = [
-            vp for vp in possible_choices if g.get_distance_to_terminal(vp) <= depth
-        ]
+        valid_productions = [vp for vp in possible_choices if g.get_distance_to_terminal(vp) <= depth]
         return valid_productions
 
     def handle_symbol(
@@ -103,17 +100,15 @@ def full_method(
     depth: int,
     starting_symbol: type[Any] = int,
 ):
-    """Implements the Full tree-initialization method, where trees are grown
-    from the grammar with all branches as deep as possible, making full
-    trees."""
+    """Full tree-initialization method.
+
+    Trees are grown from the grammar with all branches as deep as
+    possible, making full trees.
+    """
 
     def filter_choices(possible_choices: list[type], depth):
-        valid_productions = [
-            vp for vp in possible_choices if g.get_distance_to_terminal(vp) <= depth
-        ]
-        recursive_valid_productions = [
-            vp for vp in valid_productions if vp in g.recursive_prods
-        ]
+        valid_productions = [vp for vp in possible_choices if g.get_distance_to_terminal(vp) <= depth]
+        recursive_valid_productions = [vp for vp in valid_productions if vp in g.recursive_prods]
         if recursive_valid_productions:
             return recursive_valid_productions
         return valid_productions
@@ -155,12 +150,10 @@ def pi_grow_method(
     depth: int,
     starting_symbol: type[Any] = int,
 ):
-    """Implements the PI Grow tree-initialization method (http://ncra.ucd.ie/pa
-    pers/Exploring%20Position%20Independent%20Initialisation%20in%20Grammatical
-    .
+    """PI Grow tree-initialization method.
 
-    %20Evolution.pdf), where trees are grown to have at least one branch
-    as deep as possible.
+    (http://ncra.ucd.ie/papers/Exploring%20Position%20Independent%20Initialisation%20in%20Grammatical.%20Evolution.pdf),
+    where trees are grown to have at least one branchas deep as possible.
     """
     state = {}
 
@@ -184,9 +177,7 @@ def pi_grow_method(
     handle_symbol(starting_symbol, final_finalize, depth, "root", ctx={})
 
     def filter_choices(possible_choices: list[type], depth):
-        valid_productions = [
-            vp for vp in possible_choices if g.distanceToTerminal[vp] <= depth
-        ]
+        valid_productions = [vp for vp in possible_choices if g.distanceToTerminal[vp] <= depth]
         if (nRecs[0] == 0) and any(  # Are we the last recursive symbol?
             [
                 prod in g.recursive_prods for prod in valid_productions
@@ -230,7 +221,7 @@ def expand_node(
     id: str,
     ctx: dict[str, str],
 ) -> Any:
-    """Creates a random node of a given type (starting_symbol)"""
+    """Creates a random node of a given type (starting_symbol)."""
     if depth < 0:
         raise GeneticEngineError("Recursion Depth reached")
     if depth < g.get_distance_to_terminal(starting_symbol):
@@ -306,10 +297,7 @@ def expand_node(
                         starting_symbol,
                         depth - extra_depth,
                         str(
-                            [
-                                (vp, g.distanceToTerminal[vp])
-                                for vp in compatible_productions
-                            ],
+                            [(vp, g.distanceToTerminal[vp]) for vp in compatible_productions],
                         ),
                     ),
                 )
@@ -326,7 +314,7 @@ def expand_node(
         else:  # Normal production
             args = get_arguments(starting_symbol)
             ctx = ctx.copy()
-            l: list[Any] = []
+            li: list[Any] = []
             for argn, _ in args:
                 name = id + "_" + argn
                 ctx[argn] = name
@@ -334,18 +322,19 @@ def expand_node(
                 def fn(val, name=name):
                     pass
 
-                l.append(fn)
+                li.append(fn)
 
             fins = build_finalizers(
                 mk_save_init(starting_symbol, receiver),
                 len(args),
-                l,
+                li,
             )
             for i, (argn, argt) in enumerate(args):
                 new_symbol(argt, fins[i], depth - 1, id + "_" + argn, ctx)
 
 
 def mk_save_init(starting_symbol: Any, receiver: Callable):
+    """Saves a child as a member of the parent node."""
     if isinstance(starting_symbol, type):
         pass
     elif isinstance(starting_symbol, GengyList):

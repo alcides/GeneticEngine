@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from abc import ABC
+import abc
 from dataclasses import dataclass
 from typing import Annotated
 
@@ -18,30 +18,29 @@ from geneticengine.metahandlers.vars import VarRange
 # ===================================
 
 
-class Node(ABC):
-    pass
-
+class Node(abc.ABC):
+    @abc.abstractmethod
     def evaluate(self, input: list[int]):
         ...
 
 
 @dataclass
 class Op(Node):
-    r: Node
+    right: Node
     op: Annotated[str, VarRange(["+", "-", "*", "/"])]
-    l: Node
+    left: Node
 
     def evaluate(self, input: list[int]):
         if self.op == "+":
-            return self.r.evaluate(input) + self.l.evaluate(input)
+            return self.right.evaluate(input) + self.left.evaluate(input)
         elif self.op == "-":
-            return self.r.evaluate(input) - self.l.evaluate(input)
+            return self.right.evaluate(input) - self.left.evaluate(input)
         elif self.op == "*":
-            return self.r.evaluate(input) - self.l.evaluate(input)
+            return self.right.evaluate(input) - self.left.evaluate(input)
         else:
-            if self.l.evaluate(input) == 0:
+            if self.left.evaluate(input) == 0:
                 return 0
-            return self.r.evaluate(input) / self.l.evaluate(input)
+            return self.right.evaluate(input) / self.left.evaluate(input)
 
 
 @dataclass
@@ -90,6 +89,7 @@ if __name__ == "__main__":
         probability_crossover=0.4,
     )
     best = gp.evolve()
+    fitness = prob.overall_fitness(best.get_phenotype())
     print(
-        f"Fitness of {prob.overall_fitness(best.get_phenotype())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+        f"Fitness of {fitness} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
     )

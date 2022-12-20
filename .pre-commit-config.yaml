@@ -19,11 +19,6 @@ repos:
     rev: v1.20.0
     hooks:
     -   id: setup-cfg-fmt
--   repo: https://github.com/asottile/reorder_python_imports
-    rev: v3.0.1
-    hooks:
-    -   id: reorder-python-imports
-        args: [--py37-plus, --add-import, 'from __future__ import annotations']
 -   repo: https://github.com/asottile/add-trailing-comma
     rev: v2.2.1
     hooks:
@@ -48,3 +43,7 @@ repos:
     hooks:
     -   id: mypy
         args: [--no-strict-optional, --ignore-missing-imports]
+-   repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.0.189
+    hooks:
+      - id: ruff

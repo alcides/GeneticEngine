@@ -4,6 +4,7 @@ mypy==0.991
 myst_parser
 pre-commit
 pycln
+ruff
 sphinx
 sphinx-autoapi
 sphinx-rtd-theme
