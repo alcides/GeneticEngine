@@ -93,6 +93,7 @@ def preprocess():
     #       <c>
     # <c>  ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 
+
 def lexicase_parameters():
     X = data.values
     n_cases = 50
@@ -101,7 +102,7 @@ def lexicase_parameters():
         minimize_list = [True for _ in range(n_cases)]
     else:
         minimize_list = [True for _ in range(n_cases + 1)]
-            
+
     def lexicase_fitness_function(n: Number):
         X = data.values
         y = target.values
@@ -116,13 +117,19 @@ def lexicase_parameters():
             pred_error = np.power(y_pred - y, 2)
             grouped_errors = list()
             for i in range(n_cases):
-                grouped_errors.append(sum(pred_error[case_size*i:case_size*(i+1)])/len(pred_error[case_size*i:case_size*(i+1)]))
+                grouped_errors.append(
+                    sum(pred_error[case_size * i : case_size * (i + 1)])
+                    / len(pred_error[case_size * i : case_size * (i + 1)]),
+                )
             if len(X) % case_size != 0:
-                grouped_errors.append(sum(pred_error[(case_size*n_cases):])/len(pred_error[(case_size*n_cases):]))
+                grouped_errors.append(
+                    sum(pred_error[(case_size * n_cases) :])
+                    / len(pred_error[(case_size * n_cases) :]),
+                )
         except (OverflowError, ValueError) as e:
             return np.full(len(y), 99999999999)
         return grouped_errors
-        
+
     return lexicase_fitness_function, minimize_list
 
 
@@ -157,17 +164,17 @@ def evolve(
         number_of_generations=10,
         max_depth=8,
         population_size=50,
-        selection_method=("lexicase","epsilon"),
+        selection_method=("lexicase", "epsilon"),
         n_elites=0,
         seed=seed,
         timer_stop_criteria=mode,
     )
     (b, bf, bp) = alg.evolve(verbose=1)
-    return b, bf
+    return b, single_criteria_test(b)
 
 
 if __name__ == "__main__":
     g = preprocess()
     b, bf = evolve(g, 0, False)
     print(b)
-    print(f"With fitness: {sum(bf)/len(bf)}")
+    print(f"With fitness: {bf}")

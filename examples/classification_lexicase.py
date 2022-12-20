@@ -10,8 +10,8 @@ from typing import Callable
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from geneticengine.algorithms.callbacks.csv_callback import CSVCallback
 
+from geneticengine.algorithms.callbacks.csv_callback import CSVCallback
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
@@ -188,6 +188,7 @@ def fitness_function_lexicase(n: Number):
             return 1
         else:
             return -1
+
     y_pred = [classify(p) for p in y_pred]
 
     return [int(p == r) for (p, r) in zip(y, y_pred)]
@@ -209,7 +210,9 @@ def evolve(
     minimizelist = [False for _ in data.values.tolist()]
 
     def single_criteria_test(n) -> float:
-        return sum((m and -f or f) for (f, m) in zip(n.fitness, minimizelist))/len(n.fitness)
+        return sum((m and -f or f) for (f, m) in zip(n.fitness, minimizelist)) / len(
+            n.fitness,
+        )
 
     alg = GP(
         g,
@@ -231,7 +234,7 @@ def evolve(
         # save_to_csv=CSVCallback(save_productions=True),
     )
     (b, bf, bp) = alg.evolve(verbose=1)
-    return b, bf
+    return b, single_criteria_test(b)
 
 
 if __name__ == "__main__":
@@ -239,4 +242,4 @@ if __name__ == "__main__":
     print(g)
     b, bf = evolve(g, 123, False)
     print(b)
-    print(f"With fitness: {sum(bf)/len(bf)}")
+    print(f"With fitness: {bf}")
