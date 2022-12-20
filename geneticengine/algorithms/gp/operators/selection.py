@@ -31,6 +31,7 @@ class TournamentSelection(GeneticStep):
         r: Source,
         population: list[Individual],
         target_size: int,
+        generation: int,
     ) -> list[Individual]:
         assert isinstance(problem, SingleObjectiveProblem)
         winners: list[Individual] = []
@@ -78,6 +79,7 @@ class LexicaseSelection(GeneticStep):
         r: Source,
         population: list[Individual],
         target_size: int,
+        generation: int,
     ) -> list[Individual]:
         assert isinstance(problem, MultiObjectiveProblem)
         candidates = population.copy()

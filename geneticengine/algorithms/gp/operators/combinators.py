@@ -20,6 +20,7 @@ class SequenceStep(GeneticStep):
         random_source: Source,
         population: list[Individual],
         target_size: int,
+        generation: int,
     ) -> list[Individual]:
         for step in self.steps:
             population = step.iterate(
@@ -28,6 +29,7 @@ class SequenceStep(GeneticStep):
                 random_source,
                 population,
                 target_size,
+                generation,
             )
             assert isinstance(population, list)
             assert len(population) == target_size
@@ -57,6 +59,7 @@ class ParallelStep(GeneticStep):
         random_source: Source,
         population: list[Individual],
         target_size: int,
+        generation: int,
     ) -> list[Individual]:
         total = sum(self.weights)
         indices = [0] + self.cumsum(
@@ -73,6 +76,7 @@ class ParallelStep(GeneticStep):
                     random_source,
                     population,
                     end - start,
+                    generation,
                 )
                 for ((start, end), step) in zip(ranges, self.steps)
             ],
@@ -109,6 +113,7 @@ class ExclusiveParallelStep(ParallelStep):
         random_source: Source,
         population: list[Individual],
         target_size: int,
+        generation: int,
     ) -> list[Individual]:
         total = sum(self.weights)
         indices = [0] + self.cumsum(
@@ -125,6 +130,7 @@ class ExclusiveParallelStep(ParallelStep):
                     random_source,
                     population[start:end],
                     end - start,
+                    generation,
                 )
                 for ((start, end), step) in zip(ranges, self.steps)
             ],

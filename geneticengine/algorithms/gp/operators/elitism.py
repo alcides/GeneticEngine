@@ -17,6 +17,7 @@ class ElitismStep(GeneticStep):
         random_source: Source,
         population: list[Individual],
         target_size: int,
+        generation: int,
     ) -> list[Individual]:
 
         population_copy = population.copy()

@@ -28,6 +28,7 @@ class GenericMutationStep(GeneticStep):
         random_source: Source,
         population: list[Individual],
         target_size: int,
+        generation: int,
     ) -> list[Individual]:
         if not self.operator:
             self.operator = representation.get_mutation()
@@ -40,8 +41,8 @@ class GenericMutationStep(GeneticStep):
                     representation,
                     random_source,
                     index,
-                    0,
-                ),  # TODO: generation in API
+                    generation,
+                ),
             )
             for index, ind in enumerate(population[:target_size])
         ]
@@ -74,6 +75,7 @@ class HillClimbingMutationIteration(GeneticStep):
         random_source: Source,
         population: list[Individual],
         target_size: int,
+        generation: int,
     ) -> list[Individual]:
         assert len(population) == target_size
 

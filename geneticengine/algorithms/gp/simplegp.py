@@ -128,7 +128,7 @@ class SimpleGP(GP):
         # -----
         force_individual: Any = None,
         # -----
-        timer_stop_criteria: bool = False,  # TODO: This should later be generic
+        timer_stop_criteria: bool = False,
         timer_limit: int = 60,
         # ---
         evolve_grammar: bool = False,

@@ -6,7 +6,6 @@ from geneticengine.core.problems import Problem
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import CrossoverOperator
 from geneticengine.core.representations.api import Representation
-from geneticengine.core.representations.tree.treebased import DefaultTBCrossover
 
 
 class GenericCrossoverStep(GeneticStep):
@@ -20,8 +19,6 @@ class GenericCrossoverStep(GeneticStep):
     ):
         self.probability = probability
         self.operator = operator
-        if isinstance(self.operator, DefaultTBCrossover):
-            raise Exception("right one")
 
     def iterate(
         self,
@@ -30,6 +27,7 @@ class GenericCrossoverStep(GeneticStep):
         random_source: Source,
         population: list[Individual],
         target_size: int,
+        generation: int,
     ) -> list[Individual]:
         assert len(population) == target_size
         self.operator = self.operator if self.operator else representation.get_crossover()
@@ -37,7 +35,7 @@ class GenericCrossoverStep(GeneticStep):
         mid = len(population) // 2
         retlist = []
         for (index, ind1, ind2) in zip(range(mid), population[:mid], population[mid:]):
-            (n1, n2) = self.crossover(ind1, ind2, problem, representation, random_source, index)
+            (n1, n2) = self.crossover(ind1, ind2, problem, representation, random_source, index, generation)
             retlist.append(n1)
             retlist.append(n2)
 
@@ -54,9 +52,8 @@ class GenericCrossoverStep(GeneticStep):
         representation: Representation,
         random_source: Source,
         index: int,
+        generation: int,
     ):
-        print("self.operator", self.operator)
-        print("representation", representation, representation.get_crossover())
         assert self.operator
         (g1, g2) = self.operator.crossover(
             individual1.genotype,
@@ -65,7 +62,7 @@ class GenericCrossoverStep(GeneticStep):
             representation,
             random_source,
             index,
-            0,  # TODO: Generation
+            generation,
         )
         return (
             Individual(g1, representation.genotype_to_phenotype),

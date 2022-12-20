@@ -28,6 +28,7 @@ class ParallelEvaluationStep(GeneticStep):
         random_source: Source,
         population: list[Individual],
         target_size: int,
+        generation: int,
     ) -> list[Individual]:
         with Pool(len(population)) as pool:
             pool.map(lambda x: x.evaluate(problem), population)

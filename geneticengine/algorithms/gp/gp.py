@@ -97,6 +97,7 @@ class GP(Heuristics):
                 self.random_source,
                 population,
                 self.population_size,
+                generation,
             )
             assert len(population) == self.population_size
             for cb in self.callbacks:
