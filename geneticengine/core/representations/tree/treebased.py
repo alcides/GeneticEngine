@@ -34,8 +34,7 @@ def random_node(
     starting_symbol: type[Any] | None = None,
     method: InitializationMethodType = pi_grow_method,
 ):
-    if starting_symbol is None:
-        starting_symbol = g.starting_symbol
+    starting_symbol = starting_symbol if starting_symbol else g.starting_symbol
     return method(r, g, max_depth, starting_symbol)
 
 
@@ -47,7 +46,7 @@ def random_individual(
 ) -> TreeNode:
     try:
         assert max_depth >= g.get_min_tree_depth()
-    except:
+    except AssertionError:
         if g.get_min_tree_depth() == 1000000:
             raise GeneticEngineError(
                 f"Grammar's minimal tree depth is {g.get_min_tree_depth()}, which is the default tree depth. It's highly like that there are nodes of your grammar than cannot reach any terminal.",
@@ -96,11 +95,15 @@ def mutate_inner(
                 mk = mk_save_init(type(i), lambda x: x)(*args)
                 return mk
 
+            replacement = None
             for _ in range(5):
-                replacement = random_node(r, g, max_depth, ty)
-                if replacement != i:
-                    break
-            return replacement
+                try:
+                    replacement = random_node(r, g, max_depth, ty)
+                    if replacement != i:
+                        break
+                except GeneticEngineError:
+                    pass
+            return replacement if replacement else i
         else:
             if is_abstract(ty) and g.expansion_depthing:
                 max_depth -= g.abstract_dist_to_t[ty][type(i)]
@@ -128,11 +131,15 @@ def mutate_inner(
             mk = mk_save_init(i, lambda x: x)(*args)
             return mk
     else:
+        rn = None
         for _ in range(5):
-            rn = random_node(r, g, max_depth, ty)
-            if rn != i:
-                break
-        return rn
+            try:
+                rn = random_node(r, g, max_depth, ty)
+                if rn != i:
+                    break
+            except GeneticEngineError:
+                pass
+        return rn if rn else i
 
 
 def mutate_specific_type_inner(
@@ -223,19 +230,8 @@ def mutate(
     i: TreeNode,
     max_depth: int,
     target_type: type,
-    specific_type: type | None = None,
     depth_aware_mut: bool = False,
 ) -> Any:
-    if specific_type:
-        return mutate_specific_type(
-            r,
-            g,
-            i,
-            max_depth,
-            target_type,
-            specific_type,
-            depth_aware_mut,
-        )
     new_tree = mutate_inner(r, g, i, max_depth, target_type, False, depth_aware_mut)
     relabeled_new_tree = relabel_nodes_of_trees(new_tree, g)
     return relabeled_new_tree
