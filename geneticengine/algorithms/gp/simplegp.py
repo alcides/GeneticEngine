@@ -109,7 +109,7 @@ class SimpleGP(GP):
         # now based on depth, maybe on number of nodes?
         # selection-method is a tuple because tournament selection needs to receive the tournament size
         # but lexicase does not need a tuple
-        selection_method: tuple[str, int] = ("tournament", 5),
+        selection_method: tuple[str, int | bool] = ("tournament", 5),
         # -----
         # As given in A Field Guide to GP, p.17, by Poli and Mcphee
         probability_mutation: float = 0.01,
@@ -210,7 +210,8 @@ class SimpleGP(GP):
         if selection_method[0] == "tournament":
             selection_step = TournamentSelection(selection_method[1])
         elif selection_method[0] == "lexicase":
-            selection_step = LexicaseSelection()
+            ep: bool = bool(selection_method[1]) if len(selection_method) > 1 else False
+            selection_step = LexicaseSelection(epsilon=ep)
         else:
             raise ValueError(
                 f"selection_method ({selection_method}) requires either tournament or lexicase",

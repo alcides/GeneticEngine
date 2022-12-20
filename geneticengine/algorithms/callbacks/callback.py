@@ -26,12 +26,11 @@ def pretty_print_fitness(best_individual: Individual, gp) -> str:
 
     elif isinstance(gp.problem, MultiObjectiveProblem):
         if gp.problem.number_of_objectives() > 10:
+            if best_individual.fitness == None:
+                best_individual.evaluate(problem=gp.problem)
             fitness = average_fitness(best_individual)
         else:
-            fitness = [
-                fitness
-                for fitness in gp.problem.evaluate(best_individual.get_phenotype())
-            ]
+            fitness = [fitness for fitness in gp.problem.evaluate(best_individual.get_phenotype())]
 
     else:
         assert False

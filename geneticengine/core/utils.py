@@ -2,16 +2,10 @@ from __future__ import annotations
 
 import inspect
 from abc import ABC
-from dataclasses import dataclass
-from functools import wraps
 from typing import Any
 from typing import Callable
 from typing import get_type_hints
-from typing import List
 from typing import Protocol
-from typing import Set
-from typing import Tuple
-from typing import Type
 from typing import TYPE_CHECKING
 
 from geneticengine.algorithms.gp.individual import Individual
@@ -19,7 +13,6 @@ from geneticengine.core.decorators import get_gengy
 
 if TYPE_CHECKING:
     from geneticengine.core.representations.tree.utils import GengyList
-    from geneticengine.core.tree import TreeNode
 
 
 def has_annotated_mutation(ty: type[Any]):
@@ -44,29 +37,30 @@ def is_annotated(ty: type[Any]):
 
 
 def is_generic_list(ty: type[Any]):
-    """Returns whether a type is List[T] for any T"""
+    """Returns whether a type is List[T] for any T."""
     return hasattr(ty, "__origin__") and ty.__origin__ is list
 
 
 def is_generic(ty: type[Any]):
-    """Returns whether a type is x[T] for any T"""
+    """Returns whether a type is x[T] for any T."""
     return hasattr(ty, "__origin__")
 
 
 def get_generic_parameters(ty: type[Any]) -> list[type]:
-    """Annotated[T, <annotations>] or List[T], this function returns Dict[T,]"""
+    """Annotated[T, <annotations>] or List[T], this function returns
+    Dict[T,]"""
     return ty.__args__
 
 
 def get_generic_parameter(ty: type[Any]) -> type:
-    """When given Annotated[T, <annotations>] or List[T], this function returns T"""
+    """When given Annotated[T, <annotations>] or List[T], this function returns
+    T."""
     return get_generic_parameters(ty)[0]
 
 
 def strip_annotations(ty: type[Any]) -> type:
-    """When given Annotated[T, <annotations>] or List[T], this function recurses with T
-    Otherwise, it returns the parameter unchanged.
-    """
+    """When given Annotated[T, <annotations>] or List[T], this function
+    recurses with T Otherwise, it returns the parameter unchanged."""
     if is_generic_list(ty) or is_annotated(ty):
         return strip_annotations(get_generic_parameter(ty))
     else:
@@ -74,12 +68,8 @@ def strip_annotations(ty: type[Any]) -> type:
 
 
 def has_arguments(n: Any) -> bool:
-    """Returns whether a node has arguments or not"""
-    return (
-        hasattr(n, "__init__")
-        and hasattr(n.__init__, "__annotations__")
-        and len(n.__init__.__annotations__) > 0
-    )
+    """Returns whether a node has arguments or not."""
+    return hasattr(n, "__init__") and hasattr(n.__init__, "__annotations__") and len(n.__init__.__annotations__) > 0
 
 
 def get_arguments(n) -> list[tuple[str, type]]:
@@ -103,12 +93,13 @@ def get_arguments(n) -> list[tuple[str, type]]:
 
 
 def is_abstract(t: type) -> bool:
-    """Returns whether a class is a Protocol or AbstractBaseClass"""
+    """Returns whether a class is a Protocol or AbstractBaseClass."""
     return t.mro()[1] in [ABC, Protocol] or get_gengy(t).get("abstract", False)
 
 
 def is_terminal(t: type, non_terminals: set[type]) -> bool:
-    """Returns whether a node is a terminal or not, based on the list of non terminals in the grammar"""
+    """Returns whether a node is a terminal or not, based on the list of non
+    terminals in the grammar."""
     if is_annotated(t):
         return all(
             [is_terminal(inner, non_terminals) for inner in get_generic_parameters(t)],
@@ -132,8 +123,8 @@ def build_finalizers(
     n_args,
     per_callback: list[Callable[[Any], None]] = None,
 ) -> list[Any]:
-    """
-    Builds a set of functions that accumulate the arguments provided
+    """Builds a set of functions that accumulate the arguments provided.
+
     :param final_callback:
     :param n_args:
     :return:
@@ -176,7 +167,8 @@ def build_finalizers(
 
 
 def average_fitness(individual: Individual) -> float:
-    """Returns the average fitness list value of the given individual"""
+    """Returns the average fitness list value of the given individual."""
+    assert individual.fitness != None
     assert isinstance(individual.fitness, list)
     average_fitness = sum(individual.fitness) / len(individual.fitness)
     return average_fitness

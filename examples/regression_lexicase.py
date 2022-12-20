@@ -1,17 +1,17 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from math import isinf
 from typing import Annotated
 
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
 
 from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import MultiObjectiveProblem
-from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import DynamicStructuredGrammaticalEvolutionRepresentation
+from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
+    DynamicStructuredGrammaticalEvolutionRepresentation,
+)
 from geneticengine.core.representations.grammatical_evolution.ge import (
     GrammaticalEvolutionRepresentation,
 )
@@ -32,7 +32,6 @@ from geneticengine.grammars.sgp import Plus
 from geneticengine.grammars.sgp import Var
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.vars import VarRange
-from geneticengine.metrics import mse
 
 # ===================================
 # This is a simple example of normal regression using normal GP,
@@ -101,29 +100,41 @@ def preprocess():
     # <c>  ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 
 
-def fitness_function_lexicase(n: Number):
-    assert isinstance(n, Number)
-    cases = data.values.tolist()
-    y = target.values
+def lexicase_parameters():
+    X = data.values
+    n_cases = 50
+    case_size = int(len(X) / n_cases)
+    if len(X) % case_size == 0:
+        minimize_list = [True for _ in range(n_cases)]
+    else:
+        minimize_list = [True for _ in range(n_cases + 1)]
 
-    fitnesses = list()
-
-    for c in cases:
+    def lexicase_fitness_function(n: Number):
+        X = data.values
+        y = target.values
         variables = {}
         for x in feature_names:
             i = feature_indices[x]
-            variables[x] = c[i]
+            variables[x] = X[:, i]
 
-        y_pred = n.evaluate(**variables)
+        try:
+            y_pred = n.evaluate(**variables)
+            pred_error = np.power(y_pred - y, 2)
+            grouped_errors = list()
+            for i in range(n_cases):
+                grouped_errors.append(
+                    sum(pred_error[case_size * i : case_size * (i + 1)])
+                    / len(pred_error[case_size * i : case_size * (i + 1)]),
+                )
+            if len(X) % case_size != 0:
+                grouped_errors.append(
+                    sum(pred_error[(case_size * n_cases) :]) / len(pred_error[(case_size * n_cases) :]),
+                )
+        except (OverflowError, ValueError) as e:
+            return np.full(len(y), 99999999999)
+        return grouped_errors
 
-        # mse is used in PonyGE, as the error metric is not None!
-        fitness = mse(y_pred, y[cases.index(c)])
-        if isinf(fitness) or np.isnan(fitness):
-            fitness = 100000000
-
-        fitnesses.append(fitness)
-
-    return fitnesses
+    return lexicase_fitness_function, minimize_list
 
 
 def evolve(
@@ -141,31 +152,28 @@ def evolve(
     else:
         representation = TreeBasedRepresentation
 
-    minimizelist = [True for _ in data.values.tolist()]
-
-    def single_criteria_test(ind) -> float:
-        return sum((m and -f or f) for (f, m) in zip(ind.fitness, minimizelist))
+    fitness_function_lexicase, minimizelist = lexicase_parameters()
+    problem = MultiObjectiveProblem(
+        minimize=minimizelist,
+        fitness_function=fitness_function_lexicase,
+    )
 
     alg = SimpleGP(
         g,
         representation=representation,
-        problem=MultiObjectiveProblem(
-            minimize=minimizelist,
-            fitness_function=fitness_function_lexicase,
-            best_individual_criteria_function=single_criteria_test,
-        ),
+        problem=problem,
         probability_crossover=0.75,
         probability_mutation=0.01,
         number_of_generations=10,
         max_depth=8,
         population_size=50,
-        selection_method=("lexicase",),
+        selection_method=("lexicase", "epsilon"),
         n_elites=0,
         seed=seed,
         timer_stop_criteria=mode,
     )
     (b, bf, bp) = alg.evolve()
-    return b, bf
+    return problem.overall_fitness(bp), b
 
 
 if __name__ == "__main__":

@@ -11,7 +11,9 @@ from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import MultiObjectiveProblem
-from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import DynamicStructuredGrammaticalEvolutionRepresentation
+from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
+    DynamicStructuredGrammaticalEvolutionRepresentation,
+)
 from geneticengine.core.representations.grammatical_evolution.ge import (
     GrammaticalEvolutionRepresentation,
 )
@@ -226,7 +228,7 @@ def evolve(
         timer_stop_criteria=mode,
     )
     (b, bf, bp) = alg.evolve()
-    return b, bf
+    return b, single_criteria_test(bp)
 
 
 if __name__ == "__main__":
@@ -234,4 +236,4 @@ if __name__ == "__main__":
     print(g)
     b, bf = evolve(g, 123, False)
     print(b)
-    print(f"With fitness: {sum(bf)/len(bf)}")
+    print(f"With fitness: {bf}")
