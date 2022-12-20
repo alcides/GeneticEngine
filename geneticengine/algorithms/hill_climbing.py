@@ -7,7 +7,8 @@ from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.gp.operators.initializers import (
     GrowInitializer,
 )
-from geneticengine.algorithms.gp.operators.mutation import HillClimbingMutationIteration
+from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
+from geneticengine.algorithms.gp.operators.mutation import HillClimbingMutation
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.algorithms.gp.structure import StoppingCriterium
@@ -40,7 +41,7 @@ class HC(GP):
         callbacks: list[Callback] | None = None,
     ):
         callbacks = callbacks or []
-        step = HillClimbingMutationIteration(1)
+        step = GenericMutationStep(1, operator=HillClimbingMutation())
         super().__init__(
             representation,
             problem,

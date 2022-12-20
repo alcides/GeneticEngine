@@ -1,16 +1,15 @@
 from __future__ import annotations
-from geneticengine.core.representations.tree.treebased import treebased_representation
 
 from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
 
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.metahandlers.ints import IntRange
-
 from geneticengine.algorithms.gp.gp import GP
+from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.problems import SingleObjectiveProblem
+from geneticengine.core.random.sources import RandomSource
+from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.metahandlers.ints import IntRange
 
 
 class Scalar(ABC):
@@ -52,33 +51,28 @@ class Add(Scalar):
     left: Scalar
 
 
-g = extract_grammar([Value, ScalarVar, VectorialVar, Mean, CumulativeSum], Scalar)
-print(g)
-
-
 def fitness_function(n):
     return 0
 
 
-def evolve(g, seed, mode):
-    alg = GP(
-        g,
-        representation=treebased_representation,
-        problem=SingleObjectiveProblem(
-            fitness_function=fitness_function,
-            minimize=True,
-            target_fitness=0,
-        ),
-        population_size=20,
-        number_of_generations=5,
-        timer_stop_criteria=mode,
-        seed=seed,
+def main(seed=123):
+    grammar = extract_grammar([Value, ScalarVar, VectorialVar, Mean, CumulativeSum], Scalar)
+    prob = SingleObjectiveProblem(
+        fitness_function=fitness_function,
+        minimize=True,
+        target_fitness=0,
     )
-    (b, bf, bp) = alg.evolve()
-    return b, bf
+    alg = GP(
+        representation=TreeBasedRepresentation(grammar, 10),
+        problem=prob,
+        population_size=20,
+        random_source=RandomSource(seed),
+    )
+    best = alg.evolve()
+    print(
+        f"Fitness of {prob.overall_fitness(best.get_phenotype())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+    )
 
 
 if __name__ == "__main__":
-    bf, b = evolve(g, 0, False)
-    print(b)
-    print(f"With fitness: {bf}")
+    main()

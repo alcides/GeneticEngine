@@ -4,9 +4,10 @@ from typing import Any
 
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.core.grammar import Grammar
+from geneticengine.core.tree import TreeNode
 
 
-def count_productions(individual: Individual, g: Grammar):
+def count_productions(individual: TreeNode, g: Grammar):
     counts = {prod: 1 for prod in g.all_nodes}
 
     def add_count(ty):
@@ -25,7 +26,7 @@ def count_productions(individual: Individual, g: Grammar):
         for argn in get_args(node):
             counting(getattr(node, argn))
 
-    counting(individual.get_phenotype())
+    counting(individual)
     # self.counts = counts
     return counts
 

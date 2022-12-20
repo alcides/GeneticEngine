@@ -159,9 +159,9 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
             seed=self.seed,
         )
 
-        best_ind, fitness, phenotype = model.evolve()
-        self.evolved_phenotype = phenotype
-        self.sympy_compatible_phenotype = fix_all(str(phenotype))
+        ind = model.evolve()
+        self.evolved_phenotype = ind.get_phenotype()
+        self.sympy_compatible_phenotype = fix_all(str(self.evolved_phenotype))
 
     def predict(self, X):
         """Predict the target values of X.
@@ -280,9 +280,9 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
             random_source=RandomSource(self.seed),
         )
 
-        best_ind, fitness, phenotype = model.evolve()
-        self.evolved_phenotype = phenotype
-        self.sympy_compatible_phenotype = fix_all(str(phenotype))
+        ind = model.evolve()
+        self.evolved_phenotype = ind.get_phenotype()
+        self.sympy_compatible_phenotype = fix_all(str(self.evolved_phenotype))
 
     def predict(self, X):
         """Predict the target values of X.

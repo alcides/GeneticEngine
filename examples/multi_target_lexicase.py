@@ -1,26 +1,18 @@
 from __future__ import annotations
 
-from ctypes import sizeof
 from dataclasses import dataclass
 from math import isinf
 from typing import Annotated
 
 import numpy as np
-import pandas as pd
 from sklearn.datasets import load_linnerud
 from sklearn.model_selection import train_test_split
 
 from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.grammar import Grammar
 from geneticengine.core.problems import MultiObjectiveProblem
-from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import DynamicStructuredGrammaticalEvolutionRepresentation
-from geneticengine.core.representations.grammatical_evolution.ge import (
-    GrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.grammatical_evolution.structured_ge import (
-    StructuredGrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.core.problems import Problem
 from geneticengine.grammars.basic_math import Exp
 from geneticengine.grammars.basic_math import SafeDiv
 from geneticengine.grammars.basic_math import SafeLog
@@ -88,25 +80,6 @@ class NumberList:
         return s
 
 
-def preprocess():
-    return extract_grammar(
-        [
-            Plus,
-            Minus,
-            Mul,
-            SafeDiv,
-            Literal,
-            Var,
-            SafeSqrt,
-            Exp,
-            Sin,
-            Tanh,
-            SafeLog,
-        ],
-        NumberList,
-    )
-
-
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
 
 y_weight = y_train["Weight"].tolist()
@@ -152,46 +125,52 @@ def fitness_function_lexicase(n: Number):
     return fitnesses
 
 
-def evolve(
-    g,
-    seed,
-    mode,
-    representation="TreeBasedRepresentation",
-):
-    if representation == "ge":
-        representation = GrammaticalEvolutionRepresentation
-    elif representation == "sge":
-        representation = StructuredGrammaticalEvolutionRepresentation
-    elif representation == "dsge":
-        representation = DynamicStructuredGrammaticalEvolutionRepresentation
-    else:
-        representation = TreeBasedRepresentation
-
-    minimizelist = [True for _ in X.values.tolist()]
-
-    alg = SimpleGP(
-        g,
-        representation=representation,
-        problem=MultiObjectiveProblem(
+class MultiTargetLexicaseBenchmark:
+    def get_problem(self) -> Problem:
+        minimizelist = [True for _ in X.values.tolist()]
+        return MultiObjectiveProblem(
             minimize=minimizelist,
             fitness_function=fitness_function_lexicase,
-        ),
-        probability_crossover=0.75,
-        probability_mutation=0.01,
-        number_of_generations=50,
-        max_depth=15,
-        population_size=50,
-        selection_method=("lexicase",),
-        n_elites=0,
-        seed=seed,
-        timer_stop_criteria=mode,
-    )
-    (b, bf, bp) = alg.evolve()
-    return b, bf
+        )
+
+    def get_grammar(self) -> Grammar:
+        return extract_grammar(
+            [
+                Plus,
+                Minus,
+                Mul,
+                SafeDiv,
+                Literal,
+                Var,
+                SafeSqrt,
+                Exp,
+                Sin,
+                Tanh,
+                SafeLog,
+            ],
+            NumberList,
+        )
+
+    def main(self, **args):
+        g = self.get_grammar()
+        prob = self.get_problem()
+        alg = SimpleGP(
+            g,
+            problem=prob,
+            probability_crossover=0.75,
+            probability_mutation=0.01,
+            number_of_generations=50,
+            max_depth=15,
+            population_size=50,
+            selection_method=("lexicase",),
+            n_elites=0,
+            **args,
+        )
+        best = alg.evolve()
+        print(
+            f"Fitness of {prob.overall_fitness(best.get_phenotype())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+        )
 
 
 if __name__ == "__main__":
-    g = preprocess()
-    bf, b = evolve(g, 0, False)
-    print(b)
-    print(f"With fitness: {bf}")
+    MultiTargetLexicaseBenchmark().main(seed=0)

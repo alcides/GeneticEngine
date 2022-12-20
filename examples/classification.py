@@ -9,21 +9,12 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 from geneticengine.algorithms.gp.simplegp import SimpleGP
+from geneticengine.core.decorators import get_gengy
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.grammar import Grammar
+from geneticengine.core.problems import Problem
 from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
-    DynamicStructuredGrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.grammatical_evolution.ge import (
-    GrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.grammatical_evolution.structured_ge import (
-    StructuredGrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammars.basic_math import SafeDiv
-from geneticengine.grammars.basic_math import SafeLog
-from geneticengine.grammars.basic_math import SafeSqrt
 from geneticengine.grammars.sgp import Mul
 from geneticengine.grammars.sgp import Number
 from geneticengine.grammars.sgp import Plus
@@ -32,12 +23,11 @@ from geneticengine.metahandlers.floats import FloatList
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.metrics import f1_score
 
-
-# ===================================
-# This is a simple example of normal classification using normal GP,
-# with a tournament selection algorithm as the parent selection and f1-score metric for measuring the fitness
-# We used the Banknote dataset stored in examples/data folder
-# ===================================
+# An example of classification using Probabilistic GE (https://arxiv.org/pdf/2103.08389.pdf).
+# The main differences with the normal classification example are the addition of weights/probabilities to the
+# production rules of the grammar (lines 81-83), and adding the evolve_grammar parameter in the GP class (line 159).
+# Notice that the weights don't need to be added to the grammar, as by default all production rules have the same
+# weight/probability.
 
 DATASET_NAME = "Banknote"
 DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.csv"
@@ -68,18 +58,17 @@ class Literal(Number):
         return str(self.val)
 
 
-def preprocess():
-    return extract_grammar(
-        [Plus, Mul, SafeDiv, Literal, Var, SafeSqrt, SafeLog],
-        Number,
-    )
+prods: list[type] = [Plus, Mul, SafeDiv, Literal, Var]
 
+
+for prod in prods:
+    get_gengy(prod)
+    prod.__dict__["__gengy__"]["weight"] = 1
 
 X_train, X_test, y_train, y_test = train_test_split(
     data.values,
     target.values,
     test_size=0.75,
-    random_state=10,
 )
 
 
@@ -125,46 +114,41 @@ def fitness_test_function(n: Number):
     return fitness
 
 
-def evolve(
-    g,
-    seed,
-    mode,
-    representation="TreeBasedRepresentation",
-):
-    if representation == "ge":
-        representation = GrammaticalEvolutionRepresentation
-    elif representation == "sge":
-        representation = StructuredGrammaticalEvolutionRepresentation
-    elif representation == "dsge":
-        representation = DynamicStructuredGrammaticalEvolutionRepresentation
-    else:
-        representation = TreeBasedRepresentation
-
-    alg = SimpleGP(
-        g,
-        representation=representation,
-        problem=SingleObjectiveProblem(
+class ClassificationBenchmark:
+    def get_problem(self) -> Problem:
+        return SingleObjectiveProblem(
             minimize=False,
             fitness_function=fitness_function,
             target_fitness=None,
-        ),
-        probability_crossover=1,
-        probability_mutation=0.5,
-        number_of_generations=50,
-        max_depth=10,
-        population_size=50,
-        selection_method=("tournament", 2),
-        n_elites=1,
-        seed=seed,
-        timer_stop_criteria=mode,
-    )
-    (b, bf, bp) = alg.evolve()
-    return b, bf
+        )
+
+    def get_grammar(self) -> Grammar:
+        return extract_grammar(
+            prods,
+            Number,
+        )
+
+    def main(self, **args):
+        g = self.get_grammar()
+        prob = self.get_problem()
+        alg = SimpleGP(
+            g,
+            problem=prob,
+            probability_crossover=1,
+            probability_mutation=0.5,
+            number_of_generations=20,
+            max_depth=10,
+            max_init_depth=6,
+            population_size=50,
+            selection_method=("tournament", 2),
+            n_elites=5,
+            **args,
+        )
+        best = alg.evolve()
+        print(
+            f"Fitness of {prob.overall_fitness(best.get_phenotype())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+        )
 
 
 if __name__ == "__main__":
-    g = preprocess()
-    print(g)
-    b, bf = evolve(g, 1234, False)
-    print(bf)
-    print(f"With fitness: {b}")
+    ClassificationBenchmark().main(seed=0)

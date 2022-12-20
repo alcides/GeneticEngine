@@ -175,9 +175,9 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
             verbose=0,
         )
 
-        best_ind, fitness, phenotype = model.evolve()
-        self.evolved_phenotype = phenotype
-        self.sympy_compatible_phenotype = fix_all(str(phenotype))
+        ind = model.evolve()
+        self.evolved_phenotype = ind.get_phenotype()
+        self.sympy_compatible_phenotype = fix_all(str(self.evolved_phenotype))
 
     def predict(self, X):
         """Predict the target values of X.
@@ -306,9 +306,9 @@ class HillClimbingRegressor(BaseEstimator, TransformerMixin):
             random_source=RandomSource(self.seed),
         )
 
-        best_ind, fitness, phenotype = model.evolve()
-        self.evolved_phenotype = phenotype
-        self.sympy_compatible_phenotype = fix_all(str(phenotype))
+        ind = model.evolve()
+        self.evolved_phenotype = ind.get_phenotype()
+        self.sympy_compatible_phenotype = fix_all(str(self.evolved_phenotype))
 
     def predict(self, X):
         """Predict the target values of X.

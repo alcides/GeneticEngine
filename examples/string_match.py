@@ -1,19 +1,15 @@
 from __future__ import annotations
 
-import os
-
 from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.grammar import Grammar
+from geneticengine.core.problems import Problem
 from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import DynamicStructuredGrammaticalEvolutionRepresentation
-from geneticengine.core.representations.grammatical_evolution.ge import (
-    GrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.grammatical_evolution.structured_ge import (
-    StructuredGrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.grammars.letter import *
+from geneticengine.grammars.letter import Char
+from geneticengine.grammars.letter import Consonant
+from geneticengine.grammars.letter import LetterString
+from geneticengine.grammars.letter import String
+from geneticengine.grammars.letter import Vowel
 
 # ===================================
 # This is a simple example on how to use GeneticEngine to solve a GP problem.
@@ -41,51 +37,37 @@ def fitness_function(x):
     return fit(x)
 
 
-def preprocess():
-    g = extract_grammar([LetterString, Char, Vowel, Consonant], String)
-    return g
-
-
-def evolve(
-    g,
-    seed,
-    mode,
-    representation="TreeBasedRepresentation",
-):
-    if representation == "ge":
-        representation = GrammaticalEvolutionRepresentation
-    elif representation == "sge":
-        representation = StructuredGrammaticalEvolutionRepresentation
-    elif representation == "dsge":
-        representation = DynamicStructuredGrammaticalEvolutionRepresentation
-    else:
-        representation = TreeBasedRepresentation
-
-    alg = SimpleGP(
-        g,
-        representation=representation,
-        problem=SingleObjectiveProblem(
+class StringMatchBenchmark:
+    def get_problem(self) -> Problem:
+        return SingleObjectiveProblem(
             minimize=True,
             fitness_function=fitness_function,
             target_fitness=None,
-        ),
-        probability_crossover=0.75,
-        probability_mutation=0.01,
-        max_depth=10,
-        number_of_generations=30,
-        population_size=50,
-        selection_method=("tournament", 2),
-        n_elites=5,
-        minimize=True,
-        seed=seed,
-        timer_stop_criteria=mode,
-    )
-    (b, bf, bp) = alg.evolve()
-    return b, bf
+        )
+
+    def get_grammar(self) -> Grammar:
+        return extract_grammar([LetterString, Char, Vowel, Consonant], String)
+
+    def main(self, **args):
+        g = self.get_grammar()
+        prob = self.get_problem()
+        alg = SimpleGP(
+            g,
+            problem=prob,
+            probability_crossover=0.75,
+            probability_mutation=0.01,
+            max_depth=10,
+            number_of_generations=30,
+            population_size=50,
+            selection_method=("tournament", 2),
+            n_elites=5,
+            **args,
+        )
+        best = alg.evolve()
+        print(
+            f"Fitness of {prob.overall_fitness(best.get_phenotype())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+        )
 
 
 if __name__ == "__main__":
-    g = preprocess()
-    bf, b = evolve(g, 0, False)
-    print(b)
-    print(f"With fitness: {bf}")
+    StringMatchBenchmark().main(seed=0)

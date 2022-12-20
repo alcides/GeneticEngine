@@ -10,17 +10,9 @@ from sklearn.model_selection import train_test_split
 from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.grammar import Grammar
 from geneticengine.core.problems import MultiObjectiveProblem
-from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
-    DynamicStructuredGrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.grammatical_evolution.ge import (
-    GrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.grammatical_evolution.structured_ge import (
-    StructuredGrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.core.problems import Problem
 from geneticengine.grammars.basic_math import SafeDiv
 from geneticengine.grammars.basic_math import SafeLog
 from geneticengine.grammars.basic_math import SafeSqrt
@@ -157,13 +149,6 @@ class Literal2(Number):
         return str(self.val)
 
 
-def preprocess():
-    return extract_grammar(
-        [Plus, Mul, SafeDiv, Literal2, Var, SafeSqrt, SafeLog],
-        Number,
-    )
-
-
 X_train, X_test, y_train, y_test = train_test_split(
     data.values,
     target.values,
@@ -188,52 +173,46 @@ def fitness_function_lexicase(n: Number):
     return [int(p == r) for (p, r) in zip(y, y_pred)]
 
 
-def evolve(
-    g,
-    seed,
-    mode,
-    representation="TreeBasedRepresentation",
-):
-    if representation == "ge":
-        representation = GrammaticalEvolutionRepresentation
-    elif representation == "sge":
-        representation = StructuredGrammaticalEvolutionRepresentation
-    elif representation == "dsge":
-        representation = DynamicStructuredGrammaticalEvolutionRepresentation
-    else:
-        representation = TreeBasedRepresentation
+class ClassificationLexicaseBenchmark:
+    def get_problem(self) -> Problem:
+        minimizelist = [False for _ in data.values.tolist()]
 
-    minimizelist = [False for _ in data.values.tolist()]
+        def single_criteria_test(n: Number) -> float:
+            fitnesses = fitness_function_lexicase(n)
+            return sum((m and -f or f) for (f, m) in zip(fitnesses, minimizelist))
 
-    def single_criteria_test(n: Number) -> float:
-        fitnesses = fitness_function_lexicase(n)
-        return sum((m and -f or f) for (f, m) in zip(fitnesses, minimizelist))
-
-    alg = SimpleGP(
-        g,
-        representation=representation,
-        problem=MultiObjectiveProblem(
+        return MultiObjectiveProblem(
             minimize=minimizelist,
             fitness_function=fitness_function_lexicase,
             best_individual_criteria_function=single_criteria_test,
-        ),
-        probability_crossover=0.75,
-        probability_mutation=0.01,
-        number_of_generations=50,
-        max_depth=15,
-        population_size=50,
-        selection_method=("lexicase",),
-        n_elites=5,
-        seed=seed,
-        timer_stop_criteria=mode,
-    )
-    (b, bf, bp) = alg.evolve()
-    return b, single_criteria_test(bp)
+        )
+
+    def get_grammar(self) -> Grammar:
+        return extract_grammar(
+            [Plus, Mul, SafeDiv, Literal2, Var, SafeSqrt, SafeLog],
+            Number,
+        )
+
+    def main(self, **args):
+        g = self.get_grammar()
+        prob = self.get_problem()
+        alg = SimpleGP(
+            g,
+            problem=prob,
+            probability_crossover=0.75,
+            probability_mutation=0.01,
+            number_of_generations=50,
+            max_depth=15,
+            population_size=50,
+            selection_method=("lexicase",),
+            n_elites=5,
+            **args,
+        )
+        best = alg.evolve()
+        print(
+            f"Fitness of {prob.overall_fitness(best.get_phenotype())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+        )
 
 
 if __name__ == "__main__":
-    g = preprocess()
-    print(g)
-    b, bf = evolve(g, 123, False)
-    print(b)
-    print(f"With fitness: {bf}")
+    ClassificationLexicaseBenchmark().main(seed=0)

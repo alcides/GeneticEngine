@@ -58,7 +58,9 @@ alg_gp = GP(
     problem=problem,
     stopping_criterium=stopping_criterium,
 )
-(b_gp, bf_gp, bp_gp) = alg_gp.evolve()
+ind = alg_gp.evolve()
+print("\n======\nGP\n======\n")
+print(f"{ind.evaluate(problem)} - {ind}")
 
 
 alg_hc = HC(
@@ -66,20 +68,15 @@ alg_hc = HC(
     problem=problem,
     stopping_criterium=stopping_criterium,
 )
-(b_hc, bf_hc, bp_hc) = alg_hc.evolve()
+ind = alg_hc.evolve()
+print("\n======\nHC\n======\n")
+print(f"{ind.evaluate(problem)} - {ind}")
 
 alg_rs = RandomSearch(
     representation=representation,
     problem=problem,
     stopping_criterium=stopping_criterium,
 )
-(b_rs, bf_rs, bp_rs) = alg_rs.evolve()
-
+ind = alg_rs.evolve()
 print("\n======\nRS\n======\n")
-print(bf_rs, bp_rs, b_rs)
-
-print("\n======\nHC\n======\n")
-print(bf_hc, bp_hc, b_hc)
-
-print("\n======\nGP\n======\n")
-print(bf_gp, bp_gp, b_gp)
+print(f"{ind.evaluate(problem)} - {ind}")

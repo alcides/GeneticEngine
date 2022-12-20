@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Any
+from typing import TypeVar
 
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.algorithms.gp.structure import GeneticStep
@@ -54,59 +55,35 @@ class GenericMutationStep(GeneticStep):
         )
 
 
-# TODO: Refactor into MutationOperator
-class HillClimbingMutationIteration(GeneticStep):
-    def __init__(
-        self,
-        probability: float,
-        specific_type: type | None = None,
-        depth_aware_mut: bool = False,
-        n_candidates: int = 5,
-    ):
-        self.probability = probability
-        self.specific_type = specific_type
-        self.depth_aware_mut = depth_aware_mut
+g = TypeVar("g")
+
+
+class HillClimbingMutation(MutationOperator[g]):
+    def __init__(self, n_candidates: int = 5, basic_mutator: MutationOperator | None = None):
         self.n_candidates = n_candidates
-
-    def iterate(
-        self,
-        problem: Problem,
-        representation: Representation,
-        random_source: Source,
-        population: list[Individual],
-        target_size: int,
-        generation: int,
-    ) -> list[Individual]:
-        assert len(population) == target_size
-
-        return [self.mutate(ind, representation, random_source, problem) for ind in population]
+        self.basic_mutator = basic_mutator
 
     def mutate(
         self,
-        individual: Individual,
+        genotype: g,
+        problem: Problem,
         representation: Representation,
         random_source: Source,
-        problem: Problem,
-    ) -> Individual:
-        def creation_new_individual():
-            genotype = representation.mutate_individual(
-                random_source,
-                individual.genotype,
-                representation.max_depth,
-                representation.grammar.starting_symbol,  # TODO: this does not seem okay
-                specific_type=self.specific_type,
-                depth_aware_mut=self.depth_aware_mut,
-            )
+        index_in_population: int,
+        generation: int,
+    ) -> g:
+        basic_mutator = self.basic_mutator if self.basic_mutator else representation.get_mutation()
 
-            return Individual(
-                genotype=genotype,
-                genotype_to_phenotype=representation.genotype_to_phenotype,
-            )
-
-        new_individuals = [creation_new_individual() for _ in range(self.n_candidates)]
+        new_genotypes = [genotype] + [
+            basic_mutator.mutate(genotype, problem, representation, random_source, index_in_population, generation)
+            for _ in range(self.n_candidates)
+        ]
+        new_individuals = [
+            Individual(genotype=g, genotype_to_phenotype=representation.genotype_to_phenotype) for g in new_genotypes
+        ]
 
         best_individual = min(
-            (new_individuals + [individual]),
+            new_individuals,
             key=lambda ind: problem.overall_fitness(ind.get_phenotype()),
         )
-        return best_individual
+        return best_individual.genotype

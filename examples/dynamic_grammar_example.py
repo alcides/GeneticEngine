@@ -1,12 +1,14 @@
 from __future__ import annotations
 
-import random
 import sys
 
+from geneticengine.algorithms.callbacks.callback import ProgressCallback
 from geneticengine.algorithms.callbacks.csv_callback import CSVCallback
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.grammar import Grammar
+from geneticengine.core.problems import Problem
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
@@ -38,59 +40,94 @@ def create_target_individual(grammar_seed, g):
     return individual_phenotype
 
 
+def run_one_grammar_config(
+    seed: int,
+    log_file_name: str,
+    grammar: Grammar,
+    problem: Problem,
+    abc_classes: int,
+    terminal_classes: int,
+    non_terminal_classes: int,
+    max_var_per_class: int,
+):
+    alg = GP(
+        representation=TreeBasedRepresentation(grammar, max_depth=10),
+        problem=problem,
+        stopping_criterium=GenerationStoppingCriterium(25),
+        random_source=RandomSource(seed),
+        population_size=100,
+        callbacks=[
+            ProgressCallback(),
+            CSVCallback(
+                filename=(log_file_name),
+                extra_columns={
+                    "abc_classes": lambda a, b, c, d, e: abc_classes,
+                    "terminal_classes": lambda a, b, c, d, e: terminal_classes,
+                    "non_terminal_classes": lambda a, b, c, d, e: non_terminal_classes,
+                    "max_var_per_class": lambda a, b, c, d, e: max_var_per_class,
+                },
+            ),
+        ],
+    )
+    ind = alg.evolve()
+    return ind
+
+
+def generate_and_run_one_grammar_config(
+    grammar_seed: int,
+    abc_classes: int,
+    terminal_classes: int,
+    non_terminal_classes: int,
+    max_var_per_class: int,
+):
+    log_file_name = f"dynamic_grammar_{grammar_seed}.csv"
+    grammar = create_dynamic_grammar(
+        grammar_seed,
+        abc_classses,
+        terminal_classes,
+        non_terminal_classes,
+        max_var_per_class,
+    )
+
+    target_individual = create_target_individual(grammar_seed, grammar)
+
+    def fitness_function(n):
+        return edit_distance(str(n), str(target_individual))
+
+    problem = SingleObjectiveProblem(
+        fitness_function=fitness_function,
+        minimize=True,
+        target_fitness=0,
+    )
+    return run_one_grammar_config(
+        grammar_seed,
+        log_file_name,
+        grammar,
+        problem,
+        abc_classses,
+        terminal_classes,
+        non_terminal_classes,
+        max_var_per_class,
+    )
+
+
 if __name__ == "__main__":
     # run $ python3 dynamic_grammar_example.py <number_abc_class> <number_terminal_class> <number_nterminal_class> <max_vars_per_class> <number_of_runs>
     args = sys.argv[1:]
     assert len(args) == 5, 'Incorrect input!! It should be e.g: "$ python3 dynamic_grammar_example.py 2 3 3 5 4"'
-    seeds_used = [1123]
-    for i in range(int(args[-1])):
-        # grammar_seed = 100 + i
+    number_of_runs = int(args[-1])
+    abc_classses = int(args[0])
+    terminal_classes = int(args[1])
+    non_terminal_classes = int(args[2])
+    max_var_per_class = int(args[3])
 
-        # do while
-        # generate different random grammar seed each iteration
-        while True:
-            grammar_seed = random.randint(1, 100 + i)
-            if grammar_seed not in seeds_used:
-                seeds_used.append(grammar_seed)
-                break
-
-        log_file_name = f"dynamic_grammar_{grammar_seed}.csv"
-
-        g = create_dynamic_grammar(grammar_seed, int(args[0]), int(args[1]), int(args[2]), int(args[3]))
-        print(g)
-
-        target_individual = create_target_individual(grammar_seed, g)
-
-        def fitness_function(n):
-            return edit_distance(str(n), str(target_individual))
-
-        n_generations = 25
-
-        def evolve(g, seed, mode):
-            alg = GP(
-                representation=TreeBasedRepresentation(g, max_depth=10),
-                problem=SingleObjectiveProblem(
-                    fitness_function=fitness_function,
-                    minimize=True,
-                    target_fitness=0,
-                ),
-                stopping_criterium=GenerationStoppingCriterium(n_generations),
-                random_source=RandomSource(seed),
-                population_size=100,
-                callbacks=[
-                    CSVCallback(
-                        filename=(log_file_name),
-                        extra_columns={
-                            "abc_classes": lambda a, b, c, d, e: int(args[0]),
-                            "terminal_classes": lambda a, b, c, d, e: int(args[1]),
-                            "non_terminal_classes": lambda a, b, c, d, e: int(args[2]),
-                        },
-                    ),
-                ],
-            )
-            (b, bf, bp) = alg.evolve()
-            return b, bf
-
-        bf, b = evolve(g, 1123, False)
-        print(b)
-        print(f"With fitness: {bf}")
+    for nrun in range(number_of_runs):
+        grammar_seed = nrun
+        best = generate_and_run_one_grammar_config(
+            grammar_seed,
+            abc_classses,
+            terminal_classes,
+            non_terminal_classes,
+            max_var_per_class,
+        )
+        print(f"{best.fitness} - {best.get_phenotype()}")

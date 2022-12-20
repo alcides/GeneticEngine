@@ -74,13 +74,14 @@ def fitness_function(p):
 
 if __name__ == "__main__":
     g = extract_grammar([Op, Access, Literal], Node)
+    prob = SingleObjectiveProblem(
+        minimize=True,
+        fitness_function=fitness_function,
+        target_fitness=None,
+    )
     gp = SimpleGP(
         grammar=g,
-        problem=SingleObjectiveProblem(
-            minimize=True,
-            fitness_function=fitness_function,
-            target_fitness=None,
-        ),
+        problem=prob,
         minimize=True,
         max_depth=10,
         number_of_generations=100,
@@ -88,5 +89,7 @@ if __name__ == "__main__":
         probability_mutation=0.5,
         probability_crossover=0.4,
     )
-    ind = gp.evolve()
-    print(ind.fitness, ind.get_phenotype())
+    best = gp.evolve()
+    print(
+        f"Fitness of {prob.overall_fitness(best.get_phenotype())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+    )

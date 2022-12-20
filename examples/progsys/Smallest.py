@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from typing import Annotated
-from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import DynamicStructuredGrammaticalEvolutionRepresentation
 
 from utils import get_data
 from utils import import_embedded
@@ -9,6 +8,9 @@ from utils import import_embedded
 from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
+from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
+    DynamicStructuredGrammaticalEvolutionRepresentation,
+)
 from geneticengine.core.representations.grammatical_evolution.ge import (
     GrammaticalEvolutionRepresentation,
 )
@@ -29,7 +31,6 @@ from geneticengine.grammars.coding.conditions import LessThan
 from geneticengine.grammars.coding.conditions import NotEquals
 from geneticengine.grammars.coding.control_flow import IfThen
 from geneticengine.grammars.coding.control_flow import IfThenElse
-from geneticengine.grammars.coding.control_flow import While
 from geneticengine.grammars.coding.logical_ops import And
 from geneticengine.grammars.coding.logical_ops import Or
 from geneticengine.grammars.coding.numbers import Abs
@@ -152,12 +153,11 @@ def evolve(g, seed, mode, representation=""):
         probability_crossover=0.9,
         timer_stop_criteria=mode,
     )
-    (b, bf, bp) = alg.evolve()
-    return b, bf
+    ind = alg.evolve()
+    return ind.get_phenotype(), ind.fitness, g
 
 
 if __name__ == "__main__":
     g = preprocess()
-    bf, b = evolve(g, 0, False)
-    print(b)
-    print(f"With fitness: {bf}")
+    ind = evolve(g, 0, False)
+    print(ind)

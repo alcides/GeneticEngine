@@ -8,17 +8,9 @@ import pandas as pd
 
 from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.grammar import Grammar
 from geneticengine.core.problems import MultiObjectiveProblem
-from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
-    DynamicStructuredGrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.grammatical_evolution.ge import (
-    GrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.grammatical_evolution.structured_ge import (
-    StructuredGrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.core.problems import Problem
 from geneticengine.grammars.basic_math import Exp
 from geneticengine.grammars.basic_math import SafeDiv
 from geneticengine.grammars.basic_math import SafeLog
@@ -68,38 +60,6 @@ class Literal(Number):
         return str(self.val)
 
 
-def preprocess():
-    return extract_grammar(
-        [
-            Plus,
-            Minus,
-            Mul,
-            SafeDiv,
-            Literal,
-            Var,
-            SafeSqrt,
-            Exp,
-            Sin,
-            Tanh,
-            SafeLog,
-        ],
-        Number,
-    )
-
-    # <e>  ::=  <e>+<e>|
-    #       <e>-<e>|
-    #       <e>*<e>|
-    #       pdiv(<e>,<e>)|
-    #       psqrt(<e>)|
-    #       np.sin(<e>)|
-    #       np.tanh(<e>)|
-    #       np.exp(<e>)|
-    #       plog(<e>)|
-    #       x[:, 0]|x[:, 1]|x[:, 2]|x[:, 3]|x[:, 4]|
-    #       <c>
-    # <c>  ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
-
-
 def lexicase_parameters():
     X = data.values
     n_cases = 50
@@ -130,54 +90,61 @@ def lexicase_parameters():
                 grouped_errors.append(
                     sum(pred_error[(case_size * n_cases) :]) / len(pred_error[(case_size * n_cases) :]),
                 )
-        except (OverflowError, ValueError) as e:
+        except (OverflowError, ValueError):
             return np.full(len(y), 99999999999)
         return grouped_errors
 
     return lexicase_fitness_function, minimize_list
 
 
-def evolve(
-    g,
-    seed,
-    mode,
-    representation="TreeBasedRepresentation",
-):
-    if representation == "ge":
-        representation = GrammaticalEvolutionRepresentation
-    elif representation == "sge":
-        representation = StructuredGrammaticalEvolutionRepresentation
-    elif representation == "dsge":
-        representation = DynamicStructuredGrammaticalEvolutionRepresentation
-    else:
-        representation = TreeBasedRepresentation
+class LexicaseRegressionBenchmark:
+    def get_problem(self) -> Problem:
+        fitness_function_lexicase, minimizelist = lexicase_parameters()
+        return MultiObjectiveProblem(
+            minimize=minimizelist,
+            fitness_function=fitness_function_lexicase,
+        )
 
-    fitness_function_lexicase, minimizelist = lexicase_parameters()
-    problem = MultiObjectiveProblem(
-        minimize=minimizelist,
-        fitness_function=fitness_function_lexicase,
-    )
+    def get_grammar(self) -> Grammar:
+        """<e>  ::=  <e>+<e>|
 
-    alg = SimpleGP(
-        g,
-        representation=representation,
-        problem=problem,
-        probability_crossover=0.75,
-        probability_mutation=0.01,
-        number_of_generations=10,
-        max_depth=8,
-        population_size=50,
-        selection_method=("lexicase", "epsilon"),
-        n_elites=0,
-        seed=seed,
-        timer_stop_criteria=mode,
-    )
-    (b, bf, bp) = alg.evolve()
-    return problem.overall_fitness(bp), b
+        <e>-<e>|       <e>*<e>|       pdiv(<e>,<e>)| psqrt(<e>)|
+        np.sin(<e>)|       np.tanh(<e>)| np.exp(<e>)|       plog(<e>)|
+        x[:, 0]|x[:, 1]|x[:, 2]|x[:, 3]|x[:, 4]|       <c> <c>  ::= 0 |
+        1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+        """
+        return extract_grammar(
+            [
+                Plus,
+                Minus,
+                Mul,
+                SafeDiv,
+                Literal,
+                Var,
+                SafeSqrt,
+                Exp,
+                Sin,
+                Tanh,
+                SafeLog,
+            ],
+            Number,
+        )
+
+    def main(self, **args):
+        g = self.get_grammar()
+        prob = self.get_problem()
+        alg = SimpleGP(
+            g,
+            problem=prob,
+            number_of_generations=10,
+            selection_method=("lexicase", 0.01),
+            **args,
+        )
+        best = alg.evolve()
+        print(
+            f"Fitness of {prob.overall_fitness(best.get_phenotype())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+        )
 
 
 if __name__ == "__main__":
-    g = preprocess()
-    bf, b = evolve(g, 0, False)
-    print(b)
-    print(f"With fitness: {bf}")
+    LexicaseRegressionBenchmark().main(seed=0)

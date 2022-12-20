@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
 from typing import Callable
 from typing import Generic
 from typing import TypeVar
@@ -21,7 +20,7 @@ class Individual(Generic[G, P]):
     fitness: FitnessType | None = None
 
     def __str__(self) -> str:
-        return str(self.genotype)
+        return f"{self.genotype}"
 
     def get_phenotype(self):
         if self.phenotype is None:

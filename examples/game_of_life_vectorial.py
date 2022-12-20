@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import os
-import sys
 from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
@@ -14,16 +12,9 @@ from sklearn.metrics import f1_score
 from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
-    DynamicStructuredGrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.grammatical_evolution.ge import (
-    GrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.grammatical_evolution.structured_ge import (
-    StructuredGrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.core.grammar import Grammar
+from geneticengine.core.problems import Problem
+from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.grammars.coding.classes import Condition
 from geneticengine.grammars.coding.classes import Expr
 from geneticengine.grammars.coding.classes import Number
@@ -222,177 +213,151 @@ def evaluate(e: Expr | Matrix | Number) -> Callable[[Any], float]:
         raise NotImplementedError(str(e))
 
 
-def preprocess(method):
-    """Options for methor are [standard], [row], [col], [row_col], [cube],
-
-    [row_col_cube], [sum_all].
-    """
-    if method == "standard":
-        grammar = extract_grammar([And, Or, Not, MatrixElement], Condition)
-    elif method == "row":
-        grammar = extract_grammar(
-            [
-                And,
-                Or,
-                Not,
-                MatrixElement,
-                MatrixElementsRow,
-                MatrixSum,
-                Equals,
-                GreaterThan,
-                LessThan,
-                Literal,
-            ],
-            Condition,
-        )
-    elif method == "col":
-        grammar = extract_grammar(
-            [
-                And,
-                Or,
-                Not,
-                MatrixElement,
-                MatrixElementsCol,
-                MatrixSum,
-                Equals,
-                GreaterThan,
-                LessThan,
-                Literal,
-            ],
-            Condition,
-        )
-    elif method == "row_col":
-        grammar = extract_grammar(
-            [
-                And,
-                Or,
-                Not,
-                MatrixElement,
-                MatrixElementsRow,
-                MatrixElementsCol,
-                MatrixSum,
-                Equals,
-                GreaterThan,
-                LessThan,
-                Literal,
-            ],
-            Condition,
-        )
-    elif method == "cube":
-        grammar = extract_grammar(
-            [
-                And,
-                Or,
-                Not,
-                MatrixElement,
-                MatrixElementsCube,
-                MatrixSum,
-                Equals,
-                GreaterThan,
-                LessThan,
-                Literal,
-            ],
-            Condition,
-        )
-    elif method == "row_col_cube":
-        grammar = extract_grammar(
-            [
-                And,
-                Or,
-                Not,
-                MatrixElement,
-                MatrixElementsRow,
-                MatrixElementsCol,
-                MatrixElementsCube,
-                MatrixSum,
-                Equals,
-                GreaterThan,
-                LessThan,
-                Literal,
-            ],
-            Condition,
-        )
-    elif method == "sum_all":
-        grammar = extract_grammar(
-            [
-                And,
-                Or,
-                Not,
-                MatrixElement,
-                SumAll,
-                Equals,
-                GreaterThan,
-                LessThan,
-                Literal,
-            ],
-            Condition,
-        )
-    else:
-        raise NotImplementedError(
-            f"Method ({method}) not implemented! Choose from: [standard], [row], [col], [row_col], [cube], [row_col_cube], [sum_all]",
-        )
-
-    print(grammar)
-    return grammar
+grammars = {
+    "standard": extract_grammar([And, Or, Not, MatrixElement], Condition),
+    "row": extract_grammar(
+        [
+            And,
+            Or,
+            Not,
+            MatrixElement,
+            MatrixElementsRow,
+            MatrixSum,
+            Equals,
+            GreaterThan,
+            LessThan,
+            Literal,
+        ],
+        Condition,
+    ),
+    "col": extract_grammar(
+        [
+            And,
+            Or,
+            Not,
+            MatrixElement,
+            MatrixElementsCol,
+            MatrixSum,
+            Equals,
+            GreaterThan,
+            LessThan,
+            Literal,
+        ],
+        Condition,
+    ),
+    "row_col": extract_grammar(
+        [
+            And,
+            Or,
+            Not,
+            MatrixElement,
+            MatrixElementsRow,
+            MatrixElementsCol,
+            MatrixSum,
+            Equals,
+            GreaterThan,
+            LessThan,
+            Literal,
+        ],
+        Condition,
+    ),
+    "cube": extract_grammar(
+        [
+            And,
+            Or,
+            Not,
+            MatrixElement,
+            MatrixElementsCube,
+            MatrixSum,
+            Equals,
+            GreaterThan,
+            LessThan,
+            Literal,
+        ],
+        Condition,
+    ),
+    "row_col_cube": extract_grammar(
+        [
+            And,
+            Or,
+            Not,
+            MatrixElement,
+            MatrixElementsRow,
+            MatrixElementsCol,
+            MatrixElementsCube,
+            MatrixSum,
+            Equals,
+            GreaterThan,
+            LessThan,
+            Literal,
+        ],
+        Condition,
+    ),
+    "sum_all": extract_grammar(
+        [
+            And,
+            Or,
+            Not,
+            MatrixElement,
+            SumAll,
+            Equals,
+            GreaterThan,
+            LessThan,
+            Literal,
+        ],
+        Condition,
+    ),
+}
 
 
-def evolve(
-    fitness_function,
-    g,
-    seed,
-    mode,
-    representation="TreeBasedRepresentation",
-):
-    if representation == "ge":
-        representation = GrammaticalEvolutionRepresentation
-    elif representation == "sge":
-        representation = StructuredGrammaticalEvolutionRepresentation
-    elif representation == "dsge":
-        representation = DynamicStructuredGrammaticalEvolutionRepresentation
-    else:
-        representation = TreeBasedRepresentation
-    alg = SimpleGP(
-        g,
-        fitness_function,
-        representation=representation,
-        number_of_generations=50,
-        population_size=50,
-        max_depth=10,
-        # favor_less_complex_trees=True,
-        # probability_crossover=0.75,
-        # probability_mutation=0.01,
-        # selection_method=("tournament", 2),
-        minimize=False,
-        seed=seed,
-        timer_stop_criteria=mode,
-    )
-    (b, bf, bp) = alg.evolve()
+dataset_name = "GameOfLife"
+Xtrain, Xtest, ytrain, ytest = prepare_data(dataset_name)
 
-    print("Best individual:", bp)
-    print("Genetic Engine Train F1 score:", bf)
 
-    _clf = evaluate(bp)
-    ypred = [_clf(line) for line in np.rollaxis(Xtest, 0)]
-    print("GeneticEngine Test F1 score:", f1_score(ytest, ypred))
+def fitness_function(i: Condition):
+    _clf = evaluate(i)
+    ypred = [_clf(line) for line in np.rollaxis(Xtrain, 0)]
+    return f1_score(ytrain, ypred)
 
-    return b, bf
+
+class GameOfLifeVectorialBenchmark:
+    def __init__(self, method: str = "standard"):
+        self.grammar = grammars[method]
+
+    def get_problem(self) -> Problem:
+        return SingleObjectiveProblem(
+            minimize=False,
+            fitness_function=fitness_function,
+            target_fitness=None,
+        )
+
+    def get_grammar(self) -> Grammar:
+        return self.grammar
+
+    def main(self, **args):
+        g = self.get_grammar()
+        prob = self.get_problem()
+        alg = SimpleGP(
+            g,
+            problem=prob,
+            number_of_generations=50,
+            population_size=50,
+            max_depth=10,
+            # favor_less_complex_trees=True,
+            # probability_crossover=0.75,
+            # probability_mutation=0.01,
+            # selection_method=("tournament", 2),
+            **args,
+        )
+        best = alg.evolve()
+        print(
+            f"Fitness of {prob.overall_fitness(best.get_phenotype())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+        )
+
+        _clf = evaluate(best.get_phenotype())
+        ypred = [_clf(line) for line in np.rollaxis(Xtest, 0)]
+        print("GeneticEngine Test F1 score:", f1_score(ytest, ypred))
 
 
 if __name__ == "__main__":
-    args = sys.argv
-    print(args)
-    method = "col"
-    dataset_name = "GameOfLife"
-
-    g = preprocess(method)
-
-    Xtrain, Xtest, ytrain, ytest = prepare_data(dataset_name)
-
-    def fitness_function(i: Condition):
-        _clf = evaluate(i)
-        ypred = [_clf(line) for line in np.rollaxis(Xtrain, 0)]
-        return f1_score(ytrain, ypred)
-
-    for i in range(1):
-        print(f"Run: {i}.")
-        evolve(fitness_function, g, i, False, "dsge")
+    GameOfLifeVectorialBenchmark(method="col").main(seed=0)

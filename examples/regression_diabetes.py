@@ -9,8 +9,9 @@ from sklearn.datasets import load_diabetes
 
 from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.grammar import Grammar
+from geneticengine.core.problems import Problem
 from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammars.basic_math import Exp
 from geneticengine.grammars.basic_math import SafeDiv
 from geneticengine.grammars.basic_math import SafeLog
@@ -43,29 +44,6 @@ Var.__init__.__annotations__["name"] = Annotated[str, VarRange(bunch.feature_nam
 Var.feature_indices = feature_indices  # type: ignore
 
 
-def preprocess():
-    return extract_grammar(
-        [Plus, Mul, SafeDiv, Literal, Var, SafeSqrt, Sin, Tanh, Exp, SafeLog],
-        Number,
-    )
-
-
-def evolve(g, seed):
-    alg = SimpleGP(
-        g,
-        TreeBasedRepresentation,
-        problem=SingleObjectiveProblem(
-            minimize=True,
-            fitness_function=fitness_function,
-            target_fitness=None,
-        ),
-        number_of_generations=10,
-        seed=seed,
-    )
-    (b, bf, bp) = alg.evolve()
-    return b, bf
-
-
 def fitness_function(n: Number):
     X = bunch.data
     y = bunch.target
@@ -83,8 +61,34 @@ def fitness_function(n: Number):
     return fitness
 
 
+class DiabetesBenchmark:
+    def get_problem(self) -> Problem:
+        return SingleObjectiveProblem(
+            minimize=True,
+            fitness_function=fitness_function,
+            target_fitness=None,
+        )
+
+    def get_grammar(self) -> Grammar:
+        return extract_grammar(
+            [Plus, Mul, SafeDiv, Literal, Var, SafeSqrt, Sin, Tanh, Exp, SafeLog],
+            Number,
+        )
+
+    def main(self, **args):
+        g = self.get_grammar()
+        prob = self.get_problem()
+        alg = SimpleGP(
+            g,
+            problem=prob,
+            number_of_generations=10,
+            **args,
+        )
+        best = alg.evolve()
+        print(
+            f"Fitness of {prob.overall_fitness(best.get_phenotype())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+        )
+
+
 if __name__ == "__main__":
-    g = preprocess()
-    print(f"Grammar: {repr(g)}.")
-    b, bf = evolve(g, 0)
-    print(b, bf)
+    DiabetesBenchmark().main(seed=0)

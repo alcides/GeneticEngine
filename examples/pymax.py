@@ -4,17 +4,9 @@ from dataclasses import dataclass
 
 from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.grammar import Grammar
+from geneticengine.core.problems import Problem
 from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
-    DynamicStructuredGrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.grammatical_evolution.ge import (
-    GrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.grammatical_evolution.structured_ge import (
-    StructuredGrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammars.coding.classes import Expr
 from geneticengine.grammars.coding.classes import XAssign
 from geneticengine.grammars.coding.control_flow import Code
@@ -25,6 +17,8 @@ from geneticengine.grammars.coding.control_flow import ForLoop
 # We define the tree structure of the representation and then we define the fitness function for our problem
 # The Pymax problem is a traditional maximisation problem, where the goal is to produce as large a number as possible.
 # ===================================
+
+# TODO: This example is not running correctly
 
 
 class VarX(Expr):
@@ -69,51 +63,28 @@ def fit(indiv: Code):
     return indiv.evaluate()
 
 
-def fitness_function(x):
-    return fit(x)
-
-
-def preprocess():
-    return extract_grammar(
-        [XPlusConst, XTimesConst, XAssign, ForLoop, Code, Const, VarX],
-        ForLoop,
-    )
-
-
-def evolve(
-    g,
-    seed,
-    mode,
-    representation="TreeBasedRepresentation",
-):
-    if representation == "ge":
-        representation = GrammaticalEvolutionRepresentation
-    elif representation == "sge":
-        representation = StructuredGrammaticalEvolutionRepresentation
-    elif representation == "dsge":
-        representation = DynamicStructuredGrammaticalEvolutionRepresentation
-    else:
-        representation = TreeBasedRepresentation
-    alg = SimpleGP(
-        g,
-        representation=representation,
-        problem=SingleObjectiveProblem(
+class PyMaxBenchmark:
+    def get_problem(self) -> Problem:
+        return SingleObjectiveProblem(
             minimize=False,
-            fitness_function=fitness_function,
+            fitness_function=fit,
             target_fitness=None,
-        ),
-        max_depth=8,
-        population_size=25,
-        number_of_generations=10,
-        seed=seed,
-        timer_stop_criteria=mode,
-    )
-    (b, bf, bp) = alg.evolve()
-    return b, bf
+        )
+
+    def get_grammar(self) -> Grammar:
+        return extract_grammar(
+            [XPlusConst, XTimesConst, XAssign, ForLoop, Code, Const, VarX],
+            ForLoop,
+        )
+
+    def main(self, **args):
+        g = self.get_grammar()
+        prob = self.get_problem()
+        alg = SimpleGP(g, problem=prob, max_depth=8, population_size=25, number_of_generations=10, **args)
+        best = alg.evolve()
+        fitness = prob.overall_fitness(best.get_phenotype())
+        print(f"Fitness of {fitness} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}")
 
 
 if __name__ == "__main__":
-    g = preprocess()
-    bf, b = evolve(g, 0, False)
-    print(b)
-    print(f"With fitness: {bf}")
+    PyMaxBenchmark().main(seed=0)

@@ -4,23 +4,14 @@ from abc import ABC
 from dataclasses import dataclass
 from enum import Enum
 from typing import Annotated
-from typing import List
-from typing import Tuple
 
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.grammar import Grammar
+from geneticengine.core.problems import Problem
 from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
-    DynamicStructuredGrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.grammatical_evolution.ge import (
-    GrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.grammatical_evolution.structured_ge import (
-    StructuredGrammaticalEvolutionRepresentation,
-)
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.metahandlers.lists import ListSizeBetween
 
@@ -111,10 +102,7 @@ class Position(Enum):
 
 
 def map_from_string(map_str: str) -> list[list[Position]]:
-    return [
-        [pos == "#" and Position.FOOD or Position.EMPTY for pos in line]
-        for line in map_str.split("\n")
-    ]
+    return [[pos == "#" and Position.FOOD or Position.EMPTY for pos in line] for line in map_str.split("\n")]
 
 
 def next_pos(
@@ -180,66 +168,50 @@ def simulate(a: Action, map_str: str) -> int:
     return food_consumed
 
 
-def preprocess():
-    return extract_grammar([ActionBlock, Action, IfFood, Move, Right, Left], ActionMain)
-
-
-def evolve(
-    fitness_function,
-    g,
-    seed,
-    mode,
-    representation="TreeBasedRepresentation",
-):
-    if representation == "ge":
-        representation = GrammaticalEvolutionRepresentation
-    elif representation == "sge":
-        representation = StructuredGrammaticalEvolutionRepresentation
-    elif representation == "dsge":
-        representation = DynamicStructuredGrammaticalEvolutionRepresentation
-    else:
-        representation = TreeBasedRepresentation
-
-    alg = SimpleGP(
-        g,
-        representation=representation,
-        problem=SingleObjectiveProblem(
-            minimize=False,
-            fitness_function=fitness_function,
-            target_fitness=None,
-        ),
-        # number_of_generations=150,
-        # population_size=100,
-        # max_depth=15,
-        # favor_less_complex_trees=True,
-        # probability_crossover=0.75,
-        # probability_mutation=0.01,
-        # selection_method=("tournament", 2),
-        seed=seed,
-        timer_stop_criteria=mode,
-    )
-    (b, bf, bp) = alg.evolve()
-    return b, bf
-
-
 def fitness_function(i) -> float:
     return simulate(i, map)
 
 
+class SantaFeBenchmark:
+    def get_problem(self) -> Problem:
+        return SingleObjectiveProblem(
+            minimize=False,
+            fitness_function=fitness_function,
+            target_fitness=None,
+        )
+
+    def get_grammar(self) -> Grammar:
+        return extract_grammar([ActionBlock, Action, IfFood, Move, Right, Left], ActionMain)
+
+    def main(self, **args):
+        g = self.get_grammar()
+        problem = self.get_problem()
+        alg = SimpleGP(
+            g,
+            problem=problem,
+            probability_crossover=1,
+            probability_mutation=0.5,
+            number_of_generations=20,
+            max_depth=10,
+            max_init_depth=6,
+            population_size=50,
+            selection_method=("tournament", 2),
+            n_elites=5,
+            **args,
+        )
+        ind = alg.evolve()
+        print("\n======\nGP\n======\n")
+        print(f"{ind.evaluate(problem)} - {ind}")
+
+        alg_hc = HC(
+            representation=TreeBasedRepresentation(g, 10),
+            problem=SingleObjectiveProblem(fitness_function),
+            stopping_criterium=GenerationStoppingCriterium(50),
+        )
+        ind = alg_hc.evolve()
+        print("\n======\nHC\n======\n")
+        print(f"{ind.evaluate(problem)} - {ind}")
+
+
 if __name__ == "__main__":
-    g = preprocess()
-    print(f"Grammar: {repr(g)}")
-    (b_gp, bf_gp) = evolve(lambda p: simulate(p, map), g, 123, False, "dsge")
-
-    alg_hc = HC(
-        representation=TreeBasedRepresentation(g, 10),
-        problem=SingleObjectiveProblem(fitness_function),
-        stopping_criterium=GenerationStoppingCriterium(50),
-    )
-    (b_hc, bf_hc, bp_hc) = alg_hc.evolve()
-
-    print("\n======\nHC\n======\n")
-    print(bf_hc, bp_hc, b_hc)
-
-    print("\n======\nGP\n======\n")
-    print(bf_gp, b_gp)
+    SantaFeBenchmark().main(seed=0)

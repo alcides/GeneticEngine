@@ -10,18 +10,11 @@ from sklearn.metrics import f1_score
 
 from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.grammar import Grammar
+from geneticengine.core.problems import Problem
 from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import DynamicStructuredGrammaticalEvolutionRepresentation
-from geneticengine.core.representations.grammatical_evolution.ge import (
-    GrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.grammatical_evolution.structured_ge import (
-    StructuredGrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammars.coding.classes import Condition
 from geneticengine.grammars.coding.classes import Expr
-from geneticengine.grammars.coding.classes import Number
 from geneticengine.grammars.coding.logical_ops import And
 from geneticengine.grammars.coding.logical_ops import Not
 from geneticengine.grammars.coding.logical_ops import Or
@@ -86,59 +79,41 @@ def fitness_function(i: Expr):
     return f1_score(ytrain, ypred)
 
 
-def preprocess():
-    grammar = extract_grammar([And, Or, Not, MatrixElement], Condition)
-    print(grammar)
-    return grammar
-
-
-def evolve(
-    g,
-    seed,
-    mode,
-    representation="TreeBasedRepresentation",
-):
-    if representation == "ge":
-        representation = GrammaticalEvolutionRepresentation
-    elif representation == "sge":
-        representation = StructuredGrammaticalEvolutionRepresentation
-    elif representation == "dsge":
-        representation = DynamicStructuredGrammaticalEvolutionRepresentation
-    else:
-        representation = TreeBasedRepresentation
-
-    alg = SimpleGP(
-        g,
-        representation,
-        problem=SingleObjectiveProblem(
+class GameOfLifeBenchmark:
+    def get_problem(self) -> Problem:
+        return SingleObjectiveProblem(
             minimize=False,
             fitness_function=fitness_function,
             target_fitness=None,
-        ),
-        probability_crossover=0.75,
-        probability_mutation=0.01,
-        number_of_generations=50,
-        max_depth=10,
-        population_size=50,
-        selection_method=("tournament", 2),
-        n_elites=5,
-        seed=seed,
-        timer_stop_criteria=mode,
-    )
-    (b, bf, bp) = alg.evolve()
+        )
 
-    print("Best individual:", bp)
-    print("Genetic Engine Train F1 score:", bf)
+    def get_grammar(self) -> Grammar:
+        return extract_grammar([And, Or, Not, MatrixElement], Condition)
 
-    _clf = evaluate(bp)
-    ypred = [_clf(line) for line in np.rollaxis(Xtest, 0)]
-    print("GeneticEngine Test F1 score:", f1_score(ytest, ypred))
+    def main(self, **args):
+        g = self.get_grammar()
+        prob = self.get_problem()
+        alg = SimpleGP(
+            g,
+            problem=prob,
+            number_of_generations=50,
+            population_size=50,
+            max_depth=10,
+            # favor_less_complex_trees=True,
+            # probability_crossover=0.75,
+            # probability_mutation=0.01,
+            # selection_method=("tournament", 2),
+            **args,
+        )
+        best = alg.evolve()
+        print(
+            f"Fitness of {prob.overall_fitness(best.get_phenotype())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+        )
 
-    return b, bf
+        _clf = evaluate(best.get_phenotype())
+        ypred = [_clf(line) for line in np.rollaxis(Xtest, 0)]
+        print("GeneticEngine Test F1 score:", f1_score(ytest, ypred))
 
 
 if __name__ == "__main__":
-    g = preprocess()
-    bf, b = evolve(g, 0, False, "ge")
-    print(b)
-    print(f"With fitness: {bf}")
+    GameOfLifeBenchmark().main(seed=0)

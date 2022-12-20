@@ -7,7 +7,6 @@ from typing import Annotated
 import numpy as np
 import pandas as pd
 from sklearn import metrics
-from sympy import E
 
 from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.grammar import extract_grammar
@@ -103,9 +102,8 @@ def main():
         population_size=10,
         number_of_generations=5,
     )
-    (e, fitness, classifier) = alg.evolve()
-    print(e)
-    print(fitness)
+    ind = alg.evolve()
+    print(ind)
 
 
 main()
