@@ -3,15 +3,12 @@ from __future__ import annotations
 from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any
-from typing import Dict
-from typing import List
-from typing import Protocol
-from typing import Tuple
-from typing import Type
 
 from geneticengine.core.grammar import Grammar
-from geneticengine.core.random.sources import RandomSource
+from geneticengine.core.problems import Problem
 from geneticengine.core.random.sources import Source
+from geneticengine.core.representations.api import CrossoverOperator
+from geneticengine.core.representations.api import MutationOperator
 from geneticengine.core.representations.api import Representation
 from geneticengine.core.representations.tree.initializations import (
     InitializationMethodType,
@@ -124,6 +121,47 @@ def create_tree(
     return random_node(rand, g, depth, g.starting_symbol, initialization_mode)
 
 
+class DefaultSGEMutation(MutationOperator[Genotype]):
+    """Chooses a random list, and a random position inside that list.
+
+    Then changes the value in that position to another value.
+    """
+
+    def mutate(
+        self,
+        genotype: Genotype,
+        problem: Problem,
+        representation: Representation,
+        random_source: Source,
+        index_in_population: int,
+        generation: int,
+    ) -> Genotype:
+        assert isinstance(representation, StructuredGrammaticalEvolutionRepresentation)
+        return mutate(
+            random_source,
+            representation.grammar,
+            genotype,
+            representation.max_depth,
+        )
+
+
+class DefaultSGECrossover(CrossoverOperator[Genotype]):
+    """One-point crossover between the lists of lists."""
+
+    def crossover(
+        self,
+        g1: Genotype,
+        g2: Genotype,
+        problem: Problem,
+        representation: Representation,
+        random_source: Source,
+        index_in_population: int,
+        generation: int,
+    ) -> tuple[Genotype, Genotype]:
+        assert isinstance(representation, StructuredGrammaticalEvolutionRepresentation)
+        return crossover(random_source, representation.grammar, g1, g2, representation.max_depth)
+
+
 class StructuredGrammaticalEvolutionRepresentation(Representation[Genotype, TreeNode]):
     """This version uses a list of lists of integers to represent individuals,
     based on non-terminal symbols."""
@@ -159,7 +197,7 @@ class StructuredGrammaticalEvolutionRepresentation(Representation[Genotype, Tree
         ind: Genotype,
         depth: int,
         ty: type,
-        specific_type: type = None,
+        specific_type: type | None = None,
         depth_aware_mut: bool = False,
         **kwargs,
     ) -> Genotype:
@@ -171,7 +209,7 @@ class StructuredGrammaticalEvolutionRepresentation(Representation[Genotype, Tree
         i1: Genotype,
         i2: Genotype,
         depth: int,
-        specific_type: type = None,
+        specific_type: type | None = None,
         depth_aware_co: bool = False,
         **kwargs,
     ) -> tuple[Genotype, Genotype]:
@@ -191,3 +229,9 @@ class StructuredGrammaticalEvolutionRepresentation(Representation[Genotype, Tree
         raise NotImplementedError(
             "Reconstruction of genotype not supported in this representation.",
         )
+
+    def get_mutation(self) -> MutationOperator[Genotype]:
+        return DefaultSGEMutation()
+
+    def get_crossover(self) -> CrossoverOperator[Genotype]:
+        return DefaultSGECrossover()

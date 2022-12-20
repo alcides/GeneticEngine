@@ -2,15 +2,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any
-from typing import List
-from typing import Protocol
-from typing import Tuple
-from typing import Type
 
 from geneticengine.core.grammar import Grammar
+from geneticengine.core.problems import Problem
 from geneticengine.core.random.sources import Source
+from geneticengine.core.representations.api import CrossoverOperator
+from geneticengine.core.representations.api import MutationOperator
 from geneticengine.core.representations.api import Representation
-from geneticengine.core.representations.tree.initializations import full_method
 from geneticengine.core.representations.tree.initializations import (
     InitializationMethodType,
 )
@@ -81,6 +79,42 @@ def create_tree(
     return random_node(rand, g, depth, g.starting_symbol, initialization_mode)
 
 
+class DefaultGEMutation(MutationOperator[Genotype]):
+    """Chooses a position in the list, and mutates it."""
+
+    def mutate(
+        self,
+        genotype: Genotype,
+        problem: Problem,
+        representation: Representation,
+        random_source: Source,
+        index_in_population: int,
+        generation: int,
+    ) -> Genotype:
+        return mutate(
+            random_source,
+            representation.grammar,
+            genotype,
+            representation.max_depth,
+        )
+
+
+class DefaultGECrossover(CrossoverOperator[Genotype]):
+    """One-point crossover between the lists."""
+
+    def crossover(
+        self,
+        g1: Genotype,
+        g2: Genotype,
+        problem: Problem,
+        representation: Representation,
+        random_source: Source,
+        index_in_population: int,
+        generation: int,
+    ) -> tuple[Genotype, Genotype]:
+        return crossover(random_source, representation.grammar, g1, g2, representation.max_depth)
+
+
 class GrammaticalEvolutionRepresentation(Representation[Genotype, TreeNode]):
     """This representation uses a list of integers to guide the generation of
     trees in the phenotype."""
@@ -109,30 +143,6 @@ class GrammaticalEvolutionRepresentation(Representation[Genotype, TreeNode]):
         actual_depth = depth or self.max_depth
         return random_individual(r, self.grammar, depth=actual_depth)
 
-    def mutate_individual(
-        self,
-        r: Source,
-        ind: Genotype,
-        depth: int,
-        ty: type,
-        specific_type: type = None,
-        depth_aware_mut: bool = False,
-        **kwargs,
-    ) -> Genotype:
-        return mutate(r, self.grammar, ind, depth)
-
-    def crossover_individuals(
-        self,
-        r: Source,
-        i1: Genotype,
-        i2: Genotype,
-        depth: int,
-        specific_type: type = None,
-        depth_aware_co: bool = False,
-        **kwargs,
-    ) -> tuple[Genotype, Genotype]:
-        return crossover(r, self.grammar, i1, i2, depth)
-
     def genotype_to_phenotype(self, genotype: Genotype) -> TreeNode:
         return create_tree(
             self.grammar,
@@ -147,3 +157,9 @@ class GrammaticalEvolutionRepresentation(Representation[Genotype, TreeNode]):
         raise NotImplementedError(
             "Reconstruction of genotype not supported in this representation.",
         )
+
+    def get_mutation(self) -> MutationOperator[Genotype]:
+        return DefaultGEMutation()
+
+    def get_crossover(self) -> CrossoverOperator[Genotype]:
+        return DefaultGECrossover()

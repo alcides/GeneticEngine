@@ -73,6 +73,7 @@ class TestGrammar:
             ),
             callbacks=[DebugCallback(), TestCallback()],
         )
-        (_, _, x) = gp.evolve()
-        assert isinstance(x, UnderTest)
-        assert isinstance(x.a, Leaf)
+        ind = gp.evolve()
+        tree = ind.get_phenotype()
+        assert isinstance(tree, UnderTest)
+        assert isinstance(tree.a, Leaf)

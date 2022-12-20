@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from abc import ABC
+import abc
 from dataclasses import dataclass
 from typing import Callable
 from typing import Generic
@@ -24,7 +24,7 @@ class SingleObjectiveWrapper(Generic[P]):
         return self.fun(*args, **kwargs)
 
 
-class Problem(ABC):
+class Problem(abc.ABC):
     """An Abstract class that SingleObjectiveProblem and MultiObjectiveProblem
     extends to.
 
@@ -36,12 +36,14 @@ class Problem(ABC):
     minimize: bool | list[bool]
     fitness_function: SingleObjectiveCallable | MultiObjectiveCallable
 
+    @abc.abstractmethod
     def evaluate(self, phenotype: P) -> FitnessType:
         ...
 
     def solved(self, best_fitness: FitnessType):
         return False
 
+    @abc.abstractmethod
     def overall_fitness(self, p: P) -> float:
         """Returns the evaluation of an individual, combining all scores.
 

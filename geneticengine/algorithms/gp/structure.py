@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from abc import ABC
+import abc
 
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.core.problems import Problem
@@ -8,7 +8,8 @@ from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
 
 
-class PopulationInitializer(ABC):
+class PopulationInitializer(abc.ABC):
+    @abc.abstractmethod
     def initialize(
         self,
         p: Problem,
@@ -19,7 +20,8 @@ class PopulationInitializer(ABC):
         ...
 
 
-class GeneticStep(ABC):
+class GeneticStep(abc.ABC):
+    @abc.abstractmethod
     def iterate(
         self,
         p: Problem,
@@ -34,10 +36,11 @@ class GeneticStep(ABC):
         return f"{self.__class__.__name__}"
 
 
-class StoppingCriterium(ABC):
+class StoppingCriterium(abc.ABC):
     """TerminationCondition provides information when to terminate
     evolution."""
 
+    @abc.abstractmethod
     def is_ended(
         self,
         population: list[Individual],

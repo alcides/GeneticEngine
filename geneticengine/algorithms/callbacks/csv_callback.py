@@ -15,20 +15,20 @@ class CSVCallback(Callback):
         self,
         filename: str = "evolution_results.csv",
         filter_population: Callable[[list[Individual]], list[Individual]] = lambda x: x,
-        test_data: Callable[[Individual], float] = None,
-        save_productions: bool = False,
         only_record_best_ind: bool = True,
         extra_columns: dict[
             str,
             Callable[[int, list[Individual], float, Any, Individual], Any],
-        ] = None,
+        ]
+        | None = None,
     ):
         self.filename = filename
         self.filter_population = filter_population
         self.time = 0.0
-        self.test_data = test_data
         self.only_record_best_ind = only_record_best_ind
-        self.extra_columns = extra_columns or {}
+        self.extra_columns: dict[str, Callable[[int, list[Individual], float, Any, Individual], Any]] = (
+            extra_columns if extra_columns else {}
+        )
         self.write_header()
 
     def end_evolution(self):

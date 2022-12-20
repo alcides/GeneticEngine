@@ -1,13 +1,12 @@
 from __future__ import annotations
 
+import abc
 from abc import ABC
 from dataclasses import dataclass
 from typing import Any
 from typing import Callable
 from typing import Generic
-from typing import List
 from typing import TypeVar
-from typing import Union
 
 from geneticengine.core.decorators import abstract
 
@@ -25,9 +24,11 @@ t = TypeVar("t")
 
 @abstract
 class Expr(Generic[t]):
+    @abc.abstractmethod
     def evaluate(self, **kwargs) -> t:
         ...
 
+    @abc.abstractmethod
     def evaluate_lines(self, **kwargs) -> Callable[[Any], t]:
         ...
 

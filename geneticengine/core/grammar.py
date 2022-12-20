@@ -5,22 +5,14 @@ import warnings
 from abc import ABC
 from abc import ABCMeta
 from collections import defaultdict
-from inspect import isclass
-from tracemalloc import start
 from typing import Any
-from typing import Dict
 from typing import Generic
-from typing import List
-from typing import Set
-from typing import Tuple
-from typing import Type
 
 from geneticengine.core.decorators import get_gengy
 from geneticengine.core.utils import all_init_arguments_typed
 from geneticengine.core.utils import get_arguments
 from geneticengine.core.utils import get_generic_parameter
 from geneticengine.core.utils import get_generic_parameters
-from geneticengine.core.utils import has_arguments
 from geneticengine.core.utils import is_abstract
 from geneticengine.core.utils import is_annotated
 from geneticengine.core.utils import is_generic
@@ -51,7 +43,7 @@ class Grammar:
     def __init__(
         self,
         starting_symbol: type,
-        considered_subtypes: list[type] = None,
+        considered_subtypes: list[type] | None = None,
         expansion_depthing: bool = False,
     ) -> None:
         self.alternatives: dict[type, list[type]] = {}
@@ -76,11 +68,7 @@ class Grammar:
             elif all_init_arguments_typed(c):
                 # Raise a warning if there are annotated elements, but no __init__ method.
                 d = {x[0]: x[1] for x in inspect.getmembers(c)}
-                if (
-                    "__annotations__" in d
-                    and d["__annotations__"]
-                    and d["__init__"].__qualname__ == "object.__init__"
-                ):
+                if "__annotations__" in d and d["__annotations__"] and d["__init__"].__qualname__ == "object.__init__":
                     warnings.warn(
                         f"Warning: class {c} looks like it should be a dataclass, but isn't.",
                     )
@@ -174,15 +162,11 @@ class Grammar:
 
         prods = ";".join(
             [
-                str(p.__name__)
-                + " -> "
-                + ("|".join([format(p) for p in self.alternatives[p]]))
+                str(p.__name__) + " -> " + ("|".join([format(p) for p in self.alternatives[p]]))
                 for p in self.alternatives
             ],
         )
-        return (
-            f"Grammar<Starting={self.starting_symbol.__name__},Productions=[{prods}]>"
-        )
+        return f"Grammar<Starting={self.starting_symbol.__name__},Productions=[{prods}]>"
 
     def get_all_symbols(self) -> tuple[set[type], set[type], set[type]]:
         """All symbols in the current grammar, including terminals."""
@@ -251,40 +235,30 @@ class Grammar:
                         for prod in prods:
                             val = min(
                                 val,
-                                int(self.expansion_depthing)
-                                + self.distanceToTerminal[prod],
+                                int(self.expansion_depthing) + self.distanceToTerminal[prod],
                             )
                             old = self.abstract_dist_to_t[sym][prod]
                             if 1 < old:
                                 self.abstract_dist_to_t[sym][prod] = 1
                                 changed = True
                             if prod in self.abstract_dist_to_t:
-                                for subprod, dist in self.abstract_dist_to_t[
-                                    prod
-                                ].items():
+                                for subprod, dist in self.abstract_dist_to_t[prod].items():
                                     currdist = self.abstract_dist_to_t[sym][subprod]
                                     candidate = dist + 1
                                     if candidate < currdist:
-                                        self.abstract_dist_to_t[sym][
-                                            subprod
-                                        ] = candidate
+                                        self.abstract_dist_to_t[sym][subprod] = candidate
                                         changed = True
                         changed |= process_reachability(sym, prods)
                 else:
                     if is_terminal(sym, self.non_terminals):
-                        if (
-                            sym == int or sym == float or sym == str
-                        ) and not self.expansion_depthing:
+                        if (sym == int or sym == float or sym == str) and not self.expansion_depthing:
                             val = 0
                         else:
                             val = 1
                     else:
                         args = get_arguments(sym)
                         assert args
-                        val = max(
-                            1 + self.get_distance_to_terminal(argt)
-                            for (_, argt) in args
-                        )
+                        val = max(1 + self.get_distance_to_terminal(argt) for (_, argt) in args)
 
                         changed |= process_reachability(
                             sym,

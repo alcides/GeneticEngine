@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-import sys
-from copy import deepcopy
 from typing import Any
 from typing import TypeVar
 
 from geneticengine.core.grammar import Grammar
+from geneticengine.core.problems import Problem
 from geneticengine.core.random.sources import Source
+from geneticengine.core.representations.api import CrossoverOperator
+from geneticengine.core.representations.api import MutationOperator
 from geneticengine.core.representations.api import Representation
-from geneticengine.core.representations.tree.initializations import full_method
 from geneticengine.core.representations.tree.initializations import (
     InitializationMethodType,
 )
@@ -31,7 +31,7 @@ def random_node(
     r: Source,
     g: Grammar,
     max_depth: int,
-    starting_symbol: type[Any] = None,
+    starting_symbol: type[Any] | None = None,
     method: InitializationMethodType = pi_grow_method,
 ):
     if starting_symbol is None:
@@ -72,15 +72,9 @@ def mutate_inner(
     counter = i.gengy_weighted_nodes if depth_aware_mut else i.gengy_nodes
     if counter > 0:
         c = r.randint(0, counter - 1)
-        if (
-            c == 0
-            or (c <= i.gengy_distance_to_term and depth_aware_mut)
-            or force_mutate
-        ):
+        if c == 0 or (c <= i.gengy_distance_to_term and depth_aware_mut) or force_mutate:
             # If Metahandler mutation exists, the mutation process is different
-            args_with_specific_mutation = [
-                has_annotated_mutation(arg[1]) for arg in get_arguments(i)
-            ]
+            args_with_specific_mutation = [has_annotated_mutation(arg[1]) for arg in get_arguments(i)]
             if any(args_with_specific_mutation):
                 mutation_possibilities = len(args_with_specific_mutation)
                 mutation_choice = r.randint(
@@ -88,9 +82,7 @@ def mutate_inner(
                     mutation_possibilities - 1,
                 )
                 (index, arg_to_be_mutated) = [
-                    (kdx, arg[1])
-                    for kdx, arg in enumerate(get_arguments(i))
-                    if args_with_specific_mutation[kdx]
+                    (kdx, arg[1]) for kdx, arg in enumerate(get_arguments(i)) if args_with_specific_mutation[kdx]
                 ][mutation_choice]
                 args = list(i.gengy_init_values)
                 args[index] = arg_to_be_mutated.__metadata__[0].mutate(  # type: ignore
@@ -118,11 +110,7 @@ def mutate_inner(
             for idx, (_, field_type) in enumerate(get_arguments(i)):
                 child = args[idx]
                 if hasattr(child, "gengy_nodes"):
-                    count = (
-                        child.gengy_weighted_nodes
-                        if depth_aware_mut
-                        else child.gengy_nodes
-                    )
+                    count = child.gengy_weighted_nodes if depth_aware_mut else child.gengy_nodes
                     if c <= count:
                         mi = mutate_inner(
                             r,
@@ -299,15 +287,9 @@ def crossover_inner(
     counter = i.gengy_weighted_nodes if depth_aware_co else i.gengy_nodes
     if counter > 0:
         c = r.randint(0, counter - 1)
-        if (
-            c == 0
-            or (c <= i.gengy_distance_to_term and depth_aware_co)
-            or force_crossover
-        ):
+        if c == 0 or (c <= i.gengy_distance_to_term and depth_aware_co) or force_crossover:
             replacement = None
-            args_with_specific_crossover = [
-                has_annotated_crossover(arg[1]) for arg in get_arguments(i)
-            ]
+            args_with_specific_crossover = [has_annotated_crossover(arg[1]) for arg in get_arguments(i)]
             if any(args_with_specific_crossover):
                 crossover_possibilities = len(args_with_specific_crossover)
                 crossover_choice = r.randint(
@@ -319,9 +301,7 @@ def crossover_inner(
                     pass  # Replace whole node
                 else:
                     (index, arg_to_be_crossovered) = [
-                        (kdx, arg)
-                        for kdx, arg in enumerate(get_arguments(i))
-                        if args_with_specific_crossover[kdx]
+                        (kdx, arg) for kdx, arg in enumerate(get_arguments(i)) if args_with_specific_crossover[kdx]
                     ][crossover_choice]
                     args = list(i.gengy_init_values)
                     args[index] = (
@@ -357,11 +337,7 @@ def crossover_inner(
             for idx, (field, field_type) in enumerate(get_arguments(i)):
                 child = args[idx]
                 if hasattr(child, "gengy_nodes"):
-                    count = (
-                        child.gengy_weighted_nodes
-                        if depth_aware_co
-                        else child.gengy_nodes
-                    )
+                    count = child.gengy_weighted_nodes if depth_aware_co else child.gengy_nodes
                     if c <= count:
                         args[idx] = crossover_inner(
                             r,
@@ -537,6 +513,135 @@ def crossover(
     return relabeled_new_tree1, relabeled_new_tree2
 
 
+class DefaultTBMutation(MutationOperator[TreeNode]):
+    """Selects a random node, and generates a new replacement."""
+
+    def __init__(self, depth_aware: bool = False):
+        """
+        Args:
+            depth_aware (bool): whether the mutation should be depth-aware.
+
+        """
+        self.depth_aware = depth_aware
+
+    def mutate(
+        self,
+        genotype: TreeNode,
+        problem: Problem,
+        representation: Representation,
+        random_source: Source,
+        index_in_population: int,
+        generation: int,
+    ) -> TreeNode:
+        assert isinstance(representation, TreeBasedRepresentation)
+        return mutate(
+            random_source,
+            representation.grammar,
+            genotype,
+            representation.max_depth,
+            representation.grammar.starting_symbol,
+        )
+
+
+class TypeSpecificTBMutation(DefaultTBMutation):
+    """Selects a random node of a given type, and generates a new
+    replacement."""
+
+    def __init__(self, specific_type: type, depth_aware: bool):
+        super().__init__(depth_aware=depth_aware)
+
+        self.specific_type = specific_type
+
+    def mutate(
+        self,
+        genotype: TreeNode,
+        problem: Problem,
+        representation: Representation,
+        random_source: Source,
+        index_in_population: int,
+        generation: int,
+    ) -> TreeNode:
+        assert isinstance(representation, TreeBasedRepresentation)
+        return mutate_specific_type(
+            random_source,
+            representation.grammar,
+            genotype,
+            representation.max_depth,
+            representation.grammar.starting_symbol,
+            self.specific_type,
+            self.depth_aware,
+        )
+
+
+class DefaultTBCrossover(CrossoverOperator[TreeNode]):
+    """Selects a sub-tree from one parent and replaces it with a compatible
+    tree from the other parent."""
+
+    def __init__(self, depth_aware: bool = False):
+        """
+        Args:
+            depth_aware (bool): whether the mutation should be depth-aware.
+
+        """
+        self.depth_aware = depth_aware
+
+    def crossover(
+        self,
+        g1: TreeNode,
+        g2: TreeNode,
+        problem: Problem,
+        representation: Representation,
+        random_source: Source,
+        index_in_population: int,
+        generation: int,
+    ) -> tuple[TreeNode, TreeNode]:
+        assert isinstance(representation, TreeBasedRepresentation)
+        return crossover(random_source, representation.grammar, g1, g2, representation.max_depth)
+
+
+class TypeSpecificTBCrossover(DefaultTBCrossover):
+    """Selects a sub-tree from one parent and replaces it with a compatible
+    tree from the other parent."""
+
+    def __init__(self, specific_type: type, depth_aware: bool):
+        super().__init__(depth_aware=depth_aware)
+
+        self.specific_type = specific_type
+
+    def crossover(
+        self,
+        g1: TreeNode,
+        g2: TreeNode,
+        problem: Problem,
+        representation: Representation,
+        random_source: Source,
+        index_in_population: int,
+        generation: int,
+    ) -> tuple[TreeNode, TreeNode]:
+        assert isinstance(representation, TreeBasedRepresentation)
+        t1 = crossover_specific_type(
+            random_source,
+            representation.grammar,
+            g1,
+            g2,
+            representation.max_depth,
+            representation.grammar.starting_symbol,
+            self.specific_type,
+            self.depth_aware,
+        )
+        t2 = crossover_specific_type(
+            random_source,
+            representation.grammar,
+            g2,
+            g1,
+            representation.max_depth,
+            representation.grammar.starting_symbol,
+            self.specific_type,
+            self.depth_aware,
+        )
+        return (t1, t2)
+
+
 class TreeBasedRepresentation(Representation[TreeNode, TreeNode]):
     """This class represents the tree representation of an individual.
 
@@ -557,39 +662,6 @@ class TreeBasedRepresentation(Representation[TreeNode, TreeNode]):
         actual_depth = depth or self.max_depth
         return random_individual(r, self.grammar, actual_depth, initialization_method)
 
-    def mutate_individual(
-        self,
-        r: Source,
-        ind: TreeNode,
-        depth: int,
-        ty: type,
-        specific_type: type = None,
-        depth_aware_mut: bool = False,
-        **kwargs,
-    ) -> TreeNode:
-        new_ind = mutate(
-            r,
-            self.grammar,
-            ind,
-            depth,
-            ty,
-            specific_type,
-            depth_aware_mut,
-        )
-        return new_ind
-
-    def crossover_individuals(
-        self,
-        r: Source,
-        i1: TreeNode,
-        i2: TreeNode,
-        depth: int,
-        specific_type: type = None,
-        depth_aware_co: bool = False,
-        **kwargs,
-    ) -> tuple[TreeNode, TreeNode]:
-        return crossover(r, self.grammar, i1, i2, depth, specific_type, depth_aware_co)
-
     def genotype_to_phenotype(self, genotype: TreeNode) -> TreeNode:
         return genotype
 
@@ -600,3 +672,9 @@ class TreeBasedRepresentation(Representation[TreeNode, TreeNode]):
             phenotype,
             self.grammar,
         )
+
+    def get_mutation(self) -> MutationOperator[TreeNode]:
+        return DefaultTBMutation()
+
+    def get_crossover(self) -> CrossoverOperator[TreeNode]:
+        return DefaultTBCrossover()

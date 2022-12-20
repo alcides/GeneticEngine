@@ -88,5 +88,5 @@ if __name__ == "__main__":
         probability_mutation=0.5,
         probability_crossover=0.4,
     )
-    (_, fitness, explanation) = gp.evolve()
-    print(fitness, explanation)
+    ind = gp.evolve()
+    print(ind.fitness, ind.get_phenotype())

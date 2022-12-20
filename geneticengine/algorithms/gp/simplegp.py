@@ -40,7 +40,11 @@ from geneticengine.core.representations.api import Representation
 from geneticengine.core.representations.tree.operators import (
     RampedHalfAndHalfInitializer,
 )
+from geneticengine.core.representations.tree.treebased import DefaultTBCrossover
+from geneticengine.core.representations.tree.treebased import DefaultTBMutation
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.core.representations.tree.treebased import TypeSpecificTBCrossover
+from geneticengine.core.representations.tree.treebased import TypeSpecificTBMutation
 
 P = TypeVar("P")
 
@@ -89,12 +93,13 @@ class SimpleGP(GP):
     def __init__(
         self,
         grammar: Grammar,
-        representation: type = None,
-        problem: Problem = None,
+        representation: type | None = None,
+        problem: Problem | None = None,
         evaluation_function: Callable[
             [Any],
             float,
-        ] = None,  # DEPRECATE in the next version
+        ]
+        | None = None,  # DEPRECATE in the next version
         minimize: bool = False,  # DEPRECATE in the next version
         target_fitness: float | None = None,  # DEPRECATE in the next version
         favor_less_complex_trees: bool = True,  # DEPRECATE in the next version
@@ -116,8 +121,8 @@ class SimpleGP(GP):
         probability_crossover: float = 0.9,
         either_mut_or_cro: float | None = None,
         hill_climbing: bool = False,
-        specific_type_mutation: type = None,
-        specific_type_crossover: type = None,
+        specific_type_mutation: type | None = None,
+        specific_type_crossover: type | None = None,
         depth_aware_mut: bool = False,
         depth_aware_co: bool = False,
         # -----
@@ -129,7 +134,7 @@ class SimpleGP(GP):
         evolve_grammar: bool = False,
         evolve_learning_rate: float = 0.01,
         # -----
-        save_to_csv: str = None,
+        save_to_csv: str | None = None,
         save_genotype_as_string: bool = True,
         test_data: None
         | (
@@ -142,7 +147,7 @@ class SimpleGP(GP):
         # -----
         verbose=1,
         parallel_evaluation=False,
-        callbacks: list[Callback] = None,
+        callbacks: list[Callback] | None = None,
         **kwargs,
     ):
 
@@ -165,11 +170,14 @@ class SimpleGP(GP):
         )
         random_source = source_generator(seed)
 
-        population_initializer: PopulationInitializer = {
+        population_initializer_class: type[PopulationInitializer] = {
             "grow": GrowInitializer,
             "full": FullInitializer,
             "ramped": RampedHalfAndHalfInitializer,
-        }[initialization_method]()
+        }[
+            initialization_method
+        ]  # type: ignore
+        population_initializer: PopulationInitializer = population_initializer_class()
 
         if force_individual:
             population_initializer = InjectInitialPopulationWrapper(
@@ -178,17 +186,25 @@ class SimpleGP(GP):
             )
 
         step: GeneticStep
+
+        mutation_operator = representation_instance.get_mutation()
+        crossover_operator = representation_instance.get_crossover()
+        if isinstance(representation_instance, TreeBasedRepresentation):
+            if specific_type_mutation:
+                mutation_operator = TypeSpecificTBMutation(specific_type_mutation, depth_aware=depth_aware_mut)
+            else:
+                mutation_operator = DefaultTBMutation(depth_aware=depth_aware_mut)
+
+            if specific_type_crossover:
+                crossover_operator = TypeSpecificTBCrossover(specific_type_crossover, depth_aware=depth_aware_co)
+            else:
+                crossover_operator = DefaultTBCrossover(depth_aware=depth_aware_co)
         if either_mut_or_cro is not None:
             mutation_step = GenericMutationStep(
                 1,
-                specific_type=specific_type_mutation,
-                depth_aware_mut=depth_aware_mut,
+                operator=mutation_operator,
             )
-            crossover_step = GenericCrossoverStep(
-                1,
-                specific_type=specific_type_crossover,
-                depth_aware_co=depth_aware_co,
-            )
+            crossover_step = GenericCrossoverStep(1, operator=crossover_operator)
             step = ExclusiveParallelStep(
                 [mutation_step, crossover_step],
                 [either_mut_or_cro, 1 - either_mut_or_cro],
@@ -196,14 +212,9 @@ class SimpleGP(GP):
         else:
             mutation_step = GenericMutationStep(
                 probability_mutation,
-                specific_type=specific_type_mutation,
-                depth_aware_mut=depth_aware_mut,
+                operator=mutation_operator,
             )
-            crossover_step = GenericCrossoverStep(
-                probability_crossover,
-                specific_type=specific_type_crossover,
-                depth_aware_co=depth_aware_co,
-            )
+            crossover_step = GenericCrossoverStep(probability_crossover, operator=crossover_operator)
             step = SequenceStep(mutation_step, crossover_step)
 
         selection_step: GeneticStep
@@ -268,8 +279,7 @@ class SimpleGP(GP):
             )
             self.callbacks.append(c)
 
-        GP.__init__(
-            self,
+        super().__init__(
             representation_instance,
             processed_problem,
             random_source,
@@ -283,7 +293,7 @@ class SimpleGP(GP):
     def process_problem(
         self,
         problem: Problem | None,
-        evaluation_function: Callable[[P], float] = None,
+        evaluation_function: Callable[[P], float] | None = None,
         minimize: bool = False,
         target_fitness: float | None = None,
     ) -> Problem:

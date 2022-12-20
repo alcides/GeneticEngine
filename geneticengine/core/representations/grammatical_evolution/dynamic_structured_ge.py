@@ -1,12 +1,14 @@
 from __future__ import annotations
 
-from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any
 
 from geneticengine.core.decorators import get_gengy
 from geneticengine.core.grammar import Grammar
+from geneticengine.core.problems import Problem
 from geneticengine.core.random.sources import Source
+from geneticengine.core.representations.api import CrossoverOperator
+from geneticengine.core.representations.api import MutationOperator
 from geneticengine.core.representations.api import Representation
 from geneticengine.core.representations.tree.initializations import (
     InitializationMethodType,
@@ -41,9 +43,7 @@ class Genotype:
 
 
 def filter_choices(possible_choices: list[type], g: Grammar, depth, starting_symbol):
-    valid_productions = [
-        vp for vp in possible_choices if g.get_distance_to_terminal(vp) <= depth
-    ]
+    valid_productions = [vp for vp in possible_choices if g.get_distance_to_terminal(vp) <= depth]
     if not valid_productions:
         raise GeneticEngineError(
             "No productions for non-terminal node with type: {} in depth {} (minimum required: {}).".format(
@@ -74,7 +74,7 @@ def random_individual(
     r: Source,
     g: Grammar,
     starting_symbol: Any,
-    current_genotype: Genotype = None,
+    current_genotype: Genotype | None = None,
     max_depth: int = 5,
 ) -> Genotype:  # This whole method seems cumbersome. Why not just create an empty genotype and let it be sourced through when mapping from genotype to phenotype?
     if current_genotype == None:
@@ -184,7 +184,7 @@ def random_individual_simple(
     r: Source,
     g: Grammar,
     starting_symbol: Any,
-    current_genotype: Genotype = None,
+    current_genotype: Genotype | None = None,
     max_depth: int = 5,
 ) -> Genotype:  # In this method we let the random source use the left_overs to fill up the individual
     if current_genotype == None:
@@ -214,7 +214,7 @@ def create_individual(
     r: Source,
     g: Grammar,
     starting_symbol: Any = None,
-    current_genotype: Genotype = None,
+    current_genotype: Genotype | None = None,
     max_depth: int = 5,
 ) -> Genotype:
     if not starting_symbol:
@@ -224,17 +224,33 @@ def create_individual(
     return random_individual(r, g, starting_symbol, current_genotype, max_depth)
 
 
-def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
-    rkey = r.choice(
+def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int, all_codons_equal_probability=False) -> Genotype:
+    if all_codons_equal_probability:
+        weight = lambda key: len(ind.dna[key])
+    else:
+        weight = lambda key: 1
+
+    rkey = r.choice_weighted(
+        list(key for key in ind.dna.keys() if (len(ind.dna[key]) > 0) and (key != LEFTOVER_KEY) and (key != "")),
         list(
-            key
-            for key in ind.dna.keys()
-            if (len(ind.dna[key]) > 0) and (key != LEFTOVER_KEY)
+            weight(key) for key in ind.dna.keys() if (len(ind.dna[key]) > 0) and (key != LEFTOVER_KEY) and (key != "")
         ),
     )
-    rindex = r.randint(0, len(ind.dna[rkey]) - 1)
-    dna = deepcopy(ind.dna)
-    dna[rkey][rindex] = r.randint(0, MAX_RAND_INT)
+    dna = ind.dna
+    clone = [i for i in dna[rkey]]
+    rindex = r.randint(0, len(dna[rkey]) - 1)
+    clone[rindex] = r.randint(0, MAX_RAND_INT)
+    dna[rkey] = clone
+    return Genotype(dna)
+
+
+def per_codon_mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int, codon_prob: float) -> Genotype:
+    dna = ind.dna
+    for key in dna.keys():
+        if key != LEFTOVER_KEY and key != "":
+            for i in range(len(dna[key])):
+                if r.random_float(0, 1) < codon_prob:
+                    dna[key][i] = r.randint(0, MAX_RAND_INT)
     return Genotype(dna)
 
 
@@ -307,6 +323,90 @@ def create_tree(
     return random_node(rand, g, depth, g.starting_symbol, initialization_mode)
 
 
+class DefaultDSGEMutation(MutationOperator[Genotype]):
+    """Chooses a random list, and a random position inside that list.
+
+    Then changes the value in that position to another value.
+    """
+
+    def mutate(
+        self,
+        genotype: Genotype,
+        problem: Problem,
+        representation: Representation,
+        random_source: Source,
+        index_in_population: int,
+        generation: int,
+    ) -> Genotype:
+        assert isinstance(representation, DynamicStructuredGrammaticalEvolutionRepresentation)
+        return mutate(random_source, representation.grammar, genotype, representation.max_depth, False)
+
+
+class EquiprobableCodonDSGEMutation(MutationOperator[Genotype]):
+    """Chooses a random codon with equal probability.
+
+    Finally, changes the value in that codon to another value.
+    """
+
+    def mutate(
+        self,
+        genotype: Genotype,
+        problem: Problem,
+        representation: Representation,
+        random_source: Source,
+        index_in_population: int,
+        generation: int,
+    ) -> Genotype:
+        assert isinstance(representation, DynamicStructuredGrammaticalEvolutionRepresentation)
+        return mutate(random_source, representation.grammar, genotype, representation.max_depth, True)
+
+
+class PerCodonDSGEMutation(MutationOperator[Genotype]):
+    """Chooses a random codon with a given probability.
+
+    Then changes the value in that position.
+    """
+
+    def __init__(
+        self,
+        codon_probability: float = 0.2,
+    ):
+        self.codon_probability = codon_probability
+
+    def mutate(
+        self,
+        genotype: Genotype,
+        problem: Problem,
+        representation: Representation,
+        random_source: Source,
+        index_in_population: int,
+        generation: int,
+    ) -> Genotype:
+        return per_codon_mutate(
+            random_source,
+            representation.grammar,
+            genotype,
+            representation.max_depth,
+            self.codon_probability,
+        )
+
+
+class DefaultDSGECrossover(CrossoverOperator[Genotype]):
+    """One-point crossover between the lists of lists."""
+
+    def crossover(
+        self,
+        g1: Genotype,
+        g2: Genotype,
+        problem: Problem,
+        representation: Representation,
+        random_source: Source,
+        index_in_population: int,
+        generation: int,
+    ) -> tuple[Genotype, Genotype]:
+        return crossover(random_source, representation.grammar, g1, g2, representation.max_depth)
+
+
 class DynamicStructuredGrammaticalEvolutionRepresentation(
     Representation[Genotype, TreeNode],
 ):
@@ -341,30 +441,6 @@ class DynamicStructuredGrammaticalEvolutionRepresentation(
         actual_depth = depth or self.max_depth
         return create_individual(r, self.grammar, max_depth=actual_depth)
 
-    def mutate_individual(
-        self,
-        r: Source,
-        ind: Genotype,
-        depth: int,
-        ty: type,
-        specific_type: type = None,
-        depth_aware_mut: bool = False,
-        **kwargs,
-    ) -> Genotype:
-        return mutate(r, self.grammar, ind, depth)
-
-    def crossover_individuals(
-        self,
-        r: Source,
-        i1: Genotype,
-        i2: Genotype,
-        depth: int,
-        specific_type: type = None,
-        depth_aware_co: bool = False,
-        **kwargs,
-    ) -> tuple[Genotype, Genotype]:
-        return crossover(r, self.grammar, i1, i2, depth)
-
     def genotype_to_phenotype(self, genotype: Genotype) -> TreeNode:
         return create_tree(
             self.grammar,
@@ -379,3 +455,9 @@ class DynamicStructuredGrammaticalEvolutionRepresentation(
         raise NotImplementedError(
             "Reconstruction of genotype not supported in this representation.",
         )
+
+    def get_mutation(self) -> MutationOperator[Genotype]:
+        return DefaultDSGEMutation()
+
+    def get_crossover(self) -> CrossoverOperator[Genotype]:
+        return DefaultDSGECrossover()

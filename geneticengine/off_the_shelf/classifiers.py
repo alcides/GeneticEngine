@@ -1,10 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from math import isinf
 from typing import Annotated
-from typing import List
-from typing import Type
 
 import numpy as np
 import pandas as pd
@@ -15,7 +12,6 @@ from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriteri
 from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import Problem
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.api import Representation
@@ -25,7 +21,6 @@ from geneticengine.grammars.basic_math import SafeLog
 from geneticengine.grammars.basic_math import SafeSqrt
 from geneticengine.grammars.literals import exp_literals
 from geneticengine.grammars.literals import ExpLiteral
-from geneticengine.grammars.sgp import Literal
 from geneticengine.grammars.sgp import Mul
 from geneticengine.grammars.sgp import Number
 from geneticengine.grammars.sgp import Plus
@@ -57,7 +52,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
 
     def __init__(
         self,
-        nodes: list[type[Number]] = None,
+        nodes: list[type[Number]] | None = None,
         representation_class: type[Representation] = TreeBasedRepresentation,
         population_size: int = 200,
         n_elites: int = 5,  # Shouldn't this be a percentage of population size?

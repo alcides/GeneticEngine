@@ -17,15 +17,13 @@ from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.algorithms.gp.structure import StoppingCriterium
 from geneticengine.algorithms.heuristics import Heuristics
-from geneticengine.core.grammar import Grammar
-from geneticengine.core.problems import FitnessType
 from geneticengine.core.problems import Problem
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
 
 
-default_generic_programming_step = SequenceStep(
+default_generic_programming_step = lambda: SequenceStep(
     TournamentSelection(5),
     GenericCrossoverStep(0.01),
     GenericMutationStep(0.9),
@@ -54,20 +52,20 @@ class GP(Heuristics):
         random_source: Source = RandomSource(0),
         population_size: int = 200,
         initializer: PopulationInitializer = GrowInitializer(),
-        step: GeneticStep = default_generic_programming_step,
+        step: GeneticStep | None = None,
         stopping_criterium: StoppingCriterium = GenerationStoppingCriterium(100),
-        callbacks: list[Callback] = None,
+        callbacks: list[Callback] | None = None,
     ):
         self.representation = representation
         self.problem = problem
         self.initializer = initializer
         self.population_size = population_size
         self.random_source = random_source
-        self.step = step
+        self.step = step if step else default_generic_programming_step()
         self.stopping_criterium = stopping_criterium
-        self.callbacks = callbacks or []
+        self.callbacks = callbacks if callbacks else []
 
-    def evolve(self) -> tuple[Individual, FitnessType, Any]:
+    def evolve(self) -> Individual:
         """The main function of the GP object. This function runs the GP
         algorithm over the set number of generations, evolving better
         solutions.
@@ -109,10 +107,4 @@ class GP(Heuristics):
 
         for cb in self.callbacks:
             cb.end_evolution()
-        return (
-            best_individual,
-            best_individual.evaluate(self.problem),
-            self.representation.genotype_to_phenotype(
-                best_individual.genotype,
-            ),
-        )
+        return best_individual

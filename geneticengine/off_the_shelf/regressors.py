@@ -1,10 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from math import isinf
 from typing import Annotated
-from typing import List
-from typing import Type
 
 import numpy as np
 import pandas as pd
@@ -24,13 +21,11 @@ from geneticengine.grammars.basic_math import SafeLog
 from geneticengine.grammars.basic_math import SafeSqrt
 from geneticengine.grammars.literals import exp_literals
 from geneticengine.grammars.literals import ExpLiteral
-from geneticengine.grammars.sgp import Literal
 from geneticengine.grammars.sgp import Mul
 from geneticengine.grammars.sgp import Number
 from geneticengine.grammars.sgp import Plus
 from geneticengine.grammars.sgp import Var
 from geneticengine.metahandlers.vars import VarRange
-from geneticengine.metrics import f1_score
 from geneticengine.metrics import mse
 from geneticengine.metrics import r2
 from geneticengine.off_the_shelf.sympy_compatible import fix_all
@@ -59,7 +54,7 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
 
     def __init__(
         self,
-        nodes: list[type[Number]] = None,
+        nodes: list[type[Number]] | None = None,
         representation: type[Representation] = TreeBasedRepresentation,
         population_size: int = 200,
         n_elites: int = 5,

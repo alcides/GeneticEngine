@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+import abc
 import random
-from abc import ABC
 from itertools import accumulate
 from typing import TypeVar
 
@@ -12,13 +12,16 @@ from geneticengine.core.utils import get_generic_parameter
 T = TypeVar("T")
 
 
-class Source(ABC):
+class Source(abc.ABC):
+    @abc.abstractmethod
     def __init__(self, seed: int = 0):
         ...
 
+    @abc.abstractmethod
     def randint(self, min: int, max: int, prod: str = "") -> int:
         ...
 
+    @abc.abstractmethod
     def random_float(self, min: float, max: float, prod: str = "") -> float:
         ...
 

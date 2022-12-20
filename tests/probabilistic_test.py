@@ -47,8 +47,9 @@ class TestProbabilisticGrammar:
             population_size=1000,
             stopping_criterium=GenerationStoppingCriterium(max_generations=50),
         )
-        a, b, c = gp.evolve()
-        assert isinstance(c, OptionA)
+        ind = gp.evolve()
+        tree = ind.get_phenotype()
+        assert isinstance(tree, OptionA)
 
     def test_probabilistic_grammar_ge(self):
         g = extract_grammar([OptionA, OptionB], Option)
@@ -63,8 +64,9 @@ class TestProbabilisticGrammar:
             population_size=1000,
             stopping_criterium=GenerationStoppingCriterium(max_generations=50),
         )
-        a, b, c = gp.evolve()
-        assert isinstance(c, OptionA)
+        ind = gp.evolve()
+        tree = ind.get_phenotype()
+        assert isinstance(tree, OptionA)
 
     def test_probabilistic_grammar_sge(self):
         g = extract_grammar([OptionA, OptionB], Option)
@@ -82,8 +84,9 @@ class TestProbabilisticGrammar:
             population_size=1000,
             stopping_criterium=GenerationStoppingCriterium(max_generations=50),
         )
-        a, b, c = gp.evolve()
-        assert isinstance(c, OptionA)
+        ind = gp.evolve()
+        tree = ind.get_phenotype()
+        assert isinstance(tree, OptionA)
 
     def test_probabilistic_grammar_dsge(self):
         g = extract_grammar([OptionA, OptionB], Option)
@@ -101,5 +104,6 @@ class TestProbabilisticGrammar:
             population_size=1000,
             stopping_criterium=GenerationStoppingCriterium(max_generations=50),
         )
-        a, b, c = gp.evolve()
-        assert isinstance(c, OptionA)
+        ind = gp.evolve()
+        tree = ind.get_phenotype()
+        assert isinstance(tree, OptionA)

@@ -39,11 +39,11 @@ class RandomSearch(GP):
         random_source: Source = RandomSource(0),
         initializer: PopulationInitializer = GrowInitializer(),
         stopping_criterium: StoppingCriterium = GenerationStoppingCriterium(100),
-        callbacks: list[Callback] = None,
+        callbacks: list[Callback] | None = None,
     ):
+        concrente_callbacks: list[Callback] = callbacks if callbacks else []
         step = ParallelStep([NoveltyStep(), ElitismStep()])
-        GP.__init__(
-            self,
+        super().__init__(
             representation,
             problem,
             random_source,
@@ -51,5 +51,5 @@ class RandomSearch(GP):
             initializer,
             step,
             stopping_criterium,
-            callbacks,
+            concrente_callbacks,
         )
