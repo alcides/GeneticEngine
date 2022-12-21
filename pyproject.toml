@@ -10,7 +10,14 @@ authors = [
     {name = "Alcides Fonseca", email = "me@alcidesfonseca.com"}
 ]
 readme = "Readme.md"
-requires-python = "~=3.9"
+requires-python = ">=3.9"
+keywords = ["evolutionary computation, genetic programming, regression, machine learning"]
+
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10"
+]
 
 [project.urls]
 homepage = "https://github.com/alcides/GeneticEngine/"

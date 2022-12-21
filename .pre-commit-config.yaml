@@ -47,3 +47,7 @@ repos:
     rev: v0.0.189
     hooks:
       - id: ruff
+-   repo: https://github.com/regebro/pyroma
+    rev: "3.2"
+    hooks:
+    -   id: pyroma
