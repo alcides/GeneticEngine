@@ -176,7 +176,7 @@ class GP(Heuristics):
         self.favor_less_complex_trees = favor_less_complex_trees
         self.novelty = selection.create_novelties(
             self.create_individual,
-            max_depth=max_init_depth,
+            max_depth=self.max_init_depth,
         )
         self.timer_stop_criteria = timer_stop_criteria
         self.timer_limit = timer_limit
