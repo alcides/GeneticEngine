@@ -92,9 +92,11 @@ class GP(Heuristics):
             return time.time() - start
 
         while not self.stopping_criterium.is_ended(
+            self.problem,
             population,
             generation,
             elapsed_time(),
+            self.evaluator,
         ):
             generation += 1
             population = self.step.iterate(

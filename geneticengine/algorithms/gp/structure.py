@@ -46,8 +46,10 @@ class StoppingCriterium(abc.ABC):
     @abc.abstractmethod
     def is_ended(
         self,
+        problem: Problem,
         population: list[Individual],
         generation: int,
         elapsed_time: float,
+        evaluator: Evaluator,
     ) -> bool:
         ...

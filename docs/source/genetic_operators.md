@@ -67,11 +67,15 @@ This function generates a selection operator that uses Lexicase Selection [^1]
 .. autoapiclass:: geneticengine.algorithms.gp.operators.mutation.GenericMutationStep
 ```
 
+Note that the operator parameter allows different representations to introduce their own custom mutators.
+
 ### Crossover
 
 ```{eval-rst}
 .. autoapiclass:: geneticengine.algorithms.gp.operators.crossover.GenericCrossoverStep
 ```
+
+Note that the operator parameter allows different representations to introduce their own custom crossover operators.
 
 ## Combinators
 
@@ -94,15 +98,6 @@ default_generic_programming_step = SequenceStep(
 
 ```{eval-rst}
 .. autoapiclass:: geneticengine.algorithms.gp.operators.crossover.ParallelStep
-```
-
-
-## Parallel Evaluation
-
-On linux and macos, it is possible to perform evaluation in parallel, using multiple cores. For that, introduce this step before your selection operator.
-
-```{eval-rst}
-.. autoapiclass:: geneticengine.algorithms.gp.operators.parallel.ParallelEvaluationStep
 ```
 
 ##### References

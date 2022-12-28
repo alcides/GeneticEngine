@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.algorithms.gp.structure import StoppingCriterium
+from geneticengine.core.evaluators import Evaluator
+from geneticengine.core.problems import Problem
 
 
 class GenerationStoppingCriterium(StoppingCriterium):
@@ -18,9 +20,11 @@ class GenerationStoppingCriterium(StoppingCriterium):
 
     def is_ended(
         self,
+        problem: Problem,
         population: list[Individual],
         generation: int,
         elapsed_time: float,
+        evaluator: Evaluator,
     ) -> bool:
         return generation >= self.max_generations
 
@@ -42,8 +46,33 @@ class TimeStoppingCriterium(StoppingCriterium):
 
     def is_ended(
         self,
+        problem: Problem,
         population: list[Individual],
         generation: int,
         elapsed_time: float,
+        evaluator: Evaluator,
     ) -> bool:
         return elapsed_time >= self.max_time
+
+
+class EvaluationLimitCriterium(StoppingCriterium):
+    """Runs the evolution with a fixed budget for evaluations."""
+
+    def __init__(self, max_evaluations: int):
+        """Creates a limit for the evolution, based on the budget for
+        evaluation.
+
+        Arguments:
+            max_evaluations (int): Maximum number of evaluations
+        """
+        self.max_evaluations = max_evaluations
+
+    def is_ended(
+        self,
+        problem: Problem,
+        population: list[Individual],
+        generation: int,
+        elapsed_time: float,
+        evaluator: Evaluator,
+    ) -> bool:
+        return evaluator.count() >= self.max_evaluations

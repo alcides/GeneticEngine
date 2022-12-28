@@ -13,3 +13,9 @@ Genetic Engine suports different criteria to finish the evolution: limiting the 
 ```{eval-rst}
 .. autoapiclass:: geneticengine.algorithms.gp.operators.stop.TimeStoppingCriterium
 ```
+
+## Evaluation Limit
+
+```{eval-rst}
+.. autoapiclass:: geneticengine.algorithms.gp.operators.stop.EvaluationLimitCriterium
+```
