@@ -82,13 +82,17 @@ Note that the operator parameter allows different representations to introduce t
 Combinators allow you to design your own evolutionary algorithms. In the following example, we are defining a GP variant that applies a tournament selection of size 5, and then takes the best 5% of the population, merges with new elements that will make up 5% of the new population, and the remaining 90% will be the result of a crossover with 0.01% of probability, after which a mutation with 90% of probability is applied.
 
 ```
-default_generic_programming_step = SequenceStep(
-    TournamentSelection(5),
-    ParallelStep([
-        SequenceStep(GenericCrossoverStep(0.01), GenericMutationStep(0.9)),
+default_generic_programming_step = ParallelStep([
         ElitismStep(),
         NoveltyStep()
-    ], weights=[90, 5, 5]),
+        SequenceStep(
+            TournamentSelection(5),
+            GenericCrossoverStep(0.01),
+            GenericMutationStep(0.9),
+        )
+    ], weights=[5, 5, 90]),),
+
+
 )
 ```
 

@@ -5,12 +5,14 @@ from typing import Any, Callable
 
 from geneticengine.algorithms.callbacks.callback import Callback
 from geneticengine.algorithms.gp.individual import Individual
-from geneticengine.algorithms.gp.operators.combinators import SequenceStep
+from geneticengine.algorithms.gp.operators.combinators import ParallelStep, SequenceStep
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
+from geneticengine.algorithms.gp.operators.elitism import ElitismStep
 from geneticengine.algorithms.gp.operators.initializers import (
     GrowInitializer,
 )
 from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
+from geneticengine.algorithms.gp.operators.novelty import NoveltyStep
 from geneticengine.algorithms.gp.operators.selection import TournamentSelection
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.algorithms.gp.structure import GeneticStep
@@ -26,10 +28,17 @@ from geneticengine.core.evaluators import Evaluator, SequentialEvaluator
 
 def default_generic_programming_step():
     """The default step in Genetic Programming."""
-    return SequenceStep(
-        TournamentSelection(5),
-        GenericCrossoverStep(0.01),
-        GenericMutationStep(0.9),
+    return ParallelStep(
+        ElitismStep,
+        NoveltyStep,
+        [
+            SequenceStep(
+                TournamentSelection(5),
+                GenericCrossoverStep(0.01),
+                GenericMutationStep(0.9),
+            ),
+        ],
+        weights=[5, 5, 90],
     )
 
 
