@@ -29,9 +29,9 @@ from geneticengine.core.evaluators import Evaluator, SequentialEvaluator
 def default_generic_programming_step():
     """The default step in Genetic Programming."""
     return ParallelStep(
-        ElitismStep,
-        NoveltyStep,
         [
+            ElitismStep(),
+            NoveltyStep(),
             SequenceStep(
                 TournamentSelection(5),
                 GenericCrossoverStep(0.01),

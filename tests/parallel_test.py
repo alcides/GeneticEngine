@@ -6,18 +6,14 @@ from dataclasses import dataclass
 from geneticengine.algorithms.callbacks.callback import Callback
 from geneticengine.algorithms.callbacks.callback import DebugCallback
 from geneticengine.algorithms.gp.gp import GP
-from geneticengine.algorithms.gp.operators.combinators import SequenceStep
-from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
 from geneticengine.algorithms.gp.operators.initializers import FullInitializer
-from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
-from geneticengine.algorithms.gp.operators.parallel import ParallelEvaluationStep
-from geneticengine.algorithms.gp.operators.selection import TournamentSelection
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.core.parallel_evaluation import ParallelEvaluator
 
 
 class Root(ABC):
@@ -67,13 +63,8 @@ class TestParallel:
             population_size=20,
             stopping_criterium=GenerationStoppingCriterium(10),
             initializer=FullInitializer(),
-            step=SequenceStep(
-                ParallelEvaluationStep(),
-                TournamentSelection(10),
-                GenericCrossoverStep(1),
-                GenericMutationStep(1),
-            ),
             callbacks=[DebugCallback(), TestCallback()],
+            evaluator=lambda: ParallelEvaluator(),
         )
         ind = gp.evolve()
         tree = ind.get_phenotype()

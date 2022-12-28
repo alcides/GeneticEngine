@@ -75,4 +75,4 @@ class EvaluationLimitCriterium(StoppingCriterium):
         elapsed_time: float,
         evaluator: Evaluator,
     ) -> bool:
-        return evaluator.count() >= self.max_evaluations
+        return evaluator.get_count() >= self.max_evaluations

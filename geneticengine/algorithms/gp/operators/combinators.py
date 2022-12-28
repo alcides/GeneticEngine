@@ -56,6 +56,17 @@ class ParallelStep(GeneticStep):
         self.weights = weights or [1 for _ in steps]
         assert len(self.steps) == len(self.weights)
 
+    def compute_ranges(self, population, target_size):
+        """Computes the ranges for each slide, according to weights."""
+        total = sum(self.weights)
+        indices = [0] + self.cumsum(
+            [int(round(w * len(population) / total, 0)) for w in self.weights],
+        )
+        ranges = list(zip(indices, indices[1:]))
+        if ranges[-1][0] < target_size:
+            ranges[-1] = (ranges[-1][0], target_size)
+        return ranges
+
     def iterate(
         self,
         problem: Problem,
@@ -66,11 +77,8 @@ class ParallelStep(GeneticStep):
         target_size: int,
         generation: int,
     ) -> list[Individual]:
-        total = sum(self.weights)
-        indices = [0] + self.cumsum(
-            [int(round(w * len(population) / total, 0)) for w in self.weights],
-        )
-        ranges = list(zip(indices, indices[1:]))
+
+        ranges = self.compute_ranges(population, target_size)
         assert len(ranges) == len(self.steps)
 
         retlist = self.concat(
@@ -85,9 +93,9 @@ class ParallelStep(GeneticStep):
                     generation,
                 )
                 for ((start, end), step) in zip(ranges, self.steps)
+                if end - start > 0
             ],
         )
-
         assert len(retlist) == target_size
         return retlist
 
