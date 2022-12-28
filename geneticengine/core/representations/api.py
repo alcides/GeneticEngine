@@ -7,7 +7,7 @@ from typing import TypeVar
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.problems import Problem
 from geneticengine.core.random.sources import Source
-from geneticengine.evaluators import Evaluator
+from geneticengine.core.evaluators import Evaluator
 
 g = TypeVar("g")
 p = TypeVar("p")

@@ -19,7 +19,7 @@ from geneticengine.core.tree import TreeNode
 from geneticengine.core.utils import get_arguments
 from geneticengine.core.utils import is_generic
 from geneticengine.core.utils import strip_annotations
-from geneticengine.evaluators import Evaluator
+from geneticengine.core.evaluators import Evaluator
 
 GENE_SIZE = 100
 MAX_RAND_INT = 100000

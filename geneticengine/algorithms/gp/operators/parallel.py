@@ -4,7 +4,7 @@ from abc import ABCMeta
 from pickle import _Pickler as StockPickler  # attr-defined: ignore
 
 from dill import register
-from geneticengine.evaluators import Evaluator  # pyright: ignore
+from geneticengine.core.evaluators import Evaluator  # pyright: ignore
 from pathos.multiprocessing import ProcessingPool as Pool  # pyright: ignore
 
 from geneticengine.algorithms.gp.individual import Individual

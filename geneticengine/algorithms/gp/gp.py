@@ -21,7 +21,7 @@ from geneticengine.core.problems import Problem
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
-from geneticengine.evaluators import Evaluator, SequentialEvaluator
+from geneticengine.core.evaluators import Evaluator, SequentialEvaluator
 
 
 def default_generic_programming_step():

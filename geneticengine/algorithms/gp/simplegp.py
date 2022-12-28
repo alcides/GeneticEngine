@@ -31,6 +31,7 @@ from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.algorithms.gp.structure import StoppingCriterium
 from geneticengine.core.grammar import Grammar
+from geneticengine.core.evaluators import SequentialEvaluator
 from geneticengine.core.problems import MultiObjectiveProblem
 from geneticengine.core.problems import Problem
 from geneticengine.core.problems import SingleObjectiveProblem
@@ -45,6 +46,7 @@ from geneticengine.core.representations.tree.treebased import DefaultTBMutation
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.core.representations.tree.treebased import TypeSpecificTBCrossover
 from geneticengine.core.representations.tree.treebased import TypeSpecificTBMutation
+from geneticengine.core.evaluators import Evaluator
 
 P = TypeVar("P")
 
@@ -250,13 +252,6 @@ class SimpleGP(GP):
             )
         step = SequenceStep(selection_step, step)
 
-        if parallel_evaluation:
-            from geneticengine.algorithms.gp.operators.parallel import (
-                ParallelEvaluationStep,
-            )
-
-            step = SequenceStep(ParallelEvaluationStep(), step)
-
         step = ParallelStep(
             [ElitismStep(), NoveltyStep(), step],
             [n_elites, n_novelties, population_size - n_novelties - n_elites],
@@ -270,6 +265,12 @@ class SimpleGP(GP):
 
         self.callbacks: list[Callback] = []
         self.callbacks.extend(callbacks or [])
+
+        evaluator: Evaluator = SequentialEvaluator()
+        if parallel_evaluation:
+            from geneticengine.core.parallel_evaluation import ParallelEvaluator
+
+            evaluator = ParallelEvaluator()
 
         if evolve_grammar:
             self.callbacks.append(PGECallback(evolve_learning_rate))
@@ -308,6 +309,7 @@ class SimpleGP(GP):
             step,
             stopping_criterium,
             self.callbacks,
+            evaluator=lambda: evaluator,
         )
 
     def process_problem(

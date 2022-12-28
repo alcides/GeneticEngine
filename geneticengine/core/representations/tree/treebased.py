@@ -22,7 +22,7 @@ from geneticengine.core.utils import get_generic_parameter
 from geneticengine.core.utils import has_annotated_crossover
 from geneticengine.core.utils import has_annotated_mutation
 from geneticengine.core.utils import is_abstract
-from geneticengine.evaluators import Evaluator
+from geneticengine.core.evaluators import Evaluator
 from geneticengine.exceptions import GeneticEngineError
 
 T = TypeVar("T")

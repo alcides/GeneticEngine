@@ -15,7 +15,7 @@ from geneticengine.core.representations.tree.initializations import (
 from geneticengine.core.representations.tree.initializations import pi_grow_method
 from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.core.tree import TreeNode
-from geneticengine.evaluators import Evaluator
+from geneticengine.core.evaluators import Evaluator
 
 MAX_VALUE = 1000000
 GENE_LENGTH = 256

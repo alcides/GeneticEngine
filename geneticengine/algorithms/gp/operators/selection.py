@@ -9,7 +9,7 @@ from geneticengine.core.problems import Problem
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
-from geneticengine.evaluators import Evaluator
+from geneticengine.core.evaluators import Evaluator
 
 
 class TournamentSelection(GeneticStep):
@@ -38,9 +38,9 @@ class TournamentSelection(GeneticStep):
         assert isinstance(problem, SingleObjectiveProblem)
         winners: list[Individual] = []
         candidates = population.copy()
+        evaluator.eval(problem, candidates)
         for _ in range(target_size):
             candidates = [r.choice(population) for _ in range(self.tournament_size)]
-            evaluator.eval(problem, candidates)
             winner = max(candidates, key=Individual.key_function(problem))
             winners.append(winner)
 
