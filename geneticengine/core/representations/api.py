@@ -7,6 +7,7 @@ from typing import TypeVar
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.problems import Problem
 from geneticengine.core.random.sources import Source
+from geneticengine.evaluators import Evaluator
 
 g = TypeVar("g")
 p = TypeVar("p")
@@ -21,6 +22,7 @@ class MutationOperator(Generic[g], abc.ABC):
         self,
         genotype: g,
         problem: Problem,
+        evaluator: Evaluator,
         representation: Representation,
         random_source: Source,
         index_in_population: int,

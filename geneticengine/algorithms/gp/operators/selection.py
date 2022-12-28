@@ -4,11 +4,12 @@ import numpy as np
 
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.algorithms.gp.structure import GeneticStep
-from geneticengine.core.problems import MultiObjectiveProblem
+from geneticengine.core.problems import FitnessMultiObjective, MultiObjectiveProblem
 from geneticengine.core.problems import Problem
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
+from geneticengine.evaluators import Evaluator
 
 
 class TournamentSelection(GeneticStep):
@@ -27,6 +28,7 @@ class TournamentSelection(GeneticStep):
     def iterate(
         self,
         problem: Problem,
+        evaluator: Evaluator,
         representation: Representation,
         r: Source,
         population: list[Individual],
@@ -38,21 +40,10 @@ class TournamentSelection(GeneticStep):
         candidates = population.copy()
         for _ in range(target_size):
             candidates = [r.choice(population) for _ in range(self.tournament_size)]
-            if problem.minimize:
-                winner = min(
-                    candidates,
-                    key=lambda x: x.evaluate(
-                        problem,
-                    ),
-                )
-            else:
-                winner = max(
-                    candidates,
-                    key=lambda x: x.evaluate(
-                        problem,
-                    ),
-                )
+            evaluator.eval(problem, candidates)
+            winner = max(candidates, key=Individual.key_function(problem))
             winners.append(winner)
+
             if self.with_replacement:
                 candidates.remove(winner)
                 if not candidates:
@@ -68,13 +59,15 @@ class LexicaseSelection(GeneticStep):
     def __init__(self, epsilon: bool = False):
         """
         Args:
-         epsilon: if True, espilon-lexicase is performed. We use the method given by equation 5 in https://dl.acm.org/doi/pdf/10.1145/2908812.2908898.
+            epsilon: if True, espilon-lexicase is performed. We use the method given by equation 5 in
+                https://dl.acm.org/doi/pdf/10.1145/2908812.2908898.
         """
         self.epsilon = epsilon
 
     def iterate(
         self,
         problem: Problem,
+        evaluator: Evaluator,
         representation: Representation,
         r: Source,
         population: list[Individual],
@@ -83,14 +76,10 @@ class LexicaseSelection(GeneticStep):
     ) -> list[Individual]:
         assert isinstance(problem, MultiObjectiveProblem)
         candidates = population.copy()
-        candidates[0].evaluate(problem)
-        assert isinstance(candidates[0].fitness, list)
-        n_cases = len(candidates[0].fitness)
+        evaluator.eval(problem, candidates)
+        n_cases = problem.number_of_objectives()
         cases = r.shuffle(list(range(n_cases)))
         winners = []
-
-        for cand in candidates:
-            cand.evaluate(problem=problem)
 
         for _ in range(target_size):
             candidates_to_check = candidates.copy()
@@ -102,22 +91,35 @@ class LexicaseSelection(GeneticStep):
                 choose_best = min if problem.minimize[c] else max
 
                 best_fitness = choose_best([x.fitness[c] for x in candidates_to_check])  # type: ignore
-
                 checking_value = best_fitness
+
                 if self.epsilon:
-                    fitness_values = np.array([x.fitness[c] for x in candidates_to_check if not np.isnan(x.fitness[c])])  # type: ignore
+
+                    def get_fitness_value(ind: Individual, c: int):
+                        fitnesses = ind.get_fitness(problem)
+                        assert isinstance(fitnesses, FitnessMultiObjective)
+                        return fitnesses.multiple_fitnesses[c]
+
+                    fitness_values = np.array(
+                        [get_fitness_value(x, c) for x in candidates_to_check if not np.isnan(get_fitness_value(x, c))],
+                    )
                     mad = np.median(np.absolute(fitness_values - np.median(fitness_values)))
                     checking_value = best_fitness + mad if problem.minimize[c] else best_fitness - mad
 
                 for checking_candidate in candidates_to_check:
-                    add_candidate = checking_candidate.fitness[c] <= checking_value if problem.minimize[c] else checking_candidate.fitness[c] >= checking_value  # type: ignore
+                    fitnesses = checking_candidate.get_fitness(problem)
+                    assert isinstance(fitnesses, FitnessMultiObjective)
+                    if problem.minimize[c]:
+                        add_candidate = fitnesses.multiple_fitnesses[c] <= checking_value
+                    else:
+                        add_candidate = fitnesses.multiple_fitnesses[c] >= checking_value
                     if add_candidate:
                         new_candidates.append(checking_candidate)
 
                 candidates_to_check = new_candidates.copy()
 
             winner = r.choice(candidates_to_check) if len(candidates_to_check) > 1 else candidates_to_check[0]
-            assert isinstance(winner.fitness, list)
+            assert isinstance(winner.get_fitness(problem), list)
             winners.append(winner)
             candidates.remove(winner)
         return winners

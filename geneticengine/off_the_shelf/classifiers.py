@@ -168,7 +168,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
 
         The model must have been fitted
         """
-        assert self.evolved_phenotype != None
+        assert self.evolved_phenotype is not None
         if (type(X) == pd.DataFrame) or (type(X) == pd.Series):
             data = X.values
         else:
@@ -289,7 +289,7 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
 
         The model must have been fitted
         """
-        assert self.evolved_phenotype != None
+        assert self.evolved_phenotype is not None
         if (type(X) == pd.DataFrame) or (type(X) == pd.Series):
             data = X.values
         else:

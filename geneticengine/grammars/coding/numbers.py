@@ -72,9 +72,9 @@ class Plus(Number):
         return self.left.evaluate(**kwargs) + self.right.evaluate(**kwargs)
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
-        return lambda line: self.left.evaluate_lines(**kwargs)(
-            line,
-        ) + self.right.evaluate_lines(**kwargs)(line)
+        return lambda line: self.left.evaluate_lines(**kwargs)(line) + self.right.evaluate_lines(
+            **kwargs,
+        )(line)
 
     def __str__(self) -> str:
         return f"({self.left} + {self.right})"
@@ -89,9 +89,9 @@ class Mul(Number):
         return self.left.evaluate(**kwargs) * self.right.evaluate(**kwargs)
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], float]:
-        return lambda line: self.left.evaluate_lines(**kwargs)(
-            line,
-        ) * self.right.evaluate_lines(**kwargs)(line)
+        return lambda line: self.left.evaluate_lines(**kwargs)(line) * self.right.evaluate_lines(
+            **kwargs,
+        )(line)
 
     def __str__(self) -> str:
         return f"({self.left} * {self.right})"
@@ -151,7 +151,8 @@ class Var(Number):
     def evaluate_lines(self, **kwargs):
         if not hasattr(self, "feature_indices"):
             raise GeneticEngineError(
-                "To use geneticengine.grammars.coding.expressions.Var.evaluate_lines, one must specify a Var.feature_indices dictionary.",
+                "To use geneticengine.grammars.coding.expressions.Var.evaluate_lines, one must specify a "
+                + "Var.feature_indices dictionary.",
             )
         return lambda line: line[self.feature_indices[self.name]]
 

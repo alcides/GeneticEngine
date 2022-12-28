@@ -1,9 +1,5 @@
 from __future__ import annotations
 
-from typing import Any
-from typing import Callable
-from typing import Dict
-from typing import Type
 from typing import TypeVar
 
 from geneticengine.core.grammar import Grammar
@@ -15,9 +11,10 @@ max = TypeVar("max", covariant=True)
 
 
 class FloatRange(MetaHandlerGenerator):
-    """
-    FloatRange(a,b) restricts floats to be between a and b.
-    The range can be dynamically altered before the grammar extraction (Float.__annotations__["value"] = Annotated[float, FloatRange(c,d)].
+    """FloatRange(a,b) restricts floats to be between a and b.
+
+    The range can be dynamically altered before the grammar extraction:
+        Float.__annotations__["value"] = Annotated[float, FloatRange(c,d)].
     """
 
     def __init__(self, min, max):
@@ -44,9 +41,11 @@ class FloatRange(MetaHandlerGenerator):
 
 
 class FloatList(MetaHandlerGenerator):
-    """
-    FloatList([a_1, .., a_n]) restricts floats to be an element from the list [a_1, .., a_n].
-    The range can be dynamically altered before the grammar extraction (Float.__init__.__annotations__["value"] = Annotated[float, FloatList[a_1, .., a_n]].
+    """FloatList([a_1, .., a_n]) restricts floats to be an element from the
+    list [a_1, .., a_n].
+
+    The range can be dynamically altered before the grammar extraction
+        Float.__init__.__annotations__["value"] = Annotated[float, FloatList[a_1, .., a_n]]
     """
 
     def __init__(self, elements):

@@ -316,8 +316,10 @@ def extract_grammar(
     such as Genetic Programming and Hill Climbing.
 
     Args:
-        nodes (list): A list of objects representing tree nodes. Make sure that any node can be produced be the starting symbol.
-        starting_symbol (object): The starting symbol of each tree. Makes sure every generated tree by the returned grammar starts with this symbol. Make sure that the starting symbol can produce any object of nodes.
+        nodes (list): A list of objects representing tree nodes. Make sure that any node can be produced be the starting
+            symbol.
+        starting_symbol (object): The starting symbol of each tree. Makes sure every generated tree by the returned
+            grammar starts with this symbol. Make sure that the starting symbol can produce any object of nodes.
 
     Returns:
         The grammar

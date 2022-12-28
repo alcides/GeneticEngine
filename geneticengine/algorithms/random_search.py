@@ -29,7 +29,8 @@ class RandomSearch(GP):
         random_source (RandomSource]): A RNG instance
         initializer (PopulationInitializer): The method to generate new individuals.
         stopping_criterium (StoppingCriterium): The class that defines how the evolution stops.
-        callbacks (List[Callback]): The callbacks to define what is done with the returned prints from the algorithm (default = []).
+        callbacks (List[Callback]): The callbacks to define what is done with the returned prints from the algorithm
+            (default = None).
     """
 
     def __init__(

@@ -4,8 +4,7 @@ import numpy as np
 
 
 def mae(y_pred, y_gt):
-    """
-    Calculate mean absolute error
+    """Calculate mean absolute error.
 
     y_pred: the predicted output
     y_gt: ground truth
@@ -16,8 +15,8 @@ def mae(y_pred, y_gt):
 
 
 def precision(y_pred, y_gt, binary=False):
-    """
-    Calculate precision. A higher precision corresponds to a better prediction
+    """Calculate precision. A higher precision corresponds to a better
+    prediction.
 
     y_pred: the predicted output
     y_gt: ground truth
@@ -39,8 +38,7 @@ def precision(y_pred, y_gt, binary=False):
 
 
 def recall(y_pred, y_gt, binary=False):
-    """
-    Calculate recall. A higher recall corresponds to a better prediction
+    """Calculate recall. A higher recall corresponds to a better prediction.
 
     y_pred: the predicted output
     y_gt: ground truth
@@ -53,7 +51,6 @@ def recall(y_pred, y_gt, binary=False):
         y_pred[y_pred < 0] = -1
         y_pred[y_pred >= 0] = 1
 
-    n_predicitons = len(y_pred)
     n_positives = len(y_pred[y_pred == 1])
 
     tp = n_positives - sum((y_pred[y_pred == 1] - y_gt[y_pred == 1]) / 2)
@@ -64,8 +61,8 @@ def recall(y_pred, y_gt, binary=False):
 
 
 def f1_score(y_pred, y_gt, binary=False):
-    """
-    Calculate f1_score. A higher f1_score corresponds to a better prediction
+    """Calculate f1_score. A higher f1_score corresponds to a better
+    prediction.
 
     y_pred: the predicted output
     y_gt: ground truth
@@ -96,8 +93,8 @@ def f1_score(y_pred, y_gt, binary=False):
 
 
 def mse(y_pred, y_gt):
-    """
-    Calculate mean squared error. A higher mean squared error corresponds to a better prediction
+    """Calculate mean squared error. A higher mean squared error corresponds to
+    a better prediction.
 
     y_pred: the predicted output
     y_gt: ground truth
@@ -109,8 +106,8 @@ def mse(y_pred, y_gt):
 
 
 def rmse(y_pred, y_gt):
-    """
-    Calculate root mean squared error. A higher root mean squared error corresponds to a better prediction
+    """Calculate root mean squared error. A higher root mean squared error
+    corresponds to a better prediction.
 
     y_pred: the predicted output
     y_gt: ground truth
@@ -122,9 +119,9 @@ def rmse(y_pred, y_gt):
 
 
 def r2(y_pred, y_gt):
-    """
-    Find the theory at https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html#sklearn.linear_model.LinearRegression.score
-    """
+    """Find the theory at https://scikit-learn.org/stable/modules/generated/skl
+    earn.linear_model.LinearRegression.html#sklearn.linear_model.LinearRegressi
+    on.score."""
 
     u = ((y_gt - y_pred) ** 2).sum()
     v = ((y_gt - y_gt.mean()) ** 2).sum()

@@ -6,6 +6,7 @@ from geneticengine.core.problems import Problem
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import CrossoverOperator
 from geneticengine.core.representations.api import Representation
+from geneticengine.evaluators import Evaluator
 
 
 class GenericCrossoverStep(GeneticStep):
@@ -23,6 +24,7 @@ class GenericCrossoverStep(GeneticStep):
     def iterate(
         self,
         problem: Problem,
+        evaluator: Evaluator,
         representation: Representation,
         random_source: Source,
         population: list[Individual],

@@ -123,7 +123,7 @@ class SimpleGP(GP):
         | None = None,  # DEPRECATE in the next version
         minimize: bool = False,  # DEPRECATE in the next version
         target_fitness: float | None = None,  # DEPRECATE in the next version
-        favor_less_complex_trees: bool = True,  # DEPRECATE in the next version
+        favor_less_complex_trees: bool = False,  # DEPRECATE in the next version
         source_generator: Callable[[int], RandomSource] = RandomSource,
         seed: int = 123,
         population_size: int = 200,
@@ -141,7 +141,7 @@ class SimpleGP(GP):
         probability_mutation: float = 0.01,
         probability_crossover: float = 0.9,
         either_mut_or_cro: float | None = None,
-        hill_climbing: bool = False,
+        hill_climbing: bool = False,  # TODO
         specific_type_mutation: type | None = None,
         specific_type_crossover: type | None = None,
         depth_aware_mut: bool = False,
@@ -258,8 +258,8 @@ class SimpleGP(GP):
             step = SequenceStep(ParallelEvaluationStep(), step)
 
         step = ParallelStep(
-            [NoveltyStep(), ElitismStep(), step],
-            [n_novelties, n_elites, population_size - n_novelties - n_elites],
+            [ElitismStep(), NoveltyStep(), step],
+            [n_elites, n_novelties, population_size - n_novelties - n_elites],
         )
 
         stopping_criterium: StoppingCriterium
@@ -299,7 +299,6 @@ class SimpleGP(GP):
                 extra_columns=extra_columns,
             )
             self.callbacks.append(c)
-
         super().__init__(
             representation_instance,
             processed_problem,

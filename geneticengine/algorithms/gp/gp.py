@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import time
-from typing import Any
+from typing import Any, Callable
 
 from geneticengine.algorithms.callbacks.callback import Callback
 from geneticengine.algorithms.gp.individual import Individual
@@ -21,13 +21,16 @@ from geneticengine.core.problems import Problem
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
+from geneticengine.evaluators import Evaluator, SequentialEvaluator
 
 
-default_generic_programming_step = lambda: SequenceStep(
-    TournamentSelection(5),
-    GenericCrossoverStep(0.01),
-    GenericMutationStep(0.9),
-)
+def default_generic_programming_step():
+    """The default step in Genetic Programming."""
+    return SequenceStep(
+        TournamentSelection(5),
+        GenericCrossoverStep(0.01),
+        GenericMutationStep(0.9),
+    )
 
 
 class GP(Heuristics):
@@ -42,7 +45,8 @@ class GP(Heuristics):
         initializer (PopulationInitializer): The method to generate new individuals.
         step (GeneticStep): The main step of evolution.
         stopping_criterium (StoppingCriterium): The class that defines how the evolution stops.
-        callbacks (List[Callback]): The callbacks to define what is done with the returned prints from the algorithm (default = []).
+        callbacks (List[Callback]): The callbacks to define what is done with the returned prints from the algorithm
+            (default = []).
     """
 
     def __init__(
@@ -55,9 +59,9 @@ class GP(Heuristics):
         step: GeneticStep | None = None,
         stopping_criterium: StoppingCriterium = GenerationStoppingCriterium(100),
         callbacks: list[Callback] | None = None,
+        evaluator: Callable[[], Evaluator] = SequentialEvaluator,
     ):
-        self.representation = representation
-        self.problem = problem
+        super().__init__(representation, problem, evaluator())
         self.initializer = initializer
         self.population_size = population_size
         self.random_source = random_source
@@ -83,7 +87,9 @@ class GP(Heuristics):
 
         generation = 0
         start = time.time()
-        elapsed_time = lambda: time.time() - start
+
+        def elapsed_time():
+            return time.time() - start
 
         while not self.stopping_criterium.is_ended(
             population,
@@ -93,6 +99,7 @@ class GP(Heuristics):
             generation += 1
             population = self.step.iterate(
                 self.problem,
+                self.evaluator,
                 self.representation,
                 self.random_source,
                 population,
@@ -105,7 +112,6 @@ class GP(Heuristics):
 
         self.final_population = population
         best_individual = self.get_best_individual(self.problem, population)
-
         for cb in self.callbacks:
             cb.end_evolution()
         return best_individual

@@ -12,8 +12,10 @@ class ListSizeBetween(MetaHandlerGenerator):
     """ListSizeBetween(a,b) restricts lists to be of length between a and b and
     implements a special list mutation.
 
-    The list of options can be dynamically altered before the grammar extraction (Set.__annotations__["set"] = Annotated[List[Type], ListSizeBetween(c,d)].
-    The special list mutation entails three different alterations to the list in question: deletion of a random element; addition of a random element; and replacement of a random element.
+    The list of options can be dynamically altered before the grammar extraction
+        Set.__annotations__["set"] = Annotated[List[Type], ListSizeBetween(c,d)].
+    The special list mutation entails three different alterations to the list in question: deletion of a random element;
+        addition of a random element; and replacement of a random element.
     """
 
     def __init__(self, min, max):
@@ -77,23 +79,17 @@ class ListSizeBetween(MetaHandlerGenerator):
         if not options or (len(current_node) < 2):
             return current_node
         n_elements_replaced = r.randint(1, len(current_node) - 1)
-        big_enough_options = [
-            getattr(o, arg)
-            for o in options
-            if len(getattr(o, arg)) >= n_elements_replaced
-        ]
+        big_enough_options = [getattr(o, arg) for o in options if len(getattr(o, arg)) >= n_elements_replaced]
         while not big_enough_options:
             if n_elements_replaced == 1:
                 return GengyList(list_type, current_node)
             n_elements_replaced = r.randint(1, n_elements_replaced - 1)
-            big_enough_options = [
-                getattr(o, arg)
-                for o in options
-                if len(getattr(o, arg)) >= n_elements_replaced
-            ]
+            big_enough_options = [getattr(o, arg) for o in options if len(getattr(o, arg)) >= n_elements_replaced]
         option = big_enough_options[r.randint(0, len(big_enough_options) - 1)]
 
-        # Always cut beginning as we do double crossovers, first using one tree as the current node, and then the second tree as current node.
+        # Always cut beginning as we do double crossovers,
+        # first using one tree as the current node,
+        # and then the second tree as current node.
         new_node = option[0:n_elements_replaced] + current_node[n_elements_replaced:]
         return GengyList(list_type, new_node)
 
@@ -108,7 +104,8 @@ class ListSizeBetweenWithoutListOperations(MetaHandlerGenerator):
     """ListSizeBetweenWithoutListOperations(a,b) restricts lists to be of
     length between a and b.
 
-    The list of options can be dynamically altered before the grammar extraction (Set.__annotations__["set"] = Annotated[List[Type], ListSizeBetweenWithoutListOperations(c,d)].
+    The list of options can be dynamically altered before the grammar extraction
+        Set.__annotations__["set"] = Annotated[List[Type], ListSizeBetweenWithoutListOperations(c,d)]
     """
 
     def __init__(self, min, max):

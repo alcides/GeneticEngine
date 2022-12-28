@@ -5,9 +5,7 @@ from textwrap import indent
 from typing import Annotated
 from typing import Any
 from typing import Callable
-from typing import List
 
-from geneticengine.core.representations.tree.utils import GengyList
 from geneticengine.grammars.coding.classes import Condition
 from geneticengine.grammars.coding.classes import Statement
 from geneticengine.metahandlers.ints import IntRange

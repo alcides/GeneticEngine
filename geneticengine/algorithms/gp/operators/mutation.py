@@ -9,6 +9,7 @@ from geneticengine.core.problems import Problem
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import MutationOperator
 from geneticengine.core.representations.api import Representation
+from geneticengine.evaluators import Evaluator
 
 
 class GenericMutationStep(GeneticStep):
@@ -25,6 +26,7 @@ class GenericMutationStep(GeneticStep):
     def iterate(
         self,
         problem: Problem,
+        evaluator: Evaluator,
         representation: Representation,
         random_source: Source,
         population: list[Individual],
@@ -39,6 +41,7 @@ class GenericMutationStep(GeneticStep):
                 self.operator.mutate(
                     ind.genotype,
                     problem,
+                    evaluator,
                     representation,
                     random_source,
                     index,
@@ -67,6 +70,7 @@ class HillClimbingMutation(MutationOperator[g]):
         self,
         genotype: g,
         problem: Problem,
+        evaluator: Evaluator,
         representation: Representation,
         random_source: Source,
         index_in_population: int,
@@ -75,15 +79,24 @@ class HillClimbingMutation(MutationOperator[g]):
         basic_mutator = self.basic_mutator if self.basic_mutator else representation.get_mutation()
 
         new_genotypes = [genotype] + [
-            basic_mutator.mutate(genotype, problem, representation, random_source, index_in_population, generation)
+            basic_mutator.mutate(
+                genotype,
+                problem,
+                evaluator,
+                representation,
+                random_source,
+                index_in_population,
+                generation,
+            )
             for _ in range(self.n_candidates)
         ]
         new_individuals = [
             Individual(genotype=g, genotype_to_phenotype=representation.genotype_to_phenotype) for g in new_genotypes
         ]
 
+        evaluator.eval(problem, new_individuals)
         best_individual = min(
             new_individuals,
-            key=lambda ind: problem.overall_fitness(ind.get_phenotype()),
+            key=Individual.key_function(problem),
         )
         return best_individual.genotype

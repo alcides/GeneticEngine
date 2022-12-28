@@ -2,16 +2,12 @@ from __future__ import annotations
 
 from typing import get_args
 
-import z3
 
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.tree import smt
 from geneticengine.core.representations.tree.initializations import is_metahandler
 from geneticengine.metahandlers.base import MetaHandlerGenerator
-from geneticengine.metahandlers.smt.lang import dLit
-from geneticengine.metahandlers.smt.lang import dNode
-from geneticengine.metahandlers.smt.lang import dVar
 from geneticengine.metahandlers.smt.parser import p_expr
 
 

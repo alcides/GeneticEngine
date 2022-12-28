@@ -1,24 +1,16 @@
 from __future__ import annotations
 
-from abc import ABC
 from dataclasses import dataclass
-from math import isnan
-from typing import Annotated
-from typing import Any
-from typing import Callable
 
 import numpy as np
 
-from geneticengine.core.tree import TreeNode
 from geneticengine.grammars.sgp import Number
-from geneticengine.metahandlers.ints import IntRange
-from geneticengine.metahandlers.vars import VarRange
 
 
 @dataclass
 class SafeDiv(Number):
-    """
-    Safe Division object. If division fails because of a ZeroDivisionError, 1 is returned.
+    """Safe Division object. If division fails because of a ZeroDivisionError,
+    1 is returned.
 
     Args:
         left  (Number)
@@ -54,8 +46,8 @@ class SafeDiv(Number):
 
 @dataclass
 class SafeSqrt(Number):
-    """
-    Safe Square Root object. If the number is negative, the square root of the positive counterpart of the number is returned.
+    """Safe Square Root object. If the number is negative, the square root of
+    the positive counterpart of the number is returned.
 
     Args:
         number (Number)
@@ -76,8 +68,7 @@ class SafeSqrt(Number):
 
 @dataclass
 class Sin(Number):
-    """
-    Standard Sinus object.
+    """Standard Sinus object.
 
     Args:
         number (Number)
@@ -98,8 +89,7 @@ class Sin(Number):
 
 @dataclass
 class Tanh(Number):
-    """
-    Standard Hyperbolic Tangent object.
+    """Standard Hyperbolic Tangent object.
 
     Args:
         number (Number)
@@ -120,8 +110,7 @@ class Tanh(Number):
 
 @dataclass
 class Exp(Number):
-    """
-    Standard Exponential object.
+    """Standard Exponential object.
 
     Args:
         number (Number)
@@ -142,8 +131,8 @@ class Exp(Number):
 
 @dataclass
 class SafeLog(Number):
-    """
-    Safe Logarithmic object. If the number is negative, the logarithm of the positive counterpart of the number + 1 is returned.
+    """Safe Logarithmic object. If the number is negative, the logarithm of the
+    positive counterpart of the number + 1 is returned.
 
     Args:
         left  (Number)

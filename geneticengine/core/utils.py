@@ -8,7 +8,6 @@ from typing import get_type_hints
 from typing import Protocol
 from typing import TYPE_CHECKING
 
-from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.core.decorators import get_gengy
 
 if TYPE_CHECKING:
@@ -164,11 +163,3 @@ def build_finalizers(
         final_callback()
 
     return finalizers
-
-
-def average_fitness(individual: Individual) -> float:
-    """Returns the average fitness list value of the given individual."""
-    assert individual.fitness != None
-    assert isinstance(individual.fitness, list)
-    average_fitness = sum(individual.fitness) / len(individual.fitness)
-    return average_fitness

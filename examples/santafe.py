@@ -177,7 +177,6 @@ class SantaFeBenchmark:
         return SingleObjectiveProblem(
             minimize=False,
             fitness_function=fitness_function,
-            target_fitness=None,
         )
 
     def get_grammar(self) -> Grammar:
@@ -201,7 +200,7 @@ class SantaFeBenchmark:
         )
         ind = alg.evolve()
         print("\n======\nGP\n======\n")
-        print(f"{ind.evaluate(problem)} - {ind}")
+        print(f"{ind.get_fitness(alg.problem)} - {ind}")
 
         alg_hc = HC(
             representation=TreeBasedRepresentation(g, 10),
@@ -210,7 +209,7 @@ class SantaFeBenchmark:
         )
         ind = alg_hc.evolve()
         print("\n======\nHC\n======\n")
-        print(f"{ind.evaluate(problem)} - {ind}")
+        print(f"{ind.get_fitness(alg_hc.problem)} - {ind}")
 
 
 if __name__ == "__main__":

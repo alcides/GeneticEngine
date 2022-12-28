@@ -1,9 +1,5 @@
 from __future__ import annotations
 
-from typing import Any
-from typing import Callable
-from typing import Dict
-from typing import Type
 from typing import TypeVar
 
 from geneticengine.core.grammar import Grammar
@@ -15,9 +11,10 @@ max = TypeVar("max", covariant=True)
 
 
 class IntRange(MetaHandlerGenerator):
-    """
-    IntRange(a,b) restricts ints to be between a and b.
-    The range can be dynamically altered before the grammar extraction (Int.__init__.__annotations__["value"] = Annotated[int, IntRange(c,d)].
+    """IntRange(a,b) restricts ints to be between a and b.
+
+    The range can be dynamically altered before the grammar extraction
+        Int.__init__.__annotations__["value"] = Annotated[int, IntRange(c,d)]
     """
 
     def __init__(self, min, max):
@@ -44,9 +41,12 @@ class IntRange(MetaHandlerGenerator):
 
 
 class IntList(MetaHandlerGenerator):
-    """
-    IntList([a_1, .., a_n]) restricts ints to be an element from the list [a_1, .., a_n].
-    The range can be dynamically altered before the grammar extraction (Int.__init__.__annotations__["value"] = Annotated[int, IntList[a_1, .., a_n]].
+    """IntList([a_1, .., a_n]) restricts ints to be an element from the list.
+
+    [a_1, .., a_n].
+
+    The range can be dynamically altered before the grammar extraction
+        Int.__init__.__annotations__["value"] = Annotated[int, IntList[a_1, .., a_n]]
     """
 
     def __init__(self, elements):
@@ -72,14 +72,12 @@ class IntList(MetaHandlerGenerator):
 
 
 class IntervalRange(MetaHandlerGenerator):
-    """
-    This metahandler restricts the creation of ranges
-    between two integers by forcing a minimum and maximum
-    range size, as well as a top limit that the range
-    can reach
+    """This metahandler restricts the creation of ranges between two integers
+    by forcing a minimum and maximum range size, as well as a top limit that
+    the range can reach.
 
-    This is useful in genomics to generate random windows
-    of variable size to scan an input sequence
+    This is useful in genomics to generate random windows of variable
+    size to scan an input sequence
     """
 
     def __init__(

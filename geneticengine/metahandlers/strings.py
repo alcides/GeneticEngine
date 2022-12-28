@@ -1,9 +1,5 @@
 from __future__ import annotations
 
-from typing import Any
-from typing import Callable
-from typing import Dict
-from typing import Type
 
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import Source
@@ -11,10 +7,9 @@ from geneticengine.metahandlers.base import MetaHandlerGenerator
 
 
 class WeightedStringHandler(MetaHandlerGenerator):
-    """
-    This metahandler restricts the creation of string nodes
-    so that the output complies with a given alphabet and a
-    matrix of probabilities for each position.
+    """This metahandler restricts the creation of string nodes so that the
+    output complies with a given alphabet and a matrix of probabilities for
+    each position.
 
     Each row on the matrix should reflect the probability of
     each character in that position. Thus, the number of cols

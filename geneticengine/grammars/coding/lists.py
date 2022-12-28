@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
 from typing import Any
 from typing import Callable
-from typing import List
 
 from geneticengine.exceptions import GeneticEngineError
 from geneticengine.grammars.coding.classes import Number
@@ -65,9 +63,9 @@ class Combine(NumberList):
         return self.list1.evaluate(**kwargs) + self.list2.evaluate(**kwargs)
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], list[float]]:
-        return lambda line: self.list1.evaluate_lines(**kwargs)(
-            line,
-        ) + self.list2.evaluate_lines(**kwargs)(line)
+        return lambda line: self.list1.evaluate_lines(**kwargs)(line) + self.list2.evaluate_lines(
+            **kwargs,
+        )(line)
 
     def __str__(self) -> str:
         return f"({self.list1} + {self.list2})"
@@ -94,9 +92,7 @@ class GetElement(Number):
 
     def evaluate(self, **kwargs):
         list_length = Length(self.list).evaluate(**kwargs)
-        return self.list.evaluate(**kwargs)[
-            round(self.element.evaluate(**kwargs)) % list_length
-        ]
+        return self.list.evaluate(**kwargs)[round(self.element.evaluate(**kwargs)) % list_length]
 
     def evaluate_lines(self, **kwargs):
         def list_length(line):
@@ -127,7 +123,8 @@ class Var(NumberList):
     def evaluate_lines(self, **kwargs):
         if not hasattr(self, "feature_indices"):
             raise GeneticEngineError(
-                "To use geneticengine.grammars.coding.lists.Var.evaluate_lines, one must specify a Var.feature_indices dictionary.",
+                "To use geneticengine.grammars.coding.lists.Var.evaluate_lines, one must specify a"
+                + " Var.feature_indices dictionary.",
             )
         return lambda line: line[self.feature_indices[self.name]]
 

@@ -1,12 +1,7 @@
 from __future__ import annotations
 
-import weakref
 from collections import defaultdict
 from typing import Any
-from typing import Dict
-from typing import List
-from typing import Set
-from typing import Tuple
 
 from geneticengine.core.decorators import is_builtin
 from geneticengine.core.grammar import Grammar
@@ -31,10 +26,10 @@ def relabel_nodes(
     g: Grammar,
     is_list: bool = False,
 ) -> tuple[int, int, dict[type, list[Any]], int]:
-    """
-    Recomputes all the nodes, depth and distance_to_term in the tree.\n
-    Returns the number of nodes, distance to terminal (depth), typed this way, and the weighted number of nodes (counting depth points instead of nodes).
-    """
+    """Recomputes all the nodes, depth and distance_to_term in the tree.\n
+    Returns the number of nodes, distance to terminal (depth), typed this way,
+    and the weighted number of nodes (counting depth points instead of
+    nodes)."""
     non_terminals = g.non_terminals
     children: list[Any]
     if getattr(i, "gengy_labeled", False):
@@ -71,10 +66,7 @@ def relabel_nodes(
         else:
             if not hasattr(i, "gengy_init_values"):
                 breakpoint()
-            children = [
-                (typ[1], i.gengy_init_values[idx])
-                for idx, typ in enumerate(get_arguments(i))
-            ]
+            children = [(typ[1], i.gengy_init_values[idx]) for idx, typ in enumerate(get_arguments(i))]
         assert children
         for t, c in children:
             nodes, dist, thisway, weighted_nodes = relabel_nodes(
@@ -82,11 +74,7 @@ def relabel_nodes(
                 g,
                 isinstance(c, list),
             )
-            abs_adjust = (
-                0
-                if not is_abstract(t) or not g.expansion_depthing
-                else g.abstract_dist_to_t[t][type(c)]
-            )
+            abs_adjust = 0 if not is_abstract(t) or not g.expansion_depthing else g.abstract_dist_to_t[t][type(c)]
             if isinstance(c, list) and g.expansion_depthing:
                 abs_adjust = 1
             list_adjust = 0 if isinstance(c, list) else 1
@@ -108,7 +96,7 @@ def relabel_nodes(
 
 
 def relabel_nodes_of_trees(i: TreeNode, g: Grammar) -> TreeNode:
-    """Recomputes all the nodes, depth and distance_to_term in the tree"""
+    """Recomputes all the nodes, depth and distance_to_term in the tree."""
 
     relabel_nodes(i, g)
     return i

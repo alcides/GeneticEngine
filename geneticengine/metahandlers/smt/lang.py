@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 from typing import Any
-from typing import Dict
-from typing import List
 
 import z3
 
@@ -36,8 +34,8 @@ class dLit(dNode):
 
 
 def s(x):
-    """
-    Sanitize ints
+    """Sanitize ints.
+
     :param x: to sanitize
     :return: sanitized
     """

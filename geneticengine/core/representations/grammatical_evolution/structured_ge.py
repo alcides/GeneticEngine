@@ -19,6 +19,7 @@ from geneticengine.core.tree import TreeNode
 from geneticengine.core.utils import get_arguments
 from geneticengine.core.utils import is_generic
 from geneticengine.core.utils import strip_annotations
+from geneticengine.evaluators import Evaluator
 
 GENE_SIZE = 100
 MAX_RAND_INT = 100000
@@ -46,7 +47,8 @@ def random_individual(
             if base_type not in nodes:
                 nodes.append(base_type)
 
-    """ Implementer's decision: There are some random choices not related to productions. E.g., the choice of production in PI-grow, metahandlers, etc. """
+    # Implementer's decision: There are some random choices not related to productions.
+    # E.g., the choice of production in PI-grow, metahandlers, etc.
     nodes.append(INFRASTRUCTURE_KEY)
     dna: dict[str, list[int]] = dict()
     for nodestr in nodes:
@@ -131,6 +133,7 @@ class DefaultSGEMutation(MutationOperator[Genotype]):
         self,
         genotype: Genotype,
         problem: Problem,
+        evaluator: Evaluator,
         representation: Representation,
         random_source: Source,
         index_in_population: int,
@@ -176,7 +179,8 @@ class StructuredGrammaticalEvolutionRepresentation(Representation[Genotype, Tree
         Args:
             grammar (Grammar): The grammar to use in the mapping
             max_depth (int): the maximum depth when performing the mapping
-            initialization_mode (InitializationMethodType): method to create individuals in the mapping (e.g., pi_grow, full, grow)
+            initialization_mode (InitializationMethodType): method to create individuals in the mapping (e.g., pi_grow,
+                full, grow)
         """
         super().__init__(grammar, max_depth)
 

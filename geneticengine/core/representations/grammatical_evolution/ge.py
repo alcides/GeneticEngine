@@ -15,6 +15,7 @@ from geneticengine.core.representations.tree.initializations import (
 from geneticengine.core.representations.tree.initializations import pi_grow_method
 from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.core.tree import TreeNode
+from geneticengine.evaluators import Evaluator
 
 MAX_VALUE = 1000000
 GENE_LENGTH = 256
@@ -86,6 +87,7 @@ class DefaultGEMutation(MutationOperator[Genotype]):
         self,
         genotype: Genotype,
         problem: Problem,
+        evaluator: Evaluator,
         representation: Representation,
         random_source: Source,
         index_in_population: int,
@@ -129,7 +131,8 @@ class GrammaticalEvolutionRepresentation(Representation[Genotype, TreeNode]):
         Args:
             grammar (Grammar): The grammar to use in the mapping
             max_depth (int): the maximum depth when performing the mapping
-            initialization_mode (InitializationMethodType): method to create individuals in the mapping (e.g., pi_grow, full, grow)
+            initialization_mode (InitializationMethodType): method to create individuals in the mapping
+                (e.g., pi_grow, full, grow)
         """
         super().__init__(grammar, max_depth)
         self.initialization_mode = initialization_mode

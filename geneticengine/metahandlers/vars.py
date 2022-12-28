@@ -1,10 +1,5 @@
 from __future__ import annotations
 
-from typing import Any
-from typing import Callable
-from typing import Dict
-from typing import List
-from typing import Type
 from typing import TypeVar
 
 from geneticengine.core.grammar import Grammar
@@ -15,8 +10,8 @@ T = TypeVar("T")
 
 
 class VarRange(MetaHandlerGenerator):
-    """
-    VarRange([a, b, c]) represents the alternative between a, b, and c.
+    """VarRange([a, b, c]) represents the alternative between a, b, and c.
+
     The list of options can be dynamically altered before the grammar extraction
     with something like Var.__init__.__annotations__["name"] = Annotated[str, VarRange([d, e, f])].
     The option list must not be empty.

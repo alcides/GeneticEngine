@@ -6,6 +6,7 @@ from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.core.problems import Problem
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
+from geneticengine.evaluators import Evaluator
 
 
 class PopulationInitializer(abc.ABC):
@@ -25,6 +26,7 @@ class GeneticStep(abc.ABC):
     def iterate(
         self,
         p: Problem,
+        evaluator: Evaluator,
         representation: Representation,
         random_source: Source,
         population: list[Individual],

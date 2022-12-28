@@ -21,6 +21,7 @@ from geneticengine.core.utils import get_generic_parameter
 from geneticengine.core.utils import is_generic
 from geneticengine.core.utils import is_generic_list
 from geneticengine.core.utils import strip_annotations
+from geneticengine.evaluators import Evaluator
 from geneticengine.exceptions import GeneticEngineError
 from geneticengine.metahandlers.base import is_metahandler
 
@@ -76,8 +77,11 @@ def random_individual(
     starting_symbol: Any,
     current_genotype: Genotype | None = None,
     max_depth: int = 5,
-) -> Genotype:  # This whole method seems cumbersome. Why not just create an empty genotype and let it be sourced through when mapping from genotype to phenotype?
-    if current_genotype == None:
+) -> Genotype:
+
+    # This whole method seems cumbersome. Why not just create an empty genotype and let it be sourced through when
+    # mapping from genotype to phenotype?
+    if current_genotype is None:
         nodes = [str(node) for node in g.all_nodes]
         for node in g.all_nodes:
             arguments = get_arguments(node)
@@ -141,7 +145,9 @@ def random_individual(
             )
     elif is_metahandler(
         starting_symbol,
-    ):  # No need to go down one in depth as this is the argument of a treenode and therefore already has an adjusted depth.
+    ):
+        # No need to go down one in depth as this is the argument of a treenode and therefore already has an adjusted
+        # depth.
         if is_generic_list(get_generic_parameter(starting_symbol)):
             new_type = get_generic_parameter(starting_symbol)
             current_genotype = random_individual(
@@ -187,7 +193,7 @@ def random_individual_simple(
     current_genotype: Genotype | None = None,
     max_depth: int = 5,
 ) -> Genotype:  # In this method we let the random source use the left_overs to fill up the individual
-    if current_genotype == None:
+    if current_genotype is None:
         nodes = [str(node) for node in g.all_nodes]
         for node in g.all_nodes:
             arguments = get_arguments(node)
@@ -226,9 +232,14 @@ def create_individual(
 
 def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int, all_codons_equal_probability=False) -> Genotype:
     if all_codons_equal_probability:
-        weight = lambda key: len(ind.dna[key])
+
+        def weight(key):
+            return len(ind.dna[key])
+
     else:
-        weight = lambda key: 1
+
+        def weight(key):
+            return 1
 
     rkey = r.choice_weighted(
         list(key for key in ind.dna.keys() if (len(ind.dna[key]) > 0) and (key != LEFTOVER_KEY) and (key != "")),
@@ -297,7 +308,9 @@ class DynamicStructuredListWrapper(Source):
         self.register_index(prod)
         if self.indexes[prod] >= len(
             self.ind.dna[prod],
-        ):  # We don't have a wrapper function, but we add elements to each list when there are no genes left. These are sourced from the "left_overs" in the dna.
+        ):
+            # We don't have a wrapper function, but we add elements to each list when there are no genes left.
+            # These are sourced from the "left_overs" in the dna.
             self.indexes[LEFTOVER_KEY] = (self.indexes[LEFTOVER_KEY] + 1) % len(
                 self.ind.dna[LEFTOVER_KEY],
             )
@@ -333,6 +346,7 @@ class DefaultDSGEMutation(MutationOperator[Genotype]):
         self,
         genotype: Genotype,
         problem: Problem,
+        evaluator: Evaluator,
         representation: Representation,
         random_source: Source,
         index_in_population: int,
@@ -352,6 +366,7 @@ class EquiprobableCodonDSGEMutation(MutationOperator[Genotype]):
         self,
         genotype: Genotype,
         problem: Problem,
+        evaluator: Evaluator,
         representation: Representation,
         random_source: Source,
         index_in_population: int,
@@ -377,6 +392,7 @@ class PerCodonDSGEMutation(MutationOperator[Genotype]):
         self,
         genotype: Genotype,
         problem: Problem,
+        evaluator: Evaluator,
         representation: Representation,
         random_source: Source,
         index_in_population: int,
@@ -427,7 +443,8 @@ class DynamicStructuredGrammaticalEvolutionRepresentation(
         Args:
             grammar (Grammar): The grammar to use in the mapping
             max_depth (int): the maximum depth when performing the mapping
-            initialization_mode (InitializationMethodType): method to create individuals in the mapping (e.g., pi_grow, full, grow)
+            initialization_mode (InitializationMethodType): method to create individuals in the mapping (e.g., pi_grow,
+                full, grow)
         """
         super().__init__(grammar, max_depth)
         self.initialization_mode = initialization_mode

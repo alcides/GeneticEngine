@@ -3,7 +3,8 @@ from __future__ import annotations
 from abc import ABCMeta
 from pickle import _Pickler as StockPickler  # attr-defined: ignore
 
-from dill import register  # pyright: ignore
+from dill import register
+from geneticengine.evaluators import Evaluator  # pyright: ignore
 from pathos.multiprocessing import ProcessingPool as Pool  # pyright: ignore
 
 from geneticengine.algorithms.gp.individual import Individual
@@ -24,6 +25,7 @@ class ParallelEvaluationStep(GeneticStep):
     def iterate(
         self,
         problem: Problem,
+        evaluator: Evaluator,
         representation: Representation,
         random_source: Source,
         population: list[Individual],
@@ -31,6 +33,6 @@ class ParallelEvaluationStep(GeneticStep):
         generation: int,
     ) -> list[Individual]:
         with Pool(len(population)) as pool:
-            pool.map(lambda x: x.evaluate(problem), population)
+            pool.map(lambda x: evaluator.eval(problem, [x]), population)
 
         return population

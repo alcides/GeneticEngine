@@ -1,10 +1,12 @@
 from __future__ import annotations
+from copy import deepcopy
 
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.core.problems import Problem
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
+from geneticengine.evaluators import Evaluator
 
 
 class SequenceStep(GeneticStep):
@@ -16,6 +18,7 @@ class SequenceStep(GeneticStep):
     def iterate(
         self,
         problem: Problem,
+        evaluator: Evaluator,
         representation: Representation,
         random_source: Source,
         population: list[Individual],
@@ -25,6 +28,7 @@ class SequenceStep(GeneticStep):
         for step in self.steps:
             population = step.iterate(
                 problem,
+                evaluator,
                 representation,
                 random_source,
                 population,
@@ -55,6 +59,7 @@ class ParallelStep(GeneticStep):
     def iterate(
         self,
         problem: Problem,
+        evaluator: Evaluator,
         representation: Representation,
         random_source: Source,
         population: list[Individual],
@@ -72,28 +77,30 @@ class ParallelStep(GeneticStep):
             [
                 step.iterate(
                     problem,
+                    evaluator,
                     representation,
                     random_source,
-                    population,
+                    deepcopy(population),
                     end - start,
                     generation,
                 )
                 for ((start, end), step) in zip(ranges, self.steps)
             ],
         )
+
         assert len(retlist) == target_size
         return retlist
 
     def concat(self, ls):
         rl = []
-        for l in ls:
-            rl.extend(l)
+        for li in ls:
+            rl.extend(li)
         return rl
 
-    def cumsum(self, l):
+    def cumsum(self, li):
         v = 0
         nl = []
-        for i in l:
+        for i in li:
             v = v + i
             nl.append(v)
         return nl
@@ -109,6 +116,7 @@ class ExclusiveParallelStep(ParallelStep):
     def iterate(
         self,
         problem: Problem,
+        evaluator: Evaluator,
         representation: Representation,
         random_source: Source,
         population: list[Individual],
@@ -126,6 +134,7 @@ class ExclusiveParallelStep(ParallelStep):
             [
                 step.iterate(
                     problem,
+                    evaluator,
                     representation,
                     random_source,
                     population[start:end],

@@ -65,7 +65,7 @@ class CSVCallback(Callback):
             else:
                 nodes = -1
             row = [
-                ind.fitness,
+                ind.get_fitness(gp.problem),
                 depth,
                 nodes,
                 generation,

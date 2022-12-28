@@ -1,17 +1,16 @@
 from __future__ import annotations
 
-from typing import Any
-from typing import Callable
-from typing import Dict
 from typing import Protocol
-from typing import Type
 
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import Source
 
 
 class MetaHandlerGenerator(Protocol):
-    """MetaHandlers are type refinements. They override the generation procedure of the base type."""
+    """MetaHandlers are type refinements.
+
+    They override the generation procedure of the base type.
+    """
 
     def generate(
         self,
@@ -23,8 +22,8 @@ class MetaHandlerGenerator(Protocol):
         base_type,
         context: dict[str, str],
     ):
-        """
-        Generates an instance of type base_type, according to some criterion.
+        """Generates an instance of type base_type, according to some
+        criterion.
 
         :param Source r: Random source for generation
         :param Grammar g: Grammar to follow in the generation
@@ -38,10 +37,10 @@ class MetaHandlerGenerator(Protocol):
 
 
 def is_metahandler(ty: type) -> bool:
-    """
-    Returns if type is a metahandler.
-    AnnotatedType[int, IntRange(3,10)] is an example of a Metahandler.
+    """Returns if type is a metahandler. AnnotatedType[int, IntRange(3,10)] is
+    an example of a Metahandler.
 
-    Verification is done using the __metadata__, which is the first argument of Annotated
+    Verification is done using the __metadata__, which is the first
+    argument of Annotated
     """
     return hasattr(ty, "__metadata__")
