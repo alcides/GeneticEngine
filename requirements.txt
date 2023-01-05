@@ -5,9 +5,10 @@ myst-parser
 numpy
 palettable
 pandas
+polyleven
 pytest
-seaborn
 scikit-learn
+seaborn
 sphinx
 sphinx-autoapi
 sphinx-rtd-theme

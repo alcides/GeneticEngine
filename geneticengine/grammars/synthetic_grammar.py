@@ -68,7 +68,7 @@ def create_arbitrary_grammar(
     seed: int,
     non_terminals_count: int,
     recursive_non_terminals_count: int,
-    productions_per_terminal: Callable[[Random], int] = lambda rd: round(
+    productions_per_non_terminal: Callable[[Random], int] = lambda rd: round(
         rd.uniform(1, 10),
     ),
     non_terminals_per_production: Callable[[Random], int] = lambda rd: round(
@@ -83,19 +83,16 @@ def create_arbitrary_grammar(
     non_terminals = [make_non_terminal_class(name) for name in non_terminal_names]
     productions = []
 
-    field_candidates = list(non_terminals) + list(base_types)
-
+    field_candidates = list(base_types)
     for (index, nt) in enumerate(non_terminals):
-        allow_recursion = index < recursive_non_terminals_count
+        allow_recursion = index > (non_terminals_count - recursive_non_terminals_count)
 
-        for production_index in range(productions_per_terminal(rd)):
+        for production_index in range(productions_per_non_terminal(rd)):
             # At least one production should not be recursive
             recursion_in_production = allow_recursion and production_index > 0
 
             candidates = (
-                field_candidates
-                if recursion_in_production
-                else [fc for fc in field_candidates if fc != nt]
+                field_candidates if recursion_in_production else field_candidates + [nt]
             )
 
             annotations: list[type] = [
@@ -103,51 +100,6 @@ def create_arbitrary_grammar(
             ]
             prod = make_production(production_index, nt, annotations)
             productions.append(prod)
+        field_candidates.append(nt)
 
-    return (productions + non_terminals, rd.choice(non_terminals))
-
-
-if __name__ == "__main__":
-    (nodes, root) = create_arbitrary_grammar(
-        seed=123,
-        non_terminals_count=1,
-        recursive_non_terminals_count=0,
-        productions_per_terminal=lambda rd: 1,
-        non_terminals_per_production=lambda rd: 1,
-        base_types={bool},
-    )
-    g = extract_grammar(nodes, root)
-    print(g)
-    import sys
-
-    sys.exit(1)
-
-
-def edit_distance(string1: str, string2: str) -> int:
-    """The edit distance is the minimum number of operations (insertions,
-    deletions, or substitutions) needed to transform one string into another.
-
-    Args:
-        string1 (str) - The first string to compare.
-        string2 (str) - The second string to compare.
-
-    Returns:
-        The edit distance (int) between `string1` and `string2`.
-    """
-
-    if len(string1) > len(string2):
-        string1, string2 = string2, string1
-
-    distances = list(range(len(string1) + 1))
-    for i2, c2 in enumerate(string2):
-        distances_ = [i2 + 1]
-        for i1, c1 in enumerate(string1):
-            if c1 == c2:
-                distances_.append(distances[i1])
-            else:
-                distances_.append(
-                    1 + min((distances[i1], distances[i1 + 1], distances_[-1])),
-                )
-        distances = distances_
-
-    return distances[-1]
+    return (productions + non_terminals, non_terminals[-1])
