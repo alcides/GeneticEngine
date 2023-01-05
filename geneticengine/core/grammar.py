@@ -133,7 +133,7 @@ class Grammar:
         self.all_nodes.add(ty)
 
         parent = ty.mro()[1]
-        if parent not in [object, ABC, Generic]:
+        if parent not in [object, ABC, Generic, int, bool, float, str]:
             assert isinstance(parent, type)
             self.register_type(parent)
             self.register_alternative(parent, ty)

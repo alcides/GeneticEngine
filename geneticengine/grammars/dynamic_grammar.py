@@ -1,80 +1,24 @@
 from __future__ import annotations
 
+import string
 from abc import ABC
 from dataclasses import dataclass
-import string
+from random import Random
 from typing import Any
+from typing import Callable
+from typing import TypeVar
 
 from geneticengine.core.decorators import abstract
-from geneticengine.core.random.sources import RandomSource
-
-#TODO: add more types for the grammar terminals
-primitive_types= [int, float]
-
-def create_grammar_nodes(
-    seed: int,
-    n_class_abc: int,
-    n_class_0_children: int,
-    n_class_2_children: int,
-    max_var_per_class: int = 5,
-) -> tuple[list[type], type]:
-    """
-    Creates a list of data classes and a starting data class for a grammar.
-
-    Args:
-        seed (int): the seed for the random number generator.
-        n_class_abc (int): the number of abstract base classes to create.
-        n_class_0_children (int): the number of terminal classes to create.
-        n_class_2_children (int): the number of non-terminal classes to create.
-        max_var_per_class (int): the maximum number of variables that each data class can have. Default is 5.
-
-    Returns:
-        tuple[list[type], type]: a tuple containing a list of the new data classes and the starting data class for a grammar.
-    """
-    random_source = RandomSource(seed)
-    
-    max_digit = max([str(n_class_abc), str(n_class_0_children), str(n_class_2_children)], key= len)
-    max_class_name_length= 10 + int(max_digit)
-    
-    nodes = []                                 
-    abc_classes = create_nodes_list_aux(
-        random_source, "class_abc_", max_class_name_length, n_class_abc)
-
-    children0_classes = create_nodes_list_aux(
-        random_source,
-        "tterminal_",
-        max_class_name_length,
-        n_class_0_children,
-        max_vars=max_var_per_class,
-        parent_list=abc_classes,
-    )
-
-    children2_classes = create_nodes_list_aux(
-        random_source,
-        "nterminal_",
-        max_class_name_length,
-        n_class_2_children,
-        max_vars= max_var_per_class,
-        parent_list=abc_classes,
-        terminals=children0_classes,
-    )
-
-    nodes =  children0_classes + children2_classes
-    
-    random_starting_node = random_node_from_list(random_source, abc_classes)
-    
-    return (nodes, random_starting_node)
+from geneticengine.core.grammar import extract_grammar
 
 
-# type (object, bases, dict)
 def create_dataclass_dynamically(
     name: str,
     args: dict[str, Any] = {},
     annotations: dict[str, Any] = {},
     parent_class: type = ABC,
 ) -> type:
-    """
-    Dynamically creates a new data class with the given name and arguments.
+    """Dynamically creates a new data class with the given name and arguments.
 
     Args:
         name (str): the name of the new data class
@@ -94,107 +38,99 @@ def create_dataclass_dynamically(
     return dataclass(new_data_class)
 
 
-def create_nodes_list_aux(
-    random_source: RandomSource,
-    name: str,
-    name_length: int,
-    size: int,
-    max_vars: int= 5,
-    parent_list: list = [],
-    terminals: list = [],
-    
-) -> list[type]:
-    """
-    Creates a list of data classes with the given size, max variables, parent classes and annotations.
+def make_non_terminal_names(count: int):
+    """Returns a list of names for non_terminal_symbols."""
+    return [f"NT_{i:04}" for i in range(count)]
 
-    Args:
-        random_source (RandomSource):  an instance of the `RandomSource` class, which is used to generate random values.
-        name (str): the base name for the new data classes.
-        name_length (int): the desired length of the names of the new data classes.
-        size (int): the number of data classes to be created.
-        max_vars (int): the maximum number of variables that each data class can have. Default is 5.
-        parent_list (list): the list of parent classes for the new data classes. Default is an empty list.
-        terminals (list): the list of terminal symbols for the new data classes. Default is an empty list.
 
-    Returns:
-        a list of the new data classes.
-    """
-    return_list = []
-    
-    for i in range(size):
-        
-        name_class = (name + str(i)).ljust(name_length, 'x')
-        
-        if not parent_list:
-            node = abstract(create_dataclass_dynamically(name_class))
-        else: 
-            random_parent= random_node_from_list(random_source, parent_list)
-            
-            random_annotations = create_random_annotations(
-                random_source, terminals, max_vars)
-            
-            node = create_dataclass_dynamically(
-                name=name_class,
-                parent_class=random_parent,
-                annotations=random_annotations,
+def make_non_terminal_class(name: str):
+    """Returns a new abstract class, with the provided name."""
+    return abstract(type(name, (ABC,), {}))
+
+
+def make_production(index: int, nt: type, field_types: list[type]) -> type:
+    """Creates a class representing a Production."""
+    name = f"{nt.__name__}_P_{index:05}"
+    annotations = {
+        f"{i:03}": ft for (i, ft) in zip(string.ascii_lowercase, field_types)
+    }
+    return dataclass(create_dataclass_dynamically(name, {}, annotations, nt))
+
+
+A = TypeVar("A")
+
+
+def select_random(rd: Random, how_many: int, candidates: list[A]) -> set[A]:
+    return {rd.choice(candidates) for _ in range(how_many)}
+
+
+def create_arbitrary_grammar(
+    seed: int,
+    non_terminals_count: int,
+    recursive_non_terminals_count: int,
+    productions_per_terminal: Callable[[Random], int] = lambda rd: round(
+        rd.uniform(1, 10),
+    ),
+    non_terminals_per_production: Callable[[Random], int] = lambda rd: round(
+        rd.uniform(0, 10),
+    ),
+    base_types: set[type] = {int, bool},
+) -> tuple[list[type], type]:
+    """Generates a random grammar, based on a particular seed."""
+    rd = Random(seed)
+
+    non_terminal_names = make_non_terminal_names(non_terminals_count)
+    non_terminals = [make_non_terminal_class(name) for name in non_terminal_names]
+    productions = []
+
+    field_candidates = list(non_terminals) + list(base_types)
+
+    for (index, nt) in enumerate(non_terminals):
+        allow_recursion = index < recursive_non_terminals_count
+
+        for production_index in range(productions_per_terminal(rd)):
+            # At least one production should not be recursive
+            recursion_in_production = allow_recursion and production_index > 0
+
+            candidates = (
+                field_candidates
+                if recursion_in_production
+                else [fc for fc in field_candidates if fc != nt]
             )
 
-        return_list.append(node)
+            annotations: list[type] = [
+                rd.choice(candidates) for _ in range(non_terminals_per_production(rd))
+            ]
+            prod = make_production(production_index, nt, annotations)
+            productions.append(prod)
 
-    return return_list
-
-
-def create_random_annotations (
-    random_source : RandomSource,
-    terminals: list ,
-    n_annotations:int,
-)-> dict[str, type]:
-    """
-    Create a dictionary of random annotations.
-    
-    Args:
-        random_source (RandomSource): an instance of the `RandomSource` class, which is used to generate a random integer.
-        terminals (list): a list of terminal nodes from which to select random nodes.
-        n_annotations (int): the maximum number of annotations to create.
-    
-    Returns:
-        A dictionary of random annotations, where the keys are strings (representing variable names) and the values are objects of some unspecified type (representing the type of the variable).
-    """
-    
-    annotations = {}
-    var_letters = list(string.ascii_lowercase)
-    
-    for i in range(random_source.randint(1, n_annotations)):
-        random_terminal = random_node_from_list(random_source, terminals if terminals else primitive_types)
-        annotations[var_letters[i]] = random_terminal
-            
-    return annotations
+    return (productions + non_terminals, rd.choice(non_terminals))
 
 
-def random_node_from_list(random_source: RandomSource, node_list: list) -> type:
-    """
-    Return a random node from a list of nodes.
-    
-    Args:
-        random_source (RandomSource): an instance of the `RandomSource` class, which is used to generate a random integer.
-        node_list (list): a list of nodes from which to select a random node.
-    
-    Returns:
-        A random node from the list of nodes.
-    """
-    rand_idx = random_source.randint(0, len(node_list) - 1)
-    return node_list[rand_idx]
+if __name__ == "__main__":
+    (nodes, root) = create_arbitrary_grammar(
+        seed=123,
+        non_terminals_count=1,
+        recursive_non_terminals_count=0,
+        productions_per_terminal=lambda rd: 1,
+        non_terminals_per_production=lambda rd: 1,
+        base_types={bool},
+    )
+    g = extract_grammar(nodes, root)
+    print(g)
+    import sys
+
+    sys.exit(1)
 
 
 def edit_distance(string1: str, string2: str) -> int:
-    """
-    The edit distance is the minimum number of operations (insertions, deletions, or substitutions)
-    needed to transform one string into another.
-    
+    """The edit distance is the minimum number of operations (insertions,
+    deletions, or substitutions) needed to transform one string into another.
+
     Args:
         string1 (str) - The first string to compare.
         string2 (str) - The second string to compare.
-        
+
     Returns:
         The edit distance (int) between `string1` and `string2`.
     """
@@ -204,13 +140,14 @@ def edit_distance(string1: str, string2: str) -> int:
 
     distances = list(range(len(string1) + 1))
     for i2, c2 in enumerate(string2):
-        distances_ = [i2+1]
+        distances_ = [i2 + 1]
         for i1, c1 in enumerate(string1):
             if c1 == c2:
                 distances_.append(distances[i1])
             else:
                 distances_.append(
-                    1 + min((distances[i1], distances[i1 + 1], distances_[-1])))
+                    1 + min((distances[i1], distances[i1 + 1], distances_[-1])),
+                )
         distances = distances_
-        
+
     return distances[-1]
