@@ -38,6 +38,7 @@ def single_run(
     )
     g = extract_grammar(nodes, root)
     print(g)
+    print(g.get_grammar_specifics())
     target_individual = create_target_individual(seed, g)
 
     def fitness_function(n):
@@ -81,24 +82,28 @@ if __name__ == "__main__":
     )
     parser.add_argument("--seed", dest="seed", type=int, default=0)
     parser.add_argument(
+        "-nts",
         "--non_terminals_count",
         dest="non_terminals_count",
         type=int,
         default=3,
     )
     parser.add_argument(
+        "-recursives",
         "--recursive_non_terminals_count",
         dest="recursive_non_terminals_count",
         type=int,
         default=3,
     )
     parser.add_argument(
+        "-prods",
         "--fixed_productions_per_non_terminal",
         dest="fixed_productions_per_non_terminal",
         type=int,
         default=1,
     )
     parser.add_argument(
+        "-nts-per-prod",
         "--fixed_non_terminals_per_production",
         dest="fixed_non_terminals_per_production",
         type=int,

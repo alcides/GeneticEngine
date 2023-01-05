@@ -341,6 +341,18 @@ class Grammar:
         self.preprocess()
         return self
 
+    def get_grammar_specifics(self):
+        depth_min = self.get_min_tree_depth()
+        depth_max = self.get_max_node_depth()
+        n_non_terminals = len(self.alternatives)
+        n_prods_per_nt = list(map(lambda x: len(x), self.alternatives.values()))
+        n_prods_occurrences = dict()
+        for i in n_prods_per_nt:
+            n_prods_occurrences[i] = n_prods_occurrences.get(i, 0) + 1
+        n_prods_occurrences = {k: n_prods_occurrences[k] for k in sorted(n_prods_occurrences.keys())}
+        recursive_prods = [ r_prod for r_prod in self.recursive_prods if r_prod not in self.alternatives.keys()]
+        n_recursive_prods = len(recursive_prods)
+        return (depth_min, depth_max), (n_non_terminals), (n_prods_occurrences, n_recursive_prods)
 
 def extract_grammar(
     considered_subtypes: list[type],
