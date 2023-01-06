@@ -342,6 +342,10 @@ class Grammar:
         return self
 
     def get_grammar_specifics(self):
+        '''
+        Returns grammar specifics:
+        (depth_min, depth_max), n_non_terminals, (n_prods_occurrences, n_recursive_prods)
+        '''
         depth_min = self.get_min_tree_depth()
         depth_max = self.get_max_node_depth()
         n_non_terminals = len(self.alternatives)
