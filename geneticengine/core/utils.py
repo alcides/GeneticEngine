@@ -163,3 +163,7 @@ def build_finalizers(
         final_callback()
 
     return finalizers
+
+
+def is_builtin_class_instance(obj):
+    return obj.__class__.__module__ == "builtins"

@@ -20,6 +20,9 @@ class GengyList(list):
     def new_like(self, *newargs):
         return GengyList(self.typ, newargs)
 
+    def __hash__(self):
+        return sum(hash(o) for o in self)
+
 
 def relabel_nodes(
     i: TreeNode,

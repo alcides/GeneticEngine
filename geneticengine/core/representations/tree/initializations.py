@@ -13,6 +13,7 @@ from geneticengine.core.utils import build_finalizers
 from geneticengine.core.utils import get_arguments
 from geneticengine.core.utils import get_generic_parameter
 from geneticengine.core.utils import is_abstract
+from geneticengine.core.utils import is_builtin_class_instance
 from geneticengine.core.utils import is_generic_list
 from geneticengine.exceptions import GeneticEngineError
 from geneticengine.metahandlers.base import is_metahandler
@@ -344,7 +345,8 @@ def mk_save_init(starting_symbol: Any, receiver: Callable):
 
     def fin_recv(*x):
         built = starting_symbol(*x)
-        built.gengy_init_values = x
+        if not is_builtin_class_instance(built):
+            built.gengy_init_values = x
         return receiver(built)
 
     return fin_recv
