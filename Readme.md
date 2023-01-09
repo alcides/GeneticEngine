@@ -62,7 +62,7 @@ This work was supported by Fundação para a Ciência e Tecnologia (FCT) through
 * Paulo Santos CMU|Portugal PhD fellowship (SFRH/BD/151469/2021)
 * the CMU|Portugal CAMELOT project (LISBOA-01-0247-FEDER-045915)
 * the FCT Exploratory project RAP (EXPL/CCI-COM/1306/2021)
-
+* the FCT Advanced Computing projects (CPCA/A1/395424/2021, CPCA/A1/5613/2020, CPCA/A2/6009/2020)
 
 
 Publications
