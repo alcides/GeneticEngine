@@ -31,6 +31,9 @@ def create_dataclass_dynamically(
     new_data_class = type(name, (parent_class,), args)
 
     if annotations:
+        if not hasattr(new_data_class, "__annotations__"):
+            new_data_class.__annotations__ = {}
+
         for key in annotations:
             new_data_class.__annotations__[key] = annotations[key]
 
@@ -50,7 +53,7 @@ def make_non_terminal_class(name: str):
 def make_production(index: int, nt: type, field_types: list[type]) -> type:
     """Creates a class representing a Production."""
     name = f"{nt.__name__}_P_{index:05}"
-    annotations = {f"{i:03}": ft for (i, ft) in zip(string.ascii_lowercase, field_types)}
+    annotations = {f"{i:_>3}": ft for (i, ft) in zip(string.ascii_lowercase, field_types)}
     return dataclass(create_dataclass_dynamically(name, {}, annotations, nt))
 
 
