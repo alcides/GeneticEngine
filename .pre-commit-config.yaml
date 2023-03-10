@@ -48,6 +48,6 @@ repos:
     hooks:
       - id: ruff
 -   repo: https://github.com/regebro/pyroma
-    rev: "3.2"
+    rev: "4.2"
     hooks:
     -   id: pyroma
