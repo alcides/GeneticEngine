@@ -201,7 +201,7 @@ class Grammar:
 
         return max(list(map(dist, self.all_nodes)))
 
-    def preprocess(self):
+    def preprocess(self) -> None:
         """Computes distanceToTerminal via a fixpoint algorithm."""
         (keys, _, all_sym) = self.get_all_symbols()
         for s in all_sym:

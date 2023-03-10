@@ -4,11 +4,12 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
 from typing import TypeVar
-from unittest import skip
+
+import pytest
 
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
+from geneticengine.core.representations.tree.smt import SMTResolver
 from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.metahandlers.smt import SMT
 
@@ -63,11 +64,14 @@ class Comprehension(Root):
 T = TypeVar("T")
 
 
-@skip("Functionality on hold")
 class TestMetaHandler:
+    @pytest.fixture(autouse=True)
+    def clean_smt(self):
+        SMTResolver.clean()
+
     def skeleton(self, *t, depth=3):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar(list(t), Root)
+        g = extract_grammar(list(t), Root)
         n = random_node(r, g, depth, Root)
         assert isinstance(n, Root)
         return n

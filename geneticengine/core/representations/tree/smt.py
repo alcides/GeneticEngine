@@ -5,11 +5,22 @@ from typing import Callable
 
 import z3
 
+
+class SMTException(Exception):
+    pass
+
+
 # TODO: make non static
 class SMTResolver:
     clauses: list[Any] = []
     receivers: dict[str, Callable] = {}
     types: dict[str, Callable] = {}
+
+    @staticmethod
+    def clean():
+        SMTResolver.clauses = []
+        SMTResolver.receivers = {}
+        SMTResolver.types = {}
 
     @staticmethod
     def add_clause(claus, recs: dict[str, Callable]):
@@ -19,11 +30,20 @@ class SMTResolver:
 
     @staticmethod
     def register_type(name, typ):
-        SMTResolver.types[name] = SMTResolver.to_z3_typ(typ)
+        try:
+            SMTResolver.types[name] = SMTResolver.to_z3_typ(typ)
+        except SMTException:
+            pass
 
     @staticmethod
     def to_z3_typ(typ):
-        return z3.Bool if typ == bool else z3.Int if typ == int else z3.Real
+        if typ == bool:
+            return z3.Bool
+        elif typ == int:
+            return z3.Int
+        elif typ == float:
+            return z3.Real
+        raise SMTException("Could not encode in Z3")
 
     @staticmethod
     def resolve_clauses():

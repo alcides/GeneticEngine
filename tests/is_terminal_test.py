@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from typing import Annotated
 
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.grammar import Grammar
 from geneticengine.core.representations.tree.utils import GengyList
 from geneticengine.core.utils import is_terminal
 from geneticengine.metahandlers.lists import ListSizeBetween
@@ -43,11 +42,11 @@ class ConcreteList(Root):
 
 class TestIsTerminal:
     def test_terminals(self):
-        g: Grammar = extract_grammar([Leaf], Root)
+        g = extract_grammar([Leaf], Root)
         assert is_terminal(Leaf, g.non_terminals)
 
     def test_non_terminals(self):
-        g: Grammar = extract_grammar([Concrete, Middle, ConcreteList, A], Root)
+        g = extract_grammar([Concrete, Middle, ConcreteList, A], Root)
         assert not is_terminal(Concrete, g.non_terminals)
         assert not is_terminal(Middle, g.non_terminals)
         assert not is_terminal(ConcreteList, g.non_terminals)

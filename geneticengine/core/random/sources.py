@@ -14,10 +14,6 @@ T = TypeVar("T")
 
 class Source(abc.ABC):
     @abc.abstractmethod
-    def __init__(self, seed: int = 0):
-        ...
-
-    @abc.abstractmethod
     def randint(self, min: int, max: int, prod: str = "") -> int:
         ...
 
