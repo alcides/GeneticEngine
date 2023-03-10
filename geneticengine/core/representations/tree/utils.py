@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import Any
+from typing import Any, Generic, TypeVar
 
 from geneticengine.core.decorators import is_builtin
 from geneticengine.core.grammar import Grammar
@@ -11,7 +11,10 @@ from geneticengine.core.utils import is_abstract
 from geneticengine.core.utils import is_terminal
 
 
-class GengyList(list):
+T = TypeVar("T")
+
+
+class GengyList(list, Generic[T]):
     def __init__(self, typ, vals):
         super().__init__(vals)
         self.typ = typ

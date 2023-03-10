@@ -2,25 +2,17 @@ from __future__ import annotations
 
 from abc import ABC
 from dataclasses import dataclass
-from logging import raiseExceptions
-from typing import Annotated
-from typing import List
-from typing import Type
 from unittest import skip
 
 import pytest
-from scipy import rand
 
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.algorithms.gp.simplegp import SimpleGP
-from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.core.utils import get_arguments
-from geneticengine.metahandlers.ints import IntRange
-from geneticengine.metahandlers.lists import ListSizeBetween
 
 
 class Root(ABC):
@@ -116,4 +108,4 @@ class TestGrammar:
 
     def test_invalid_node(self):
         with pytest.raises(Exception):
-            g: Grammar = extract_grammar([Leaf, Rec, Useless], Root)
+            extract_grammar([Leaf, Rec, Useless], Root)

@@ -3,8 +3,6 @@ from __future__ import annotations
 from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
-from typing import List
-from typing import Tuple
 
 import numpy as np
 

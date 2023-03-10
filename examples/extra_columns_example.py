@@ -17,7 +17,10 @@ from geneticengine.metahandlers.vars import VarRange
 SEED = 100
 
 
-equation = lambda x: x * x + 1
+def equation(x):
+    return x * x + 1
+
+
 array_size = 1000
 
 np.random.seed(SEED)

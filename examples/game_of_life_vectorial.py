@@ -129,7 +129,7 @@ class MatrixSum(Number):
 @dataclass
 class SumAll(Number):
     def __str__(self) -> str:
-        return f"(sum(X))"
+        return "(sum(X))"
 
 
 def flat_sum(s):
@@ -199,12 +199,8 @@ def evaluate(e: Expr | Matrix | Number) -> Callable[[Any], float]:
         rn: Number = e.right
         return lambda line: evaluate(ln)(line) == evaluate(rn)(line)
     elif isinstance(e, GreaterThan):
-        lng: Number = e.left
-        rng: Number = e.right
         return lambda line: evaluate(ln)(line) > evaluate(rn)(line)
     elif isinstance(e, LessThan):
-        lnl: Number = e.left
-        rnl: Number = e.right
         return lambda line: evaluate(ln)(line) < evaluate(rn)(line)
     elif isinstance(e, Literal):
         v = e.val

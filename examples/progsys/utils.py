@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import ast
 import importlib as il
-import os
 
 
 def get_data(data_file_train, data_file_test, test=False):

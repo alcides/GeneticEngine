@@ -3,7 +3,6 @@ from __future__ import annotations
 from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
-from typing import List
 from typing import TypeVar
 from unittest import skip
 
@@ -64,7 +63,7 @@ class Comprehension(Root):
 T = TypeVar("T")
 
 
-@skip
+@skip("Functionality on hold")
 class TestMetaHandler:
     def skeleton(self, *t, depth=3):
         r = RandomSource(seed=1)
@@ -87,7 +86,7 @@ class TestMetaHandler:
     def test_bool(self):
         n = self.skeleton(BoolC)
         assert isinstance(n, BoolC)
-        assert n.x == True
+        assert n.x is True
 
     def test_real(self):
         n = self.skeleton(FloatC)

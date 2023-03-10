@@ -58,7 +58,7 @@ class Exponentiation(Number):
         d2 = self.powerNumber.evaluate(**kwargs)
         try:
             return d1**d2
-        except:
+        except Exception:
             return 1.0
 
 

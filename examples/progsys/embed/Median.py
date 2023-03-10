@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import math
 
 # *****************************************************************************
 # Helper Code
@@ -104,7 +103,6 @@ def fitnessTrainingCase(i, o, evolved_function):
 
 #  function to evaluate fitness
 def fitness(inval, outval, evolved_function):
-
     error = []
     cases = []
     for (i, o) in zip(inval, outval):

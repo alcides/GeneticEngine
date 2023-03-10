@@ -8,7 +8,6 @@ from geneticengine.core.representations.tree.treebased import (
     crossover as tree_crossover,
 )
 from geneticengine.core.representations.tree.treebased import mutate
-from geneticengine.core.representations.tree.treebased import pi_grow_method
 from geneticengine.core.representations.tree.treebased import random_node
 
 

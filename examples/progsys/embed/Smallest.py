@@ -3,8 +3,6 @@
 # *****************************************************************************
 from __future__ import annotations
 
-import math
-
 
 def div(nom, denom):
     if denom <= 0.00001:
@@ -110,7 +108,6 @@ def fitnessTrainingCase(i, o, evolved_function):
 
 #  function to evaluate fitness
 def fitness(inval, outval, evolved_function):
-
     error = []
     cases = []
     for (i, o) in zip(inval, outval):
