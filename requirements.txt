@@ -6,8 +6,8 @@ pathos
 polyleven
 pytest
 scikit-learn
+scikit-learn
 seaborn
-sklearn
 sphinx
 sphinx-autoapi
 sphinx-rtd-theme
