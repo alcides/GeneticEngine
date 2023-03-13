@@ -1,4 +1,5 @@
 from __future__ import annotations
+import copy
 
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import Source
@@ -53,6 +54,7 @@ class ListSizeBetween(MetaHandlerGenerator):
         method=pi_grow_method,
     ):
         mutation_method = r.randint(0, 1)
+        current_node = copy.copy(current_node)
         if (mutation_method == 0) and (len(current_node) != self.min):  # del
             element_to_be_deleted = r.randint(0, len(current_node) - 1)
             current_node.remove(current_node[element_to_be_deleted])
@@ -82,6 +84,7 @@ class ListSizeBetween(MetaHandlerGenerator):
         big_enough_options = [getattr(o, arg) for o in options if len(getattr(o, arg)) >= n_elements_replaced]
         while not big_enough_options:
             if n_elements_replaced == 1:
+                print(2)
                 return GengyList(list_type, current_node)
             n_elements_replaced = r.randint(1, n_elements_replaced - 1)
             big_enough_options = [getattr(o, arg) for o in options if len(getattr(o, arg)) >= n_elements_replaced]
@@ -90,7 +93,8 @@ class ListSizeBetween(MetaHandlerGenerator):
         # Always cut beginning as we do double crossovers,
         # first using one tree as the current node,
         # and then the second tree as current node.
-        new_node = option[0:n_elements_replaced] + current_node[n_elements_replaced:]
+        new_node = copy.deepcopy(option[0:n_elements_replaced]) + current_node[n_elements_replaced:]
+        print(3)
         return GengyList(list_type, new_node)
 
     def __class_getitem__(self, args):

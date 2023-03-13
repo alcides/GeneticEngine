@@ -58,26 +58,27 @@ class TestImmutability:
         rep = TreeBasedRepresentation(g, max_depth=10)
         r = RandomSource(3)
 
+        population_size = 1000
+
         initial_population = [
             Individual(genotype=rep.create_individual(r, 10), genotype_to_phenotype=rep.genotype_to_phenotype)
-            for _ in range(10)
+            for _ in range(population_size)
         ]
 
         def encode_population(pop: list[Individual]) -> list[str]:
             return [str(ind.genotype) for ind in pop]
 
         cpy = encode_population(initial_population)
-        population = initial_population
 
         for i in range(10):
-            population = test_step.iterate(
+            _ = test_step.iterate(
                 problem=None,
                 evaluator=SequentialEvaluator(),
                 representation=rep,
                 random_source=r,
-                population=population,
-                target_size=10,
-                generation=1,
+                population=initial_population,
+                target_size=population_size,
+                generation=i,
             )
         for (a, b) in zip(encode_population(initial_population), cpy):
             assert a == b
