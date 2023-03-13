@@ -76,16 +76,11 @@ def mutate_inner(
         c = r.randint(0, counter - 1)
         if c == 0 or (c <= i.gengy_distance_to_term and depth_aware_mut) or force_mutate:
             # If Metahandler mutation exists, the mutation process is different
-            args_with_specific_mutation = [has_annotated_mutation(arg[1]) for arg in get_arguments(i)]
-            if any(args_with_specific_mutation):
-                mutation_possibilities = len(args_with_specific_mutation)
-                mutation_choice = r.randint(
-                    0,
-                    mutation_possibilities - 1,
-                )
-                (index, arg_to_be_mutated) = [
-                    (kdx, arg[1]) for kdx, arg in enumerate(get_arguments(i)) if args_with_specific_mutation[kdx]
-                ][mutation_choice]
+            if any(has_annotated_mutation(arg[1]) for arg in get_arguments(i)):
+                options = [(kdx, arg[1]) for kdx, arg in enumerate(get_arguments(i)) if has_annotated_mutation(arg[1])]
+                index = r.randint(0, len(options) - 1)
+                (index, arg_to_be_mutated) = options[index]
+
                 args = list(i.gengy_init_values)
                 args[index] = arg_to_be_mutated.__metadata__[0].mutate(  # type: ignore
                     r,
