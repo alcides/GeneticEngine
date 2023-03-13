@@ -46,7 +46,6 @@ class TestRamped:
         problem = SingleObjectiveProblem(
             minimize=False,
             fitness_function=lambda x: x,
-            target_fitness=None,
         )
 
         max_depth = 10

@@ -83,7 +83,6 @@ class RegressionBenchmark:
         return SingleObjectiveProblem(
             minimize=True,
             fitness_function=fitness_function,
-            target_fitness=None,
         )
 
     def get_grammar(self) -> Grammar:

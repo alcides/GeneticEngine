@@ -68,7 +68,6 @@ class PyMaxBenchmark:
         return SingleObjectiveProblem(
             minimize=False,
             fitness_function=fit,
-            target_fitness=None,
         )
 
     def get_grammar(self) -> Grammar:

@@ -48,7 +48,6 @@ representation = TreeBasedRepresentation(g, max_depth=5)
 problem = SingleObjectiveProblem(
     minimize=True,
     fitness_function=fit,
-    target_fitness=None,
 )
 stopping_criterium = TimeStoppingCriterium(3)
 
@@ -60,7 +59,7 @@ alg_gp = GP(
 )
 ind = alg_gp.evolve()
 print("\n======\nGP\n======\n")
-print(f"{ind.evaluate(problem)} - {ind}")
+print(f"{ind.get_fitness(problem)} - {ind}")
 
 
 alg_hc = HC(
@@ -70,7 +69,7 @@ alg_hc = HC(
 )
 ind = alg_hc.evolve()
 print("\n======\nHC\n======\n")
-print(f"{ind.evaluate(problem)} - {ind}")
+print(f"{ind.get_fitness(problem)} - {ind}")
 
 alg_rs = RandomSearch(
     representation=representation,
@@ -79,4 +78,4 @@ alg_rs = RandomSearch(
 )
 ind = alg_rs.evolve()
 print("\n======\nRS\n======\n")
-print(f"{ind.evaluate(problem)} - {ind}")
+print(f"{ind.get_fitness(problem)} - {ind}")

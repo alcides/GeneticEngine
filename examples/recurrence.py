@@ -76,7 +76,6 @@ if __name__ == "__main__":
     prob = SingleObjectiveProblem(
         minimize=True,
         fitness_function=fitness_function,
-        target_fitness=None,
     )
     gp = SimpleGP(
         grammar=g,
@@ -89,7 +88,7 @@ if __name__ == "__main__":
         probability_crossover=0.4,
     )
     best = gp.evolve()
-    fitness = prob.overall_fitness(best.get_phenotype())
+    fitness = best.get_fitness(prob)
     print(
         f"Fitness of {fitness} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
     )

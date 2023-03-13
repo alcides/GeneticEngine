@@ -3,13 +3,17 @@ from __future__ import annotations
 from argparse import ArgumentParser
 
 from geneticengine.algorithms.callbacks.callback import ProgressCallback
-from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
+from geneticengine.algorithms.gp.operators.stop import (
+    AnyOfStoppingCriterium,
+    FitnessTargetStoppingCriterium,
+    GenerationStoppingCriterium,
+)
 from polyleven import levenshtein
 
 from geneticengine.algorithms.callbacks.csv_callback import CSVCallback
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import Grammar, extract_grammar
-from geneticengine.core.problems import SingleObjectiveProblem
+from geneticengine.core.problems import FitnessSingleObjective, SingleObjectiveProblem
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammars.synthetic_grammar import create_arbitrary_grammar
@@ -48,7 +52,11 @@ def single_run(
     problem = SingleObjectiveProblem(
         fitness_function=fitness_function,
         minimize=True,
-        target_fitness=0,
+    )
+
+    stopping_criterium = AnyOfStoppingCriterium(
+        GenerationStoppingCriterium(10),
+        FitnessTargetStoppingCriterium(FitnessSingleObjective(0)),
     )
 
     filename = f"synthetic_grammar_{seed}.csv"
@@ -56,7 +64,7 @@ def single_run(
         representation=TreeBasedRepresentation(g, max_depth=g.get_min_tree_depth() + 10),
         problem=problem,
         population_size=10,
-        stopping_criterium=GenerationStoppingCriterium(10),
+        stopping_criterium=stopping_criterium,
         random_source=RandomSource(seed),
         callbacks=[
             ProgressCallback(),

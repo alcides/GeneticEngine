@@ -5,8 +5,13 @@ from dataclasses import dataclass
 from typing import Annotated
 
 from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.operators.stop import (
+    AnyOfStoppingCriterium,
+    FitnessTargetStoppingCriterium,
+    GenerationStoppingCriterium,
+)
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import SingleObjectiveProblem
+from geneticengine.core.problems import FitnessSingleObjective, SingleObjectiveProblem
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.metahandlers.ints import IntRange
@@ -60,13 +65,19 @@ def main(seed=123):
     prob = SingleObjectiveProblem(
         fitness_function=fitness_function,
         minimize=True,
-        target_fitness=0,
     )
+
+    stopping_criterium = AnyOfStoppingCriterium(
+        GenerationStoppingCriterium(100),
+        FitnessTargetStoppingCriterium(FitnessSingleObjective(0)),
+    )
+
     alg = GP(
         representation=TreeBasedRepresentation(grammar, 10),
         problem=prob,
         population_size=20,
         random_source=RandomSource(seed),
+        stopping_criterium=stopping_criterium,
     )
     best = alg.evolve()
     print(

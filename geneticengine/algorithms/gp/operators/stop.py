@@ -3,7 +3,8 @@ from __future__ import annotations
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.algorithms.gp.structure import StoppingCriterium
 from geneticengine.core.evaluators import Evaluator
-from geneticengine.core.problems import Problem
+from geneticengine.core.fitness_helpers import best_individual
+from geneticengine.core.problems import Fitness, Problem
 
 
 class GenerationStoppingCriterium(StoppingCriterium):
@@ -76,3 +77,52 @@ class EvaluationLimitCriterium(StoppingCriterium):
         evaluator: Evaluator,
     ) -> bool:
         return evaluator.get_count() >= self.max_evaluations
+
+
+class FitnessTargetStoppingCriterium(StoppingCriterium):
+    """Stops the evolution when the fitness gets to a given value."""
+
+    def __init__(self, target_fitness: Fitness):
+        self.target_fitness = target_fitness
+
+    def is_ended(
+        self,
+        problem: Problem,
+        population: list[Individual],
+        generation: int,
+        elapsed_time: float,
+        evaluator: Evaluator,
+    ) -> bool:
+        evaluator.eval(problem, population)
+        best_fitness = best_individual(population, problem).get_fitness(problem)
+        return problem.is_better(best_fitness, self.target_fitness)
+
+
+class AnyOfStoppingCriterium(StoppingCriterium):
+    """Stops the evolution when any of the two stopping criteria is done."""
+
+    def __init__(self, one: StoppingCriterium, other: StoppingCriterium):
+        self.one = one
+        self.other = other
+
+    def is_ended(
+        self,
+        problem: Problem,
+        population: list[Individual],
+        generation: int,
+        elapsed_time: float,
+        evaluator: Evaluator,
+    ) -> bool:
+        return self.one.is_ended(
+            problem=problem,
+            population=population,
+            generation=generation,
+            elapsed_time=elapsed_time,
+            evaluator=evaluator,
+        ) or self.other.is_ended(
+            problem=problem,
+            population=population,
+            generation=generation,
+            elapsed_time=elapsed_time,
+            evaluator=evaluator,
+        )

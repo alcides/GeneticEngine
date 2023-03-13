@@ -116,11 +116,7 @@ def fitness_test_function(n: Number):
 
 class ClassificationBenchmark:
     def get_problem(self) -> Problem:
-        return SingleObjectiveProblem(
-            minimize=False,
-            fitness_function=fitness_function,
-            target_fitness=None,
-        )
+        return SingleObjectiveProblem(minimize=False, fitness_function=fitness_function)
 
     def get_grammar(self) -> Grammar:
         return extract_grammar(
