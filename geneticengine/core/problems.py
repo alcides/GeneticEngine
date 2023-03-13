@@ -131,7 +131,7 @@ class MultiObjectiveProblem(Problem[FitnessMultiObjective]):
         self,
         minimize: list[bool],
         fitness_function: MultiObjectiveCallable,
-        best_individual_criteria_function: SingleObjectiveCallable | None,
+        best_individual_criteria_function: SingleObjectiveCallable | None = None,
     ):
         self.minimize = minimize
         self.fitness_function_host = GenericWrapper(fitness_function)
