@@ -324,7 +324,6 @@ class GameOfLifeVectorialBenchmark:
         return SingleObjectiveProblem(
             minimize=False,
             fitness_function=fitness_function,
-            target_fitness=None,
         )
 
     def get_grammar(self) -> Grammar:

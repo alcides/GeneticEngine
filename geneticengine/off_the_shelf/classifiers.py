@@ -144,7 +144,6 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
             problem=SingleObjectiveProblem(
                 minimize=False,
                 fitness_function=fitness_function,
-                target_fitness=None,
             ),
             representation=self.representation_class,
             population_size=self.population_size,
@@ -274,7 +273,6 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
             problem=SingleObjectiveProblem(
                 minimize=False,
                 fitness_function=fitness_function,
-                target_fitness=None,
             ),
             stopping_criterium=GenerationStoppingCriterium(self.number_of_generations),
             random_source=RandomSource(self.seed),

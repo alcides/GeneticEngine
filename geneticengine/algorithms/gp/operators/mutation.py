@@ -5,6 +5,7 @@ from typing import TypeVar
 
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.algorithms.gp.structure import GeneticStep
+from geneticengine.core.fitness_helpers import best_individual
 from geneticengine.core.problems import Problem
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import MutationOperator
@@ -95,8 +96,6 @@ class HillClimbingMutation(MutationOperator[g]):
         ]
 
         evaluator.eval(problem, new_individuals)
-        best_individual = min(
-            new_individuals,
-            key=Individual.key_function(problem),
-        )
-        return best_individual.genotype
+        bi = best_individual(new_individuals, problem)
+
+        return bi.genotype

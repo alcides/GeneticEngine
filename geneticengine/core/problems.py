@@ -60,13 +60,15 @@ class Problem(abc.ABC, Generic[FT]):
     def evaluate(self, phenotype: P) -> FT:
         ...
 
-    def solved(self, best_fitness: FT):
-        return False
-
     @abc.abstractmethod
     def key_function(self, a: P) -> float:
         """Returns the (maximizing) fitness of the individual as a single
         float."""
+        ...
+
+    @abc.abstractmethod
+    def is_better(self, a: FT, b: FT) -> bool:
+        """Returns whether the first fitness is better than the second."""
         ...
 
 
@@ -78,44 +80,34 @@ class SingleObjectiveProblem(Problem[FitnessSingleObjective]):
             function corresponds to a less fit solution.
         fitness_function (Callable[[P], float]): The fitness function. Should take in any valid individual and return a
             float.
-        target_fitness (Optional[float]): Sets a target fitness. When this fitness is reached, the algorithm stops
-            running (default = None).
     """
 
     # Uses dict to avoid the mismatch between functions and methods (first argument)
     fitness_function_host: GenericWrapper[SingleObjectiveCallable]
     minimize: bool
-    target_fitness: FitnessSingleObjective | None = None
 
-    def __init__(
-        self,
-        fitness_function: SingleObjectiveCallable,
-        minimize: bool = False,
-        target_fitness: float | None = None,
-    ):
+    def __init__(self, fitness_function: SingleObjectiveCallable, minimize: bool = False):
         self.fitness_function_host = GenericWrapper(fitness_function)
         self.minimize = minimize
-        if target_fitness:
-            self.target_fitness = FitnessSingleObjective(target_fitness)
 
     def evaluate(self, phenotype: P) -> FitnessSingleObjective:
         c: SingleObjectiveCallable = self.fitness_function_host.get()
         v = float(c(phenotype))
         return FitnessSingleObjective(fitness=v)
 
-    def solved(self, best_fitness: FitnessSingleObjective):
-        if not self.target_fitness:
-            return False
-        elif self.minimize:
-            return self.target_fitness.fitness >= best_fitness.fitness
-        else:
-            return self.target_fitness.fitness <= best_fitness.fitness
-
     def key_function(self, a: P) -> float:
         if self.minimize:
             return -self.evaluate(a).fitness
         else:
             return self.evaluate(a).fitness
+
+    def is_better(self, a: FT, b: FT) -> bool:
+        assert isinstance(a, FitnessSingleObjective)
+        assert isinstance(b, FitnessSingleObjective)
+        if self.minimize:
+            return a.fitness < b.fitness
+        else:
+            return a.fitness > b.fitness
 
 
 class MultiObjectiveProblem(Problem[FitnessMultiObjective]):
@@ -139,7 +131,7 @@ class MultiObjectiveProblem(Problem[FitnessMultiObjective]):
         self,
         minimize: list[bool],
         fitness_function: MultiObjectiveCallable,
-        best_individual_criteria_function: SingleObjectiveCallable | None,
+        best_individual_criteria_function: SingleObjectiveCallable | None = None,
     ):
         self.minimize = minimize
         self.fitness_function_host = GenericWrapper(fitness_function)
@@ -168,6 +160,14 @@ class MultiObjectiveProblem(Problem[FitnessMultiObjective]):
     def key_function(self, a: P) -> float:
         return self.evaluate(a).fitness
 
+    def is_better(self, a: FT, b: FT) -> bool:
+        assert isinstance(a, FitnessMultiObjective)
+        assert isinstance(b, FitnessMultiObjective)
+        if self.minimize:
+            return a.fitness < b.fitness
+        else:
+            return a.fitness > b.fitness
+
 
 def wrap_depth_minimization(p: SingleObjectiveProblem) -> SingleObjectiveProblem:
     """This wrapper takes a SingleObjectiveProblem and adds a penalty for
@@ -179,8 +179,4 @@ def wrap_depth_minimization(p: SingleObjectiveProblem) -> SingleObjectiveProblem
         else:
             return p.evaluate(i).fitness - i.gengy_distance_to_term * 10**-25
 
-    return SingleObjectiveProblem(
-        minimize=p.minimize,
-        fitness_function=w,
-        target_fitness=None,
-    )
+    return SingleObjectiveProblem(minimize=p.minimize, fitness_function=w)

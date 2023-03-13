@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 from geneticengine.algorithms.gp.gp import GP
-from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
+from geneticengine.algorithms.gp.operators.stop import (
+    AnyOfStoppingCriterium,
+    FitnessTargetStoppingCriterium,
+    GenerationStoppingCriterium,
+)
 from geneticengine.core.decorators import abstract
 from geneticengine.core.decorators import weight
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import SingleObjectiveProblem
+from geneticengine.core.problems import FitnessSingleObjective, SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
     DynamicStructuredGrammaticalEvolutionRepresentation,
 )
@@ -42,7 +46,6 @@ class TestProbabilisticGrammar:
             problem=SingleObjectiveProblem(
                 lambda p: isinstance(p, OptionA) and 1 or 2,
                 minimize=True,
-                target_fitness=0,
             ),
             population_size=1000,
             stopping_criterium=GenerationStoppingCriterium(max_generations=50),
@@ -54,15 +57,18 @@ class TestProbabilisticGrammar:
     def test_probabilistic_grammar_ge(self):
         g = extract_grammar([OptionA, OptionB], Option)
 
+        stopping_criterium = AnyOfStoppingCriterium(
+            GenerationStoppingCriterium(max_generations=50),
+            FitnessTargetStoppingCriterium(FitnessSingleObjective(0)),
+        )
         gp = GP(
             representation=GrammaticalEvolutionRepresentation(grammar=g, max_depth=10),
             problem=SingleObjectiveProblem(
                 lambda p: isinstance(p, OptionA) and 1 or 2,
                 minimize=True,
-                target_fitness=0,
             ),
             population_size=1000,
-            stopping_criterium=GenerationStoppingCriterium(max_generations=50),
+            stopping_criterium=stopping_criterium,
         )
         ind = gp.evolve()
         tree = ind.get_phenotype()
@@ -79,10 +85,12 @@ class TestProbabilisticGrammar:
             problem=SingleObjectiveProblem(
                 lambda p: isinstance(p, OptionA) and 1 or 2,
                 minimize=True,
-                target_fitness=0,
             ),
             population_size=1000,
-            stopping_criterium=GenerationStoppingCriterium(max_generations=50),
+            stopping_criterium=AnyOfStoppingCriterium(
+                GenerationStoppingCriterium(max_generations=50),
+                FitnessTargetStoppingCriterium(FitnessSingleObjective(0)),
+            ),
         )
         ind = gp.evolve()
         tree = ind.get_phenotype()
@@ -99,10 +107,12 @@ class TestProbabilisticGrammar:
             problem=SingleObjectiveProblem(
                 lambda p: isinstance(p, OptionA) and 1 or 2,
                 minimize=True,
-                target_fitness=0,
             ),
             population_size=1000,
-            stopping_criterium=GenerationStoppingCriterium(max_generations=50),
+            stopping_criterium=AnyOfStoppingCriterium(
+                GenerationStoppingCriterium(max_generations=50),
+                FitnessTargetStoppingCriterium(FitnessSingleObjective(0)),
+            ),
         )
         ind = gp.evolve()
         tree = ind.get_phenotype()

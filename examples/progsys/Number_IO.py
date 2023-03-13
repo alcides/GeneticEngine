@@ -74,7 +74,6 @@ def evolve(g, seed, mode, representation=""):
         problem=SingleObjectiveProblem(
             minimize=True,
             fitness_function=fitness_function,
-            target_fitness=None,
         ),
         number_of_generations=50,
         seed=seed,

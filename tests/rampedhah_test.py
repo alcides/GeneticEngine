@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from typing import Annotated
 
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.grammar import Grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.tree.operators import (
@@ -42,11 +41,10 @@ class Middle(Root):
 class TestRamped:
     def test_ramped_half_and_half(self):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar([Concrete, Middle], Root, False)
+        g = extract_grammar([Concrete, Middle], Root, False)
         problem = SingleObjectiveProblem(
             minimize=False,
             fitness_function=lambda x: x,
-            target_fitness=None,
         )
 
         max_depth = 10

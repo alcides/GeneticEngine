@@ -25,14 +25,18 @@ from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
 from geneticengine.algorithms.gp.operators.novelty import NoveltyStep
 from geneticengine.algorithms.gp.operators.selection import LexicaseSelection
 from geneticengine.algorithms.gp.operators.selection import TournamentSelection
-from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
+from geneticengine.algorithms.gp.operators.stop import (
+    AnyOfStoppingCriterium,
+    FitnessTargetStoppingCriterium,
+    GenerationStoppingCriterium,
+)
 from geneticengine.algorithms.gp.operators.stop import TimeStoppingCriterium
 from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.algorithms.gp.structure import StoppingCriterium
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.evaluators import SequentialEvaluator
-from geneticengine.core.problems import MultiObjectiveProblem
+from geneticengine.core.problems import Fitness, FitnessMultiObjective, FitnessSingleObjective, MultiObjectiveProblem
 from geneticengine.core.problems import Problem
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.problems import wrap_depth_minimization
@@ -187,7 +191,6 @@ class SimpleGP(GP):
                 problem,
                 evaluation_function,
                 minimize,
-                target_fitness,
             ),
             favor_less_complex_trees,
         )
@@ -262,6 +265,13 @@ class SimpleGP(GP):
             stopping_criterium = TimeStoppingCriterium(timer_limit)
         else:
             stopping_criterium = GenerationStoppingCriterium(number_of_generations)
+        if target_fitness is not None:
+            tg: Fitness
+            if isinstance(processed_problem, SingleObjectiveProblem):
+                tg = FitnessSingleObjective(target_fitness)
+            else:
+                tg = FitnessMultiObjective(multiple_fitnesses=[target_fitness], fitness=target_fitness)
+            stopping_criterium = AnyOfStoppingCriterium(stopping_criterium, FitnessTargetStoppingCriterium(tg))
 
         self.callbacks: list[Callback] = []
         self.callbacks.extend(callbacks or [])
@@ -317,7 +327,6 @@ class SimpleGP(GP):
         problem: Problem | None,
         evaluation_function: Callable[[P], float] | None = None,
         minimize: bool = False,
-        target_fitness: float | None = None,
     ) -> Problem:
         """This function is a placeholder until we deprecate all the old usage
         of GP class."""
@@ -326,7 +335,7 @@ class SimpleGP(GP):
         elif isinstance(minimize, list) and evaluation_function:
             return MultiObjectiveProblem(minimize, evaluation_function)
         elif isinstance(minimize, bool) and evaluation_function:
-            return SingleObjectiveProblem(evaluation_function, minimize, target_fitness)
+            return SingleObjectiveProblem(evaluation_function, minimize)
         else:
             raise NotImplementedError(
                 "This combination of parameters to define the problem is not valid",
