@@ -3,6 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Annotated
 from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
+
+import pytest
 
 from geneticengine.core.decorators import abstract
 from geneticengine.core.evaluators import SequentialEvaluator
@@ -49,7 +52,8 @@ class TestImmutability:
         ind = rep.create_individual(r, 10)
         assert isinstance(hash(ind), int)
 
-    def test_mutation(self):
+    @pytest.mark.parametrize("test_step", [GenericMutationStep(1.0), GenericCrossoverStep(1.0)])
+    def test_mutation(self, test_step):
         g = extract_grammar([A, B], A)
         rep = TreeBasedRepresentation(g, max_depth=10)
         r = RandomSource(3)
@@ -59,15 +63,16 @@ class TestImmutability:
             for _ in range(10)
         ]
         cpy = str(initial_population)
+        population = initial_population
 
-        step = GenericMutationStep(1.0)
-        _ = step.iterate(
-            problem=None,
-            evaluator=SequentialEvaluator(),
-            representation=rep,
-            random_source=r,
-            population=initial_population,
-            target_size=10,
-            generation=1,
-        )
-        assert str(initial_population == cpy)
+        for i in range(10):
+            population = test_step.iterate(
+                problem=None,
+                evaluator=SequentialEvaluator(),
+                representation=rep,
+                random_source=r,
+                population=population,
+                target_size=10,
+                generation=1,
+            )
+        assert str(initial_population) == cpy

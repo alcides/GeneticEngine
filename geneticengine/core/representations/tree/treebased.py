@@ -294,23 +294,24 @@ def crossover_inner(
                 if not options:
                     pass  # Replace whole node
                 else:
-                    (index, arg_to_be_crossovered) = [
-                        (kdx, arg) for kdx, arg in enumerate(get_arguments(i)) if args_with_specific_crossover[kdx]
-                    ][crossover_choice]
+                    (index, arg_to_be_crossovered) = [(kdx, arg) for kdx, arg in enumerate(get_arguments(i))][
+                        crossover_choice
+                    ]
                     args = list(i.gengy_init_values)
-                    args[index] = (
-                        arg_to_be_crossovered[1]
-                        .__metadata__[0]  # type: ignore
-                        .crossover(
-                            r,
-                            g,
-                            options,
-                            arg_to_be_crossovered[0],
-                            ty,
-                            current_node=args[index],
+                    if has_annotated_crossover(arg_to_be_crossovered[1]):
+                        args[index] = (
+                            arg_to_be_crossovered[1]
+                            .__metadata__[0]  # type: ignore
+                            .crossover(
+                                r,
+                                g,
+                                options,
+                                arg_to_be_crossovered[0],
+                                ty,
+                                current_node=args[index],
+                            )
                         )
-                    )
-                    return mk_save_init(type(i), lambda x: x)(*args)
+                        return mk_save_init(type(i), lambda x: x)(*args)
 
             options = list(find_in_tree(g, ty, o, max_depth))
             if options:
