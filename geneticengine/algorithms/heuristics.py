@@ -4,6 +4,7 @@ from abc import ABC
 from abc import abstractmethod
 
 from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.core.fitness_helpers import best_individual
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.problems import Problem
 from geneticengine.core.random.sources import RandomSource
@@ -60,5 +61,5 @@ class Heuristics(ABC):
         """
         assert individuals
         self.evaluator.eval(self.problem, individuals)
-        best_individual = max(individuals, key=Individual.key_function(problem))
-        return best_individual
+        bi = best_individual(individuals, self.problem)
+        return bi
