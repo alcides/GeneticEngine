@@ -62,7 +62,11 @@ class TestImmutability:
             Individual(genotype=rep.create_individual(r, 10), genotype_to_phenotype=rep.genotype_to_phenotype)
             for _ in range(10)
         ]
-        cpy = str(initial_population)
+
+        def encode_population(pop: list[Individual]) -> list[str]:
+            return [str(ind.genotype) for ind in pop]
+
+        cpy = encode_population(initial_population)
         population = initial_population
 
         for i in range(10):
@@ -75,4 +79,5 @@ class TestImmutability:
                 target_size=10,
                 generation=1,
             )
-        assert str(initial_population) == cpy
+        for (a, b) in zip(encode_population(initial_population), cpy):
+            assert a == b
