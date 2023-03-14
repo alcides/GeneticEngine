@@ -23,8 +23,7 @@ class Concrete(Root):
 
 class TestRelabel:
     def test_relabel_simple(self):
-        c: Root = Concrete()
+        c = Concrete()
         g = extract_grammar([Concrete], Root)
         relabel_nodes_of_trees(c, g)
-        print(c)
         assert c.gengy_distance_to_term == 0
