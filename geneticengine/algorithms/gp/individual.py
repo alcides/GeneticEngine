@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Callable
 from typing import Generic
 from typing import TypeVar
+import weakref
 from geneticengine.core.generic_utils import GenericWrapper
 
 from geneticengine.core.problems import Fitness, Problem
@@ -23,7 +24,7 @@ class Individual(Generic[G, P]):
     def __init__(self, genotype: G, genotype_to_phenotype: Callable[[G], P]):
         self.genotype = genotype
         self.genotype_to_phenotype = GenericWrapper(genotype_to_phenotype)
-        self.fitness_store: dict[Problem, Fitness] = {}
+        self.fitness_store: weakref.WeakKeyDictionary[Problem, Fitness] = weakref.WeakKeyDictionary()
 
     def get_phenotype(self):
         if self.phenotype is None:

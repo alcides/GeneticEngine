@@ -9,7 +9,6 @@ import pytest
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.core.utils import get_arguments
@@ -57,14 +56,14 @@ def contains_type(t, ty: type):
 class TestGrammar:
     def test_root(self):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar([Leaf], Root)
+        g = extract_grammar([Leaf], Root)
         x = random_node(r, g, 2, Root)
         assert isinstance(x, Leaf)
         assert isinstance(x, Root)
 
     def test_rec(self):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar([Leaf, Rec], Root)
+        g = extract_grammar([Leaf, Rec], Root)
         x = random_node(r, g, 10, Root)
         # print(x) -- Leaf()
         assert isinstance(x, Rec)
@@ -72,7 +71,7 @@ class TestGrammar:
 
     def test_rec_alt(self):
         r = RandomSource(seed=245)
-        g: Grammar = extract_grammar([Leaf, Rec, RecAlt], Root)
+        g = extract_grammar([Leaf, Rec, RecAlt], Root)
         x = random_node(
             r,
             g,
@@ -84,7 +83,7 @@ class TestGrammar:
 
     @skip("Reevaluate what this test does")
     def test_depth_increases(self):
-        g: Grammar = extract_grammar([Leaf, Rec], Root)
+        g = extract_grammar([Leaf, Rec], Root)
 
         x = random_node(
             RandomSource(3),

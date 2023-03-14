@@ -22,8 +22,8 @@ class Evaluator(ABC):
 
     def eval_single(self, p: Problem, individual: Individual):
         if not individual.has_fitness(p):
-            f = p.evaluate(individual.get_phenotype())
-            individual.set_fitness(p, f)
+            phenotype = individual.get_phenotype()
+            individual.set_fitness(p, p.evaluate(phenotype=phenotype))
             self.register_evaluation()
 
 
