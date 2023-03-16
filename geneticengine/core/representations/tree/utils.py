@@ -73,7 +73,6 @@ def relabel_nodes(
             if not hasattr(i, "gengy_init_values"):
                 breakpoint()
             children = [(typ[1], i.gengy_init_values[idx]) for idx, typ in enumerate(get_arguments(i))]
-        assert children
         for t, c in children:
             nodes, dist, thisway, weighted_nodes = relabel_nodes(
                 c,
@@ -87,7 +86,7 @@ def relabel_nodes(
             number_of_nodes += abs_adjust + nodes
             weighted_number_of_nodes += weighted_nodes
             distance_to_term = max(distance_to_term, dist + abs_adjust + list_adjust)
-            for (k, v) in thisway.items():
+            for k, v in thisway.items():
                 types_this_way[k].extend(v)
 
     if not is_list:

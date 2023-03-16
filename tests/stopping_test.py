@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from abc import ABC
-import pytest
 from dataclasses import dataclass
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.gp.operators.stop import EvaluationLimitCriterium
@@ -26,7 +25,6 @@ def fitness_function(r: Root) -> float:
 
 
 class TestStoppingCriteria:
-    @pytest.mark.skip(reason="no way of currently testing this")
     def test_evaluations(self):
 
         limit = 120

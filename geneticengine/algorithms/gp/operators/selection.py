@@ -30,7 +30,7 @@ class TournamentSelection(GeneticStep):
         problem: Problem,
         evaluator: Evaluator,
         representation: Representation,
-        r: Source,
+        random_source: Source,
         population: list[Individual],
         target_size: int,
         generation: int,
@@ -40,7 +40,7 @@ class TournamentSelection(GeneticStep):
         candidates = population.copy()
         evaluator.eval(problem, candidates)
         for _ in range(target_size):
-            candidates = [r.choice(population) for _ in range(self.tournament_size)]
+            candidates = [random_source.choice(population) for _ in range(self.tournament_size)]
             winner = max(candidates, key=Individual.key_function(problem))
             winners.append(winner)
 
@@ -69,7 +69,7 @@ class LexicaseSelection(GeneticStep):
         problem: Problem,
         evaluator: Evaluator,
         representation: Representation,
-        r: Source,
+        random_source: Source,
         population: list[Individual],
         target_size: int,
         generation: int,
@@ -78,7 +78,7 @@ class LexicaseSelection(GeneticStep):
         candidates = population.copy()
         evaluator.eval(problem, candidates)
         n_cases = problem.number_of_objectives()
-        cases = r.shuffle(list(range(n_cases)))
+        cases = random_source.shuffle(list(range(n_cases)))
         winners = []
 
         for _ in range(target_size):
@@ -118,7 +118,9 @@ class LexicaseSelection(GeneticStep):
 
                 candidates_to_check = new_candidates.copy()
 
-            winner = r.choice(candidates_to_check) if len(candidates_to_check) > 1 else candidates_to_check[0]
+            winner = (
+                random_source.choice(candidates_to_check) if len(candidates_to_check) > 1 else candidates_to_check[0]
+            )
             assert isinstance(winner.get_fitness(problem), list)
             winners.append(winner)
             candidates.remove(winner)

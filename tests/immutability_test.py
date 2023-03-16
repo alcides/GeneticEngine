@@ -1,9 +1,12 @@
 from __future__ import annotations
+from abc import ABC
 
 from dataclasses import dataclass
 from typing import Annotated
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
+from geneticengine.algorithms.gp.operators.selection import TournamentSelection
+from geneticengine.core.problems import SingleObjectiveProblem
 
 import pytest
 
@@ -18,6 +21,7 @@ from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.lists import ListSizeBetween
 from geneticengine.metahandlers.vars import VarRange
 from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
+from geneticengine.algorithms.gp.gp import default_generic_programming_step
 
 
 @abstract
@@ -41,7 +45,33 @@ class B(A):
     ]
     fa: Annotated[float, FloatRange[9.0, 10.0]]
     sa: Annotated[str, VarRange(["x", "y", "z"])]
-    la: Annotated[list[int], ListSizeBetween[3, 4]]
+    la: Annotated[list[int], ListSizeBetween[3, 7]]
+
+
+@dataclass
+class C:
+    one: A
+    two: A
+
+
+class Alt(ABC):
+    pass
+
+
+@dataclass
+class Three(Alt):
+    a: int
+    b: int
+
+
+@dataclass
+class One(Alt):
+    li: Annotated[list[Three], ListSizeBetween(0, 5)]
+
+
+@dataclass
+class Two(Alt):
+    li: list[Three]
 
 
 class TestImmutability:
@@ -52,11 +82,26 @@ class TestImmutability:
         ind = rep.create_individual(r, 10)
         assert isinstance(hash(ind), int)
 
-    @pytest.mark.parametrize("test_step", [GenericMutationStep(1.0), GenericCrossoverStep(1.0)])
-    def test_mutation(self, test_step):
-        g = extract_grammar([A, B], A)
+    @pytest.mark.parametrize(
+        "test_step",
+        [
+            GenericMutationStep(1.0),
+            GenericCrossoverStep(1.0),
+            TournamentSelection(3),
+            default_generic_programming_step(),
+        ],
+    )
+    @pytest.mark.parametrize(
+        "g",
+        [
+            extract_grammar([A, B, C], A),
+            extract_grammar([One, Two, Three], Alt),
+        ],
+    )
+    def test_immutability(self, test_step, g):
         rep = TreeBasedRepresentation(g, max_depth=10)
         r = RandomSource(3)
+        problem = SingleObjectiveProblem(fitness_function=lambda x: 1)
 
         population_size = 1000
 
@@ -72,7 +117,7 @@ class TestImmutability:
 
         for i in range(10):
             _ = test_step.iterate(
-                problem=None,
+                problem=problem,
                 evaluator=SequentialEvaluator(),
                 representation=rep,
                 random_source=r,
@@ -80,5 +125,5 @@ class TestImmutability:
                 target_size=population_size,
                 generation=i,
             )
-        for (a, b) in zip(encode_population(initial_population), cpy):
+        for a, b in zip(encode_population(initial_population), cpy):
             assert a == b

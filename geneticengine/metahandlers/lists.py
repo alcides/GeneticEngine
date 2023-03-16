@@ -63,10 +63,12 @@ class ListSizeBetween(MetaHandlerGenerator):
             new_element = random_node(r, g, depth, base_type.__args__[0], method=method)
             current_node.append(new_element)
             return current_node
-        else:  # replace
+        elif len(current_node) > 0:  # replace
             element_to_be_replaced = r.randint(0, len(current_node) - 1)
             new_element = random_node(r, g, depth, base_type.__args__[0], method=method)
             current_node[element_to_be_replaced] = new_element
+            return current_node
+        else:
             return current_node
 
     def crossover(
