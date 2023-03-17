@@ -37,14 +37,7 @@ class CSVCallback(Callback):
     def write_header(self):
         self.outfile = open(f"{self.filename}", "w", newline="")
         self.writer = csv.writer(self.outfile)
-        row = [
-            "Fitness",
-            "Depth",
-            "Nodes",
-            "Generations",
-            "Execution Time",
-            "Seed",
-        ]
+        row = ["Fitness", "Depth", "Nodes", "Phenotype", "Generations", "Execution Time", "Seed"]
         for name in self.extra_columns:
             row.append(name)
         self.writer.writerow(row)
@@ -64,16 +57,9 @@ class CSVCallback(Callback):
                 nodes = phenotype.gengy_nodes
             else:
                 nodes = -1
-            row = [
-                ind.get_fitness(gp.problem),
-                depth,
-                nodes,
-                generation,
-                self.time,
-                gp.random_source.seed,
-            ]
+            row = [ind.get_fitness(gp.problem), depth, nodes, generation, self.time, gp.random_source.seed, phenotype]
 
-            for (name, fun) in self.extra_columns.items():
+            for name, fun in self.extra_columns.items():
                 row.append(fun(generation, population, time, gp, ind))
 
             self.writer.writerow([str(x) for x in row])
