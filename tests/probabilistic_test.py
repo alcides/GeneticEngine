@@ -9,7 +9,7 @@ from geneticengine.algorithms.gp.operators.stop import (
 from geneticengine.core.decorators import abstract
 from geneticengine.core.decorators import weight
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import FitnessSingleObjective, SingleObjectiveProblem
+from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
     DynamicStructuredGrammaticalEvolutionRepresentation,
 )
@@ -59,7 +59,7 @@ class TestProbabilisticGrammar:
 
         stopping_criterium = AnyOfStoppingCriterium(
             GenerationStoppingCriterium(max_generations=50),
-            FitnessTargetStoppingCriterium(FitnessSingleObjective(0)),
+            FitnessTargetStoppingCriterium((0, None)),
         )
         gp = GP(
             representation=GrammaticalEvolutionRepresentation(grammar=g, max_depth=10),
@@ -89,7 +89,7 @@ class TestProbabilisticGrammar:
             population_size=1000,
             stopping_criterium=AnyOfStoppingCriterium(
                 GenerationStoppingCriterium(max_generations=50),
-                FitnessTargetStoppingCriterium(FitnessSingleObjective(0)),
+                FitnessTargetStoppingCriterium((0, None)),
             ),
         )
         ind = gp.evolve()
@@ -111,7 +111,7 @@ class TestProbabilisticGrammar:
             population_size=1000,
             stopping_criterium=AnyOfStoppingCriterium(
                 GenerationStoppingCriterium(max_generations=50),
-                FitnessTargetStoppingCriterium(FitnessSingleObjective(0)),
+                FitnessTargetStoppingCriterium((0, None)),
             ),
         )
         ind = gp.evolve()

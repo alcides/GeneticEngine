@@ -11,7 +11,7 @@ from geneticengine.algorithms.gp.operators.stop import (
     GenerationStoppingCriterium,
 )
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import FitnessSingleObjective, SingleObjectiveProblem
+from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.metahandlers.ints import IntRange
@@ -69,7 +69,7 @@ def main(seed=123):
 
     stopping_criterium = AnyOfStoppingCriterium(
         GenerationStoppingCriterium(100),
-        FitnessTargetStoppingCriterium(FitnessSingleObjective(0)),
+        FitnessTargetStoppingCriterium((0, None)),
     )
 
     alg = GP(

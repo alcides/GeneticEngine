@@ -36,7 +36,7 @@ from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.algorithms.gp.structure import StoppingCriterium
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.evaluators import SequentialEvaluator
-from geneticengine.core.problems import Fitness, FitnessMultiObjective, FitnessSingleObjective, MultiObjectiveProblem
+from geneticengine.core.problems import Fitness, MultiObjectiveProblem
 from geneticengine.core.problems import Problem
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.problems import wrap_depth_minimization
@@ -177,7 +177,6 @@ class SimpleGP(GP):
         callbacks: list[Callback] | None = None,
         **kwargs,
     ):
-
         representation_class = representation or TreeBasedRepresentation
         representation_instance: Representation = representation_class(
             grammar,
@@ -268,9 +267,9 @@ class SimpleGP(GP):
         if target_fitness is not None:
             tg: Fitness
             if isinstance(processed_problem, SingleObjectiveProblem):
-                tg = FitnessSingleObjective(target_fitness)
+                tg = (target_fitness, None)
             else:
-                tg = FitnessMultiObjective(multiple_fitnesses=[target_fitness], fitness=target_fitness)
+                tg = (target_fitness, [target_fitness])
             stopping_criterium = AnyOfStoppingCriterium(stopping_criterium, FitnessTargetStoppingCriterium(tg))
 
         self.callbacks: list[Callback] = []

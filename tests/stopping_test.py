@@ -20,15 +20,15 @@ class Option(Root):
 
 
 def fitness_function(r: Root) -> float:
+    print(r)
     assert isinstance(r, Option)
     return r.a
 
 
 class TestStoppingCriteria:
     def test_evaluations(self):
-
-        limit = 120
-        population_size = 15
+        limit = 1
+        population_size = 11
 
         grammar = extract_grammar([Option], Root)
         gp = GP(

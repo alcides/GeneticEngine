@@ -13,7 +13,7 @@ from polyleven import levenshtein
 from geneticengine.algorithms.callbacks.csv_callback import CSVCallback
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.core.grammar import Grammar, extract_grammar
-from geneticengine.core.problems import FitnessSingleObjective, SingleObjectiveProblem
+from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammars.synthetic_grammar import create_arbitrary_grammar
@@ -56,7 +56,7 @@ def single_run(
 
     stopping_criterium = AnyOfStoppingCriterium(
         GenerationStoppingCriterium(10),
-        FitnessTargetStoppingCriterium(FitnessSingleObjective(0)),
+        FitnessTargetStoppingCriterium((0, None)),
     )
 
     filename = f"synthetic_grammar_{seed}.csv"
@@ -85,7 +85,6 @@ def single_run(
 
 
 if __name__ == "__main__":
-
     parser = ArgumentParser(
         prog="Synthetic Grammar Example",
     )

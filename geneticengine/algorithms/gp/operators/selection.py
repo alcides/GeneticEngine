@@ -4,7 +4,7 @@ import numpy as np
 
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.algorithms.gp.structure import GeneticStep
-from geneticengine.core.problems import FitnessMultiObjective, MultiObjectiveProblem
+from geneticengine.core.problems import MultiObjectiveProblem
 from geneticengine.core.problems import Problem
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.random.sources import Source
@@ -96,9 +96,8 @@ class LexicaseSelection(GeneticStep):
                 if self.epsilon:
 
                     def get_fitness_value(ind: Individual, c: int):
-                        fitnesses = ind.get_fitness(problem)
-                        assert isinstance(fitnesses, FitnessMultiObjective)
-                        return fitnesses.multiple_fitnesses[c]
+                        (summary, values) = ind.get_fitness(problem)
+                        return values[c]
 
                     fitness_values = np.array(
                         [get_fitness_value(x, c) for x in candidates_to_check if not np.isnan(get_fitness_value(x, c))],
@@ -107,8 +106,7 @@ class LexicaseSelection(GeneticStep):
                     checking_value = best_fitness + mad if problem.minimize[c] else best_fitness - mad
 
                 for checking_candidate in candidates_to_check:
-                    fitnesses = checking_candidate.get_fitness(problem)
-                    assert isinstance(fitnesses, FitnessMultiObjective)
+                    (_, fitnesses) = checking_candidate.get_fitness(problem)
                     if problem.minimize[c]:
                         add_candidate = fitnesses.multiple_fitnesses[c] <= checking_value
                     else:
