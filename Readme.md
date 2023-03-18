@@ -40,6 +40,13 @@ class Literal(MyExpr):
 
 In this small example, we are defining the language that supports the plus operator and integer literals. GeneticEngine will be able to automatically generate all possible expressions, such as `Plus(left=Plus(left=Literal(12), right=Literal(12)), right=Literal(15))`, and guide the search towards your goal (e.g., `lambda x: abs(x-2022)`). For this very simple toy problem, it will find an expression that computes 2022, ideally as small as possible. And this is a very uninsteristic example. But if you introduce variables into the mix, you have a very powerful symbolic regression toolkit for arbitrariy complex expressions.
 
+
+Contributing
+-------------
+
+After cloning the repo, please run `source setup_dev.sh` to install virtualenv, all dependencies and setup all pre-commit hooks.
+
+
 Authors
 ----------
 GeneticEngine has been developed at [LASIGE](https://www.lasige.pt), [University of Lisbon](https://ciencias.ulisboa.pt) by:
