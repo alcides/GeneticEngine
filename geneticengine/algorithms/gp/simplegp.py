@@ -26,8 +26,9 @@ from geneticengine.algorithms.gp.operators.novelty import NoveltyStep
 from geneticengine.algorithms.gp.operators.selection import LexicaseSelection
 from geneticengine.algorithms.gp.operators.selection import TournamentSelection
 from geneticengine.algorithms.gp.operators.stop import (
+    AllFitnessTargetStoppingCriterium,
     AnyOfStoppingCriterium,
-    FitnessTargetStoppingCriterium,
+    SingleFitnessTargetStoppingCriterium,
     GenerationStoppingCriterium,
 )
 from geneticengine.algorithms.gp.operators.stop import TimeStoppingCriterium
@@ -36,7 +37,7 @@ from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.algorithms.gp.structure import StoppingCriterium
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.evaluators import SequentialEvaluator
-from geneticengine.core.problems import Fitness, MultiObjectiveProblem
+from geneticengine.core.problems import MultiObjectiveProblem
 from geneticengine.core.problems import Problem
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.problems import wrap_depth_minimization
@@ -265,12 +266,12 @@ class SimpleGP(GP):
         else:
             stopping_criterium = GenerationStoppingCriterium(number_of_generations)
         if target_fitness is not None:
-            tg: Fitness
+            tg: StoppingCriterium
             if isinstance(processed_problem, SingleObjectiveProblem):
-                tg = (target_fitness, None)
+                tg = SingleFitnessTargetStoppingCriterium(target_fitness)
             else:
-                tg = (target_fitness, [target_fitness])
-            stopping_criterium = AnyOfStoppingCriterium(stopping_criterium, FitnessTargetStoppingCriterium(tg))
+                tg = AllFitnessTargetStoppingCriterium([target_fitness])
+            stopping_criterium = AnyOfStoppingCriterium(stopping_criterium, tg)
 
         self.callbacks: list[Callback] = []
         self.callbacks.extend(callbacks or [])

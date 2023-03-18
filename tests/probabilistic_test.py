@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import pytest
+
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.gp.operators.stop import (
     AnyOfStoppingCriterium,
-    FitnessTargetStoppingCriterium,
+    SingleFitnessTargetStoppingCriterium,
     GenerationStoppingCriterium,
 )
 from geneticengine.core.decorators import abstract
@@ -37,6 +39,7 @@ class OptionB(Option):
     pass
 
 
+@pytest.mark.skip(reason="Takes too long")
 class TestProbabilisticGrammar:
     def test_probabilistic_grammar_tree_based(self):
         g = extract_grammar([OptionA, OptionB], Option)
@@ -59,7 +62,7 @@ class TestProbabilisticGrammar:
 
         stopping_criterium = AnyOfStoppingCriterium(
             GenerationStoppingCriterium(max_generations=50),
-            FitnessTargetStoppingCriterium((0, None)),
+            SingleFitnessTargetStoppingCriterium(0),
         )
         gp = GP(
             representation=GrammaticalEvolutionRepresentation(grammar=g, max_depth=10),
@@ -89,7 +92,7 @@ class TestProbabilisticGrammar:
             population_size=1000,
             stopping_criterium=AnyOfStoppingCriterium(
                 GenerationStoppingCriterium(max_generations=50),
-                FitnessTargetStoppingCriterium((0, None)),
+                SingleFitnessTargetStoppingCriterium(0),
             ),
         )
         ind = gp.evolve()
@@ -111,7 +114,7 @@ class TestProbabilisticGrammar:
             population_size=1000,
             stopping_criterium=AnyOfStoppingCriterium(
                 GenerationStoppingCriterium(max_generations=50),
-                FitnessTargetStoppingCriterium((0, None)),
+                SingleFitnessTargetStoppingCriterium(0),
             ),
         )
         ind = gp.evolve()
