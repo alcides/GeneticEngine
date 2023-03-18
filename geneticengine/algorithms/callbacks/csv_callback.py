@@ -37,7 +37,14 @@ class CSVCallback(Callback):
     def write_header(self):
         self.outfile = open(f"{self.filename}", "w", newline="")
         self.writer = csv.writer(self.outfile)
-        row = ["Fitness", "Depth", "Nodes", "Phenotype", "Generations", "Execution Time", "Seed"]
+        row = [
+            "Fitness",
+            "Depth",
+            "Nodes",
+            "Generations",
+            "Execution Time",
+            "Seed",
+        ]
         for name in self.extra_columns:
             row.append(name)
         self.writer.writerow(row)
