@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from math import isinf
-from typing import Annotated
+from typing import Annotated, Any
 
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator
 from sklearn.base import TransformerMixin
+from sklearn.metrics.scorer import check_scoring
 
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.algorithms.gp.simplegp import SimpleGP
@@ -62,6 +63,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
         favor_less_complex_trees: bool = True,
         hill_climbing: bool = False,
         seed: int = 123,
+        metric: Any = "f1_score",
         # -----
         # As given in A Field Guide to GP, p.17, by Poli and Mcphee
         probability_mutation: float = 0.01,
@@ -97,23 +99,29 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
         self.number_of_generations = number_of_generations
         self.probability_mutation = probability_mutation
         self.probability_crossover = probability_crossover
+        self.metric = metric
 
-    def fit(self, X, y):
-        """Fits the classifier with data X and target y."""
-        if type(y) == pd.Series:
-            target = y.values
-        else:
-            target = y
-
+    def _preprocess_X(self, X):
         if type(X) == pd.DataFrame:
             feature_names = list(X.columns.values)
             data = X.values
         else:
             feature_names = [f"x{i}" for i in range(X.shape[1])]
             data = X
-        feature_indices = {}
-        for i, n in enumerate(feature_names):
-            feature_indices[n] = i
+        return data, feature_names
+
+    def _preprocess_y(self, y):
+        if type(y) == pd.Series:
+            return y.values
+        else:
+            return y
+
+    def fit(self, X, y):
+        """Fits the classifier with data X and target y."""
+        data, feature_names = self._preprocess_X(X)
+        target = self._preprocess_y(y)
+
+        feature_indices = {n: i for i, n in enumerate(feature_names)}
 
         Var.__init__.__annotations__["name"] = Annotated[str, VarRange(feature_names)]
         Var.feature_indices = feature_indices
@@ -121,6 +129,8 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
         self.grammar = extract_grammar(self.nodes, Number)
         self.feature_names = feature_names
         self.feature_indices = feature_indices
+
+        metric = check_scoring(self.metric)
 
         def fitness_function(n: Number):
             variables = {}
@@ -134,7 +144,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
                 y_pred = np.full(len(target), y_pred)
             if y_pred.shape != (len(target),):
                 return -100000000
-            fitness = f1_score(y_pred, target)
+            fitness = metric(y_pred, target)
             if isinf(fitness):
                 fitness = -100000000
             return fitness
