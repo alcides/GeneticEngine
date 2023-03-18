@@ -109,8 +109,8 @@ def wrap_depth_minimization(p: SingleObjectiveProblem) -> SingleObjectiveProblem
 
     def w(i):
         if p.minimize:
-            return p.evaluate(i).fitness + i.gengy_distance_to_term * 10**-25
+            return p.evaluate(i)[0] + i.gengy_distance_to_term * 10**-25
         else:
-            return p.evaluate(i).fitness - i.gengy_distance_to_term * 10**-25
+            return p.evaluate(i)[0] - i.gengy_distance_to_term * 10**-25
 
     return SingleObjectiveProblem(minimize=p.minimize[0], fitness_function=w)

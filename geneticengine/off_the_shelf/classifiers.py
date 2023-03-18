@@ -8,7 +8,6 @@ import pandas as pd
 from geneticengine.algorithms.callbacks.callback import Callback
 from sklearn.base import BaseEstimator
 from sklearn.base import TransformerMixin
-from sklearn.metrics import check_scoring
 
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.algorithms.gp.simplegp import SimpleGP
@@ -64,7 +63,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
         favor_less_complex_trees: bool = True,
         hill_climbing: bool = False,
         seed: int = 123,
-        metric: Any = "f1_score",
+        scoring: Any = f1_score,
         # -----
         # As given in A Field Guide to GP, p.17, by Poli and Mcphee
         probability_mutation: float = 0.01,
@@ -101,7 +100,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
         self.number_of_generations = number_of_generations
         self.probability_mutation = probability_mutation
         self.probability_crossover = probability_crossover
-        self.metric = metric
+        self.scoring = {None: scoring}
         self.callbacks = callbacks
 
     def _preprocess_X(self, X):
@@ -123,6 +122,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
         """Fits the classifier with data X and target y."""
         data, feature_names = self._preprocess_X(X)
         target = self._preprocess_y(y)
+        self.target_size = len(target)
 
         feature_indices = {n: i for i, n in enumerate(feature_names)}
 
@@ -133,8 +133,6 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
         self.feature_names = feature_names
         self.feature_indices = feature_indices
 
-        metric = check_scoring(self.metric)
-
         def fitness_function(n: Number):
             variables = {}
             for x in feature_names:
@@ -142,12 +140,12 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
                 variables[x] = data[:, i]
             y_pred = n.evaluate(**variables)
 
-            if type(y_pred) in [np.float64, int, float]:
-                """If n does not use variables, the output will be scalar."""
-                y_pred = np.full(len(target), y_pred)
+            y_pred = self.clean_prediction(y_pred)
+
             if y_pred.shape != (len(target),):
                 return -100000000
-            fitness = metric(y_pred, target)
+
+            fitness = self.scoring[None](target, y_pred)
             if isinf(fitness):
                 fitness = -100000000
             return fitness
@@ -195,6 +193,15 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
             i = self.feature_indices[x]
             variables[x] = data[:, i]
         y_pred = self.evolved_phenotype.evaluate(**variables)
+
+        return self.clean_prediction(y_pred)
+
+    def clean_prediction(self, y_pred):
+        # Round values (like 0.1) to the nearest int, because it's a classification
+        y_pred = np.rint(y_pred)
+        if type(y_pred) in [np.float64, int, float]:
+            """If n does not use variables, the output will be scalar."""
+            y_pred = np.full(self.target_size, y_pred)
 
         return y_pred
 
