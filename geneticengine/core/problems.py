@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import abc
-from typing import Callable
+from typing import Callable, NamedTuple
 from typing import TypeVar, Any
 
 
-Fitness = tuple[float, Any]
+class Fitness(NamedTuple):
+    maximizing_aggregate: float
+    fitness_components: list[float]
 
 
 P = TypeVar("P")
@@ -32,11 +34,11 @@ class Problem(abc.ABC):
     def key_function(self, a: Fitness) -> float:
         """Returns the (maximizing) fitness of the individual as a single
         float."""
-        return a[0]
+        return a.maximizing_aggregate
 
     def is_better(self, a: Fitness, b: Fitness) -> bool:
         """Returns whether the first fitness is better than the second."""
-        return a[0] > b[0]
+        return a.maximizing_aggregate > b.maximizing_aggregate
 
 
 class SingleObjectiveProblem(Problem):
@@ -57,8 +59,8 @@ class SingleObjectiveProblem(Problem):
 
     def evaluate(self, phenotype: P) -> Fitness:
         v = float(self.ff["ff"](phenotype))
-        key = -v if self.minimize else v
-        return (key, [v])
+        key = -v if self.minimize[0] else v
+        return Fitness(key, [v])
 
 
 class MultiObjectiveProblem(Problem):
@@ -82,6 +84,7 @@ class MultiObjectiveProblem(Problem):
         minimize: list[bool],
         fitness_function: Callable[[P], list[float]],
         best_individual_criteria_function: Callable[[P], float] | None = None,
+        aggregate_fitness: Callable[[list[float]], float] | None = None,
     ):
         self.minimize = minimize
 
@@ -91,6 +94,7 @@ class MultiObjectiveProblem(Problem):
         self.ff = {
             "ff": fitness_function,
             "best_individual": best_individual_criteria_function or default_single_objective_merge,
+            "aggregate_fitness": aggregate_fitness,
         }
 
     def number_of_objectives(self):
@@ -99,8 +103,11 @@ class MultiObjectiveProblem(Problem):
     def evaluate(self, phenotype: P) -> Fitness:
         lst: list[float] = self.ff["ff"](phenotype)
         multiple = [float(x) for x in lst]
-        single = self.ff["best_individual"](phenotype)
-        return (single, multiple)
+        if self.ff["aggregate_fitness"] is None:
+            single = self.ff["best_individual"](phenotype)
+        else:
+            single = self.ff["aggregate_fitness"](multiple)
+        return Fitness(single, multiple)
 
 
 def wrap_depth_minimization(p: SingleObjectiveProblem) -> SingleObjectiveProblem:

@@ -17,5 +17,7 @@ class TestSklearnAPI:
         c = GeneticProgrammingClassifier(scoring=accuracy_score)
         c.fit(X, y)
         y_pred = c.predict(X_test)
+        print(y_pred)
+        print(y_test)
         k = accuracy_score(y_test, y_pred)
         assert k > 0
