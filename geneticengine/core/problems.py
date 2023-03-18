@@ -29,11 +29,6 @@ class Problem(abc.ABC):
     def evaluate(self, phenotype: P) -> Fitness:
         ...
 
-    def key_function(self, a: Fitness) -> float:
-        """Returns the (maximizing) fitness of the individual as a single
-        float."""
-        return a[0]
-
     def is_better(self, a: Fitness, b: Fitness) -> bool:
         """Returns whether the first fitness is better than the second."""
         return a[0] > b[0]

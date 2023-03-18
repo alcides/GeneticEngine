@@ -51,7 +51,7 @@ class Individual(Generic[G, P]):
     def key_function(problem: Problem):
         def kf(ind):
             ind.ensure_fitness(problem)
-            return problem.key_function(ind.get_fitness(problem))
+            return ind.get_fitness(problem)[0]
 
         return kf
 
