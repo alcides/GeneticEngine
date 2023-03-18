@@ -8,7 +8,7 @@ import pandas as pd
 from geneticengine.algorithms.callbacks.callback import Callback
 from sklearn.base import BaseEstimator
 from sklearn.base import TransformerMixin
-from sklearn.metrics.scorer import check_scoring
+from sklearn.metrics import check_scoring
 
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.algorithms.gp.simplegp import SimpleGP
