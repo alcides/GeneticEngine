@@ -5,6 +5,7 @@ from typing import Annotated, Any
 
 import numpy as np
 import pandas as pd
+from geneticengine.algorithms.callbacks.callback import Callback
 from sklearn.base import BaseEstimator
 from sklearn.base import TransformerMixin
 from sklearn.metrics.scorer import check_scoring
@@ -68,6 +69,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
         # As given in A Field Guide to GP, p.17, by Poli and Mcphee
         probability_mutation: float = 0.01,
         probability_crossover: float = 0.9,
+        callbacks: list[Callback] | None = None,
         # -----
     ):
         if nodes is None:
@@ -100,6 +102,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
         self.probability_mutation = probability_mutation
         self.probability_crossover = probability_crossover
         self.metric = metric
+        self.callbacks = callbacks
 
     def _preprocess_X(self, X):
         if type(X) == pd.DataFrame:
@@ -166,6 +169,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
             probability_crossover=self.probability_crossover,
             hill_climbing=self.hill_climbing,
             seed=self.seed,
+            callbacks=self.callbacks,
         )
 
         ind = model.evolve()
