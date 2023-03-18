@@ -5,7 +5,7 @@ from argparse import ArgumentParser
 from geneticengine.algorithms.callbacks.callback import ProgressCallback
 from geneticengine.algorithms.gp.operators.stop import (
     AnyOfStoppingCriterium,
-    FitnessTargetStoppingCriterium,
+    SingleFitnessTargetStoppingCriterium,
     GenerationStoppingCriterium,
 )
 from polyleven import levenshtein
@@ -56,7 +56,7 @@ def single_run(
 
     stopping_criterium = AnyOfStoppingCriterium(
         GenerationStoppingCriterium(10),
-        FitnessTargetStoppingCriterium((0, None)),
+        SingleFitnessTargetStoppingCriterium(0),
     )
 
     filename = f"synthetic_grammar_{seed}.csv"

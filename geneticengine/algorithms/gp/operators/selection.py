@@ -4,7 +4,7 @@ import numpy as np
 
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.algorithms.gp.structure import GeneticStep
-from geneticengine.core.problems import MultiObjectiveProblem
+from geneticengine.core.problems import Fitness, MultiObjectiveProblem
 from geneticengine.core.problems import Problem
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.random.sources import Source
@@ -106,11 +106,11 @@ class LexicaseSelection(GeneticStep):
                     checking_value = best_fitness + mad if problem.minimize[c] else best_fitness - mad
 
                 for checking_candidate in candidates_to_check:
-                    (_, fitnesses) = checking_candidate.get_fitness(problem)
+                    fitness: Fitness = checking_candidate.get_fitness(problem)
                     if problem.minimize[c]:
-                        add_candidate = fitnesses.multiple_fitnesses[c] <= checking_value
+                        add_candidate = fitness.fitness_components[c] <= checking_value
                     else:
-                        add_candidate = fitnesses.multiple_fitnesses[c] >= checking_value
+                        add_candidate = fitness.fitness_components[c] >= checking_value
                     if add_candidate:
                         new_candidates.append(checking_candidate)
 

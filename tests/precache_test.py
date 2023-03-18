@@ -15,7 +15,7 @@ from geneticengine.algorithms.gp.operators.selection import TournamentSelection
 from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.core.evaluators import Evaluator, SequentialEvaluator
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import Problem, SingleObjectiveProblem
+from geneticengine.core.problems import Fitness, Problem, SingleObjectiveProblem
 from geneticengine.core.random.sources import RandomSource, Source
 from geneticengine.core.representations.api import Representation
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
@@ -49,7 +49,7 @@ class CacheFitness(GeneticStep):
         generation: int,
     ) -> list[Individual]:
         for ind in population:
-            ind.set_fitness(p, (-1.0, None))
+            ind.set_fitness(p, Fitness(-1.0, []))
         return population
 
 

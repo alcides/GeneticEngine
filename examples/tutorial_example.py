@@ -7,7 +7,7 @@ from typing import Annotated
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.gp.operators.stop import (
     AnyOfStoppingCriterium,
-    FitnessTargetStoppingCriterium,
+    SingleFitnessTargetStoppingCriterium,
     GenerationStoppingCriterium,
 )
 from geneticengine.core.grammar import extract_grammar
@@ -69,7 +69,7 @@ def main(seed=123):
 
     stopping_criterium = AnyOfStoppingCriterium(
         GenerationStoppingCriterium(100),
-        FitnessTargetStoppingCriterium((0, None)),
+        SingleFitnessTargetStoppingCriterium(0),
     )
 
     alg = GP(

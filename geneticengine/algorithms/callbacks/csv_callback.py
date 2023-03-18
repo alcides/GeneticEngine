@@ -64,16 +64,9 @@ class CSVCallback(Callback):
                 nodes = phenotype.gengy_nodes
             else:
                 nodes = -1
-            row = [
-                ind.get_fitness(gp.problem),
-                depth,
-                nodes,
-                generation,
-                self.time,
-                gp.random_source.seed,
-            ]
+            row = [ind.get_fitness(gp.problem), depth, nodes, phenotype, generation, self.time, gp.random_source.seed]
 
-            for (name, fun) in self.extra_columns.items():
+            for name, fun in self.extra_columns.items():
                 row.append(fun(generation, population, time, gp, ind))
 
             self.writer.writerow([str(x) for x in row])
