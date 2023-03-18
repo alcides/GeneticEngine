@@ -46,6 +46,8 @@ Contributing
 
 After cloning the repo, please run `source setup_dev.sh` to install virtualenv, all dependencies and setup all pre-commit hooks.
 
+Pull Requests are more than welcome!
+
 
 Authors
 ----------
