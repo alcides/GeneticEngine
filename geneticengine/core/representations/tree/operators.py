@@ -1,6 +1,5 @@
 from __future__ import annotations
-
-from pyparsing import Any
+from typing import Any
 
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.algorithms.gp.structure import PopulationInitializer
