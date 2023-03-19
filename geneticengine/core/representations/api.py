@@ -58,7 +58,6 @@ class Representation(Generic[g, p]):
         self.grammar = grammar
         self.min_depth = self.grammar.get_min_tree_depth()
         self.max_depth = max_depth  # Old version: min(max_depth, self.grammar.get_max_node_depth())
-        print(max_depth, "max_depth")
         assert self.min_depth <= self.max_depth
 
     @abc.abstractmethod
