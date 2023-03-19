@@ -24,6 +24,7 @@ class TestFitnessHelpers:
     def test_best_individual(self):
         g = extract_grammar([Leaf], Root)
         representation = TreeBasedRepresentation(g, 2)
+        evaluator = SequentialEvaluator()
 
         population = [
             Individual(genotype=Leaf(1), genotype_to_phenotype=representation.genotype_to_phenotype),
@@ -31,14 +32,17 @@ class TestFitnessHelpers:
         ]
 
         problem = SingleObjectiveProblem(fitness_function=lambda x: x.a, minimize=False)
+        evaluator.eval(problem, population)
         x = best_individual(population, problem)
         assert x.get_phenotype().a == 2
 
         problem = SingleObjectiveProblem(fitness_function=lambda x: x.a, minimize=True)
+        evaluator.eval(problem, population)
         x = best_individual(population, problem)
         assert x.get_phenotype().a == 1
 
         problem = MultiObjectiveProblem(minimize=[True, True], fitness_function=lambda x: [x.a, x.a])
+        evaluator.eval(problem, population)
         x = best_individual(population, problem)
         assert x.get_phenotype().a == 1
 

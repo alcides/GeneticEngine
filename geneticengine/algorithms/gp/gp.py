@@ -93,6 +93,7 @@ class GP(Heuristics):
             self.random_source,
             self.population_size,
         )
+        self.evaluator.eval(self.problem, population)
 
         generation = 0
         start = time.time()
@@ -117,6 +118,7 @@ class GP(Heuristics):
                 self.population_size,
                 generation,
             )
+            self.evaluator.eval(self.problem, population)
             assert len(population) == self.population_size
             for cb in self.callbacks:
                 cb.process_iteration(generation, population, elapsed_time(), gp=self)

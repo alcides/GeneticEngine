@@ -64,7 +64,7 @@ class TestParallel:
             stopping_criterium=GenerationStoppingCriterium(10),
             initializer=FullInitializer(),
             callbacks=[DebugCallback(), TestCallback()],
-            evaluator=lambda: ParallelEvaluator(),
+            evaluator=ParallelEvaluator,
         )
         ind = gp.evolve()
         tree = ind.get_phenotype()

@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.core.fitness_helpers import sort_population
@@ -9,8 +7,8 @@ from geneticengine.core.representations.api import Representation
 from geneticengine.core.evaluators import Evaluator
 
 
-class ElitismStep(GeneticStep):
-    """Selects the best individuals from the population."""
+class EvaluateStep(GeneticStep):
+    """Evaluates the complete population."""
 
     def iterate(
         self,
@@ -22,8 +20,6 @@ class ElitismStep(GeneticStep):
         target_size: int,
         generation: int,
     ) -> list[Individual]:
-        print("a", len([1 for ind in population if ind.has_fitness(problem)]))
         evaluator.eval(problem, population)
-        print("b", len([1 for ind in population if ind.has_fitness(problem)]))
         new_population = sort_population(population, problem)
-        return new_population[:target_size]
+        return new_population
