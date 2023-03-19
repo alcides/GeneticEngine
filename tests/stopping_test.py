@@ -20,7 +20,6 @@ class Option(Root):
 
 
 def fitness_function(r: Root) -> float:
-    print(r)
     assert isinstance(r, Option)
     return r.a
 

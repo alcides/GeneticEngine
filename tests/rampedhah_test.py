@@ -54,6 +54,5 @@ class TestRamped:
             r,
             2,
         )
-        print([i.genotype for i in pop])
         depths = list(map(lambda x: x.genotype.gengy_distance_to_term, pop))
         assert depths[0] != depths[-1]
