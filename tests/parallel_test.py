@@ -8,7 +8,6 @@ from geneticengine.algorithms.callbacks.callback import DebugCallback
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.grammar import Grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.tree.operators import FullInitializer
@@ -52,7 +51,7 @@ class TestCallback(Callback):
 
 class TestParallel:
     def test_parallel(self):
-        g: Grammar = extract_grammar([Leaf, OtherLeaf], UnderTest)
+        g = extract_grammar([Leaf, OtherLeaf], UnderTest)
         gp = GP(
             representation=TreeBasedRepresentation(g, 10),
             random_source=RandomSource(seed=123),
@@ -64,7 +63,7 @@ class TestParallel:
             stopping_criterium=GenerationStoppingCriterium(10),
             initializer=FullInitializer(),
             callbacks=[DebugCallback(), TestCallback()],
-            evaluator=lambda: ParallelEvaluator(),
+            evaluator=ParallelEvaluator,
         )
         ind = gp.evolve()
         tree = ind.get_phenotype()

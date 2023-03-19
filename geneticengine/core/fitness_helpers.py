@@ -4,7 +4,7 @@ from geneticengine.core.problems import Problem
 
 def best_individual(population: list[Individual], problem: Problem) -> Individual:
     """Returns the best individual of a population."""
-    return max(population, key=Individual.key_function(problem))
+    return max(population, key=lambda x: x.get_fitness(problem).maximizing_aggregate)
 
 
 def is_better(problem: Problem, individual: Individual, other: Individual) -> bool:
@@ -20,4 +20,4 @@ def sort_population(population: list[Individual], problem: Problem) -> list[Indi
 
     Requires the individuals to be evaluated.
     """
-    return sorted(population, key=Individual.key_function(problem), reverse=True)
+    return sorted(population, key=lambda x: x.get_fitness(problem).maximizing_aggregate, reverse=True)

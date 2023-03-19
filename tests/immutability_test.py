@@ -7,6 +7,7 @@ from geneticengine.algorithms.gp.individual import Individual
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
 from geneticengine.algorithms.gp.operators.selection import TournamentSelection
 from geneticengine.core.problems import SingleObjectiveProblem
+from geneticengine.core.representations.grammatical_evolution.ge import GrammaticalEvolutionRepresentation
 
 import pytest
 
@@ -99,7 +100,7 @@ class TestImmutability:
         ],
     )
     def test_immutability(self, test_step, g):
-        rep = TreeBasedRepresentation(g, max_depth=10)
+        rep = GrammaticalEvolutionRepresentation(g, max_depth=10)
         r = RandomSource(3)
         problem = SingleObjectiveProblem(fitness_function=lambda x: 1)
 
