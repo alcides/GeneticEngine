@@ -1,28 +1,50 @@
 # Genetic operators
 
-## Population Initializer
+## Starndard Population Initializers
 
-### Full population initialization
+These are two population initializers that work across all representations:
 
-```{eval-rst}
-.. autoapiclass:: geneticengine.algorithms.gp.operators.initializers.FullInitializer
-```
-
-### Grow population initialization
+### StandardInitializer
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.algorithms.gp.operators.initializers.GrowInitializer
+.. autoapiclass:: geneticengine.algorithms.gp.operators.initializers.StandardInitializer
 ```
 
-### Combine Initializers
+### HalfAndHalfInitializer
 
 ```{eval-rst}
 .. autoapiclass:: geneticengine.algorithms.gp.operators.initializers.HalfAndHalfInitializer
 ```
 
+## Tree-based Population Initializers
+
+These initializers are only available for the tree-based representation.
+
+ Although the same approach can be used in Grammatical Evolution-based approaches, it would be too artificial.
+
+ If in the initial population, we define a maximum-depth of 5 (e.g., forced by the grow method), by the time you get to the first generation with a maximum allowed of 10, the genotype-to-phenotype mapping will ignore the structure defined by grow, and will create a completely different individual, even though the genotype did not change since the initial population.
+
+### Full population initialization
+
+```{eval-rst}
+.. autoapiclass:: geneticengine.core.representations.tree.operators.FullInitializer
+```
+
+### Grow population initialization
+
+```{eval-rst}
+.. autoapiclass:: geneticengine.core.representations.tree.operators.GrowInitializer
+```
+
+### Position Independent Grow population initialization
+
+```{eval-rst}
+.. autoapiclass:: geneticengine.core.representations.tree.operators.PositionIndependentGrowInitializer
+```
+
 ### Ramped Half-and-Half population initialization
 
-This option is only available for the tree-based representation. Although the same approach can be used in Grammatical Evolution-based approaches, by constraining the maximum depth in generation 0 to 3, and allowing it to go to depth 10 in generation 2, it changes the genotype-to-mapping function so that the same genotype will lead to a different phenotype, just because the maximum allowed depth changed, not because of any genetic operator.
+
 
 ```{eval-rst}
 .. autoapiclass:: geneticengine.core.representations.tree.operators.RampedHalfAndHalfInitializer

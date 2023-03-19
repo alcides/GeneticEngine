@@ -77,3 +77,17 @@ class TestInitializers:
         assert len(population) == target_size
         for ind in population:
             assert ind.get_phenotype().gengy_distance_to_term <= target_depth
+
+    def test_grow(self):
+        target_size = 10
+        target_depth = 10
+
+        g = extract_grammar([B, C], A)
+        f = GrowInitializer()
+        p = SingleObjectiveProblem(lambda x: 3)
+        repr = TreeBasedRepresentation(grammar=g, max_depth=target_depth)
+        rs = RandomSource(5)
+
+        population = f.initialize(p, repr, rs, target_size)
+        assert len(population) == target_size
+        assert any(ind.get_phenotype().gengy_distance_to_term < target_depth for ind in population)
