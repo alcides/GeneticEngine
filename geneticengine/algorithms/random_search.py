@@ -6,9 +6,6 @@ from geneticengine.algorithms.callbacks.callback import Callback
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.gp.operators.combinators import ParallelStep
 from geneticengine.algorithms.gp.operators.elitism import ElitismStep
-from geneticengine.algorithms.gp.operators.initializers import (
-    GrowInitializer,
-)
 from geneticengine.algorithms.gp.operators.novelty import NoveltyStep
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.algorithms.gp.structure import PopulationInitializer
@@ -17,6 +14,7 @@ from geneticengine.core.problems import Problem
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
+from geneticengine.core.representations.tree.operators import GrowInitializer
 
 
 class RandomSearch(GP):
