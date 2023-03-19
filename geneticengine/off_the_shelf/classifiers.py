@@ -68,8 +68,9 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
         # As given in A Field Guide to GP, p.17, by Poli and Mcphee
         probability_mutation: float = 0.01,
         probability_crossover: float = 0.9,
-        callbacks: list[Callback] | None = None,
         # -----
+        callbacks: list[Callback] | None = None,
+        parallel: bool = False,
     ):
         if nodes is None:
             nodes = [
@@ -102,6 +103,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
         self.probability_crossover = probability_crossover
         self.scoring = {None: scoring}
         self.callbacks = callbacks
+        self.parallel_evaluation = parallel
 
     def _preprocess_X(self, X):
         if type(X) == pd.DataFrame:
@@ -167,6 +169,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
             hill_climbing=self.hill_climbing,
             seed=self.seed,
             callbacks=self.callbacks,
+            parallel_evaluation=self.parallel_evaluation,
         )
 
         ind = model.evolve()

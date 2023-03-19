@@ -4,9 +4,7 @@ from typing import Any
 
 from geneticengine.algorithms.callbacks.callback import Callback
 from geneticengine.algorithms.gp.gp import GP
-from geneticengine.algorithms.gp.operators.initializers import (
-    GrowInitializer,
-)
+from geneticengine.algorithms.gp.operators.initializers import StandardInitializer
 from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
 from geneticengine.algorithms.gp.operators.mutation import HillClimbingMutation
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
@@ -37,7 +35,7 @@ class HC(GP):
         representation: Representation[Any, Any],
         problem: Problem,
         random_source: Source = RandomSource(0),
-        initializer: PopulationInitializer = GrowInitializer(),
+        initializer: PopulationInitializer = StandardInitializer(),
         stopping_criterium: StoppingCriterium = GenerationStoppingCriterium(100),
         callbacks: list[Callback] | None = None,
     ):

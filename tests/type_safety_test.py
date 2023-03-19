@@ -8,14 +8,13 @@ from geneticengine.algorithms.callbacks.callback import DebugCallback
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.gp.operators.combinators import SequenceStep
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
-from geneticengine.algorithms.gp.operators.initializers import FullInitializer
 from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
 from geneticengine.algorithms.gp.operators.selection import TournamentSelection
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.grammar import Grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.random.sources import RandomSource
+from geneticengine.core.representations.tree.operators import FullInitializer
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 
 
@@ -55,7 +54,7 @@ class TestCallback(Callback):
 
 class TestGrammar:
     def test_safety(self):
-        g: Grammar = extract_grammar([Leaf, OtherLeaf], UnderTest)
+        g = extract_grammar([Leaf, OtherLeaf], UnderTest)
         gp = GP(
             representation=TreeBasedRepresentation(g, 10),
             random_source=RandomSource(seed=123),

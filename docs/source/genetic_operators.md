@@ -14,7 +14,15 @@
 .. autoapiclass:: geneticengine.algorithms.gp.operators.initializers.GrowInitializer
 ```
 
+### Combine Initializers
+
+```{eval-rst}
+.. autoapiclass:: geneticengine.algorithms.gp.operators.initializers.HalfAndHalfInitializer
+```
+
 ### Ramped Half-and-Half population initialization
+
+This option is only available for the tree-based representation. Although the same approach can be used in Grammatical Evolution-based approaches, by constraining the maximum depth in generation 0 to 3, and allowing it to go to depth 10 in generation 2, it changes the genotype-to-mapping function so that the same genotype will lead to a different phenotype, just because the maximum allowed depth changed, not because of any genetic operator.
 
 ```{eval-rst}
 .. autoapiclass:: geneticengine.core.representations.tree.operators.RampedHalfAndHalfInitializer

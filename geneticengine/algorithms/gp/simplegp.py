@@ -16,11 +16,7 @@ from geneticengine.algorithms.gp.operators.combinators import ParallelStep
 from geneticengine.algorithms.gp.operators.combinators import SequenceStep
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
 from geneticengine.algorithms.gp.operators.elitism import ElitismStep
-from geneticengine.algorithms.gp.operators.initializers import FullInitializer
-from geneticengine.algorithms.gp.operators.initializers import GrowInitializer
-from geneticengine.algorithms.gp.operators.initializers import (
-    InjectInitialPopulationWrapper,
-)
+from geneticengine.algorithms.gp.operators.initializers import StandardInitializer
 from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
 from geneticengine.algorithms.gp.operators.novelty import NoveltyStep
 from geneticengine.algorithms.gp.operators.selection import LexicaseSelection
@@ -44,6 +40,9 @@ from geneticengine.core.problems import wrap_depth_minimization
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.api import Representation
 from geneticengine.core.representations.tree.operators import (
+    FullInitializer,
+    GrowInitializer,
+    InjectInitialPopulationWrapper,
     RampedHalfAndHalfInitializer,
 )
 from geneticengine.core.representations.tree.treebased import DefaultTBCrossover
@@ -183,8 +182,24 @@ class SimpleGP(GP):
             grammar,
             max_depth,
         )
-        if representation_class != TreeBasedRepresentation and initialization_method == "ramped":
-            initialization_method = "full"
+
+        population_initializer: PopulationInitializer
+        if representation_class != TreeBasedRepresentation:
+            population_initializer = StandardInitializer()
+        else:
+            population_initializer = {
+                "grow": GrowInitializer,
+                "full": FullInitializer,
+                "ramped": RampedHalfAndHalfInitializer,
+            }[
+                initialization_method
+            ]()  # type: ignore
+
+        if force_individual:
+            population_initializer = InjectInitialPopulationWrapper(
+                [representation_instance.phenotype_to_genotype(force_individual)],
+                population_initializer,
+            )
 
         processed_problem: Problem = self.wrap_depth(
             self.process_problem(
@@ -195,21 +210,6 @@ class SimpleGP(GP):
             favor_less_complex_trees,
         )
         random_source = source_generator(seed)
-
-        population_initializer_class: type[PopulationInitializer] = {
-            "grow": GrowInitializer,
-            "full": FullInitializer,
-            "ramped": RampedHalfAndHalfInitializer,
-        }[
-            initialization_method
-        ]  # type: ignore
-        population_initializer: PopulationInitializer = population_initializer_class()
-
-        if force_individual:
-            population_initializer = InjectInitialPopulationWrapper(
-                [representation_instance.phenotype_to_genotype(force_individual)],
-                population_initializer,
-            )
 
         step: GeneticStep
 
@@ -341,12 +341,12 @@ class SimpleGP(GP):
                 "This combination of parameters to define the problem is not valid",
             )
 
-    def wrap_depth(self, p: Problem, favor_less_complex_trees: bool = False):
-        if isinstance(p, SingleObjectiveProblem):
+    def wrap_depth(self, problem: Problem, favor_less_complex_trees: bool = False):
+        if isinstance(problem, SingleObjectiveProblem):
             if favor_less_complex_trees:
-                return wrap_depth_minimization(p)
+                return wrap_depth_minimization(problem)
             else:
-                return p
+                return problem
         else:
-            assert isinstance(p, MultiObjectiveProblem)
-            return p
+            assert isinstance(problem, MultiObjectiveProblem)
+            return problem

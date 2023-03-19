@@ -11,6 +11,7 @@ from geneticengine.core.representations.api import MutationOperator
 from geneticengine.core.representations.api import Representation
 from geneticengine.core.representations.tree.initializations import (
     InitializationMethodType,
+    grow_method,
 )
 from geneticengine.core.representations.tree.initializations import mk_save_init
 from geneticengine.core.representations.tree.initializations import pi_grow_method
@@ -238,7 +239,6 @@ def mutate(
 def find_in_tree(g: Grammar, ty: type, o: TreeNode, max_depth: int):
     is_abs = is_abstract(ty)
     if hasattr(o, "gengy_types_this_way"):
-
         for t in o.gengy_types_this_way:
 
             def is_valid(node):
@@ -257,7 +257,6 @@ def find_in_tree(g: Grammar, ty: type, o: TreeNode, max_depth: int):
 
 def find_in_tree_exact(g: Grammar, ty: type, o: TreeNode, max_depth: int):
     if hasattr(o, "gengy_types_this_way"):
-
         vals = o.gengy_types_this_way[ty]
         if vals:
 
@@ -653,7 +652,7 @@ class TreeBasedRepresentation(Representation[TreeNode, TreeNode]):
         self,
         r: Source,
         depth: int | None = None,
-        initialization_method: InitializationMethodType = pi_grow_method,
+        initialization_method: InitializationMethodType = grow_method,
         **kwargs,
     ) -> TreeNode:
         actual_depth = depth or self.max_depth

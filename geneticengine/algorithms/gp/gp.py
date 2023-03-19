@@ -9,7 +9,7 @@ from geneticengine.algorithms.gp.operators.combinators import ParallelStep, Sequ
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
 from geneticengine.algorithms.gp.operators.elitism import ElitismStep
 from geneticengine.algorithms.gp.operators.initializers import (
-    GrowInitializer,
+    StandardInitializer,
 )
 from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
 from geneticengine.algorithms.gp.operators.novelty import NoveltyStep
@@ -64,7 +64,7 @@ class GP(Heuristics):
         problem: Problem,
         random_source: Source = RandomSource(0),
         population_size: int = 200,
-        initializer: PopulationInitializer = GrowInitializer(),
+        initializer: PopulationInitializer = StandardInitializer(),
         step: GeneticStep | None = None,
         stopping_criterium: StoppingCriterium = GenerationStoppingCriterium(100),
         callbacks: list[Callback] | None = None,

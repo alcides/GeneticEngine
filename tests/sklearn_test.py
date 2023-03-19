@@ -14,7 +14,7 @@ class TestSklearnAPI:
         X_test = pd.DataFrame({"a": [3, 2], "b": [5, 10]})
         y_test = [1, 0]
 
-        c = GeneticProgrammingClassifier(scoring=accuracy_score)
+        c = GeneticProgrammingClassifier(scoring=accuracy_score, max_depth=7)
         c.fit(X, y)
         y_pred = c.predict(X_test)
         print(y_pred)

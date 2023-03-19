@@ -13,7 +13,7 @@ class PopulationInitializer(abc.ABC):
     @abc.abstractmethod
     def initialize(
         self,
-        p: Problem,
+        problem: Problem,
         representation: Representation,
         random_source: Source,
         target_size: int,
@@ -25,7 +25,7 @@ class GeneticStep(abc.ABC):
     @abc.abstractmethod
     def iterate(
         self,
-        p: Problem,
+        problem: Problem,
         evaluator: Evaluator,
         representation: Representation,
         random_source: Source,

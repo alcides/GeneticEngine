@@ -179,14 +179,14 @@ def pi_grow_method(
 
     def filter_choices(possible_choices: list[type], depth):
         valid_productions = [vp for vp in possible_choices if g.distanceToTerminal[vp] <= depth]
-        if (nRecs[0] == 0) and any(  # Are we the last recursive symbol?
-            [
-                prod in g.recursive_prods for prod in valid_productions
-            ],  # Are there any  recursive symbols in our expansion?
-        ):
-            valid_productions = [
-                vp for vp in valid_productions if vp in g.recursive_prods
-            ]  # If so, then only expand into recursive symbols
+        last_recursive_symbol = nRecs[0] == 0  # Are we the last recursive symbol?
+        any_recursive_symbols_in_expansion = any(
+            [prod in g.recursive_prods for prod in valid_productions],
+        )  # Are there any  recursive symbols in our expansion?
+
+        # If so, then only expand into recursive symbols
+        if last_recursive_symbol and any_recursive_symbols_in_expansion:
+            valid_productions = [vp for vp in valid_productions if vp in g.recursive_prods]
 
         return valid_productions
 

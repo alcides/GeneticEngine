@@ -6,12 +6,12 @@ from dataclasses import dataclass
 from geneticengine.algorithms.callbacks.callback import Callback
 from geneticengine.algorithms.callbacks.callback import DebugCallback
 from geneticengine.algorithms.gp.gp import GP
-from geneticengine.algorithms.gp.operators.initializers import FullInitializer
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.random.sources import RandomSource
+from geneticengine.core.representations.tree.operators import FullInitializer
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.core.parallel_evaluation import ParallelEvaluator
 

@@ -40,7 +40,7 @@ class Base:
 class CacheFitness(GeneticStep):
     def iterate(
         self,
-        p: Problem,
+        problem: Problem,
         evaluator: Evaluator,
         representation: Representation,
         random_source: Source,
@@ -49,7 +49,7 @@ class CacheFitness(GeneticStep):
         generation: int,
     ) -> list[Individual]:
         for ind in population:
-            ind.set_fitness(p, Fitness(-1.0, []))
+            ind.set_fitness(problem, Fitness(-1.0, []))
         return population
 
 

@@ -16,7 +16,6 @@ def save_abc(pickler, obj):
 class ParallelEvaluator(Evaluator):
     """Evaluates individuals in parallel, each time they are needed."""
 
-    def eval(self, p: Problem, indivs: list[Individual[Any, Any]]):
-
+    def eval(self, problem: Problem, indivs: list[Individual[Any, Any]]):
         with Pool(len(indivs)) as pool:
-            pool.map(lambda individual: self.eval_single(p, individual), indivs)
+            pool.map(lambda individual: self.eval_single(problem, individual), indivs)
