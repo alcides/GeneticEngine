@@ -22,8 +22,6 @@ class ElitismStep(GeneticStep):
         target_size: int,
         generation: int,
     ) -> list[Individual]:
-        print("a", len([1 for ind in population if ind.has_fitness(problem)]))
         evaluator.eval(problem, population)
-        print("b", len([1 for ind in population if ind.has_fitness(problem)]))
         new_population = sort_population(population, problem)
         return new_population[:target_size]
