@@ -118,7 +118,7 @@ class Grammar:
         terminal = False
         if not is_abstract(ty):
             terminal = True
-            for (arg, argt) in get_arguments(ty):
+            for arg, argt in get_arguments(ty):
                 terminal = False
                 if isinstance(argt, type) or isinstance(argt, ABCMeta):
                     self.register_type(argt)
@@ -303,6 +303,24 @@ class Grammar:
         self.register_type(starting_symbol)
         self.preprocess()
         return self
+
+    def get_grammar_properties_summary(self):
+        """Returns a summary of grammar properties:
+
+        (depth_min, depth_max), n_non_terminals, (n_prods_occurrences,
+        n_recursive_prods)
+        """
+        depth_min = self.get_min_tree_depth()
+        depth_max = self.get_max_node_depth()
+        n_non_terminals = len(self.alternatives)
+        n_prods_per_nt = list(map(lambda x: len(x), self.alternatives.values()))
+        n_prods_occurrences = dict()
+        for i in n_prods_per_nt:
+            n_prods_occurrences[i] = n_prods_occurrences.get(i, 0) + 1
+        n_prods_occurrences = {k: n_prods_occurrences[k] for k in sorted(n_prods_occurrences.keys())}
+        recursive_prods = [r_prod for r_prod in self.recursive_prods if r_prod not in self.alternatives.keys()]
+        n_recursive_prods = len(recursive_prods)
+        return (depth_min, depth_max), (n_non_terminals), (n_prods_occurrences, n_recursive_prods)
 
 
 def extract_grammar(
