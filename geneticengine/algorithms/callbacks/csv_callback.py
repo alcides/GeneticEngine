@@ -32,7 +32,8 @@ class CSVCallback(Callback):
         self.has_printed_header = False
 
     def end_evolution(self):
-        self.outfile.close()
+        if self.has_printed_header:
+            self.outfile.close()
 
     def write_header(self, n_components):
         self.outfile = open(f"{self.filename}", "w", newline="")
