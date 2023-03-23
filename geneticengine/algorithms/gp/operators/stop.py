@@ -82,8 +82,9 @@ class EvaluationLimitCriterium(StoppingCriterium):
 class SingleFitnessTargetStoppingCriterium(StoppingCriterium):
     """Stops the evolution when the fitness gets to a given value."""
 
-    def __init__(self, target_fitness: float):
+    def __init__(self, target_fitness: float, epsilon=0):
         self.target_fitness = target_fitness
+        self.epsilon = epsilon
 
     def is_ended(
         self,
@@ -95,7 +96,10 @@ class SingleFitnessTargetStoppingCriterium(StoppingCriterium):
     ) -> bool:
         evaluator.eval(problem, population)
         best_fitness = best_individual(population, problem).get_fitness(problem)
-        return problem.is_better(best_fitness, Fitness(self.target_fitness, []))
+        return (
+            problem.is_better(best_fitness, Fitness(self.target_fitness, []))
+            or abs(best_fitness.maximizing_aggregate - self.target_fitness) <= self.epsilon
+        )
 
 
 class AllFitnessTargetStoppingCriterium(StoppingCriterium):

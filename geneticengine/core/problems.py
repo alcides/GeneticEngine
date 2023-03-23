@@ -26,6 +26,7 @@ class Problem(abc.ABC):
     """
 
     minimize: list[bool]
+    epsilon: float
 
     @abc.abstractmethod
     def evaluate(self, phenotype: P) -> Fitness:
@@ -53,7 +54,11 @@ class SingleObjectiveProblem(Problem):
 
     # Uses dict to avoid the mismatch between functions and methods (first argument)
 
-    def __init__(self, fitness_function: Callable[[P], float], minimize: bool = False):
+    def __init__(
+        self,
+        fitness_function: Callable[[P], float],
+        minimize: bool = False,
+    ):
         self.ff = {"ff": fitness_function}
         self.minimize = [minimize]
 

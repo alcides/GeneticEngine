@@ -29,27 +29,33 @@ class CSVCallback(Callback):
         self.extra_columns: dict[str, Callable[[int, list[Individual], float, Any, Individual], Any]] = (
             extra_columns if extra_columns else {}
         )
-        self.write_header()
+        self.has_printed_header = False
 
     def end_evolution(self):
         self.outfile.close()
 
-    def write_header(self):
+    def write_header(self, n_components):
         self.outfile = open(f"{self.filename}", "w", newline="")
         self.writer = csv.writer(self.outfile)
         row = [
-            "Fitness",
+            "Fitness Aggregated",
             "Depth",
             "Nodes",
             "Generations",
             "Execution Time",
             "Seed",
         ]
+        for i in range(n_components):
+            row.append(f"Fitness component {i}")
         for name in self.extra_columns:
             row.append(name)
         self.writer.writerow(row)
 
-    def process_iteration(self, generation: int, population, time: float, gp):
+    def process_iteration(self, generation: int, population: list[Individual], time: float, gp):
+        if not self.has_printed_header:
+            self.write_header(len(population[0].get_fitness(gp.problem).fitness_components))
+            self.has_printed_header = True
+
         pop = self.filter_population(population)
         if self.only_record_best_ind:
             pop = [gp.get_best_individual(gp.problem, population)]
@@ -64,7 +70,11 @@ class CSVCallback(Callback):
                 nodes = phenotype.gengy_nodes
             else:
                 nodes = -1
-            row = [ind.get_fitness(gp.problem), depth, nodes, phenotype, generation, self.time, gp.random_source.seed]
+            fitness = ind.get_fitness(gp.problem)
+            row = [fitness.maximizing_aggregate, depth, nodes, phenotype, generation, self.time, gp.random_source.seed]
+
+            for component in fitness.fitness_components:
+                row.append(component)
 
             for name, fun in self.extra_columns.items():
                 row.append(fun(generation, population, time, gp, ind))
