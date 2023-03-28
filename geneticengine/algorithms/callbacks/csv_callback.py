@@ -42,6 +42,7 @@ class CSVCallback(Callback):
             "Fitness Aggregated",
             "Depth",
             "Nodes",
+            "Phenotype",
             "Generations",
             "Execution Time",
             "Seed",
