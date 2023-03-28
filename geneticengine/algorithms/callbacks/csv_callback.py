@@ -42,7 +42,6 @@ class CSVCallback(Callback):
             "Fitness Aggregated",
             "Depth",
             "Nodes",
-            "Phenotype",
             "Generations",
             "Execution Time",
             "Seed",
@@ -73,7 +72,7 @@ class CSVCallback(Callback):
             else:
                 nodes = -1
             fitness = ind.get_fitness(gp.problem)
-            row = [fitness.maximizing_aggregate, depth, nodes, phenotype, generation, self.time, gp.random_source.seed]
+            row = [fitness.maximizing_aggregate, depth, nodes, generation, self.time, gp.random_source.seed]
 
             for component in fitness.fitness_components:
                 row.append(component)
