@@ -9,7 +9,7 @@ from geneticengine.grammars.coding.classes import Condition
 
 @dataclass
 class And(Condition):
-    """attributes left and right"""
+    """attributes left and right."""
 
     left: Condition
     right: Condition
@@ -18,9 +18,9 @@ class And(Condition):
         return self.left.evaluate(**kwargs) and self.right.evaluate(**kwargs)
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], bool]:
-        return lambda line: self.left.evaluate_lines(**kwargs)(
-            line,
-        ) and self.right.evaluate_lines(**kwargs)(line)
+        return lambda line: self.left.evaluate_lines(**kwargs)(line) and self.right.evaluate_lines(
+            **kwargs,
+        )(line)
 
     def __str__(self):
         return f"({self.left} and {self.right})"
@@ -28,7 +28,7 @@ class And(Condition):
 
 @dataclass
 class Or(Condition):
-    """attributes left and right"""
+    """attributes left and right."""
 
     left: Condition
     right: Condition
@@ -37,9 +37,9 @@ class Or(Condition):
         return self.left.evaluate(**kwargs) or self.right.evaluate(**kwargs)
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], bool]:
-        return lambda line: self.left.evaluate_lines(**kwargs)(
-            line,
-        ) or self.right.evaluate_lines(**kwargs)(line)
+        return lambda line: self.left.evaluate_lines(**kwargs)(line) or self.right.evaluate_lines(
+            **kwargs,
+        )(line)
 
     def __str__(self):
         return f"({self.left} or {self.right})"
@@ -47,7 +47,7 @@ class Or(Condition):
 
 @dataclass
 class Not(Condition):
-    """attribute cond"""
+    """attribute cond."""
 
     cond: Condition
 

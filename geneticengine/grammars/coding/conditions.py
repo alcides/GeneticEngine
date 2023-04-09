@@ -17,9 +17,9 @@ class Equals(Condition):
         return self.left.evaluate(**kwargs) == self.right.evaluate(**kwargs)
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], bool]:
-        return lambda line: self.left.evaluate_lines(**kwargs)(
-            line,
-        ) == self.right.evaluate_lines(**kwargs)(line)
+        return lambda line: self.left.evaluate_lines(**kwargs)(line) == self.right.evaluate_lines(
+            **kwargs,
+        )(line)
 
     def __str__(self):
         return f"({self.left} == {self.right})"
@@ -34,9 +34,9 @@ class NotEquals(Condition):
         return self.left.evaluate(**kwargs) != self.right.evaluate(**kwargs)
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], bool]:
-        return lambda line: self.left.evaluate_lines(**kwargs)(
-            line,
-        ) != self.right.evaluate_lines(**kwargs)(line)
+        return lambda line: self.left.evaluate_lines(**kwargs)(line) != self.right.evaluate_lines(
+            **kwargs,
+        )(line)
 
     def __str__(self):
         return f"({self.left} != {self.right})"
@@ -51,9 +51,9 @@ class GreaterThan(Condition):
         return self.left.evaluate(**kwargs) > self.right.evaluate(**kwargs)
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], bool]:
-        return lambda line: self.left.evaluate_lines(**kwargs)(
-            line,
-        ) > self.right.evaluate_lines(**kwargs)(line)
+        return lambda line: self.left.evaluate_lines(**kwargs)(line) > self.right.evaluate_lines(
+            **kwargs,
+        )(line)
 
     def __str__(self):
         return f"({self.left} > {self.right})"
@@ -68,9 +68,9 @@ class GreaterOrEqualThan(Condition):
         return self.left.evaluate(**kwargs) >= self.right.evaluate(**kwargs)
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], bool]:
-        return lambda line: self.left.evaluate_lines(**kwargs)(
-            line,
-        ) >= self.right.evaluate_lines(**kwargs)(line)
+        return lambda line: self.left.evaluate_lines(**kwargs)(line) >= self.right.evaluate_lines(
+            **kwargs,
+        )(line)
 
     def __str__(self):
         return f"({self.left} >= {self.right})"
@@ -85,9 +85,9 @@ class LessThan(Condition):
         return self.left.evaluate(**kwargs) < self.right.evaluate(**kwargs)
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], bool]:
-        return lambda line: self.left.evaluate_lines(**kwargs)(
-            line,
-        ) < self.right.evaluate_lines(**kwargs)(line)
+        return lambda line: self.left.evaluate_lines(**kwargs)(line) < self.right.evaluate_lines(
+            **kwargs,
+        )(line)
 
     def __str__(self):
         return f"({self.left} < {self.right})"
@@ -102,9 +102,9 @@ class LessOrEqualThan(Condition):
         return self.left.evaluate(**kwargs) <= self.right.evaluate(**kwargs)
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], bool]:
-        return lambda line: self.left.evaluate_lines(**kwargs)(
-            line,
-        ) <= self.right.evaluate_lines(**kwargs)(line)
+        return lambda line: self.left.evaluate_lines(**kwargs)(line) <= self.right.evaluate_lines(
+            **kwargs,
+        )(line)
 
     def __str__(self):
         return f"({self.left} <= {self.right})"
@@ -119,9 +119,9 @@ class Is(Condition):
         return self.left.evaluate(**kwargs) is self.right.evaluate(**kwargs)
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], bool]:
-        return lambda line: self.left.evaluate_lines(**kwargs)(
-            line,
-        ) is self.right.evaluate_lines(**kwargs)(line)
+        return lambda line: self.left.evaluate_lines(**kwargs)(line) is self.right.evaluate_lines(
+            **kwargs,
+        )(line)
 
     def __str__(self):
         return f"({self.left} is {self.right})"
@@ -136,9 +136,9 @@ class IsNot(Condition):
         return self.left.evaluate(**kwargs) is not self.right.evaluate(**kwargs)
 
     def evaluate_lines(self, **kwargs) -> Callable[[Any], bool]:
-        return lambda line: self.left.evaluate_lines(**kwargs)(
-            line,
-        ) is not self.right.evaluate_lines(**kwargs)(line)
+        return lambda line: self.left.evaluate_lines(**kwargs)(line) is not self.right.evaluate_lines(
+            **kwargs,
+        )(line)
 
     def __str__(self):
         return f"({self.left} is not {self.right})"
