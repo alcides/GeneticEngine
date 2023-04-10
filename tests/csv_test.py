@@ -1,5 +1,4 @@
 from abc import ABC
-import os
 import numpy as np
 import pandas as pd
 from dataclasses import dataclass
@@ -68,4 +67,43 @@ class TestCSVCallback:
         assert df.columns[5] == "Seed"
         assert all(v == seed for v in df["Seed"])
 
-        os.remove(path)
+    def test_extra_fields(self, tmp_path):
+        seed = 123
+        max_generations = 5
+        extra_val = 21323
+        population_size = 10
+
+        g = extract_grammar([Leaf], Root)
+
+        path = tmp_path / "test.csv"
+
+        csv_callback = CSVCallback(
+            path,
+            extra_columns={
+                "a": lambda i, pop, fit, gp, ind: extra_val,
+                "b": lambda i, pop, fit, gp, ind: i,
+                "c": lambda i, pop, fit, gp, ind: len(pop),
+            },
+        )
+        objective = SingleObjectiveProblem(
+            lambda p: 1,
+            minimize=True,
+        )
+
+        gp = GP(
+            representation=TreeBasedRepresentation(g, max_depth=10),
+            problem=objective,
+            population_size=population_size,
+            stopping_criterium=GenerationStoppingCriterium(max_generations=max_generations),
+            callbacks=[csv_callback],
+            random_source=RandomSource(seed),
+        )
+        gp.evolve()
+
+        df = pd.read_csv(path)
+
+        assert df.shape[0] == max_generations
+        assert df.shape[1] == 6 + objective.number_of_objectives() + 3
+        assert all(v == extra_val for v in df["a"])
+        assert all(v == g for v, g in zip(df["b"], df["Generations"]))
+        assert all(v == population_size for v in df["c"])
