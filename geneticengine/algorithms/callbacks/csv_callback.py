@@ -82,3 +82,5 @@ class CSVCallback(Callback):
                 row.append(fun(generation, population, time, gp, ind))
 
             self.writer.writerow([str(x) for x in row])
+
+        self.outfile.flush()
