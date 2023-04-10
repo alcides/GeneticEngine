@@ -41,6 +41,10 @@ class Problem(abc.ABC):
         """Returns whether the first fitness is better than the second."""
         return a.maximizing_aggregate > b.maximizing_aggregate
 
+    @abc.abstractmethod
+    def number_of_objectives(self) -> int:
+        ...
+
 
 class SingleObjectiveProblem(Problem):
     """SingleObjectiveProblem is a class that extends the Problem class.
@@ -66,6 +70,9 @@ class SingleObjectiveProblem(Problem):
         v = float(self.ff["ff"](phenotype))
         key = -v if self.minimize[0] else v
         return Fitness(key, [v])
+
+    def number_of_objectives(self) -> int:
+        return 1
 
 
 class MultiObjectiveProblem(Problem):
@@ -102,9 +109,6 @@ class MultiObjectiveProblem(Problem):
             "aggregate_fitness": aggregate_fitness,
         }
 
-    def number_of_objectives(self):
-        return len(self.minimize)
-
     def evaluate(self, phenotype: P) -> Fitness:
         lst: list[float] = self.ff["ff"](phenotype)
         multiple = [float(x) for x in lst]
@@ -113,6 +117,9 @@ class MultiObjectiveProblem(Problem):
         else:
             single = self.ff["aggregate_fitness"](multiple)
         return Fitness(single, multiple)
+
+    def number_of_objectives(self) -> int:
+        return len(self.minimize)
 
 
 def wrap_depth_minimization(p: SingleObjectiveProblem) -> SingleObjectiveProblem:
