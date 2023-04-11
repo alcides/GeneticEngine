@@ -42,15 +42,15 @@ class ConcreteList(Root):
 
 
 class TestDepthing:
-    def test_normal_depthing(self):
+    def test_normal_depthing(self) -> None:
         r = RandomSource(seed=1)
         g: Grammar = extract_grammar([Concrete], Root, False)
         x = random_node(r, g, 4, Root, method=pi_grow_method)
-        g: Grammar = extract_grammar([Concrete, Middle], Root, False)
+        g = extract_grammar([Concrete, Middle], Root, False)
         y = random_node(r, g, 4, Root, method=pi_grow_method)
-        g: Grammar = extract_grammar([Concrete, Middle, MiddleList], Root, False)
+        g = extract_grammar([Concrete, Middle, MiddleList], Root, False)
         z = random_node(r, g, 4, Root, method=pi_grow_method)
-        g: Grammar = extract_grammar([ConcreteList, Middle], Root, False)
+        g = extract_grammar([ConcreteList, Middle], Root, False)
         a = random_node(r, g, 4, Root, method=pi_grow_method)
         assert x.gengy_distance_to_term == 1
         assert x.gengy_nodes == 1
@@ -65,13 +65,13 @@ class TestDepthing:
         assert a.gengy_nodes == 4
         assert a.gengy_weighted_nodes == 10
 
-    def test_expansion_depthing(self):
+    def test_expansion_depthing(self) -> None:
         r = RandomSource(seed=1)
         g: Grammar = extract_grammar([Concrete], Root, True)
         x = random_node(r, g, 4, Root, method=pi_grow_method)
-        g: Grammar = extract_grammar([Concrete, Middle], Root, True)
+        g = extract_grammar([Concrete, Middle], Root, True)
         y = random_node(r, g, 8, Root, method=pi_grow_method)
-        g: Grammar = extract_grammar([Concrete, Middle, MiddleList], Root, True)
+        g = extract_grammar([Concrete, Middle, MiddleList], Root, True)
         z = random_node(r, g, 8, Root, method=pi_grow_method)
         assert x.gengy_distance_to_term == 2
         assert x.gengy_nodes == 2

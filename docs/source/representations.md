@@ -32,6 +32,12 @@ The representation can be chosen by the user. There are many discussions on whic
 .. autoapiclass:: geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge.DynamicStructuredGrammaticalEvolutionRepresentation
 ```
 
+## Stack-based Grammatical Evolution
+
+```{eval-rst}
+.. autoapiclass:: geneticengine.core.representations.stackgggp.StackBasedGGGPRepresentation
+```
+
 ## Probabilistic Grammatical Evolution (PGE)
 
 Genetic Engine supports PGE. By some, PGE is recognized as an individual-representation method, even though the PGE concept can be applied to any of the above-mentioned individual-representation methods. As such, we have included an explanation in the [grammars section](grammars.md).
