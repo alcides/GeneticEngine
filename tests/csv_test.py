@@ -47,7 +47,7 @@ class TestCSVCallback:
 
         df = pd.read_csv(path)
 
-        assert df.shape[0] == max_generations
+        assert df.shape[0] == max_generations + 1
         assert df.shape[1] == 6 + objective.number_of_objectives()
         assert df.columns[0] == "Fitness Aggregated"
         assert all(v is not np.nan for v in df["Fitness Aggregated"])
@@ -102,7 +102,7 @@ class TestCSVCallback:
 
         df = pd.read_csv(path)
 
-        assert df.shape[0] == max_generations
+        assert df.shape[0] == max_generations + 1
         assert df.shape[1] == 6 + objective.number_of_objectives() + 3
         assert all(v == extra_val for v in df["a"])
         assert all(v == g for v, g in zip(df["b"], df["Generations"]))
