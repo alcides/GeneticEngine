@@ -81,7 +81,7 @@ class PyMaxBenchmark:
         prob = self.get_problem()
         alg = SimpleGP(g, problem=prob, max_depth=8, population_size=25, number_of_generations=10, **args)
         best = alg.evolve()
-        fitness = prob.overall_fitness(best.get_phenotype())
+        fitness = best.get_fitness(prob)
         print(f"Fitness of {fitness} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}")
 
 
