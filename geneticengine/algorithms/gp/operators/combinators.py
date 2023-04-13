@@ -10,7 +10,8 @@ from geneticengine.core.evaluators import Evaluator
 
 
 class SequenceStep(GeneticStep):
-    """Applies multiple steps in order."""
+    """Applies multiple steps in order, passing the output population of one
+    step to the input population of the next step."""
 
     def __init__(self, *steps: GeneticStep):
         self.steps = steps
@@ -44,8 +45,19 @@ class SequenceStep(GeneticStep):
 
 
 class ParallelStep(GeneticStep):
-    """Splits the size of the target population according to the weights, but
-    all parallel steps have access to the whole population."""
+    """Creates a new population, using different steps for different slices of
+    the target population. The input population for each parallel step is
+    always the complete input population. The output/target population is the
+    one that is split across all of the slices. The size of each slice is given
+    by the proportion of the weight of that particular weight, compared to the
+    sum of all weights.
+
+    Consider the example:
+
+    another_step = ParallelStep([AStep(), BStep()], weights=[2,3])
+
+    In this example, the first 2/5 of the next population will be generated using AStep(), and the next 3/5 will be generated using BStep.
+    """
 
     def __init__(
         self,
@@ -77,7 +89,6 @@ class ParallelStep(GeneticStep):
         target_size: int,
         generation: int,
     ) -> list[Individual]:
-
         ranges = self.compute_ranges(population, target_size)
         assert len(ranges) == len(self.steps)
 
@@ -118,8 +129,8 @@ class ParallelStep(GeneticStep):
 
 
 class ExclusiveParallelStep(ParallelStep):
-    """Splits the population according to weights, and applies a different step
-    to each subset of the population."""
+    """A version of ParallelStep, where each parallel step receives a portion
+    of the input population equal to the target population of each slice."""
 
     def iterate(
         self,

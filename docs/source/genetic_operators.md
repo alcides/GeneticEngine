@@ -142,18 +142,14 @@ In that case, and according to the ParallelStep, a new generation with populatio
 .. autoapiclass:: geneticengine.algorithms.gp.operators.combinators.SequenceStep
 ```
 
-Sequence Steps pass the resulting population from the first step to the next, and so on until all sequential steps are done.
 
 ```{eval-rst}
 .. autoapiclass:: geneticengine.algorithms.gp.operators.combinators.ParallelStep
 ```
 
-ParallelSteps divide the population size, and use different steps to compute parts of the population size, according to the relative weight. Consider the following example:
-
-```another_step = ParallelStep([AStep(), BStep()], weights=[2,3])```
-
-In this example, the first 2/5 of the next population will be generated using AStep(), and the next 3/5 will be generated using BStep.
-
+```{eval-rst}
+.. autoapiclass:: geneticengine.algorithms.gp.operators.combinators.ExclusiveParallelStep
+```
 
 ##### References
 
