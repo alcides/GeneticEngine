@@ -131,7 +131,7 @@ default_generic_programming_step = ParallelStep([
 ```
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.algorithms.gp.operators.crossover.ParallelStep
+.. autoapiclass:: geneticengine.algorithms.gp.operators.combinators.ParallelStep
 ```
 
 ##### References
