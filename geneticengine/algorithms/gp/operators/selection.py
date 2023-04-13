@@ -21,6 +21,7 @@ class TournamentSelection(GeneticStep):
         """
         Args:
             tournament_size (int): number of individuals from the population that will be randomly selected
+            with_replacement (bool): whether the selected individuals can appear again in another tournament (default: False)
         """
         self.tournament_size = tournament_size
         self.with_replacement = with_replacement
