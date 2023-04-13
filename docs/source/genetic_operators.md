@@ -109,30 +109,47 @@ Note that the operator parameter allows different representations to introduce t
 
 ## Combinators
 
-Combinators allow you to design your own evolutionary algorithms. In the following example, we are defining a GP variant that applies a tournament selection of size 5, and then takes the best 5% of the population, merges with new elements that will make up 5% of the new population, and the remaining 90% will be the result of a crossover with 0.01% of probability, after which a mutation with 90% of probability is applied.
+Combinators allow you to design your own evolutionary algorithms. When they are created, they are agnostic to the population size, so they can be used inside other combinator steps (like SequenceStep or ParallelStep).
+
+
+In the following example, we are defining a Genetic Programming step that can be used in the Genetic Programming algorithm.
 
 ```
 default_generic_programming_step = ParallelStep([
         ElitismStep(),
         NoveltyStep()
         SequenceStep(
-            TournamentSelection(5),
-            GenericCrossoverStep(0.01),
-            GenericMutationStep(0.9),
+            TournamentSelection(tournament_size=5),
+            GenericCrossoverStep(probability=0.01),
+            GenericMutationStep(probability=0.9),
         )
-    ], weights=[5, 5, 90]),),
-
-
+    ], weights=[5, 5, 90])
 )
 ```
+
+In that case, and according to the ParallelStep, a new generation with population size 1000 will have a) the best 50 individuals of the previous generation (5% of elistim); b) 50 new individuals (5% of novelty); and c) 900 individuals that are create as follows (90% according to the Sequence Step):
+
+* First, 900 individuals will be selected using a tournament each. For each tournament, 5 individuals are chosen at random from the original population, and the best will pass to the next step.
+* The 900 individuals selected via tournament have a 1% probability of being crossover with another individual. Otherwise they will remain to the next step.
+* The 900 individuals that went through crossover or not are not mutated with 90% of probability.
+
 
 ```{eval-rst}
 .. autoapiclass:: geneticengine.algorithms.gp.operators.combinators.SequenceStep
 ```
 
+Sequence Steps pass the resulting population from the first step to the next, and so on until all sequential steps are done.
+
 ```{eval-rst}
 .. autoapiclass:: geneticengine.algorithms.gp.operators.combinators.ParallelStep
 ```
+
+ParallelSteps divide the population size, and use different steps to compute parts of the population size, according to the relative weight. Consider the following example:
+
+```another_step = ParallelStep([AStep(), BStep()], weights=[2,3])```
+
+In this example, the first 2/5 of the next population will be generated using AStep(), and the next 3/5 will be generated using BStep.
+
 
 ##### References
 
