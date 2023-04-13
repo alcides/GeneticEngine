@@ -123,7 +123,7 @@ default_generic_programming_step = ParallelStep([
             GenericCrossoverStep(probability=0.01),
             GenericMutationStep(probability=0.9),
         )
-    ], weights=[5, 5, 90])
+    ], weights=[.05, .05, .90])
 )
 ```
 
