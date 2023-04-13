@@ -127,11 +127,15 @@ default_generic_programming_step = ParallelStep([
 )
 ```
 
-In that case, and according to the ParallelStep, a new generation with population size 1000 will have a) the best 50 individuals of the previous generation (5% of elistim); b) 50 new individuals (5% of novelty); and c) 900 individuals that are create as follows (90% according to the Sequence Step weight):
+In that case, and according to the ParallelStep, a new generation with population size 1000 will have:
 
-* First, 900 individuals will be selected using a tournament each. For each tournament, 5 individuals are chosen at random from the original population, and the best will pass to the next step.
-* The 900 individuals selected via tournament have a 1% probability of being crossover with another individual. Otherwise they will remain to the next step.
-* The 900 individuals that went through crossover or not are not mutated with 90% of probability.
+1. the best 50 individuals of the previous generation (5% of elistim);
+2. 50 new individuals (5% of novelty); and
+3. 900 individuals that are create as follows (90% according to the Sequence Step weight):
+
+    * First, 900 individuals will be selected using a tournament each. For each tournament, 5 individuals are chosen at random from the original population, and the best will pass to the next step.
+    * The 900 individuals selected via tournament have a 1% probability of being crossover with another individual. Otherwise they will remain to the next step.
+    * The 900 individuals that went through crossover or not are not mutated with 90% of probability.
 
 
 ```{eval-rst}
