@@ -7,6 +7,7 @@ from abc import ABCMeta
 from collections import defaultdict
 from typing import Any
 from typing import Generic
+from typing import NamedTuple
 
 from geneticengine.core.decorators import get_gengy
 from geneticengine.core.utils import all_init_arguments_typed
@@ -26,6 +27,22 @@ class InvalidGrammarException(Exception):
     typed."""
 
     pass
+
+
+class DepthRange(NamedTuple):
+    depth_min: int
+    depth_max: int
+
+
+class ProductionSummary(NamedTuple):
+    production_frequencies: dict[int, int]
+    number_of_recursive_productions: int
+
+
+class GrammarSummary(NamedTuple):
+    depth_range: DepthRange
+    number_of_non_terminals: int
+    production_stats: ProductionSummary
 
 
 class Grammar:
@@ -304,23 +321,30 @@ class Grammar:
         self.preprocess()
         return self
 
-    def get_grammar_properties_summary(self):
+    def get_grammar_properties_summary(self) -> GrammarSummary:
         """Returns a summary of grammar properties:
 
-        (depth_min, depth_max), n_non_terminals, (n_prods_occurrences,
-        n_recursive_prods)
+        - A depth range (minimum depth and maximum depth of the grammar)
+        - The number of Non-Terminal symbols in the grammar
+        - A summary of production statistics:
+            - Frequency of Productions in the Right Hand side
+            - The number of recursive productions
         """
         depth_min = self.get_min_tree_depth()
         depth_max = self.get_max_node_depth()
         n_non_terminals = len(self.alternatives)
         n_prods_per_nt = list(map(lambda x: len(x), self.alternatives.values()))
-        n_prods_occurrences = dict()
+        n_prods_occurrences: dict[int, int] = dict()
         for i in n_prods_per_nt:
             n_prods_occurrences[i] = n_prods_occurrences.get(i, 0) + 1
         n_prods_occurrences = {k: n_prods_occurrences[k] for k in sorted(n_prods_occurrences.keys())}
         recursive_prods = [r_prod for r_prod in self.recursive_prods if r_prod not in self.alternatives.keys()]
         n_recursive_prods = len(recursive_prods)
-        return (depth_min, depth_max), (n_non_terminals), (n_prods_occurrences, n_recursive_prods)
+        return GrammarSummary(
+            DepthRange(depth_min, depth_max),
+            n_non_terminals,
+            ProductionSummary(n_prods_occurrences, n_recursive_prods),
+        )
 
 
 def extract_grammar(
