@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Annotated, Any
 
 from geneticengine.algorithms.gp.simplegp import SimpleGP
+from geneticengine.core.decorators import weight
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.metahandlers.ints import IntRange
@@ -17,6 +18,17 @@ from geneticengine.metahandlers.vars import VarRange
 # We define the tree structure of the representation and then we define the fitness function for our problem
 # In this example we are solving a recurrence problem using normal GP
 # ===================================
+
+
+# This dataset will define the problem complexity:
+
+N = 40
+dataset = [1, 1]
+for i in range(N):
+    dataset.append(dataset[-1] + dataset[-2])
+
+
+# Now we define the structure of the tree. Metahandlers (Annotated types) will be able to restrict the domain of elements.
 
 
 class Node(abc.ABC):
@@ -49,10 +61,12 @@ class Op(Node):
 
 @dataclass
 class Access(Node):
-    i: Annotated[int, IntRange(-2, -1)]
+    i: Node
 
     def evaluate(self, input: list[int]):
-        return input[self.i]
+        v = self.i.evaluate(input)
+
+        return input[v % len(input)]
 
     def __str__(self):
         return f"x@{self.i}"
@@ -69,14 +83,19 @@ class Literal(Node):
         return f"{self.i}"
 
 
-N = 60
+@weight(99999)
+@dataclass
+class KnowledgeLiteral(Node):
+    i: Annotated[int, IntRange(-2, -1)]
 
-dataset = [1, 1]
+    def evaluate(self, input: list[int]):
+        return self.i
 
-# Generate the fibonacci sequence
-for i in range(N):
-    # Sum the last two numbers and append it to fib
-    dataset.append(dataset[-1] + dataset[-2])
+    def __str__(self):
+        return f"{self.i}"
+
+
+# The fitness function is the other
 
 
 def fitness_function(p):
@@ -97,7 +116,7 @@ def fitness_function(p):
 
 
 if __name__ == "__main__":
-    g = extract_grammar([Op, Access, Literal], Node)
+    g = extract_grammar([Op, Access, Literal, KnowledgeLiteral], Node)
     prob = SingleObjectiveProblem(
         minimize=True,
         fitness_function=fitness_function,
