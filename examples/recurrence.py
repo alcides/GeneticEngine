@@ -61,7 +61,8 @@ class Op(Node):
 
 @dataclass
 class Access(Node):
-    i: Node
+    i: Node  # This could be a literal, for better performance
+    # but no higher order operator
 
     def evaluate(self, input: list[int]):
         v = self.i.evaluate(input)
