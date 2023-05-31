@@ -39,7 +39,7 @@ class ProductionSummary(NamedTuple):
     number_of_recursive_productions: int
     alternatives : dict[Any, list]
     total_productions : int
-    average_productions_per_non_terminal : int
+    average_productions_per_non_terminal : float
 
 
 class GrammarSummary(NamedTuple):
