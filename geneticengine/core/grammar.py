@@ -37,7 +37,7 @@ class DepthRange(NamedTuple):
 class ProductionSummary(NamedTuple):
     production_frequencies: dict[int, int]
     number_of_recursive_productions: int
-    alternatives : dict[any, list]
+    alternatives : dict[Any, list]
 
 
 class GrammarSummary(NamedTuple):
