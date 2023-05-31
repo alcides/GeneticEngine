@@ -38,6 +38,8 @@ class ProductionSummary(NamedTuple):
     production_frequencies: dict[int, int]
     number_of_recursive_productions: int
     alternatives : dict[Any, list]
+    total_productions : int
+    average_productions_per_non_terminal : int
 
 
 class GrammarSummary(NamedTuple):
@@ -341,10 +343,12 @@ class Grammar:
         n_prods_occurrences = {k: n_prods_occurrences[k] for k in sorted(n_prods_occurrences.keys())}
         recursive_prods = [r_prod for r_prod in self.recursive_prods if r_prod not in self.alternatives.keys()]
         n_recursive_prods = len(recursive_prods)
+        total_productions = sum([ len(x) for x in self.alternatives.values()])
+        average_productions = total_productions / len(self.alternatives.keys())
         return GrammarSummary(
             DepthRange(depth_min, depth_max),
             n_non_terminals,
-            ProductionSummary(n_prods_occurrences, n_recursive_prods, self.alternatives),
+            ProductionSummary(n_prods_occurrences, n_recursive_prods, self.alternatives, total_productions, average_productions),
         )
 
 
