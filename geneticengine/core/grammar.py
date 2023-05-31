@@ -37,6 +37,7 @@ class DepthRange(NamedTuple):
 class ProductionSummary(NamedTuple):
     production_frequencies: dict[int, int]
     number_of_recursive_productions: int
+    alternatives : dict[any, list]
 
 
 class GrammarSummary(NamedTuple):
@@ -343,7 +344,7 @@ class Grammar:
         return GrammarSummary(
             DepthRange(depth_min, depth_max),
             n_non_terminals,
-            ProductionSummary(n_prods_occurrences, n_recursive_prods),
+            ProductionSummary(n_prods_occurrences, n_recursive_prods, self.alternatives),
         )
 
 
