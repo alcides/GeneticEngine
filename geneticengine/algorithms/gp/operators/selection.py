@@ -91,7 +91,7 @@ class LexicaseSelection(GeneticStep):
 
                 choose_best = min if problem.minimize[c] else max
 
-                best_fitness = choose_best([x.fitness[c] for x in candidates_to_check])  # type: ignore
+                best_fitness = choose_best([x.get_fitness(problem).fitness_components[c] for x in candidates_to_check])
                 checking_value = best_fitness
 
                 if self.epsilon:
@@ -120,7 +120,7 @@ class LexicaseSelection(GeneticStep):
             winner = (
                 random_source.choice(candidates_to_check) if len(candidates_to_check) > 1 else candidates_to_check[0]
             )
-            assert isinstance(winner.get_fitness(problem), list)
+            assert isinstance(winner.get_fitness(problem).fitness_components, list)
             winners.append(winner)
             candidates.remove(winner)
         return winners
