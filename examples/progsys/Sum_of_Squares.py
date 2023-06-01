@@ -112,13 +112,14 @@ def evolve(g, seed, mode, representation=""):
         representation = DynamicStructuredGrammaticalEvolutionRepresentation
     else:
         representation = TreeBasedRepresentation
+    prob = SingleObjectiveProblem(
+        minimize=True,
+        fitness_function=fitness_function,
+    )
     alg = SimpleGP(
         g,
         representation=representation,
-        problem=SingleObjectiveProblem(
-            minimize=True,
-            fitness_function=fitness_function,
-        ),
+        problem=prob,
         number_of_generations=5,
         seed=seed,
         max_depth=10,
@@ -127,7 +128,7 @@ def evolve(g, seed, mode, representation=""):
         timer_stop_criteria=mode,
     )
     ind = alg.evolve()
-    return ind.get_phenotype(), ind.get_fitness(), g
+    return ind.get_phenotype(), ind.get_fitness(prob), g
 
 
 if __name__ == "__main__":
