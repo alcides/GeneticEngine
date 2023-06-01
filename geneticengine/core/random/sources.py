@@ -14,6 +14,10 @@ T = TypeVar("T")
 
 class Source(abc.ABC):
     @abc.abstractmethod
+    def normalvariate(self, mean: int, sigma: int, prod: str = "") -> float:
+        ...
+
+    @abc.abstractmethod
     def randint(self, min: int, max: int, prod: str = "") -> int:
         ...
 
@@ -88,6 +92,9 @@ class RandomSource(Source):
     def __init__(self, seed: int = 0):
         self.seed = seed
         self.random = random.Random(seed)
+
+    def normalvariate(self, mean: int, sigma: int, prod: str = "") -> float:
+        return self.random.normalvariate(mean, sigma)
 
     def randint(self, min, max, prod: str = "") -> int:
         return self.random.randint(min, max)

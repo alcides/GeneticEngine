@@ -239,15 +239,17 @@ def expand_node(
     if starting_symbol is int:
         max_int = sys.maxsize
         min_int = -sys.maxsize
-        val = r.randint(min_int, max_int, str(starting_symbol))
+        val = r.normalvariate(0, 1, str(starting_symbol))
+        val = round(val)
+        val = max(min(val, max_int), min_int)
         SMTResolver.register_const(id, val)
         receiver(val)
         return
     elif starting_symbol is float:
         max_float = sys.float_info.max
-        # I didnt use sys.float_info.min because this is the smallest positive float
         min_float = -sys.float_info.max
-        valf = r.random_float(min_float, max_float, str(starting_symbol))
+        val = r.normalvariate(0, 1, str(starting_symbol))
+        valf = max(min(val, max_float), min_float)
         SMTResolver.register_const(id, valf)
         receiver(valf)
         return
