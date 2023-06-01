@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import math
 from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any
@@ -23,7 +22,7 @@ from geneticengine.core.utils import strip_annotations
 from geneticengine.core.evaluators import Evaluator
 
 GENE_SIZE = 100
-MAX_RAND_INT = 100000
+MAX_RAND_INT = 10000000
 INFRASTRUCTURE_KEY = "$infrastructure"
 
 
@@ -112,19 +111,6 @@ class StructuredListWrapper(Source):
     ) -> float:
         k = self.randint(1, MAX_RAND_INT, prod)
         return 1 * (max - min) / k + min
-
-    def normalvariate(
-        self,
-        mean: float,
-        sigma: float,
-        prod: str = INFRASTRUCTURE_KEY,
-    ) -> float:
-        # Box-Muller transform https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
-        # I also found this approach https://rh8liuqy.github.io/Box_Muller_Algorithm.html using numpy library instead of math library
-        u1 = self.random_float(0.0, 1.0, prod)
-        u2 = self.random_float(0.0, 1.0, prod)
-        z0 = math.sqrt(-2.0 * math.log(u1)) * math.cos(2 * math.pi * u2)
-        return z0 * sigma + mean
 
 
 def create_tree(

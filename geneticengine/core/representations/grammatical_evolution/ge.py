@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass
 from typing import Any
 
@@ -18,7 +17,7 @@ from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.core.tree import TreeNode
 from geneticengine.core.evaluators import Evaluator
 
-MAX_VALUE = 1000000
+MAX_VALUE = 10000000
 GENE_LENGTH = 256
 
 
@@ -69,19 +68,6 @@ class ListWrapper(Source):
     def random_float(self, min: float, max: float, prod: str = "") -> float:
         k = self.randint(1, MAX_VALUE, prod)
         return 1 * (max - min) / k + min
-
-    def normalvariate(
-        self,
-        mean: float,
-        sigma: float,
-        prod: str = "",
-    ) -> float:
-        # Box-Muller transform https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
-        # I also found this approach https://rh8liuqy.github.io/Box_Muller_Algorithm.html using numpy library instead of math library
-        u1 = self.random_float(0.0, 1.0, prod)
-        u2 = self.random_float(0.0, 1.0, prod)
-        z0 = math.sqrt(-2.0 * math.log(u1)) * math.cos(2 * math.pi * u2)
-        return z0 * sigma + mean
 
 
 def create_tree(
