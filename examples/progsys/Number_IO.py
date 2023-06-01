@@ -83,7 +83,7 @@ def evolve(g, seed, mode, representation=""):
         timer_stop_criteria=mode,
     )
     ind = alg.evolve()
-    return ind.get_phenotype(), ind.fitness, g
+    return ind.get_phenotype(), ind.get_fitness(), g
 
 
 if __name__ == "__main__":
