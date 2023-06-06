@@ -20,6 +20,7 @@ from geneticengine.core.utils import is_generic
 from geneticengine.core.utils import is_generic_list
 from geneticengine.core.utils import is_terminal
 from geneticengine.core.utils import strip_annotations
+from geneticengine.core.utils import strip_dependencies
 
 
 class InvalidGrammarException(Exception):
@@ -40,6 +41,7 @@ class ProductionSummary(NamedTuple):
     alternatives : dict[Any, list]
     total_productions : int
     average_productions_per_non_terminal : float
+    average_non_terminals_per_production : dict
 
 
 class GrammarSummary(NamedTuple):
@@ -345,10 +347,27 @@ class Grammar:
         n_recursive_prods = len(recursive_prods)
         total_productions = sum([ len(x) for x in self.alternatives.values()])
         average_productions = total_productions / len(self.alternatives.keys())
+        
+        stripped_non_terminals = [ strip_dependencies(str(nt)) for nt in self.non_terminals ]
+        avg_non_terminals_per_production = dict()
+        for key in self.alternatives.keys():
+            print("Key:", key)
+            avg_nts_pp = 0
+            alternatives = self.alternatives[key]
+            for alternative in alternatives:
+                print(alternative)
+                nts = 0
+                for value in alternative.__annotations__.values():
+                    if value in stripped_non_terminals:
+                        nts += 1
+                    print(nts)
+                avg_nts_pp += nts * self.get_weights()[alternative]
+            avg_non_terminals_per_production[key] = avg_nts_pp
+
         return GrammarSummary(
             DepthRange(depth_min, depth_max),
             n_non_terminals,
-            ProductionSummary(n_prods_occurrences, n_recursive_prods, self.alternatives, total_productions, average_productions),
+            ProductionSummary(n_prods_occurrences, n_recursive_prods, self.alternatives, total_productions, average_productions, avg_non_terminals_per_production),
         )
 
 
