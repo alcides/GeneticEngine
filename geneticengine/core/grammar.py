@@ -334,6 +334,10 @@ class Grammar:
         - A summary of production statistics:
             - Frequency of Productions in the Right Hand side
             - The number of recursive productions
+            - Per non-terminal, all the alternative productions
+            - The total number of productions
+            - The average number of productions per non-terminal
+            - The avergae non-terminals per production for each non-terminal
         """
         depth_min = self.get_min_tree_depth()
         depth_max = self.get_max_node_depth()
