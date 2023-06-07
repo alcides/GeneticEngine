@@ -175,7 +175,7 @@ def fitness_function_lexicase(n: Number):
 
 class ClassificationLexicaseBenchmark:
     def get_problem(self) -> Problem:
-        minimizelist = [False for _ in data.values.tolist()]
+        minimizelist = [False for _ in X_test.tolist()]
 
         def single_criteria_test(n: Number) -> float:
             fitnesses = fitness_function_lexicase(n)
