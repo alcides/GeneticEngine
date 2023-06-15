@@ -1,0 +1,30 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Annotated
+
+
+from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.random.sources import RandomSource
+from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation, random_node
+from geneticengine.metahandlers.lists import ListSizeBetween
+
+
+@dataclass
+class Root:
+    l: Annotated[list[int], ListSizeBetween(1, 6)]
+
+
+class TestTreeBased:
+    def test_mutation_empty_list(self):
+        r = RandomSource(seed=1)
+        g = extract_grammar([Root], Root)
+        print(g)
+        print(g.get_grammar_properties_summary())
+        tbr = TreeBasedRepresentation(g, max_depth=3)
+        mutation = tbr.get_mutation()
+        t = random_node(r, g, max_depth=3)
+        t = tbr.create_individual(r)
+        for i in range(1000):
+            t = mutation.mutate(t, None, None, tbr, r, 0, i)
+        assert len(t.l) >= 0
