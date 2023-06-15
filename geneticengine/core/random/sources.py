@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import abc
+import math
 import random
 from itertools import accumulate
 from typing import TypeVar
@@ -83,11 +84,27 @@ class Source(abc.ABC):
             nctx["_"] = nident
             new_symbol(inner_type, fin, depth, nident, nctx)
 
+    def normalvariate(
+        self,
+        mean: float,
+        sigma: float,
+        prod: str,
+    ) -> float:
+        # Box-Muller transform https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
+        # I also found this approach https://rh8liuqy.github.io/Box_Muller_Algorithm.html using numpy library instead of math library
+        u1 = self.random_float(0.0, 1.0, prod)
+        u2 = self.random_float(0.0, 1.0, prod)
+        z0 = math.sqrt(-2.0 * math.log(u1)) * math.cos(2 * math.pi * u2)
+        return z0 * sigma + mean
+
 
 class RandomSource(Source):
     def __init__(self, seed: int = 0):
         self.seed = seed
         self.random = random.Random(seed)
+
+    def normalvariate(self, mean, sigma, prod: str = "") -> float:
+        return self.random.normalvariate(mean, sigma)
 
     def randint(self, min, max, prod: str = "") -> int:
         return self.random.randint(min, max)

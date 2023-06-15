@@ -26,6 +26,7 @@ from geneticengine.exceptions import GeneticEngineError
 from geneticengine.metahandlers.base import is_metahandler
 
 MAX_RAND_INT = 100000
+MAX_VALUE = 10000000
 MAX_RAND_LIST_SIZE = 10
 
 
@@ -322,7 +323,7 @@ class DynamicStructuredListWrapper(Source):
         return v % (max - min + 1) + min
 
     def random_float(self, min: float, max: float, prod: str = "") -> float:
-        k = self.randint(1, 100000000, prod)
+        k = self.randint(1, MAX_VALUE, prod)
         return 1 * (max - min) / k + min
 
 

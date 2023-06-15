@@ -59,8 +59,8 @@ class TestDepthing:
         assert y.gengy_nodes == 4
         assert y.gengy_weighted_nodes == 10
         assert z.gengy_distance_to_term == 4
-        assert z.gengy_nodes == 7
-        assert z.gengy_weighted_nodes == 16
+        assert z.gengy_nodes == 4
+        assert z.gengy_weighted_nodes == 10
         assert a.gengy_distance_to_term == 4
         assert a.gengy_nodes == 4
         assert a.gengy_weighted_nodes == 10
@@ -80,5 +80,5 @@ class TestDepthing:
         assert y.gengy_nodes == 6
         assert y.gengy_weighted_nodes == 13
         assert z.gengy_distance_to_term == 6
-        assert z.gengy_nodes == 14
-        assert z.gengy_weighted_nodes == 26
+        assert z.gengy_nodes == 10
+        assert z.gengy_weighted_nodes == 20
