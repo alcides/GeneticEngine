@@ -82,7 +82,7 @@ class LexicaseSelection(GeneticStep):
         cases = random_source.shuffle(list(range(n_cases)))
         winners = []
 
-        assert n_cases == candidates[0].get_fitness(problem).fitness_components
+        assert n_cases == len(candidates[0].get_fitness(problem).fitness_components)
 
         for _ in range(target_size):
             candidates_to_check = candidates.copy()
