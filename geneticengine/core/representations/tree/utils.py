@@ -109,10 +109,10 @@ def relabel_nodes_of_trees(i: TreeNode, g: Grammar) -> TreeNode:
 def get_nodes_depth_specific(i: TreeNode, g: Grammar):
     depth = i.gengy_distance_to_term
     if not i.gengy_labeled:
-        relabel_nodes_of_trees(i)
+        relabel_nodes_of_trees(i, g)
     
-    nodes_depth_specific = dict()
-    def add_count(node: TreeNode, n_d_spec_dict: dict):
+    nodes_depth_specific: dict[str, float] = dict()
+    def add_count(node: TreeNode, n_d_spec_dict: dict[str, float]):
         if hasattr(node, "gengy_distance_to_term"):
             try: 
                 n_d_spec_dict[str(depth - node.gengy_distance_to_term)] += 1
