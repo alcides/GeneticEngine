@@ -331,8 +331,9 @@ class Grammar:
         """
         Get a proxy for the average branching factor of a grammar. This proxy is a dictionary with the number of non-terminals in each depth of the grammar, obtained by generating <n_individuals> random individuals with depth <max_depth> and analyzing those.
         """
+        max_depth = max(max_depth, self.get_min_tree_depth())
         branching_factors = dict()
-        for i in range(max_depth):
+        for i in range(max_depth + 1):
             branching_factors[str(i)] = 0
         for idx in range(n_individuals):
             n_d_specs = get_nodes_depth_specific(r, self, max_depth)
