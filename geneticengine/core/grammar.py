@@ -370,16 +370,13 @@ class Grammar:
         stripped_non_terminals = [ strip_dependencies(str(nt)) for nt in self.non_terminals ]
         avg_non_terminals_per_production = dict()
         for key in self.alternatives.keys():
-            print("Key:", key)
             avg_nts_pp = 0
             alternatives = self.alternatives[key]
             for alternative in alternatives:
-                print(alternative)
                 nts = 0
                 for value in alternative.__annotations__.values():
                     if value in stripped_non_terminals:
                         nts += 1
-                    print(nts)
                 avg_nts_pp += nts * self.get_weights()[alternative]
             avg_non_terminals_per_production[key] = avg_nts_pp
 
