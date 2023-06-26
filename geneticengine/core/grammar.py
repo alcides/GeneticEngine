@@ -328,6 +328,9 @@ class Grammar:
         return self
 
     def get_branching_average_proxy(self, r, get_nodes_depth_specific, n_individuals:int = 100, max_depth:int = 17):
+        """
+        Get a proxy for the average branching factor of a grammar. This proxy is a dictionary with the number of non-terminals in each depth of the grammar, obtained by generating <n_individuals> random individuals with depth <max_depth> and analyzing those.
+        """
         branching_factors = dict()
         for i in range(max_depth):
             branching_factors[str(i)] = 0
