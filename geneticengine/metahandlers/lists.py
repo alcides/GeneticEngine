@@ -53,13 +53,13 @@ class ListSizeBetween(MetaHandlerGenerator):
         current_node,
         method=pi_grow_method,
     ):
-        mutation_method = r.randint(0, 1)
+        mutation_method = r.randint(0, 2)
         current_node = copy.copy(current_node)
-        if (mutation_method == 0) and (len(current_node) != self.min):  # del
+        if (mutation_method == 0) and (len(current_node) > self.min):  # del
             element_to_be_deleted = r.randint(0, len(current_node) - 1)
             current_node.remove(current_node[element_to_be_deleted])
             return current_node
-        elif (mutation_method == 1) and (len(current_node) != self.max):  # add
+        elif (mutation_method == 1) and (len(current_node) < self.max):  # add
             new_element = random_node(r, g, depth, base_type.__args__[0], method=method)
             current_node.append(new_element)
             return current_node
