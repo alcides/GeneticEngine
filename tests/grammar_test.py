@@ -47,7 +47,7 @@ def contains_type(t, ty: type):
             if contains_type(el, ty):
                 return True
     else:
-        for (argn, argt) in get_arguments(t):
+        for argn, argt in get_arguments(t):
             if contains_type(getattr(t, argn), ty):
                 return True
     return False

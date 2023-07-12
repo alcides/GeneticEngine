@@ -5,7 +5,7 @@ pandas
 pathos
 polyleven
 pytest
-scikit-learn
+pytest-benchmark
 scikit-learn
 seaborn
 sphinx
