@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import inspect
+import random
 import warnings
 from abc import ABC
 from abc import ABCMeta
@@ -326,6 +327,21 @@ class Grammar:
         self.preprocess()
         return self
 
+    def get_branching_average_proxy(self, r, get_nodes_depth_specific, n_individuals:int = 100, max_depth:int = 17):
+        """
+        Get a proxy for the average branching factor of a grammar. This proxy is a dictionary with the number of non-terminals in each depth of the grammar, obtained by generating <n_individuals> random individuals with depth <max_depth> and analyzing those.
+        """
+        max_depth = max(max_depth, self.get_min_tree_depth())
+        branching_factors = dict()
+        for i in range(max_depth + 1):
+            branching_factors[str(i)] = 0
+        for idx in range(n_individuals):
+            n_d_specs = get_nodes_depth_specific(r, self, max_depth)
+            for key in n_d_specs.keys():
+                branching_factors[key] = (branching_factors[key] * idx + n_d_specs[key]) / (idx + 1)
+        
+        return branching_factors
+
     def get_grammar_properties_summary(self) -> GrammarSummary:
         """Returns a summary of grammar properties:
 
@@ -337,7 +353,7 @@ class Grammar:
             - Per non-terminal, all the alternative productions
             - The total number of productions
             - The average number of productions per non-terminal
-            - The avergae non-terminals per production for each non-terminal
+            - The average non-terminals per production for each non-terminal
         """
         depth_min = self.get_min_tree_depth()
         depth_max = self.get_max_node_depth()
@@ -358,12 +374,10 @@ class Grammar:
             avg_nts_pp = 0
             alternatives = self.alternatives[key]
             for alternative in alternatives:
-                print(alternative)
                 nts = 0
                 for value in alternative.__annotations__.values():
                     if value in stripped_non_terminals:
                         nts += 1
-                    print(nts)
                 avg_nts_pp += nts * self.get_weights()[alternative]
             avg_non_terminals_per_production[key] = avg_nts_pp
 
