@@ -4,7 +4,7 @@ from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.tree.initializations import full_method, grow_method, pi_grow_method
 from geneticengine.core.representations.tree.treebased import random_node
 
-from benchmark_grammars import Root, grammar
+from utils.benchmark_grammars_test import Root, grammar
 
 
 @pytest.mark.parametrize(
