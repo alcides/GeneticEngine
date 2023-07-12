@@ -12,13 +12,18 @@ from geneticengine.metahandlers.lists import ListSizeBetween
 
 @dataclass
 class Root:
-    l: Annotated[list[int], ListSizeBetween(1, 6)]
+    l: Annotated[list[B], ListSizeBetween(1, 6)]
+
+
+@dataclass
+class B:
+    i: int
 
 
 class TestTreeBased:
     def test_mutation_empty_list(self):
         r = RandomSource(seed=1)
-        g = extract_grammar([Root], Root)
+        g = extract_grammar([Root, B], Root)
         print(g)
         print(g.get_grammar_properties_summary())
         tbr = TreeBasedRepresentation(g, max_depth=3)
