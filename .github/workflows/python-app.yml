@@ -27,6 +27,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install flake8 pytest mypy
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
     - name: Lint with mypy
       run: |
         mypy geneticengine
@@ -47,6 +48,8 @@ jobs:
         pytest --cov --benchmark-json output.json
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v3
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     - name: Store benchmark result
       uses: benchmark-action/github-action-benchmark@v1
       with:
