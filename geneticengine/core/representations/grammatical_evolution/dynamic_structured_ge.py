@@ -16,7 +16,7 @@ from geneticengine.core.representations.tree.initializations import (
 from geneticengine.core.representations.tree.initializations import pi_grow_method
 from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.core.tree import TreeNode
-from geneticengine.core.utils import get_arguments
+from geneticengine.core.utils import get_arguments, get_generic_parameters
 from geneticengine.core.utils import get_generic_parameter
 from geneticengine.core.utils import is_generic
 from geneticengine.core.utils import is_generic_list
@@ -167,6 +167,18 @@ def random_individual(
                 current_genotype,
                 max_depth,
             )
+    elif is_generic(starting_symbol):
+        def recgen(v): 
+            return random_individual(
+                r,
+                g,
+                v,
+                current_genotype,
+                max_depth,
+            )
+
+        g_args = get_generic_parameters(starting_symbol)
+        assert tuple( recgen(a) for a in g_args )
     else:
         assert_depth_error(max_depth, g, starting_symbol)
         if starting_symbol not in g.all_nodes:
