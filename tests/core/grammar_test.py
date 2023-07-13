@@ -2,12 +2,9 @@ from __future__ import annotations
 
 from abc import ABC
 from dataclasses import dataclass
-from unittest import skip
 
 import pytest
 
-from geneticengine.algorithms.gp.individual import Individual
-from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.tree.treebased import random_node
