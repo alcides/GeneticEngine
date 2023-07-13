@@ -116,7 +116,7 @@ def get_nodes_depth_specific(i: TreeNode, g: Grammar):
         if hasattr(node, "gengy_distance_to_term"):
             try: 
                 n_d_spec_dict[str(depth - node.gengy_distance_to_term)] += 1
-            except:
+            except Exception:
                 n_d_spec_dict[str(depth - node.gengy_distance_to_term)] = 1
 
         if not (is_terminal(type(node), g.non_terminals) and (not isinstance(node, list))):
