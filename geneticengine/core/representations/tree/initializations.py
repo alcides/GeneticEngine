@@ -235,7 +235,7 @@ def expand_node(
     if starting_symbol is int:
         max_int = sys.maxsize
         min_int = -sys.maxsize
-        val = r.normalvariate(0, 1, str(starting_symbol))
+        val = r.normalvariate(0, 100, str(starting_symbol))
         val = round(val)
         val = max(min(val, max_int), min_int)
         receiver(val)
@@ -243,7 +243,7 @@ def expand_node(
     elif starting_symbol is float:
         max_float = sys.float_info.max
         min_float = -sys.float_info.max
-        val = r.normalvariate(0, 1, str(starting_symbol))
+        val = r.normalvariate(0, 100, str(starting_symbol))
         valf = max(min(val, max_float), min_float)
         receiver(valf)
         return
