@@ -15,6 +15,7 @@ from geneticengine.core.representations.grammatical_evolution.dynamic_structured
     DynamicStructuredGrammaticalEvolutionRepresentation,
 )
 from geneticengine.core.representations.grammatical_evolution.ge import GrammaticalEvolutionRepresentation
+from geneticengine.core.representations.jaxbased.structure import JaxRepresentation
 from geneticengine.core.representations.stackgggp import StackBasedGGGPRepresentation
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.core.representations.tree_smt.treebased import SMTTreeBasedRepresentation
@@ -68,6 +69,7 @@ class TestRepresentation:
             DynamicStructuredGrammaticalEvolutionRepresentation,
             StackBasedGGGPRepresentation,
             SMTTreeBasedRepresentation,
+            JaxRepresentation,
         ],
     )
     def test_rep(self, representation_class) -> None:
