@@ -72,7 +72,7 @@ algorithms
 stopping
 representations
 genetic_operators
-parallel
+optimizations
 autoapi/index
 ```
 
