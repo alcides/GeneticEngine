@@ -75,7 +75,7 @@ This work was supported by Fundação para a Ciência e Tecnologia (FCT) through
 * the FCT Advanced Computing projects (CPCA/A1/395424/2021, CPCA/A1/5613/2020, CPCA/A2/6009/2020)
 
 
-Core Publications
+Publications
 -----------------
 
 * [Comparing the expressive power of Strongly-Typed and Grammar-Guided Genetic Programming](https://www.researchgate.net/publication/370277603_Comparing_the_expressive_power_of_Strongly-Typed_and_Grammar-Guided_Genetic_Programming) at GECCO'23
