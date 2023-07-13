@@ -15,7 +15,7 @@ class GenericCrossoverStep(GeneticStep):
 
     def __init__(
         self,
-        probability: float,
+        probability: float = 1,
         operator: CrossoverOperator | None = None,
     ):
         self.probability = probability

@@ -5,7 +5,6 @@ from typing import Annotated
 import numpy as np
 
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.grammar import Grammar
 from geneticengine.metahandlers.floats import FloatRange
 from geneticengine.metahandlers.ints import IntervalRange
 from geneticengine.metahandlers.ints import IntRange
