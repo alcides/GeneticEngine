@@ -87,7 +87,7 @@ class WeightedStringHandlerM(Root):
     ]
 
 
-grammar: Grammar = extract_grammar(
+grammar = extract_grammar(
     [Recursive, IntRangeM, IntervalRangeM, FloatRangeM, VarRangeM, ListRangeM, WeightedStringHandlerM],
     Root,
 )

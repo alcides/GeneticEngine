@@ -58,28 +58,28 @@ class ConcreteAnnotatedList(Root):
 class TestPIGrow:
     def test_root(self):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar([Concrete], Root)
+        g = extract_grammar([Concrete], Root)
         x = random_node(r, g, 4, Root, method=pi_grow_method)
         assert isinstance(x, Concrete)
         assert isinstance(x, Root)
 
     def test_leaf(self):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar([Leaf], Root)
+        g = extract_grammar([Leaf], Root)
         x = random_node(r, g, 4, Leaf, method=pi_grow_method)
         assert isinstance(x, Leaf)
         assert isinstance(x, Root)
 
     def test_leaf2(self):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar([Concrete], Root)
+        g = extract_grammar([Concrete], Root)
         x = random_node(r, g, 4, Concrete, method=pi_grow_method)
         assert isinstance(x, Concrete)
         assert isinstance(x, Root)
 
     def test_concrete_list(self):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar([ConcreteList], Root)
+        g = extract_grammar([ConcreteList], Root)
         x = random_node(r, g, 6, Root, method=pi_grow_method)
         assert isinstance(x, ConcreteList)
         assert isinstance(x.xs, list)
@@ -87,7 +87,7 @@ class TestPIGrow:
 
     def test_concrete_annotated_list(self):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar([ConcreteAnnotatedList], Root)
+        g = extract_grammar([ConcreteAnnotatedList], Root)
         x = random_node(r, g, 6, Root, method=pi_grow_method)
         assert isinstance(x, ConcreteAnnotatedList)
         assert isinstance(x.xs, list)
@@ -95,7 +95,7 @@ class TestPIGrow:
 
     def test_middle_list(self):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar([MiddleList, Concrete], Root)
+        g = extract_grammar([MiddleList, Concrete], Root)
         x = random_node(r, g, 6, Root, method=pi_grow_method)
         assert isinstance(x, MiddleList)
         assert isinstance(x.z, list)
@@ -107,7 +107,7 @@ class TestPIGrow:
             root: Root
 
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar([Concrete, Middle, Root], RootHolder)
+        g = extract_grammar([Concrete, Middle, Root], RootHolder)
         x = random_node(r, g, 20, RootHolder, method=pi_grow_method)
         assert x.gengy_distance_to_term == 20
         assert isinstance(x, RootHolder)
@@ -116,14 +116,14 @@ class TestPIGrow:
 class TestFullMethod:
     def test_root(self):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar([Concrete], Root)
+        g = extract_grammar([Concrete], Root)
         x = random_node(r, g, 4, Root, method=full_method)
         assert isinstance(x, Concrete)
         assert isinstance(x, Root)
 
     def test_middle_double(self):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar([Concrete, MiddleDouble], Root)
+        g = extract_grammar([Concrete, MiddleDouble], Root)
         x = random_node(r, g, 4, Root, method=full_method)
         assert x.gengy_nodes == 15
         y = random_node(r, g, 5, Root, method=full_method)
