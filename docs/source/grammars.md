@@ -78,3 +78,10 @@ A tree with a single node of value 0 will have a depth of 2, as the expansion is
 ### On the difference of both approaches
 
 In Genetic Engine we don't keep track of the depth of nodes, but only of the distance to (the deepest) terminal and number of nodes (consultable by applying the gengy_distance_to_term and gengy_nodes methods to any tree node). When using grammar-expansion depthing, you can only read the distance to terminal and number of nodes of actual objects. Therefore, reading the distance to terminal of a tree with the single node 0 as introduced above, will not give you the distance to the terminal of the whole tree (which would be 2), but that of the node 0, which is 1. The algorithm works correctly, but keep this in mind at consultation.
+
+
+# Advanced Optimizations
+
+## Sub-tree caching
+
+A good way of implementing sub-tree caching is to use a fitness function (separate from methods) that uses [@lru_cache](https://docs.python.org/3/library/functools.html#functools.lru_cache). Notice that your dataclasses need the `unsafe_hash` parameter.
