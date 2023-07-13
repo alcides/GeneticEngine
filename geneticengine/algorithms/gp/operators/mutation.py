@@ -18,7 +18,7 @@ class GenericMutationStep(GeneticStep):
 
     def __init__(
         self,
-        probability: float,
+        probability: float = 1,
         operator: MutationOperator | None = None,
     ):
         self.probability = probability
