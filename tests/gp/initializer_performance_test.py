@@ -6,6 +6,7 @@ from geneticengine.core.representations.common import GenericPopulationWrapper
 from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import DynamicStructuredGrammaticalEvolutionRepresentation
 from geneticengine.core.representations.grammatical_evolution.ge import GrammaticalEvolutionRepresentation
 from geneticengine.core.representations.grammatical_evolution.structured_ge import StructuredGrammaticalEvolutionRepresentation
+from geneticengine.core.representations.stackgggp import StackBasedGGGPRepresentation
 from geneticengine.core.representations.tree.initializations import full_method, grow_method, pi_grow_method
 from geneticengine.core.representations.tree.operators import FullInitializer, GrowInitializer, PositionIndependentGrowInitializer, RampedHalfAndHalfInitializer, RampedInitializer
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation, random_node
@@ -44,6 +45,7 @@ def test_bench_initialization(benchmark, fun):
         (GrammaticalEvolutionRepresentation, GenericPopulationWrapper),
         (StructuredGrammaticalEvolutionRepresentation, GenericPopulationWrapper),
         (DynamicStructuredGrammaticalEvolutionRepresentation, GenericPopulationWrapper),
+        (StackBasedGGGPRepresentation, GenericPopulationWrapper),
         
     ],
 )
