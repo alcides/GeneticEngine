@@ -75,16 +75,23 @@ This work was supported by Fundação para a Ciência e Tecnologia (FCT) through
 * the FCT Advanced Computing projects (CPCA/A1/395424/2021, CPCA/A1/5613/2020, CPCA/A2/6009/2020)
 
 
-Publications
-----------------
+Core Publications
+-----------------
 
-
-* [Domain-Aware Feature Learning with Grammar-Guided Genetic Programming](https://link.springer.com/chapter/10.1007/978-3-031-29573-7_15) at EuroGP'23
+* [Comparing the expressive power of Strongly-Typed and Grammar-Guided Genetic Programming](https://www.researchgate.net/publication/370277603_Comparing_the_expressive_power_of_Strongly-Typed_and_Grammar-Guided_Genetic_Programming) at GECCO'23
 * [Data types as a more ergonomic frontend for Grammar-Guided Genetic Programming](https://arxiv.org/pdf/2210.04826) at GPCE'22
 * [Benchmarking Individual Representation in Grammar-Guided Genetic Programming](https://wwwww.easychair.org/publications/preprint_download/wqrb) at Evo*'22
 * [Grammatical Evolution Mapping for Semantically-Constrained Genetic Programming](https://www.researchgate.net/profile/Alcides-Fonseca/publication/358528379_Grammatical_Evolution_Mapping_for_Semantically-Constrained_Genetic_Programming/links/620a1ecf634ff774f4cc2cee/Grammatical-Evolution-Mapping-for-Semantically-Constrained-Genetic-Programming.pdf) at GPTP'21
 * [The Usability Argument for Refinement Typed Genetic Programming](https://link.springer.com/chapter/10.1007/978-3-030-58115-2_2) at PPSN'20
 
+Applications of GeneticEngine
+-----------------------------
+
+* [Comparing Individual Representations in Grammar-Guided Genetic Programming for Glucose Prediction in People with Diabetes](https://www.researchgate.net/publication/371324298_Comparing_Individual_Representations_in_Gram-mar-Guided_Genetic_Programming_for_Glucose_Prediction_in_People_with_Diabetes) at Grammatical Workshop at GECCO'23
+* [Domain-Aware Feature Learning with Grammar-Guided Genetic Programming](https://link.springer.com/chapter/10.1007/978-3-031-29573-7_15) at EuroGP'23
+
+
+Let us know if your paper uses Genetic Engine, to list it here.
 
 Please cite as:
 
