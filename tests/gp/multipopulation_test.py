@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from geneticengine.algorithms.callbacks.callback import DebugCallback
 from geneticengine.algorithms.gp.multipopulationgp import MultiPopulationGP
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 
@@ -34,8 +33,7 @@ def test_multipopulation_basic():
         population_sizes=[10, 10],
         stopping_criterium=GenerationStoppingCriterium(100),
         migration_size=2,
-        callbacks=[DebugCallback()],
     )
 
     fs = gp.evolve()
-    assert fs[0].get_fitness(problem1) > fs[1].get_fitness(problem2)
+    assert fs[0].get_phenotype().a > fs[1].get_phenotype().a

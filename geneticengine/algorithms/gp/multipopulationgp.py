@@ -2,7 +2,7 @@ from __future__ import annotations
 from functools import reduce
 
 import time
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 
 from geneticengine.algorithms.callbacks.callback import Callback
 from geneticengine.algorithms.gp.individual import Individual
@@ -44,14 +44,15 @@ def default_multipopulation_step():
 
 
 class MultiPopulationGP(Heuristics):
-    """Represents the Genetic Programming algorithm. Defaults as given in A
-    Field Guide to GP, p.17, by Poli and Mcphee:
+    """MultiPopulation version of Genetic Programming.
+
+    Populations evolve independently if migration_size = 0. Otherwise, that number of individuals is selected from the other populations, according to a migration step (a Tournament by default).
 
     Args:
         representation (Representation): The individual representation used by the GP program.
         problem (Problem): A SingleObjectiveProblem or a MultiObjectiveProblem problem.
         random_source (RandomSource]): A RNG instance
-        population_size (int): The population size (default = 200).
+        population_sizes (list[int]): The size of each population (default = [50, 50, 50, 50]).
         initializer (PopulationInitializer): The method to generate new individuals.
         step (GeneticStep): The main step of evolution.
         stopping_criterium (StoppingCriterium): The class that defines how the evolution stops.
@@ -62,8 +63,8 @@ class MultiPopulationGP(Heuristics):
     def __init__(
         self,
         representation: Representation[Any, Any],
-        problem: Optional[Problem] = None,
-        problems: Optional[list[Problem]] = None,
+        problem: Problem | None = None,
+        problems: list[Problem] | None = None,
         random_source: Source = RandomSource(0),
         population_sizes: list[int] = [50, 50, 50, 50],
         initializer: PopulationInitializer = StandardInitializer(),
@@ -144,8 +145,8 @@ class MultiPopulationGP(Heuristics):
             ]
 
             if self.migration_size > 0 and self.migration_step is not None:
-                total_population = reduce(lambda x, y: x + y, populations)
-                for pop, prob in zip(populations, self.problems):
+                for i, pop, prob in zip(range(len(self.problems)), populations, self.problems):
+                    total_population = reduce(lambda x, y: x + y, populations[:i] + populations[i + 1 :])
                     bests = self.migration_step.iterate(
                         prob,
                         self.evaluator,
