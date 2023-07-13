@@ -2,6 +2,7 @@ Genetic Engine
 ==============
 
 [![Documentation](https://readthedocs.org/projects/geneticengine/badge/?version=latest)](https://geneticengine.readthedocs.io/en/latest/)
+[![codecov](https://codecov.io/gh/alcides/GeneticEngine/branch/main/graph/badge.svg?token=ZX84SA7IEP)](https://codecov.io/gh/alcides/GeneticEngine)
 
 A hybrid between strongly-typed (STGP) and grammar-guided genetic programming (GGGP).
 
