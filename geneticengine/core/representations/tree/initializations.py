@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+import sys
 from typing import Any
 from typing import Callable
 
@@ -237,12 +237,19 @@ def expand_node(
         )
 
     if starting_symbol is int:
-        val = r.randint(0, 100, str(starting_symbol))
+        max_int = sys.maxsize
+        min_int = -sys.maxsize
+        val = r.normalvariate(0, 1, str(starting_symbol))
+        val = round(val)
+        val = max(min(val, max_int), min_int)
         SMTResolver.register_const(id, val)
         receiver(val)
         return
     elif starting_symbol is float:
-        valf = r.random_float(-100, 100, str(starting_symbol))
+        max_float = sys.float_info.max
+        min_float = -sys.float_info.max
+        val = r.normalvariate(0, 1, str(starting_symbol))
+        valf = max(min(val, max_float), min_float)
         SMTResolver.register_const(id, valf)
         receiver(valf)
         return

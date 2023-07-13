@@ -112,7 +112,7 @@ print("Grammar: {}.".format(repr(g)))
 The output should be:
 
 ```
-Grammar: Grammar<Starting=Scalar,Productions=[Scalar -> Value(value: float)|ScalarVar(index: [0...2])|Add(right: Scalar, left: Scalar)|Mean(arr: Vectorial);Vectorial -> VectorialVar(index: [2...4])|CumulativeSum(arr: Vectorial)]>.
+Grammar<Starting=Scalar,Productions=[Scalar -> Value(value: float)|ScalarVar(index: [0...2])|Add(right: Scalar, left: Scalar)|Mean(arr: Vectorial);Vectorial -> VectorialVar(index: [2...4])|CumulativeSum(arr: Vectorial)]>.
 ```
 
 which can be reformatted as:

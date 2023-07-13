@@ -17,13 +17,14 @@ from geneticengine.grammars.letter import Vowel
 # The string match problem aims to find a string that matches the given target string.
 # ===================================
 
+
 # Extracted from PonyGE
 def fit(individual: String):
     guess = str(individual)
     target = "Hello world!"
     fitness: float = max(len(target), len(guess))
     # Loops as long as the shorter of two strings
-    for (t_p, g_p) in zip(target, guess):
+    for t_p, g_p in zip(target, guess):
         if t_p == g_p:
             # Perfect match.
             fitness -= 1
@@ -64,7 +65,7 @@ class StringMatchBenchmark:
         )
         best = alg.evolve()
         print(
-            f"Fitness of {prob.overall_fitness(best.get_phenotype())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+            f"Fitness of {best.get_fitness(prob)} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
         )
 
 

@@ -114,6 +114,10 @@ def all_init_arguments_typed(t: type) -> bool:
     return False
 
 
+def strip_dependencies(s: str) -> str:
+    return s.split(".")[-1].split('\'')[0]
+
+
 # debug_fin
 
 

@@ -2,6 +2,7 @@ Genetic Engine
 ==============
 
 [![Documentation](https://readthedocs.org/projects/geneticengine/badge/?version=latest)](https://geneticengine.readthedocs.io/en/latest/)
+[![codecov](https://codecov.io/gh/alcides/GeneticEngine/branch/main/graph/badge.svg?token=ZX84SA7IEP)](https://codecov.io/gh/alcides/GeneticEngine)
 
 A hybrid between strongly-typed (STGP) and grammar-guided genetic programming (GGGP).
 
@@ -38,7 +39,7 @@ class Literal(MyExpr):
 		return self.value
 ```
 
-In this small example, we are defining the language that supports the plus operator and integer literals. GeneticEngine will be able to automatically generate all possible expressions, such as `Plus(left=Plus(left=Literal(12), right=Literal(12)), right=Literal(15))`, and guide the search towards your goal (e.g., `lambda x: abs(x-2022)`). For this very simple toy problem, it will find an expression that computes 2022, ideally as small as possible. And this is a very uninsteristic example. But if you introduce variables into the mix, you have a very powerful symbolic regression toolkit for arbitrariy complex expressions.
+In this small example, we are defining the language that supports the plus operator and integer literals. GeneticEngine will be able to automatically generate all possible expressions, such as `Plus(left=Plus(left=Literal(12), right=Literal(12)), right=Literal(15))`, and guide the search towards your goal (e.g., `lambda x: abs(x-2022)`). For this very simple toy problem, it will find an expression that computes 2022, ideally as small as possible. And this is a very uninteresting example. But if you introduce variables into the mix, you have a very powerful symbolic regression toolkit for arbitrarily complex expressions.
 
 
 Contributing
@@ -77,6 +78,8 @@ This work was supported by Fundação para a Ciência e Tecnologia (FCT) through
 Publications
 ----------------
 
+
+* [Domain-Aware Feature Learning with Grammar-Guided Genetic Programming](https://link.springer.com/chapter/10.1007/978-3-031-29573-7_15) at EuroGP'23
 * [Data types as a more ergonomic frontend for Grammar-Guided Genetic Programming](https://arxiv.org/pdf/2210.04826) at GPCE'22
 * [Benchmarking Individual Representation in Grammar-Guided Genetic Programming](https://wwwww.easychair.org/publications/preprint_download/wqrb) at Evo*'22
 * [Grammatical Evolution Mapping for Semantically-Constrained Genetic Programming](https://www.researchgate.net/profile/Alcides-Fonseca/publication/358528379_Grammatical_Evolution_Mapping_for_Semantically-Constrained_Genetic_Programming/links/620a1ecf634ff774f4cc2cee/Grammatical-Evolution-Mapping-for-Semantically-Constrained-Genetic-Programming.pdf) at GPTP'21

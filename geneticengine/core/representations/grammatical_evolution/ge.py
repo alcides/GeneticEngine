@@ -17,7 +17,7 @@ from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.core.tree import TreeNode
 from geneticengine.core.evaluators import Evaluator
 
-MAX_VALUE = 1000000
+MAX_VALUE = 10000000
 GENE_LENGTH = 256
 
 

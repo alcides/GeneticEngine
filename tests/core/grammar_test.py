@@ -47,7 +47,7 @@ def contains_type(t, ty: type):
             if contains_type(el, ty):
                 return True
     else:
-        for (argn, argt) in get_arguments(t):
+        for argn, argt in get_arguments(t):
             if contains_type(getattr(t, argn), ty):
                 return True
     return False
@@ -80,30 +80,6 @@ class TestGrammar:
         )
         assert contains_type(x, RecAlt)
         assert isinstance(x, Root)
-
-    @skip("Reevaluate what this test does")
-    def test_depth_increases(self):
-        g = extract_grammar([Leaf, Rec], Root)
-
-        x = random_node(
-            RandomSource(3),
-            g,
-            max_depth=2,
-            starting_symbol=Root,
-        )
-        assert isinstance(x, Leaf)
-        assert isinstance(x, Root)
-
-        gp = SimpleGP(
-            g,
-            evaluation_function=lambda x: x.depth,
-            randomSource=RandomSource,
-            max_depth=5,
-            seed=5,
-        )
-
-        nx = gp.mutation(Individual(x))
-        assert nx.genotype.depth > x.depth
 
     def test_invalid_node(self):
         with pytest.raises(Exception):

@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import inspect
+import random
 import warnings
 from abc import ABC
 from abc import ABCMeta
 from collections import defaultdict
 from typing import Any
 from typing import Generic
+from typing import NamedTuple
 
 from geneticengine.core.decorators import get_gengy
 from geneticengine.core.utils import all_init_arguments_typed
@@ -19,6 +21,7 @@ from geneticengine.core.utils import is_generic
 from geneticengine.core.utils import is_generic_list
 from geneticengine.core.utils import is_terminal
 from geneticengine.core.utils import strip_annotations
+from geneticengine.core.utils import strip_dependencies
 
 
 class InvalidGrammarException(Exception):
@@ -26,6 +29,26 @@ class InvalidGrammarException(Exception):
     typed."""
 
     pass
+
+
+class DepthRange(NamedTuple):
+    depth_min: int
+    depth_max: int
+
+
+class ProductionSummary(NamedTuple):
+    production_frequencies: dict[int, int]
+    number_of_recursive_productions: int
+    alternatives: dict[Any, list]
+    total_productions: int
+    average_productions_per_non_terminal: float
+    average_non_terminals_per_production: dict
+
+
+class GrammarSummary(NamedTuple):
+    depth_range: DepthRange
+    number_of_non_terminals: int
+    production_stats: ProductionSummary
 
 
 class Grammar:
@@ -304,23 +327,72 @@ class Grammar:
         self.preprocess()
         return self
 
-    def get_grammar_properties_summary(self):
+    def get_branching_average_proxy(self, r, get_nodes_depth_specific, n_individuals:int = 100, max_depth:int = 17):
+        """
+        Get a proxy for the average branching factor of a grammar. This proxy is a dictionary with the number of non-terminals in each depth of the grammar, obtained by generating <n_individuals> random individuals with depth <max_depth> and analyzing those.
+        """
+        max_depth = max(max_depth, self.get_min_tree_depth())
+        branching_factors = dict()
+        for i in range(max_depth + 1):
+            branching_factors[str(i)] = 0
+        for idx in range(n_individuals):
+            n_d_specs = get_nodes_depth_specific(r, self, max_depth)
+            for key in n_d_specs.keys():
+                branching_factors[key] = (branching_factors[key] * idx + n_d_specs[key]) / (idx + 1)
+        
+        return branching_factors
+
+    def get_grammar_properties_summary(self) -> GrammarSummary:
         """Returns a summary of grammar properties:
 
-        (depth_min, depth_max), n_non_terminals, (n_prods_occurrences,
-        n_recursive_prods)
+        - A depth range (minimum depth and maximum depth of the grammar)
+        - The number of Non-Terminal symbols in the grammar
+        - A summary of production statistics:
+            - Frequency of Productions in the Right Hand side
+            - The number of recursive productions
+            - Per non-terminal, all the alternative productions
+            - The total number of productions
+            - The average number of productions per non-terminal
+            - The average non-terminals per production for each non-terminal
         """
         depth_min = self.get_min_tree_depth()
         depth_max = self.get_max_node_depth()
         n_non_terminals = len(self.alternatives)
         n_prods_per_nt = list(map(lambda x: len(x), self.alternatives.values()))
-        n_prods_occurrences = dict()
+        n_prods_occurrences: dict[int, int] = dict()
         for i in n_prods_per_nt:
             n_prods_occurrences[i] = n_prods_occurrences.get(i, 0) + 1
         n_prods_occurrences = {k: n_prods_occurrences[k] for k in sorted(n_prods_occurrences.keys())}
         recursive_prods = [r_prod for r_prod in self.recursive_prods if r_prod not in self.alternatives.keys()]
         n_recursive_prods = len(recursive_prods)
-        return (depth_min, depth_max), (n_non_terminals), (n_prods_occurrences, n_recursive_prods)
+        total_productions = sum(len(x) for x in self.alternatives.values())
+        average_productions = total_productions / len(self.alternatives.keys()) if self.alternatives else 0
+
+        stripped_non_terminals = [strip_dependencies(str(nt)) for nt in self.non_terminals]
+        avg_non_terminals_per_production = dict()
+        for key in self.alternatives.keys():
+            avg_nts_pp = 0
+            alternatives = self.alternatives[key]
+            for alternative in alternatives:
+                nts = 0
+                for value in alternative.__annotations__.values():
+                    if value in stripped_non_terminals:
+                        nts += 1
+                avg_nts_pp += nts * self.get_weights()[alternative]
+            avg_non_terminals_per_production[key] = avg_nts_pp
+
+        return GrammarSummary(
+            DepthRange(depth_min, depth_max),
+            n_non_terminals,
+            ProductionSummary(
+                n_prods_occurrences,
+                n_recursive_prods,
+                self.alternatives,
+                total_productions,
+                average_productions,
+                avg_non_terminals_per_production,
+            ),
+        )
 
 
 def extract_grammar(

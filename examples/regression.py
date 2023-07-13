@@ -127,7 +127,7 @@ class RegressionBenchmark:
         )
         best = alg.evolve()
         print(
-            f"Fitness of {prob.overall_fitness(best.get_phenotype())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+            f"Fitness of {best.get_fitness(prob)} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
         )
 
 

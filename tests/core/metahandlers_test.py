@@ -7,7 +7,6 @@ from typing import Annotated
 import numpy as np
 
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.metahandlers.floats import FloatRange
@@ -82,7 +81,7 @@ class WeightedStringHandlerM(Root):
 class TestMetaHandler:
     def test_int(self):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar([IntRangeM], Root)
+        g = extract_grammar([IntRangeM], Root)
         n = random_node(r, g, 3, Root)
         assert isinstance(n, IntRangeM)
         assert 9 <= n.x <= 10
@@ -90,7 +89,7 @@ class TestMetaHandler:
 
     def test_float(self):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar([FloatRangeM], Root)
+        g = extract_grammar([FloatRangeM], Root)
         n = random_node(r, g, 3, Root)
         assert isinstance(n, FloatRangeM)
         assert 9.0 <= n.x <= 10.0
@@ -98,7 +97,7 @@ class TestMetaHandler:
 
     def test_var(self):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar([VarRangeM], Root)
+        g = extract_grammar([VarRangeM], Root)
         n = random_node(r, g, 3, Root)
         assert isinstance(n, VarRangeM)
         assert n.x in ["x", "y", "z"]
@@ -106,7 +105,7 @@ class TestMetaHandler:
 
     def test_list(self):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar([ListRangeM], Root)
+        g = extract_grammar([ListRangeM], Root)
         n = random_node(r, g, 4, Root)
         assert isinstance(n, ListRangeM)
         assert 3 <= len(n.x) <= 4
@@ -114,7 +113,7 @@ class TestMetaHandler:
 
     def test_weightedstrings(self):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar([WeightedStringHandlerM], Root)
+        g = extract_grammar([WeightedStringHandlerM], Root)
         n = random_node(r, g, 3, Root)
         assert isinstance(n, WeightedStringHandlerM)
         assert all(_x in ["A", "C", "G", "T"] for _x in n.x)
@@ -122,7 +121,7 @@ class TestMetaHandler:
 
     def test_intervalrange(self):
         r = RandomSource(seed=1)
-        g: Grammar = extract_grammar([IntervalRangeM], Root)
+        g = extract_grammar([IntervalRangeM], Root)
 
         n = random_node(r, g, 4, Root)
 

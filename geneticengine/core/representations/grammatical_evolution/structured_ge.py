@@ -22,7 +22,7 @@ from geneticengine.core.utils import strip_annotations
 from geneticengine.core.evaluators import Evaluator
 
 GENE_SIZE = 100
-MAX_RAND_INT = 100000
+MAX_RAND_INT = 10000000
 INFRASTRUCTURE_KEY = "$infrastructure"
 
 

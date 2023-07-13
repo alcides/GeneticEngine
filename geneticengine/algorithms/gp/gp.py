@@ -101,6 +101,9 @@ class GP(Heuristics):
         def elapsed_time():
             return time.time() - start
 
+        for cb in self.callbacks:
+            cb.process_iteration(generation, population, elapsed_time(), gp=self)
+
         while not self.stopping_criterium.is_ended(
             self.problem,
             population,

@@ -31,19 +31,19 @@ class GenericCrossoverStep(GeneticStep):
         target_size: int,
         generation: int,
     ) -> list[Individual]:
-        assert len(population) == target_size
         self.operator = self.operator if self.operator else representation.get_crossover()
 
-        mid = len(population) // 2
-        retlist = []
-        for (index, ind1, ind2) in zip(range(mid), population[:mid], population[mid:]):
-            (n1, n2) = self.crossover(ind1, ind2, problem, representation, random_source, index, generation)
+        retlist: list[Individual] = []
+        for i in range(target_size // 2):
+            j = i % len(population)
+            ind1, ind2 = population[j], population[j + 1]  # todo: select individuals using a selection method
+            (n1, n2) = self.crossover(ind1, ind2, problem, representation, random_source, i, generation)
             retlist.append(n1)
             retlist.append(n2)
 
-        # Fix odd-lengthed lists
-        if len(population) % 2 != 0:
-            retlist.append(population[-1])
+        if len(retlist) < target_size:
+            retlist.append(population[0])
+        assert len(retlist) == target_size
         return retlist
 
     def crossover(

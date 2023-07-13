@@ -21,6 +21,7 @@ class TournamentSelection(GeneticStep):
         """
         Args:
             tournament_size (int): number of individuals from the population that will be randomly selected
+            with_replacement (bool): whether the selected individuals can appear again in another tournament (default: False)
         """
         self.tournament_size = tournament_size
         self.with_replacement = with_replacement
@@ -81,6 +82,8 @@ class LexicaseSelection(GeneticStep):
         cases = random_source.shuffle(list(range(n_cases)))
         winners = []
 
+        assert n_cases == len(candidates[0].get_fitness(problem).fitness_components)
+
         for _ in range(target_size):
             candidates_to_check = candidates.copy()
 
@@ -90,7 +93,7 @@ class LexicaseSelection(GeneticStep):
 
                 choose_best = min if problem.minimize[c] else max
 
-                best_fitness = choose_best([x.fitness[c] for x in candidates_to_check])  # type: ignore
+                best_fitness = choose_best([x.get_fitness(problem).fitness_components[c] for x in candidates_to_check])
                 checking_value = best_fitness
 
                 if self.epsilon:
@@ -119,7 +122,7 @@ class LexicaseSelection(GeneticStep):
             winner = (
                 random_source.choice(candidates_to_check) if len(candidates_to_check) > 1 else candidates_to_check[0]
             )
-            assert isinstance(winner.get_fitness(problem), list)
+            assert isinstance(winner.get_fitness(problem).fitness_components, list)
             winners.append(winner)
             candidates.remove(winner)
         return winners

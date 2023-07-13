@@ -69,29 +69,40 @@ def lexicase_parameters():
     else:
         minimize_list = [True for _ in range(n_cases + 1)]
 
+    def calculate_case_fitness(pred_error, i, case_size):
+        start_index = case_size * i
+        end_index = case_size * (i + 1)
+        case_error = pred_error[start_index:end_index]
+        case_fitness = sum(case_error) / len(case_error)
+
+        if np.isinf(case_fitness) or np.isnan(case_fitness):
+            case_fitness = 100000000
+        return case_fitness
+
+    def calculate_grouped_errors(pred_error, n_cases, case_size):
+        grouped_errors = []
+        for i in range(n_cases):
+            case_fitness = calculate_case_fitness(pred_error, i, case_size)
+            grouped_errors.append(case_fitness)
+        return grouped_errors
+
     def lexicase_fitness_function(n: Number):
         X = data.values
         y = target.values
-        variables = {}
-        for x in feature_names:
-            i = feature_indices[x]
-            variables[x] = X[:, i]
+        variables = {x: X[:, feature_indices[x]] for x in feature_names}
 
         try:
             y_pred = n.evaluate(**variables)
             pred_error = np.power(y_pred - y, 2)
-            grouped_errors = list()
-            for i in range(n_cases):
-                grouped_errors.append(
-                    sum(pred_error[case_size * i : case_size * (i + 1)])
-                    / len(pred_error[case_size * i : case_size * (i + 1)]),
-                )
+            grouped_errors = calculate_grouped_errors(pred_error, n_cases, case_size)
+
             if len(X) % case_size != 0:
-                grouped_errors.append(
-                    sum(pred_error[(case_size * n_cases) :]) / len(pred_error[(case_size * n_cases) :]),
-                )
+                last_case_fitness = calculate_case_fitness(pred_error, n_cases, case_size)
+                grouped_errors.append(last_case_fitness)
+
         except (OverflowError, ValueError):
             return np.full(len(y), 99999999999)
+
         return grouped_errors
 
     return lexicase_fitness_function, minimize_list
@@ -142,7 +153,7 @@ class LexicaseRegressionBenchmark:
         )
         best = alg.evolve()
         print(
-            f"Fitness of {prob.overall_fitness(best.get_phenotype())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+            f"Fitness of {best.get_fitness(prob)} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
         )
 
 
