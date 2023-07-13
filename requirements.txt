@@ -8,6 +8,8 @@ pytest
 pytest-benchmark
 scikit-learn
 seaborn
+jax
+jaxlib
 sphinx
 sphinx-autoapi
 sphinx-rtd-theme
