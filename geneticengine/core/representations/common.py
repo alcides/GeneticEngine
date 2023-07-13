@@ -6,8 +6,7 @@ from geneticengine.core.representations.api import Representation
 
 
 class GenericPopulationInitializer(PopulationInitializer):
-    """Starts with an initial population, and relies on another initializer is
-    necessary to fulfill the population size."""
+    """Initializes any representation"""
 
 
     def initialize(
