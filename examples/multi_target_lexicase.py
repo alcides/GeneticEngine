@@ -127,7 +127,7 @@ def fitness_function_lexicase(n: Number):
 
 class MultiTargetLexicaseBenchmark:
     def get_problem(self) -> Problem:
-        minimizelist = [True for _ in X.values.tolist()]
+        minimizelist = [True for _ in range(X.shape[1])]
         return MultiObjectiveProblem(
             minimize=minimizelist,
             fitness_function=fitness_function_lexicase,
@@ -173,4 +173,5 @@ class MultiTargetLexicaseBenchmark:
 
 
 if __name__ == "__main__":
-    MultiTargetLexicaseBenchmark().main(seed=0)
+    p = MultiTargetLexicaseBenchmark()
+    p.main(seed=0)

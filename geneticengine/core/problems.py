@@ -9,6 +9,9 @@ class Fitness(NamedTuple):
     maximizing_aggregate: float
     fitness_components: list[float]
 
+    def __str__(self):
+        return "|".join([f"{d:.5f}" for d in self.fitness_components])
+
 
 P = TypeVar("P")
 

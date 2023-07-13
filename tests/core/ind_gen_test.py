@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from typing import Annotated
 
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.tree.initializations import full_method
 from geneticengine.core.representations.tree.initializations import pi_grow_method
@@ -101,7 +100,7 @@ class TestPIGrow:
         assert isinstance(x.z, list)
         assert isinstance(x, Root)
 
-    def test_middle_has_right_distance_to_term(self):
+    def test_middle_has_right_distance_to_term(self) -> None:
         @dataclass
         class RootHolder:  # a holder is needed to know the true height, because choosing consumes height
             root: Root
