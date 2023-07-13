@@ -60,6 +60,6 @@ class Heuristics(ABC):
             returns an Individual
         """
         assert individuals
-        self.evaluator.eval(self.problem, individuals)
-        bi = best_individual(individuals, self.problem)
+        self.evaluator.eval(problem, individuals)
+        bi = best_individual(individuals, problem)
         return bi
