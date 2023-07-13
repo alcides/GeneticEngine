@@ -5,8 +5,8 @@ from typing import get_args
 
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import Source
-from geneticengine.core.representations.tree import smt
-from geneticengine.core.representations.tree.initializations import is_metahandler
+from geneticengine.core.representations.tree_smt import smt
+from geneticengine.core.representations.tree_smt.initializations import is_metahandler
 from geneticengine.metahandlers.base import MetaHandlerGenerator
 from geneticengine.metahandlers.smt.parser import p_expr
 

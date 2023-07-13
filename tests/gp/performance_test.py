@@ -13,6 +13,8 @@ from geneticengine.core.representations.stackgggp import StackBasedGGGPRepresent
 from geneticengine.core.representations.tree.initializations import full_method, grow_method, pi_grow_method
 from geneticengine.core.representations.tree.operators import FullInitializer, GrowInitializer, PositionIndependentGrowInitializer, RampedHalfAndHalfInitializer, RampedInitializer
 from geneticengine.core.representations.tree.treebased import DefaultTBCrossover, DefaultTBMutation, TreeBasedRepresentation, random_node
+from geneticengine.core.representations.tree_smt.operators import SMTGrowInitializer
+from geneticengine.core.representations.tree_smt.treebased import DefaultSMTTBCrossover, DefaultSMTTBMutation, SMTTreeBasedRepresentation
 
 from utils.benchmark_grammars_test import Root, grammar
 
@@ -45,6 +47,7 @@ def test_bench_initialization(benchmark, fun):
         (TreeBasedRepresentation, PositionIndependentGrowInitializer),
         (TreeBasedRepresentation, RampedInitializer),
         (TreeBasedRepresentation, RampedHalfAndHalfInitializer),
+        (SMTTreeBasedRepresentation, SMTGrowInitializer),
         (GrammaticalEvolutionRepresentation, GenericPopulationInitializer),
         (StructuredGrammaticalEvolutionRepresentation, GenericPopulationInitializer),
         (DynamicStructuredGrammaticalEvolutionRepresentation, GenericPopulationInitializer),
@@ -73,6 +76,7 @@ def test_bench_initialization_class(benchmark, representation, initializer):
     "representation,mut",
     [
         (TreeBasedRepresentation, DefaultTBMutation),
+        (SMTTreeBasedRepresentation, DefaultSMTTBMutation),
         (GrammaticalEvolutionRepresentation, DefaultGEMutation),
         (StructuredGrammaticalEvolutionRepresentation, DefaultSGEMutation),
         (DynamicStructuredGrammaticalEvolutionRepresentation, DefaultDSGEMutation),
@@ -107,6 +111,7 @@ def test_bench_mutation(benchmark, representation, mut):
     "representation,xo",
     [
         (TreeBasedRepresentation, DefaultTBCrossover),
+        (SMTTreeBasedRepresentation, DefaultSMTTBCrossover),
         (GrammaticalEvolutionRepresentation, DefaultGECrossover),
         (StructuredGrammaticalEvolutionRepresentation, DefaultSGECrossover),
         (DynamicStructuredGrammaticalEvolutionRepresentation, DefaultDSGECrossover),

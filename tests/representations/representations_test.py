@@ -17,6 +17,7 @@ from geneticengine.core.representations.grammatical_evolution.dynamic_structured
 from geneticengine.core.representations.grammatical_evolution.ge import GrammaticalEvolutionRepresentation
 from geneticengine.core.representations.stackgggp import StackBasedGGGPRepresentation
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.core.representations.tree_smt.treebased import SMTTreeBasedRepresentation
 from geneticengine.metahandlers.floats import FloatRange
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.lists import ListSizeBetween
@@ -66,6 +67,7 @@ class TestRepresentation:
             GrammaticalEvolutionRepresentation,
             DynamicStructuredGrammaticalEvolutionRepresentation,
             StackBasedGGGPRepresentation,
+            SMTTreeBasedRepresentation,
         ],
     )
     def test_rep(self, representation_class) -> None:

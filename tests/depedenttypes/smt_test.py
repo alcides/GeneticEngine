@@ -9,8 +9,8 @@ import pytest
 
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.tree.smt import SMTResolver
-from geneticengine.core.representations.tree.treebased import random_node
+from geneticengine.core.representations.tree_smt.smt import SMTResolver
+from geneticengine.core.representations.tree_smt.treebased import random_node
 from geneticengine.metahandlers.smt import SMT
 
 

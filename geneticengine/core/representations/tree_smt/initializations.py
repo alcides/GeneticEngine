@@ -6,8 +6,9 @@ from typing import Callable
 from geneticengine.core.decorators import get_gengy
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import Source
-from geneticengine.core.representations.tree.utils import GengyList
-from geneticengine.core.representations.tree.utils import relabel_nodes_of_trees
+from geneticengine.core.representations.tree_smt.smt import SMTResolver
+from geneticengine.core.representations.tree_smt.utils import GengyList
+from geneticengine.core.representations.tree_smt.utils import relabel_nodes_of_trees
 from geneticengine.core.utils import build_finalizers
 from geneticengine.core.utils import get_arguments
 from geneticengine.core.utils import get_generic_parameter
@@ -137,6 +138,7 @@ def full_method(
         state["final"] = x
 
     handle_symbol(starting_symbol, final_finalize, depth, "root", ctx={})
+    SMTResolver.resolve_clauses()
     n = state["final"]
     relabel_nodes_of_trees(n, g)
     return n
@@ -202,6 +204,7 @@ def pi_grow_method(
             ident,
             ctx,
         )
+    SMTResolver.resolve_clauses()
     n = state["final"]
     relabel_nodes_of_trees(n, g)
     return n
@@ -238,6 +241,7 @@ def expand_node(
         val = r.normalvariate(0, 1, str(starting_symbol))
         val = round(val)
         val = max(min(val, max_int), min_int)
+        SMTResolver.register_const(id, val)
         receiver(val)
         return
     elif starting_symbol is float:
@@ -245,10 +249,12 @@ def expand_node(
         min_float = -sys.float_info.max
         val = r.normalvariate(0, 1, str(starting_symbol))
         valf = max(min(val, max_float), min_float)
+        SMTResolver.register_const(id, valf)
         receiver(valf)
         return
     elif starting_symbol is bool:
         valb = r.random_bool(str(starting_symbol))
+        SMTResolver.register_const(id, valb)
         receiver(valb)
         return
     elif is_generic_list(starting_symbol):
