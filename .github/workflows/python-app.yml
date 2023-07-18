@@ -44,6 +44,7 @@ jobs:
       run: |
         pytest --cov --benchmark-skip
     - name: Upload coverage reports to Codecov
+      if: ${{ (matrix.python-version == '3.11') }}
       uses: codecov/codecov-action@v3
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -51,9 +52,11 @@ jobs:
       run: |
         bash run_examples.sh
     - name: Test with pytest
+      if: ${{ (matrix.python-version == '3.11') }}
       run: |
         pytest --benchmark-only --benchmark-json output.json
     - name: Store benchmark result
+      if: ${{ (matrix.python-version == '3.11') }}
       uses: benchmark-action/github-action-benchmark@v1
       with:
         name: Python Benchmark with pytest-benchmark
