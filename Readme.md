@@ -66,13 +66,16 @@ Acknowledgements
 
 This work was supported by Fundação para a Ciência e Tecnologia (FCT) through:
 
-* the LASIGE Research Unit (ref. UIDB/00408/2020 and UIDP/00408/2020)
+* [the LASIGE Research Unit](https://www.lasige.pt) (ref. UIDB/00408/2020 and UIDP/00408/2020)
 * Pedro Barbosa PhD fellowship (SFRH/BD/137062/2018)
 * Guilherme Espada PhD fellowship (UI/BD/151179/2021)
 * Paulo Santos CMU|Portugal PhD fellowship (SFRH/BD/151469/2021)
-* the CMU|Portugal CAMELOT project (LISBOA-01-0247-FEDER-045915)
-* the FCT Exploratory project RAP (EXPL/CCI-COM/1306/2021)
+* [the FCT Exploratory project RAP](http://wiki.alcidesfonseca.com/research/projects/rap/) (EXPL/CCI-COM/1306/2021)
 * the FCT Advanced Computing projects (CPCA/A1/395424/2021, CPCA/A1/5613/2020, CPCA/A2/6009/2020)
+
+And by Lisboa2020, Compete2020 and FEDER through:
+
+* [the CMU|Portugal CAMELOT project](http://wiki.alcidesfonseca.com/research/projects/camelot/) (LISBOA-01-0247-FEDER-045915)
 
 
 Publications
