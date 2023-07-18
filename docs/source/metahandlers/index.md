@@ -29,6 +29,7 @@ class Container(Parent):
 	height : Annotated[float, FloatRange[0.10, 2.5]]
 	children : Annotated[List[Container], ListSizeBetween[1,30]]
 	var_name : Annotated[str, VarRange[["x", "y", "z"]]]
+	dna : Annotated[str, StringSizeBetween(50, 80, ["a", "c", "t", "g"])]
 ```
 
 See [the full library of MetaHandlers](api.md) for more examples.

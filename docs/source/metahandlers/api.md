@@ -35,6 +35,10 @@ Here are a few MetaHandlers provided by GeneticEngine
 #### Strings
 
 ```{eval-rst}
+.. autoapiclass:: geneticengine.metahandlers.lists.StringSizeBetween
+```
+
+```{eval-rst}
 .. autoapiclass:: geneticengine.metahandlers.lists.WeightedStringHandler
 ```
 
