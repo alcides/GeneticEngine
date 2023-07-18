@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from math import isinf
-import time
 from typing import Annotated
 
 import numpy as np
@@ -136,9 +135,7 @@ class ClassificationBenchmark:
             ind = random_individual(r,g,depth,method=grow_method)
             return get_nodes_depth_specific(ind,g)
         r = RandomSource(123)
-        start = time.time()
         print(g.get_branching_average_proxy(r, find_depth_specific_nodes, 100, 17))
-        print(time.time() - start)
 
         prob = self.get_problem()
         alg = SimpleGP(
