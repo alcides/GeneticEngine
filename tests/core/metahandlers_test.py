@@ -13,7 +13,7 @@ from geneticengine.metahandlers.floats import FloatRange
 from geneticengine.metahandlers.ints import IntervalRange
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.lists import ListSizeBetween
-from geneticengine.metahandlers.strings import WeightedStringHandler
+from geneticengine.metahandlers.strings import StringSizeBetween, WeightedStringHandler
 from geneticengine.metahandlers.vars import VarRange
 
 
@@ -53,9 +53,17 @@ class ListRangeM(Root):
     x: Annotated[list[int], ListSizeBetween[3, 4]]
 
 
+string_options = ["a", "c", "t", "g"]
+string_meta = StringSizeBetween(3, 7, string_options)
+
+
+@dataclass
+class StringM(Root):
+    x: Annotated[str, string_meta]
+
+
 @dataclass
 class WeightedStringHandlerM(Root):
-
     x: Annotated[
         str,
         WeightedStringHandler(
@@ -110,6 +118,28 @@ class TestMetaHandler:
         assert isinstance(n, ListRangeM)
         assert 3 <= len(n.x) <= 4
         assert isinstance(n, Root)
+
+    def test_string(self):
+        r = RandomSource(seed=1)
+        g = extract_grammar([StringM], Root)
+        n: Root = random_node(r, g, 3, Root)
+        assert isinstance(n.x, str)
+        assert len(n.x) >= 3
+        assert len(n.x) <= 7
+        assert all(x in string_options for x in n.x)
+        for _ in range(10):
+            n.x = string_meta.mutate(r, g, random_node, 2, str, n.x)
+            assert isinstance(n.x, str)
+            assert len(n.x) >= 3
+            assert len(n.x) <= 7
+            assert all(x in string_options for x in n.x)
+
+        for _ in range(10):
+            n.x = string_meta.crossover(r, g, ["ccc", "cccc"], 2, str, n.x)
+            assert isinstance(n.x, str)
+            assert len(n.x) >= 3
+            assert len(n.x) <= 7
+            assert all(x in string_options for x in n.x)
 
     def test_weightedstrings(self):
         r = RandomSource(seed=1)
