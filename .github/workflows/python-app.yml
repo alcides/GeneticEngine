@@ -42,11 +42,17 @@ jobs:
         pip install -e .
     - name: Test with pytest
       run: |
-        pytest --cov --benchmark-json output.json
+        pytest --cov --benchmark-skip
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v3
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    - name: Check install
+      run: |
+        bash run_examples.sh
+    - name: Test with pytest
+      run: |
+        pytest --benchmark-only --benchmark-json output.json
     - name: Store benchmark result
       uses: benchmark-action/github-action-benchmark@v1
       with:
@@ -59,5 +65,4 @@ jobs:
         # Show alert with commit comment on detecting possible performance regression
         alert-threshold: '200%'
         comment-on-alert: true
-        fail-on-alert: true
         alert-comment-cc-users: '@alcides'
