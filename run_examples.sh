@@ -14,7 +14,14 @@ cd "$(dirname "$0")"
 
 function run_example {
     printf "Running $1..."
-    $PYTHON_BINARY $1 > /dev/null && echo "(done)" || echo "(failed)"
+    $PYTHON_BINARY $1 > /dev/null
+    RESULT=$?
+    if [ $RESULT -eq 0 ]; then
+        echo "(success)"
+    else
+        echo "(failed)"
+        exit 111
+    fi
 
 }
 
