@@ -82,7 +82,7 @@ class StringSizeBetween(MetaHandlerGenerator):
 
         size = r.randint(self.min, self.max, "str")
         midpoint = r.randint(1, size - 1)
-        other = r.choice(options)
+        other = r.choice([getattr(x, arg) for x in options])
         return current_node[:midpoint] + other[midpoint:]
 
     def __class_getitem__(self, args):

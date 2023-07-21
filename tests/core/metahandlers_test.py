@@ -122,7 +122,7 @@ class TestMetaHandler:
     def test_string(self):
         r = RandomSource(seed=1)
         g = extract_grammar([StringM], Root)
-        n: Root = random_node(r, g, 3, Root)
+        n = random_node(r, g, 3, Root)
         assert isinstance(n.x, str)
         assert len(n.x) >= 3
         assert len(n.x) <= 7
