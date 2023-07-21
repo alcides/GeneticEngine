@@ -2,7 +2,6 @@ from __future__ import annotations
 import copy
 import string
 
-
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.tree.initializations import pi_grow_method
@@ -82,7 +81,6 @@ class StringSizeBetween(MetaHandlerGenerator):
 
         size = r.randint(self.min, self.max, "str")
         midpoint = r.randint(1, size - 1)
-        print("d", arg, type(arg), list_type)
         other = r.choice([getattr(x, arg) for x in options])
         return current_node[:midpoint] + other[midpoint:]
 
