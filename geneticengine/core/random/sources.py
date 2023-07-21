@@ -6,10 +6,6 @@ import random
 from itertools import accumulate
 from typing import TypeVar
 
-from geneticengine.core.representations.tree.utils import GengyList
-from geneticengine.core.utils import build_finalizers
-from geneticengine.core.utils import get_generic_parameter
-
 T = TypeVar("T")
 
 
@@ -37,7 +33,7 @@ class Source(abc.ABC):
         total = acc_weights[-1]
         rand_value: float = self.randint(0, total, prod)
 
-        for (choice, acc) in zip(choices, acc_weights):
+        for choice, acc in zip(choices, acc_weights):
             if rand_value < acc:
                 return choice
         return choices[0]
@@ -62,27 +58,6 @@ class Source(abc.ABC):
 
     def random_bool(self, prod: str = "") -> bool:
         return self.choice([True, False], prod)
-
-    def random_list(
-        self,
-        receiver,
-        new_symbol,
-        depth: int,
-        ty: type[list[T]],
-        ctx: dict[str, str],
-        prod: str = "",
-    ):
-        inner_type = get_generic_parameter(ty)
-        size = 1
-        if depth > 0:
-            size = self.randint(1, depth, prod)
-        fins = build_finalizers(lambda *x: receiver(GengyList(inner_type, x)), size)
-        ident = ctx["_"]
-        for i, fin in enumerate(fins):
-            nctx = ctx.copy()
-            nident = ident + "_" + str(i)
-            nctx["_"] = nident
-            new_symbol(inner_type, fin, depth, nident, nctx)
 
     def normalvariate(
         self,
