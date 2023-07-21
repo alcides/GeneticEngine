@@ -146,7 +146,10 @@ class SafeLog(Number):
 
     def evaluate(self, **kwargs):
         v = self.number.evaluate(**kwargs)
-        return np.log(1 + np.abs(v))
+        try:
+            return np.log(1 + np.abs(v))
+        except Exception:
+            return 1
 
     def __str__(self) -> str:
         return f"np.log(1 + np.abs({self.number}))"
