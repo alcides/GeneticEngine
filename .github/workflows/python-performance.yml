@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11"]
+        python-version: ["3.11"]
 
     steps:
     - uses: actions/checkout@v3
@@ -28,23 +28,23 @@ jobs:
         pip install flake8 pytest mypy
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
-    - name: Lint with mypy
-      run: |
-        mypy geneticengine
-    - name: Lint with flake8
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Check install
       run: |
         pip install -e .
     - name: Test with pytest
       run: |
-        pytest --cov --benchmark-skip
-    - name: Upload coverage reports to Codecov
-      if: ${{ (matrix.python-version == '3.11') }}
-      uses: codecov/codecov-action@v3
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        pytest --benchmark-only --benchmark-json output.json
+    - name: Store benchmark result
+      uses: benchmark-action/github-action-benchmark@v1
+      with:
+        name: Python Benchmark with pytest-benchmark
+        tool: 'pytest'
+        output-file-path: output.json
+        # Use personal access token instead of GITHUB_TOKEN due to https://github.community/t/github-action-not-triggering-gh-pages-upon-push/16096
+        github-token: ${{ secrets.BENCHMARK_REPO_TOKEN }}
+        gh-repository: github.com/alcides/GeneticEngineBenchmarkResults
+        auto-push: true
+        # Show alert with commit comment on detecting possible performance regression
+        alert-threshold: '200%'
+        comment-on-alert: true
+        alert-comment-cc-users: '@alcides'
