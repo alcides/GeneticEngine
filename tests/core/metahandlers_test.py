@@ -53,7 +53,7 @@ class ListRangeM(Root):
     x: Annotated[list[int], ListSizeBetween[3, 4]]
 
 
-string_options = ["a", "c", "t", "g"]
+string_options = ["a", "t", "c", "g"]
 string_meta = StringSizeBetween(3, 7, string_options)
 
 
@@ -135,7 +135,7 @@ class TestMetaHandler:
             assert all(x in string_options for x in n.x)
 
         for _ in range(10):
-            n.x = string_meta.crossover(r, g, ["ccc", "cccc"], 2, str, n.x)
+            n.x = string_meta.crossover(r, g, [StringM("ccc"), StringM("cccc")], "x", str, n.x)
             assert isinstance(n.x, str)
             assert len(n.x) >= 3
             assert len(n.x) <= 7

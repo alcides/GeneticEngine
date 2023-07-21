@@ -1,6 +1,5 @@
 from __future__ import annotations
 import copy
-
 import string
 
 from geneticengine.core.grammar import Grammar
