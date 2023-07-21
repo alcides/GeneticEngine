@@ -70,8 +70,10 @@ def fitness_function(n: Number):
     for x in feature_names:
         i = feature_indices[x]
         variables[x] = X[:, i]
-
-    y_pred = n.evaluate(**variables)
+    try:
+        y_pred = n.evaluate(**variables)
+    except OverflowError:
+        return 100000000
     fitness = mse(y_pred, y)
     if isinf(fitness) or np.isnan(fitness):
         fitness = 100000000

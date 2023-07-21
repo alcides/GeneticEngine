@@ -194,17 +194,21 @@ def evaluate(e: Expr | Matrix | Number) -> Callable[[Any], float]:
         return lambda line: s(evaluate(m)(line))
     elif isinstance(e, SumAll):
         return lambda line: flat_sum(line)
-    elif isinstance(e, Equals):
-        ln: Number = e.left
-        rn: Number = e.right
-        return lambda line: evaluate(ln)(line) == evaluate(rn)(line)
-    elif isinstance(e, GreaterThan):
-        return lambda line: evaluate(ln)(line) > evaluate(rn)(line)
-    elif isinstance(e, LessThan):
-        return lambda line: evaluate(ln)(line) < evaluate(rn)(line)
     elif isinstance(e, Literal):
         v = e.val
         return lambda _: v
+    elif isinstance(e, Equals):
+        lneq: Number = e.left
+        rneq: Number = e.right
+        return lambda line: evaluate(lneq)(line) == evaluate(rneq)(line)
+    elif isinstance(e, GreaterThan):
+        lngt: Number = e.left
+        rngt: Number = e.right
+        return lambda line: evaluate(lngt)(line) > evaluate(rngt)(line)
+    elif isinstance(e, LessThan):
+        lnlt: Number = e.left
+        rnlt: Number = e.right
+        return lambda line: evaluate(lnlt)(line) < evaluate(rnlt)(line)
     else:
         raise NotImplementedError(str(e))
 
