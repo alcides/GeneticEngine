@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.grammar import Grammar
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.tree.treebased import (
     crossover as tree_crossover,

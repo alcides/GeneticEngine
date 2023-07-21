@@ -20,11 +20,13 @@ Documentation
 
 ```python
 class MyExpr(ABC):
+	"MyExpr is a non-terminal/abstract class."
 	def eval(self):
 		...
 
 @dataclass
 class Plus(MyExpr):
+	"E -> E + E"
 	left: MyExpr
 	right: MyExpr
 
@@ -33,6 +35,7 @@ class Plus(MyExpr):
 
 @dataclass
 class Literal(MyExpr):
+	"E -> <int>"
 	value: int
 
 	def eval(self):

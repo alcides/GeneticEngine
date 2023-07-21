@@ -32,10 +32,9 @@ def relabel_nodes(
     g: Grammar,
     is_list: bool = False,
 ) -> tuple[int, int, dict[type, list[Any]], int]:
-    """Recomputes node specifics in the tree.\n
-    Returns the number of nodes, distance to terminal (depth), typed this way,
-    and the weighted number of nodes (counting depth points instead of
-    nodes)."""
+    """Recomputes node specifics in the tree.\n Returns the number of nodes,
+    distance to terminal (depth), typed this way, and the weighted number of
+    nodes (counting depth points instead of nodes)."""
     non_terminals = g.non_terminals
     children: list[Any]
     if getattr(i, "gengy_labeled", False):
@@ -106,17 +105,19 @@ def relabel_nodes_of_trees(i: TreeNode, g: Grammar) -> TreeNode:
     relabel_nodes(i, g)
     return i
 
+
 def get_nodes_depth_specific(i: TreeNode, g: Grammar):
     depth = i.gengy_distance_to_term
     if not i.gengy_labeled:
         relabel_nodes_of_trees(i, g)
-    
+
     nodes_depth_specific: dict[str, float] = dict()
+
     def add_count(node: TreeNode, n_d_spec_dict: dict[str, float]):
         if hasattr(node, "gengy_distance_to_term"):
-            try: 
+            try:
                 n_d_spec_dict[str(depth - node.gengy_distance_to_term)] += 1
-            except:
+            except Exception:
                 n_d_spec_dict[str(depth - node.gengy_distance_to_term)] = 1
 
         if not (is_terminal(type(node), g.non_terminals) and (not isinstance(node, list))):
@@ -129,6 +130,6 @@ def get_nodes_depth_specific(i: TreeNode, g: Grammar):
             for t, c in children:
                 n_d_spec_dict = add_count(c, n_d_spec_dict)
         return n_d_spec_dict
-    
+
     add_count(i, nodes_depth_specific)
     return nodes_depth_specific
