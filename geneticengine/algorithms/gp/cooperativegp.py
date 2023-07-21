@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable, TypeVar
+from typing import Callable, Optional, TypeVar
 
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.gp.operators.initializers import StandardInitializer
@@ -32,14 +32,14 @@ class CooperativeGP:
         grammar1: Grammar,
         grammar2: Grammar,
         function: Callable[[a, b], float],
-        representation1: Representation | None = None,
-        representation2: Representation | None = None,
+        representation1: Optional[Representation] = None,
+        representation2: Optional[Representation] = None,
         population1_size: int = 100,
         population2_size: int = 200,
         coevolutions: int = 1000,
-        random_source: Source | None = None,
-        kwargs1: dict | None = None,
-        kwargs2: dict | None = None,
+        random_source: Optional[Source] = None,
+        kwargs1: Optional[dict] = None,
+        kwargs2: Optional[dict] = None,
     ):
         """Creates a new object to co-evolve species1 and species2.
 
