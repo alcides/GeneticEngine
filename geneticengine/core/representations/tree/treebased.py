@@ -14,7 +14,6 @@ from geneticengine.core.representations.tree.initializations import (
     grow_method,
 )
 from geneticengine.core.representations.tree.initializations import mk_save_init
-from geneticengine.core.representations.tree.initializations import grow_method
 from geneticengine.core.representations.tree.utils import relabel_nodes
 from geneticengine.core.representations.tree.utils import relabel_nodes_of_trees
 from geneticengine.core.tree import TreeNode
