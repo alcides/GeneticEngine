@@ -163,7 +163,7 @@ class RampedHalfAndHalfInitializer(PopulationInitializer):
                 )
                 for i in range(target_size - mid)
             ]
-        return
+        return pop
 
 class InjectInitialPopulationWrapper(PopulationInitializer):
     """Starts with an initial population, and relies on another initializer if it's
