@@ -14,7 +14,7 @@ from geneticengine.core.representations.tree.initializations import (
     grow_method,
 )
 from geneticengine.core.representations.tree.initializations import mk_save_init
-from geneticengine.core.representations.tree.initializations import pi_grow_method
+from geneticengine.core.representations.tree.initializations import grow_method
 from geneticengine.core.representations.tree.utils import relabel_nodes
 from geneticengine.core.representations.tree.utils import relabel_nodes_of_trees
 from geneticengine.core.tree import TreeNode
@@ -34,7 +34,7 @@ def random_node(
     g: Grammar,
     max_depth: int,
     starting_symbol: type[Any] | None = None,
-    method: InitializationMethodType = pi_grow_method,
+    method: InitializationMethodType = grow_method,
 ):
     starting_symbol = starting_symbol if starting_symbol else g.starting_symbol
     return method(r, g, max_depth, starting_symbol)
@@ -44,7 +44,7 @@ def random_individual(
     r: Source,
     g: Grammar,
     max_depth: int = 5,
-    method: InitializationMethodType = pi_grow_method,
+    method: InitializationMethodType = grow_method,
 ) -> TreeNode:
     try:
         assert max_depth >= g.get_min_tree_depth()
