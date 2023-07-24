@@ -140,19 +140,30 @@ class RampedHalfAndHalfInitializer(PopulationInitializer):
             interval = (representation.max_depth - representation.min_depth) + 1
             v = representation.min_depth + (i % interval)
             return v
-
-        return [
-            Individual(
-                representation.create_individual(
-                    r=random_source,
-                    depth=bound(i),
-                    initialization_method=random_source.choice([grow_method, full_method]),
-                ),
-                genotype_to_phenotype=representation.genotype_to_phenotype,
-            )
-            for i in range(target_size)
-        ]
-
+        
+        mid = target_size // 2
+        pop = [
+                Individual(
+                    representation.create_individual(
+                        r=random_source,
+                        depth=bound(i),
+                        initialization_method=random_source.choice([grow_method, full_method]),
+                    ),
+                    genotype_to_phenotype=representation.genotype_to_phenotype,
+                )
+                for i in range(mid)
+            ] + [
+                Individual(
+                    representation.create_individual(
+                        r=random_source,
+                        depth=representation.max_depth,
+                        initialization_method=random_source.choice([grow_method, full_method]),
+                    ),
+                    genotype_to_phenotype=representation.genotype_to_phenotype,
+                )
+                for i in range(target_size - mid)
+            ]
+        return
 
 class InjectInitialPopulationWrapper(PopulationInitializer):
     """Starts with an initial population, and relies on another initializer is
