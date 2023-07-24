@@ -166,7 +166,7 @@ class RampedHalfAndHalfInitializer(PopulationInitializer):
         return
 
 class InjectInitialPopulationWrapper(PopulationInitializer):
-    """Starts with an initial population, and relies on another initializer is
+    """Starts with an initial population, and relies on another initializer if it's
     necessary to fulfill the population size."""
 
     def __init__(self, programs: list[Any], backup: PopulationInitializer):
