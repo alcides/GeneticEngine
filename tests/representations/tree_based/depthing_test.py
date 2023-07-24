@@ -6,7 +6,7 @@ from typing import Annotated
 
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.tree.treebased import pi_grow_method
+from geneticengine.core.representations.tree.initializations import pi_grow_method
 from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.metahandlers.lists import ListSizeBetween
 
