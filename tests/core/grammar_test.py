@@ -62,7 +62,7 @@ class TestGrammar:
     def test_rec(self):
         r = RandomSource(seed=1)
         g = extract_grammar([Leaf, Rec], Root)
-        x = random_node(r, g, 10, Root, InitializationMethodType=pi_grow_method)
+        x = random_node(r, g, 10, Root, method=pi_grow_method)
         # print(x) -- Leaf()
         assert isinstance(x, Rec)
         assert isinstance(x, Root)
@@ -75,7 +75,7 @@ class TestGrammar:
             g,
             max_depth=15,
             starting_symbol=Root,
-            InitializationMethodType=pi_grow_method,
+            method=pi_grow_method,
         )
         assert contains_type(x, RecAlt)
         assert isinstance(x, Root)
