@@ -64,6 +64,16 @@ class IntList(MetaHandlerGenerator):
     ):
         rec(r.choice(self.elements, str(base_type)))
 
+    def inverse_generate(
+        self,
+        g: Grammar,
+        depth: int,
+        rec,
+        base_type,
+        instance,
+    ):
+        return self.options.index(instance)
+
     def __class_getitem__(self, args):
         return IntList(*args)
 
