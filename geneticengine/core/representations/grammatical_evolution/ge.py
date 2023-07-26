@@ -95,9 +95,8 @@ def phenotype_to_genotype(
     
     def normalvariate_inverse(mean: float, sigma: float, v: float):
         z0 = (v - mean)/sigma
-        u1 = 0.5
-        z1 = math.sqrt(-2.0 * math.log(u1))
-        u2 = math.acos(z0/z1)/(2 * math.pi)
+        u1 = math.e**((z0**2)/(-2.0))
+        u2 = 0 if z0 > 0 else 0.5
         return random_float_inverse(0.0, 1.0, u1), random_float_inverse(0.0, 1.0, u2)
     
     def apply_inverse_metahandler(
