@@ -123,7 +123,7 @@ def phenotype_to_genotype(
             instance,
         ) 
     
-    def reconstruct_genotype(t: TreeNode, starting_symbol, depth: int, dna: list[int]):
+    def reconstruct_genotype(t: Any, starting_symbol, depth: int, dna: list[int]):
         if type(t) not in [int, float, str, bool, list]:
             dna += find_choices_super(t, starting_symbol, depth)
         if is_metahandler(starting_symbol):

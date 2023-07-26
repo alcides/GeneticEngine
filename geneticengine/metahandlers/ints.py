@@ -72,7 +72,7 @@ class IntList(MetaHandlerGenerator):
         base_type,
         instance,
     ):
-        return self.options.index(instance)
+        return self.elements.index(instance)
 
     def __class_getitem__(self, args):
         return IntList(*args)
