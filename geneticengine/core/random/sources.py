@@ -74,7 +74,7 @@ class Source(abc.ABC):
     ):
         inner_type = get_generic_parameter(ty)
         size = 1
-        if depth > 0:
+        if depth > 1:
             size = self.randint(1, depth, prod)
         fins = build_finalizers(lambda *x: receiver(GengyList(inner_type, x)), size)
         ident = ctx["_"]
