@@ -17,7 +17,7 @@ from geneticengine.core.representations.tree.initializations import pi_grow_meth
 from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.core.tree import TreeNode
 from geneticengine.core.evaluators import Evaluator
-from geneticengine.core.utils import get_arguments, get_generic_parameter, is_terminal
+from geneticengine.core.utils import get_arguments, is_terminal
 from geneticengine.metahandlers.base import is_metahandler
 
 MAX_VALUE = 10000000
@@ -74,7 +74,6 @@ def phenotype_to_genotype(
 
     def find_choices_super(t: TreeNode, ttype, depth: int):
         choices = []
-        grammar = g
         supers = type(t).__mro__
         ttype_index = supers.index(ttype)
         i = 1

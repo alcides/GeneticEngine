@@ -4,7 +4,6 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
 
-import pytest
 from geneticengine.core.decorators import abstract
 
 from geneticengine.core.grammar import extract_grammar
@@ -13,7 +12,6 @@ from geneticengine.core.representations.tree.initializations import grow_method,
 from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.core.representations.grammatical_evolution.ge import phenotype_to_genotype
 from geneticengine.core.representations.grammatical_evolution.ge import create_tree
-from geneticengine.core.representations.grammatical_evolution.ge import Genotype
 from geneticengine.metahandlers.vars import VarRange
 
 
