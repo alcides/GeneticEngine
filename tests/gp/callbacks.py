@@ -2,6 +2,7 @@ from abc import ABC
 import numpy as np
 import pandas as pd
 from dataclasses import dataclass
+from geneticengine.algorithms.callbacks.callback import ProgressCallback, DebugCallback, PrintBestCallback
 from geneticengine.algorithms.callbacks.csv_callback import CSVCallback
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
@@ -107,3 +108,71 @@ class TestCSVCallback:
         assert all(v == extra_val for v in df["a"])
         assert all(v == g for v, g in zip(df["b"], df["Generations"]))
         assert all(v == population_size for v in df["c"])
+
+class TestProgressCallback:
+    def test_basic_fields(self):
+        seed = 123
+        max_generations = 5
+
+        g = extract_grammar([Leaf], Root)
+
+        objective = SingleObjectiveProblem(
+            lambda p: 1,
+            minimize=True,
+        )
+
+        gp = GP(
+            representation=TreeBasedRepresentation(g, max_depth=10),
+            problem=objective,
+            population_size=10,
+            stopping_criterium=GenerationStoppingCriterium(max_generations=max_generations),
+            callbacks=[ProgressCallback],
+            random_source=RandomSource(seed),
+        )
+        gp.evolve()  
+
+class TestDebugCallback:
+    def test_basic_fields(self):
+        seed = 123
+        max_generations = 5
+
+        g = extract_grammar([Leaf], Root)
+
+        objective = SingleObjectiveProblem(
+            lambda p: 1,
+            minimize=True,
+        )
+
+        gp = GP(
+            representation=TreeBasedRepresentation(g, max_depth=10),
+            problem=objective,
+            population_size=10,
+            stopping_criterium=GenerationStoppingCriterium(max_generations=max_generations),
+            callbacks=[DebugCallback],
+            random_source=RandomSource(seed),
+        )
+        gp.evolve()  
+
+class TestPrintBestCallback:
+    def test_basic_fields(self):
+        seed = 123
+        max_generations = 5
+
+        g = extract_grammar([Leaf], Root)
+
+        objective = SingleObjectiveProblem(
+            lambda p: 1,
+            minimize=True,
+        )
+
+        gp = GP(
+            representation=TreeBasedRepresentation(g, max_depth=10),
+            problem=objective,
+            population_size=10,
+            stopping_criterium=GenerationStoppingCriterium(max_generations=max_generations),
+            callbacks=[PrintBestCallback],
+            random_source=RandomSource(seed),
+        )
+        gp.evolve()
+
+        
