@@ -102,7 +102,7 @@ class GP(Heuristics):
             return time.time() - start
 
         for cb in self.callbacks:
-            cb.process_iteration(generation, population, elapsed_time(), gp=self)
+            cb.process_iteration(self=cb, generation=generation, population=population, time=elapsed_time(), gp=self)
 
         while not self.stopping_criterium.is_ended(
             self.problem,
@@ -124,10 +124,10 @@ class GP(Heuristics):
             self.evaluator.eval(self.problem, population)
             assert len(population) == self.population_size
             for cb in self.callbacks:
-                cb.process_iteration(generation, population, elapsed_time(), gp=self)
+                cb.process_iteration(self=cb, generation=generation, population=population, time=elapsed_time(), gp=self)
 
         self.final_population = population
         best_individual = self.get_best_individual(self.problem, population)
         for cb in self.callbacks:
-            cb.end_evolution()
+            cb.end_evolution(cb)
         return best_individual
