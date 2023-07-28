@@ -256,7 +256,7 @@ def find_in_tree(g: Grammar, ty: type, o: TreeNode, max_depth: int):
 
 
 def find_in_tree_exact(g: Grammar, ty: type, o: TreeNode, max_depth: int):
-    if hasattr(o, "gengy_types_this_way"):
+    if hasattr(o, "gengy_types_this_way") and ty in o.gengy_types_this_way:
         vals = o.gengy_types_this_way[ty]
         if vals:
 
