@@ -13,10 +13,7 @@ from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriteri
 from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.tree.initializations import grow_method
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation, TypeSpecificTBMutation, random_individual
-from geneticengine.core.representations.tree.utils import get_nodes_depth_specific, relabel_nodes_of_trees
+from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation, TypeSpecificTBMutation
 from geneticengine.metahandlers.lists import ListSizeBetween
 
 
