@@ -1,6 +1,6 @@
 from __future__ import annotations
 import sys
-from typing import Any
+from typing import Any, TypeVar
 from typing import Callable
 
 from geneticengine.core.decorators import get_gengy
@@ -210,6 +210,31 @@ def pi_grow_method(
     return n
 
 
+T = TypeVar("T")
+
+
+def random_list(
+    r: Source,
+    receiver,
+    new_symbol,
+    depth: int,
+    ty: type[list[T]],
+    ctx: dict[str, str],
+    prod: str = "",
+):
+    inner_type = get_generic_parameter(ty)
+    size = 1
+    if depth > 0:
+        size = r.randint(1, depth, prod)
+    fins = build_finalizers(lambda *x: receiver(GengyList(inner_type, x)), size)
+    ident = ctx["_"]
+    for i, fin in enumerate(fins):
+        nctx = ctx.copy()
+        nident = ident + "_" + str(i)
+        nctx["_"] = nident
+        new_symbol(inner_type, fin, depth, nident, nctx)
+
+
 def expand_node(
     r: Source,
     g: Grammar,
@@ -260,7 +285,8 @@ def expand_node(
     elif is_generic_list(starting_symbol):
         ctx = ctx.copy()
         ctx["_"] = id
-        r.random_list(
+        random_list(
+            r,
             receiver,
             new_symbol,
             depth,
