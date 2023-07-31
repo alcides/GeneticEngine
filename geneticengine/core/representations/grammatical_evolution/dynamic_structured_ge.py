@@ -16,7 +16,7 @@ from geneticengine.core.representations.tree.initializations import (
 from geneticengine.core.representations.tree.initializations import grow_method
 from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.core.tree import TreeNode
-from geneticengine.core.utils import get_arguments, get_generic_parameters
+from geneticengine.core.utils import get_arguments, get_generic_parameters, is_terminal
 from geneticengine.core.utils import get_generic_parameter
 from geneticengine.core.utils import is_generic
 from geneticengine.core.utils import is_generic_list
@@ -300,6 +300,137 @@ def crossover(
     return (Genotype(c1), Genotype(c2))
 
 
+def phenotype_to_genotype(
+    r: Source,
+    g: Grammar,
+    p: TreeNode,
+    depth: int,
+) -> Genotype:
+    """An imperfect method that tries to reconstruct the genotype from the
+    phenotype for the grow method.
+
+    It is not possible to reconstruct integers and floats, due to the
+    way integers and floats are constructed using a normalvariate
+    function. However, the tree structure and node types are preserved.
+    Therefore, this method can be used in the initialization process of
+    trees.
+    """
+    assert p.gengy_distance_to_term <= depth
+    nodes = [str(node) for node in g.all_nodes]
+    for node in g.all_nodes:
+        arguments = get_arguments(node)
+        for _, arg in arguments:
+            if is_generic(arg):
+                nodes.append(str(arg))
+            base_type = str(strip_annotations(arg))
+            if base_type not in nodes:
+                nodes.append(base_type)
+
+    dna: dict[str, list[int]] = dict()
+    for nodestr in nodes:
+        dna[nodestr] = list()
+    dna[LEFTOVER_KEY] = [
+        r.randint(0, MAX_RAND_INT) for _ in range(1000)
+    ]  # Necessary to source from when a production rule runs out of genes.
+
+    non_terminals = g.non_terminals
+
+    def filter_choices(possible_choices: list[type], depth):
+        valid_productions = [vp for vp in possible_choices if g.get_distance_to_terminal(vp) <= depth]
+        return valid_productions
+
+    def find_choices_super(t: TreeNode, ttype, depth: int):
+        supers = type(t).__mro__
+        ttype_index = supers.index(ttype)
+        i = 1
+        while i <= ttype_index:
+            randint = r.randint(1, MAX_VALUE)
+            possible_choices = filter_choices(g.alternatives[ttype], depth)
+            choice = possible_choices.index(supers[ttype_index - i])
+            dna[str(ttype)].append(choice + randint * len(possible_choices))
+            ttype = g.alternatives[ttype][choice]
+            i += 1
+
+    def randint_inverse(min: int, max: int, v: int) -> int:
+        assert v >= min
+        assert v <= max
+        return v - min
+
+    def random_float_inverse(min: float, max: float, v: float) -> int:
+        k = round((max - min) / (v - min))
+        return randint_inverse(1, MAX_VALUE, k)
+
+    def normalvariate_inverse(mean: float, sigma: float, v: float):
+        # z0 = (v - mean) / sigma
+        # u1 = math.e ** ((z0**2) / (-2.0))
+        # u2 = 0 if z0 > 0 else 0.5
+        # return random_float_inverse(0.0, 1.0, u1), random_float_inverse(0.0, 1.0, u2)
+        return r.randint(1, MAX_VALUE), r.randint(1, MAX_VALUE)
+
+    def apply_inverse_metahandler(
+        g: Grammar,
+        depth: int,
+        rec,
+        base_type,
+        instance,
+        random_number: int,
+    ) -> Any:
+        """This method applies the inverse metahandler to use a custom
+        generator for things of a given type.
+
+        As an example, AnnotatedType[int, IntRange(3,10)] will use the
+        IntRange.generate(r, recursive_generator). The generator is the
+        annotation on the type ("__metadata__").
+        """
+        metahandler = base_type.__metadata__[0]
+        return metahandler.inverse_generate(
+            g,
+            depth,
+            rec,
+            base_type,
+            instance,
+            random_number,
+        )
+
+    def reconstruct_genotype(t: Any, starting_symbol, depth: int, dna: dict[str, list[int]]):
+        if type(t) not in [int, float, str, bool, list]:
+            find_choices_super(t, starting_symbol, depth)
+        if is_metahandler(starting_symbol):
+            # reconstruct metahandler?
+            x = apply_inverse_metahandler(g, depth, reconstruct_genotype, starting_symbol, t, r.randint(1, MAX_VALUE))
+            # import IPython as ip
+            # ip.embed()
+            dna[str(strip_annotations(starting_symbol))].append(x)
+        else:
+            if is_terminal(type(t), non_terminals) and (not isinstance(t, list)):
+                if isinstance(t, int) or isinstance(t, float):
+                    x1, x2 = normalvariate_inverse(0, 100, t)
+                    dna[str(type(t))].append(x1)
+                    dna[str(type(t))].append(x2)
+                if isinstance(t, bool):
+                    if t:
+                        dna[str(type(t))].append(0)
+                    else:
+                        dna[str(type(t))].append(1)
+            else:
+                if isinstance(t, list):
+                    if depth > 1:
+                        x = randint_inverse(1, depth, len(t))
+                        dna[str(type(t))].append(x + depth * r.randint(1, MAX_VALUE))
+                    children = [(type(obj), obj) for obj in t]
+                else:
+                    if not hasattr(t, "gengy_init_values"):
+                        breakpoint()
+                    children = [(typ[1], t.gengy_init_values[idx]) for idx, typ in enumerate(get_arguments(t))]
+                for t, child in children:
+                    dna = reconstruct_genotype(child, t, depth - 1, dna)
+        return dna
+
+    dna = reconstruct_genotype(p, g.starting_symbol, depth, dna)
+
+    return Genotype(dna)
+
+
 class DynamicStructuredListWrapper(Source):
     ind: Genotype
     indexes: dict[str, int]
@@ -483,9 +614,7 @@ class DynamicStructuredGrammaticalEvolutionRepresentation(
     def phenotype_to_genotype(self, r: Source, phenotype: Any) -> Genotype:
         """Takes an existing program and adapts it to be used in the right
         representation."""
-        raise NotImplementedError(
-            "Reconstruction of genotype not supported in this representation.",
-        )
+        return phenotype_to_genotype(r, self.grammar, phenotype, self.max_depth)
 
     def get_mutation(self) -> MutationOperator[Genotype]:
         return DefaultDSGEMutation()
