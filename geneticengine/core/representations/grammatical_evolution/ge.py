@@ -12,7 +12,7 @@ from geneticengine.core.representations.api import Representation
 from geneticengine.core.representations.tree.initializations import (
     InitializationMethodType,
 )
-from geneticengine.core.representations.tree.initializations import pi_grow_method
+from geneticengine.core.representations.tree.initializations import grow_method
 from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.core.tree import TreeNode
 from geneticengine.core.evaluators import Evaluator
@@ -38,7 +38,7 @@ def random_individual(
 
 
 def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
-    rindex = r.randint(0, 255)
+    rindex = r.randint(0, len(ind.dna) - 1)
     clone = [i for i in ind.dna]
     clone[rindex] = r.randint(0, 10000)
     return Genotype(clone)
@@ -51,9 +51,10 @@ def crossover(
     p2: Genotype,
     max_depth: int,
 ) -> tuple[Genotype, Genotype]:
-    rindex = r.randint(0, 255)
-    c1 = p1.dna[:rindex] + p2.dna[rindex:]
-    c2 = p2.dna[:rindex] + p1.dna[rindex:]
+    rindex1 = r.randint(0, len(p1.dna) - 1)
+    rindex2 = r.randint(0, len(p2.dna) - 1)
+    c1 = p1.dna[:rindex1] + p2.dna[rindex2:]
+    c2 = p2.dna[:rindex2] + p1.dna[rindex1:]
     return (Genotype(c1), Genotype(c2))
 
 
@@ -64,7 +65,7 @@ def phenotype_to_genotype(
     depth: int,
 ) -> Genotype:
     """An imperfect method that tries to reconstruct the genotype from the
-    phenotype.
+    phenotype for the grow method.
 
     It is not possible to reconstruct integers and floats, due to the
     way integers and floats are constructed using a normalvariate
@@ -170,7 +171,6 @@ def phenotype_to_genotype(
         return dna
 
     dna = reconstruct_genotype(p, g.starting_symbol, depth, dna)
-    print(dna)
 
     return Genotype(dna)
 
@@ -194,7 +194,7 @@ def create_tree(
     g: Grammar,
     ind: Genotype,
     depth: int,
-    initialization_mode: InitializationMethodType = pi_grow_method,
+    initialization_mode: InitializationMethodType = grow_method,
 ) -> TreeNode:
     rand: Source = ListWrapper(ind.dna)
     return random_node(rand, g, depth, g.starting_symbol, initialization_mode)
@@ -245,7 +245,7 @@ class GrammaticalEvolutionRepresentation(Representation[Genotype, TreeNode]):
         self,
         grammar: Grammar,
         max_depth: int,
-        initialization_mode: InitializationMethodType = pi_grow_method,
+        initialization_mode: InitializationMethodType = grow_method,
     ):
         """
         Args:

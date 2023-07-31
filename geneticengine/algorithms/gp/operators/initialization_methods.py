@@ -8,7 +8,7 @@ from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
 from geneticengine.core.representations.tree.initializations import full_method, grow_method
 from geneticengine.core.representations.tree.initializations import pi_grow_method
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.core.representations.tree.treebased import random_individual
 
 
 class FullInitializer(PopulationInitializer):
@@ -23,14 +23,17 @@ class FullInitializer(PopulationInitializer):
         target_size: int,
         **kwargs,
     ) -> list[Individual]:
-        assert isinstance(representation, TreeBasedRepresentation)
         return [
             Individual(
-                representation.create_individual(
+                representation.phenotype_to_genotype(
                     random_source,
-                    depth=representation.max_depth,
-                    initialization_method=full_method,
-                    **kwargs,
+                    random_individual(
+                        r=random_source,
+                        g=representation.grammar,
+                        max_depth=representation.max_depth,
+                        method=full_method,
+                        **kwargs,
+                    ),
                 ),
                 genotype_to_phenotype=representation.genotype_to_phenotype,
             )
@@ -50,14 +53,17 @@ class GrowInitializer(PopulationInitializer):
         target_size: int,
         **kwargs,
     ) -> list[Individual]:
-        assert isinstance(representation, TreeBasedRepresentation)
         return [
             Individual(
-                representation.create_individual(
+                representation.phenotype_to_genotype(
                     random_source,
-                    representation.max_depth,
-                    initialization_method=grow_method,
-                    **kwargs,
+                    random_individual(
+                        r=random_source,
+                        g=representation.grammar,
+                        max_depth=representation.max_depth,
+                        method=grow_method,
+                        **kwargs,
+                    ),
                 ),
                 genotype_to_phenotype=representation.genotype_to_phenotype,
             )
@@ -77,14 +83,17 @@ class PositionIndependentGrowInitializer(PopulationInitializer):
         target_size: int,
         **kwargs,
     ) -> list[Individual]:
-        assert isinstance(representation, TreeBasedRepresentation)
         return [
             Individual(
-                representation.create_individual(
+                representation.phenotype_to_genotype(
                     random_source,
-                    representation.max_depth,
-                    initialization_method=pi_grow_method,
-                    **kwargs,
+                    random_individual(
+                        r=random_source,
+                        g=representation.grammar,
+                        max_depth=representation.max_depth,
+                        method=pi_grow_method,
+                        **kwargs,
+                    ),
                 ),
                 genotype_to_phenotype=representation.genotype_to_phenotype,
             )
@@ -103,8 +112,6 @@ class RampedInitializer(PopulationInitializer):
         random_source: Source,
         target_size: int,
     ) -> list[Individual]:
-        assert isinstance(representation, TreeBasedRepresentation)
-
         def bound(i: int):
             interval = (representation.max_depth - representation.min_depth) + 1
             v = representation.min_depth + (i % interval)
@@ -112,7 +119,15 @@ class RampedInitializer(PopulationInitializer):
 
         return [
             Individual(
-                representation.create_individual(r=random_source, depth=bound(i), initialization_method=pi_grow_method),
+                representation.phenotype_to_genotype(
+                    random_source,
+                    random_individual(
+                        r=random_source,
+                        g=representation.grammar,
+                        max_depth=bound(i),
+                        method=grow_method,
+                    ),
+                ),
                 genotype_to_phenotype=representation.genotype_to_phenotype,
             )
             for i in range(target_size)
@@ -134,8 +149,6 @@ class RampedHalfAndHalfInitializer(PopulationInitializer):
         random_source: Source,
         target_size: int,
     ) -> list[Individual]:
-        assert isinstance(representation, TreeBasedRepresentation)
-
         def bound(i: int):
             interval = (representation.max_depth - representation.min_depth) + 1
             v = representation.min_depth + (i % interval)
@@ -144,20 +157,28 @@ class RampedHalfAndHalfInitializer(PopulationInitializer):
         mid = target_size // 2
         pop = [
             Individual(
-                representation.create_individual(
-                    r=random_source,
-                    depth=bound(i),
-                    initialization_method=random_source.choice([grow_method, full_method]),
+                representation.phenotype_to_genotype(
+                    random_source,
+                    random_individual(
+                        r=random_source,
+                        g=representation.grammar,
+                        max_depth=bound(i),
+                        method=random_source.choice([grow_method, full_method]),
+                    ),
                 ),
                 genotype_to_phenotype=representation.genotype_to_phenotype,
             )
             for i in range(mid)
         ] + [
             Individual(
-                representation.create_individual(
-                    r=random_source,
-                    depth=representation.max_depth,
-                    initialization_method=random_source.choice([grow_method, full_method]),
+                representation.phenotype_to_genotype(
+                    random_source,
+                    random_individual(
+                        r=random_source,
+                        g=representation.grammar,
+                        max_depth=representation.max_depth,
+                        method=random_source.choice([grow_method, full_method]),
+                    ),
                 ),
                 genotype_to_phenotype=representation.genotype_to_phenotype,
             )
@@ -181,9 +202,12 @@ class InjectInitialPopulationWrapper(PopulationInitializer):
         random_source: Source,
         target_size: int,
     ) -> list[Individual]:
-        assert isinstance(representation, TreeBasedRepresentation)
         self.programs = [
-            Individual(p1, genotype_to_phenotype=representation.genotype_to_phenotype) for p1 in self.programs
+            Individual(
+                representation.phenotype_to_genotype(random_source, p1),
+                genotype_to_phenotype=representation.genotype_to_phenotype,
+            )
+            for p1 in self.programs
         ]
         if target_size > len(self.programs):
             return self.programs[:target_size]

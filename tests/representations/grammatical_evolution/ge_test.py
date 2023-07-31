@@ -3,15 +3,26 @@ from __future__ import annotations
 from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
+from geneticengine.algorithms.gp.operators.initialization_methods import (
+    FullInitializer,
+    GrowInitializer,
+    PositionIndependentGrowInitializer,
+    RampedHalfAndHalfInitializer,
+    RampedInitializer,
+)
 
 from geneticengine.core.decorators import abstract
 
 from geneticengine.analysis.production_analysis import count_productions
 from geneticengine.core.grammar import extract_grammar
+from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.tree.initializations import grow_method, pi_grow_method
 from geneticengine.core.representations.tree.treebased import random_node
-from geneticengine.core.representations.grammatical_evolution.ge import phenotype_to_genotype
+from geneticengine.core.representations.grammatical_evolution.ge import (
+    GrammaticalEvolutionRepresentation,
+    phenotype_to_genotype,
+)
 from geneticengine.core.representations.grammatical_evolution.ge import create_tree
 from geneticengine.core.utils import get_arguments
 from geneticengine.metahandlers.vars import VarRange
@@ -116,3 +127,106 @@ class TestPhenotypeToGenotype:
         assert count_productions(x, g) == count_productions(x2, g)
         assert count_productions(x1, g) == count_productions(x2, g)
         assert count_productions(x, g) == count_productions(x3, g)
+
+
+class TestInitializers:
+    def test_ramped_half_and_half(self):
+        r = RandomSource(seed=1)
+        g = extract_grammar([Root, RootSuper, Rec, Leaf, LeafLiteral, LeafVar], Root, False)
+        problem = SingleObjectiveProblem(
+            minimize=False,
+            fitness_function=lambda x: 1,
+        )
+
+        max_depth = 10
+        pop = RampedHalfAndHalfInitializer().initialize(
+            problem,
+            GrammaticalEvolutionRepresentation(g, max_depth=max_depth),
+            r,
+            5,
+        )
+        depths = list(map(lambda x: x.get_phenotype().gengy_distance_to_term, pop))
+        assert depths
+        assert max_depth in depths
+        for depth in depths:
+            assert depth <= max_depth
+
+    def test_ramped(self):
+        r = RandomSource(seed=1)
+        g = extract_grammar([Root, RootSuper, Rec, Leaf, LeafLiteral, LeafVar], Root, False)
+        problem = SingleObjectiveProblem(
+            minimize=False,
+            fitness_function=lambda x: 1,
+        )
+
+        max_depth = 10
+        pop = RampedInitializer().initialize(
+            problem,
+            GrammaticalEvolutionRepresentation(g, max_depth=max_depth),
+            r,
+            5,
+        )
+        depths = list(map(lambda x: x.get_phenotype().gengy_distance_to_term, pop))
+        assert depths
+        for depth in depths:
+            assert depth <= max_depth
+
+    def test_pi_grow(self):
+        r = RandomSource(seed=1)
+        g = extract_grammar([Root, RootSuper, Rec, Leaf, LeafLiteral, LeafVar], Root, False)
+        problem = SingleObjectiveProblem(
+            minimize=False,
+            fitness_function=lambda x: 1,
+        )
+
+        max_depth = 10
+        pop = PositionIndependentGrowInitializer().initialize(
+            problem,
+            GrammaticalEvolutionRepresentation(g, max_depth=max_depth),
+            r,
+            5,
+        )
+        depths = list(map(lambda x: x.get_phenotype().gengy_distance_to_term, pop))
+        assert depths
+        for depth in depths:
+            assert depth == max_depth
+
+    def test_grow(self):
+        r = RandomSource(seed=1)
+        g = extract_grammar([Root, RootSuper, Rec, Leaf, LeafLiteral, LeafVar], Root, False)
+        problem = SingleObjectiveProblem(
+            minimize=False,
+            fitness_function=lambda x: 1,
+        )
+
+        max_depth = 10
+        pop = GrowInitializer().initialize(
+            problem,
+            GrammaticalEvolutionRepresentation(g, max_depth=max_depth),
+            r,
+            5,
+        )
+        depths = list(map(lambda x: x.get_phenotype().gengy_distance_to_term, pop))
+        assert depths
+        for depth in depths:
+            assert depth <= max_depth
+
+    def test_full(self):
+        r = RandomSource(seed=1)
+        g = extract_grammar([Root, RootSuper, Rec, Leaf, LeafLiteral, LeafVar], Root, False)
+        problem = SingleObjectiveProblem(
+            minimize=False,
+            fitness_function=lambda x: 1,
+        )
+
+        max_depth = 10
+        pop = FullInitializer().initialize(
+            problem,
+            GrammaticalEvolutionRepresentation(g, max_depth=max_depth),
+            r,
+            5,
+        )
+        depths = list(map(lambda x: x.get_phenotype().gengy_distance_to_term, pop))
+        assert depths
+        for depth in depths:
+            assert depth == max_depth
