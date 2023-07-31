@@ -35,7 +35,7 @@ class VarRange(MetaHandlerGenerator):
         context: dict[str, str],
     ):
         rec(r.choice(self.options, str(base_type)))
-    
+
     def inverse_generate(
         self,
         g: Grammar,
@@ -43,8 +43,9 @@ class VarRange(MetaHandlerGenerator):
         rec,
         base_type,
         instance,
+        random_number,
     ):
-        return self.options.index(instance)
+        return self.options.index(instance) + random_number * len(self.options)
 
     def __repr__(self):
         return str(self.options)

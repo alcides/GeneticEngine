@@ -14,7 +14,7 @@ from geneticengine.core.problems import Problem
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.random.sources import Source
 from geneticengine.core.representations.api import Representation
-from geneticengine.core.representations.tree.operators import GrowInitializer
+from geneticengine.algorithms.gp.operators.initialization_methods import GrowInitializer
 
 
 class RandomSearch(GP):

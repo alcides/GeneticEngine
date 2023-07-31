@@ -7,7 +7,7 @@ from typing import Annotated
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.tree.operators import (
+from geneticengine.algorithms.gp.operators.initialization_methods import (
     RampedHalfAndHalfInitializer,
 )
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation

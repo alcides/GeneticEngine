@@ -70,6 +70,7 @@ class FloatList(MetaHandlerGenerator):
         rec,
         base_type,
         instance,
+        random_number: int,
     ):
         return self.elements.index(instance)
 

@@ -14,7 +14,7 @@ from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriteri
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.tree.operators import FullInitializer
+from geneticengine.algorithms.gp.operators.initialization_methods import FullInitializer
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 
 

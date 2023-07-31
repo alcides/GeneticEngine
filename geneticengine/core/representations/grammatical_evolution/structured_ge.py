@@ -227,7 +227,7 @@ class StructuredGrammaticalEvolutionRepresentation(Representation[Genotype, Tree
             self.initialization_mode,
         )
 
-    def phenotype_to_genotype(self, phenotype: Any) -> Genotype:
+    def phenotype_to_genotype(self, r: Source, phenotype: Any) -> Genotype:
         """Takes an existing program and adapts it to be used in the right
         representation."""
         raise NotImplementedError(

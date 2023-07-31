@@ -168,7 +168,8 @@ def random_individual(
                 max_depth,
             )
     elif is_generic(starting_symbol):
-        def recgen(v): 
+
+        def recgen(v):
             return random_individual(
                 r,
                 g,
@@ -178,7 +179,7 @@ def random_individual(
             )
 
         g_args = get_generic_parameters(starting_symbol)
-        assert tuple( recgen(a) for a in g_args )
+        assert tuple(recgen(a) for a in g_args)
     else:
         assert_depth_error(max_depth, g, starting_symbol)
         if starting_symbol not in g.all_nodes:
@@ -479,7 +480,7 @@ class DynamicStructuredGrammaticalEvolutionRepresentation(
             self.initialization_mode,
         )
 
-    def phenotype_to_genotype(self, phenotype: Any) -> Genotype:
+    def phenotype_to_genotype(self, r: Source, phenotype: Any) -> Genotype:
         """Takes an existing program and adapts it to be used in the right
         representation."""
         raise NotImplementedError(

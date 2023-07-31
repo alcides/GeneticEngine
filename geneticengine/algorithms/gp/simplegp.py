@@ -39,7 +39,7 @@ from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.problems import wrap_depth_minimization
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.api import Representation
-from geneticengine.core.representations.tree.operators import (
+from geneticengine.algorithms.gp.operators.initialization_methods import (
     FullInitializer,
     GrowInitializer,
     InjectInitialPopulationWrapper,
@@ -195,9 +195,11 @@ class SimpleGP(GP):
                 initialization_method
             ]()  # type: ignore
 
+        random_source = source_generator(seed)
+
         if force_individual:
             population_initializer = InjectInitialPopulationWrapper(
-                [representation_instance.phenotype_to_genotype(force_individual)],
+                [representation_instance.phenotype_to_genotype(random_source, force_individual)],
                 population_initializer,
             )
 
@@ -209,7 +211,6 @@ class SimpleGP(GP):
             ),
             favor_less_complex_trees,
         )
-        random_source = source_generator(seed)
 
         step: GeneticStep
 

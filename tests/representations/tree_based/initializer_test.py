@@ -8,7 +8,7 @@ from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.decorators import abstract
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.tree.operators import FullInitializer, GrowInitializer
+from geneticengine.algorithms.gp.operators.initialization_methods import FullInitializer, GrowInitializer
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.metahandlers.floats import FloatRange
 from geneticengine.metahandlers.ints import IntervalRange

@@ -42,12 +42,18 @@ class MetaHandlerGenerator(Protocol):
         rec,
         base_type,
         instance,
+        random_number: int,
     ):
-        """Returns the random values needed to generate the instance. This method is used for the phenotype_to_genotype mapping necessary for the initialization methods of the linear string representations.
+        """Returns the random values needed to generate the instance.
+
+        This method is used for the phenotype_to_genotype mapping
+        necessary for the initialization methods of the linear string
+        representations.
         """
 
-        raise NotImplementedError("You are trying to inverse generate a metahandler. The metahandler you are using does not have the inverse_generate method implemented.")
-        
+        raise NotImplementedError(
+            "You are trying to inverse generate a metahandler. The metahandler you are using does not have the inverse_generate method implemented.",
+        )
 
 
 def is_metahandler(ty: type) -> bool:

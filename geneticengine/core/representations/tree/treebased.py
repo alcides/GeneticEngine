@@ -661,7 +661,7 @@ class TreeBasedRepresentation(Representation[TreeNode, TreeNode]):
     def genotype_to_phenotype(self, genotype: TreeNode) -> TreeNode:
         return genotype
 
-    def phenotype_to_genotype(self, phenotype: Any) -> TreeNode:
+    def phenotype_to_genotype(self, r: Source, phenotype: Any) -> TreeNode:
         """Takes an existing program and adapts it to be used in the right
         representation."""
         return relabel_nodes_of_trees(

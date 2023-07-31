@@ -77,7 +77,7 @@ class Representation(Generic[g, p]):
         ...
 
     @abc.abstractmethod
-    def phenotype_to_genotype(self, phenotype: p) -> g:
+    def phenotype_to_genotype(self, r: Source, phenotype: p) -> g:
         """Takes an existing program and adapts it to be used in the right
         representation."""
         ...
