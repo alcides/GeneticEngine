@@ -32,21 +32,24 @@ def random_node(
     r: Source,
     g: Grammar,
     max_depth: int,
+    min_depth: int = None,
     starting_symbol: type[Any] | None = None,
     method: InitializationMethodType = grow_method,
 ):
     starting_symbol = starting_symbol if starting_symbol else g.starting_symbol
-    return method(r, g, max_depth, starting_symbol)
+    return method(r, g, max_depth, min_depth, starting_symbol)
 
 
 def random_individual(
     r: Source,
     g: Grammar,
     max_depth: int = 5,
+    min_depth: int = None,
     method: InitializationMethodType = grow_method,
 ) -> TreeNode:
     try:
         assert max_depth >= g.get_min_tree_depth()
+        assert max_depth >= min_depth
     except AssertionError:
         if g.get_min_tree_depth() == 1000000:
             raise GeneticEngineError(
@@ -57,7 +60,7 @@ def random_individual(
             f"""Cannot use complete grammar for individual creation. Max depth ({max_depth})
             is smaller than grammar's minimal tree depth ({g.get_min_tree_depth()}).""",
         )
-    ind = random_node(r, g, max_depth, g.starting_symbol, method)
+    ind = random_node(r, g, max_depth, min_depth, g.starting_symbol, method)
     assert isinstance(ind, TreeNode)
     return ind
 
@@ -96,7 +99,7 @@ def mutate_inner(
             replacement = None
             for _ in range(5):
                 try:
-                    replacement = random_node(r, g, max_depth, ty)
+                    replacement = random_node(r, g, max_depth, starting_symbol=ty)
                     if replacement != i:
                         break
                 except GeneticEngineError:
@@ -132,7 +135,7 @@ def mutate_inner(
         rn = None
         for _ in range(5):
             try:
-                rn = random_node(r, g, max_depth, ty)
+                rn = random_node(r, g, max_depth, starting_symbol=ty)
                 if rn != i:
                     break
             except GeneticEngineError:
@@ -317,7 +320,7 @@ def crossover_inner(
                 replacement = r.choice(options)
             if replacement is None:
                 for _ in range(5):
-                    replacement = random_node(r, g, max_depth, ty)
+                    replacement = random_node(r, g, max_depth, starting_symbol=ty)
                     if replacement != i:
                         break
 
@@ -656,7 +659,7 @@ class TreeBasedRepresentation(Representation[TreeNode, TreeNode]):
         **kwargs,
     ) -> TreeNode:
         actual_depth = depth or self.max_depth
-        return random_individual(r, self.grammar, actual_depth, initialization_method)
+        return random_individual(r, self.grammar, actual_depth, method=initialization_method)
 
     def genotype_to_phenotype(self, genotype: TreeNode) -> TreeNode:
         return genotype

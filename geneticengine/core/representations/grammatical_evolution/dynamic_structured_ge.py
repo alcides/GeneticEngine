@@ -13,7 +13,7 @@ from geneticengine.core.representations.api import Representation
 from geneticengine.core.representations.tree.initializations import (
     InitializationMethodType,
 )
-from geneticengine.core.representations.tree.initializations import pi_grow_method
+from geneticengine.core.representations.tree.initializations import grow_method
 from geneticengine.core.representations.tree.treebased import random_node
 from geneticengine.core.tree import TreeNode
 from geneticengine.core.utils import get_arguments, get_generic_parameters
@@ -344,10 +344,10 @@ def create_tree(
     g: Grammar,
     ind: Genotype,
     depth: int,
-    initialization_mode: InitializationMethodType = pi_grow_method,
+    initialization_mode: InitializationMethodType = grow_method,
 ) -> TreeNode:
     rand: Source = DynamicStructuredListWrapper(ind)
-    return random_node(rand, g, depth, g.starting_symbol, initialization_mode)
+    return random_node(rand, g, depth, starting_symbol=g.starting_symbol, method=initialization_mode)
 
 
 class DefaultDSGEMutation(MutationOperator[Genotype]):
@@ -451,7 +451,7 @@ class DynamicStructuredGrammaticalEvolutionRepresentation(
         self,
         grammar: Grammar,
         max_depth: int,
-        initialization_mode: InitializationMethodType = pi_grow_method,
+        initialization_mode: InitializationMethodType = grow_method,
     ):
         """
         Args:

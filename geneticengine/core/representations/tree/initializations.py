@@ -1,6 +1,6 @@
 from __future__ import annotations
 import sys
-from typing import Any, TypeVar
+from typing import Any, Optional, TypeVar
 from typing import Callable
 
 from geneticengine.core.decorators import get_gengy
@@ -47,56 +47,124 @@ def apply_metahandler(
     )  # todo: last argument
 
 
-InitializationMethodType = Callable[[Source, Grammar, int, type[Any]], Any]
+InitializationMethodType = Callable[[Source, Grammar, int, Optional[int], type[Any]], Any]
 
 
 def grow_method(
     r: Source,
     g: Grammar,
-    depth: int,
+    max_depth: int,
+    min_depth: int | None = None,
     starting_symbol: type[Any] = int,
 ):
     """Implements the standard Grow tree-initialization method, where trees are
-    naturally grown from the grammar."""
+    naturally grown from the grammar.
 
-    def filter_choices(possible_choices: list[type], depth):
-        valid_productions = [vp for vp in possible_choices if g.get_distance_to_terminal(vp) <= depth]
-        return valid_productions
+    If a minimum depth is given, the tree is first initialized using
+    Position Independent Grow, until the minimum tree depth is reached.
+    From then onwards, normal grow is used.
+    """
+    if min_depth:
+        assert min_depth <= max_depth
 
-    def handle_symbol(
-        next_type,
-        next_finalizer,
-        depth: int,
-        ident: str,
-        ctx: dict[str, str],
-    ):
-        expand_node(
-            r,
-            g,
-            handle_symbol,
-            filter_choices,
-            next_finalizer,
-            depth,
+        def filter_choices(possible_choices: list[type], depth):
+            current_depth = max_depth - depth
+            valid_productions = [vp for vp in possible_choices if g.distanceToTerminal[vp] <= depth]
+            if (
+                (nRecs[0] == 0)
+                and any(
+                    [  # Are we the last recursive symbol?
+                        prod in g.recursive_prods for prod in valid_productions
+                    ],  # Are there any  recursive symbols in our expansion?
+                )
+                and current_depth <= min_depth
+            ):
+                valid_productions = [
+                    vp for vp in valid_productions if vp in g.recursive_prods
+                ]  # If so, then only expand into recursive symbols
+
+            return valid_productions
+
+        state = {}
+
+        def final_finalize(x):
+            state["final"] = x
+
+        prodqueue = []
+        nRecs = [0]
+
+        def handle_symbol(
             next_type,
-            ident,
-            ctx,
-        )
+            next_finalizer,
+            depth: int,
+            ident: str,
+            ctx: dict[str, str],
+        ):
+            prodqueue.append((next_type, next_finalizer, depth, ident, ctx))
+            if next_type in g.recursive_prods:
+                nRecs[0] += 1
 
-    state = {}
+        handle_symbol(starting_symbol, final_finalize, max_depth, "root", ctx={})
 
-    def final_finalize(x):
-        state["final"] = x
+        while prodqueue:
+            next_type, next_finalizer, depth, ident, ctx = r.pop_random(prodqueue)
+            if next_type in g.recursive_prods:
+                nRecs[0] -= 1
+            expand_node(
+                r,
+                g,
+                handle_symbol,
+                filter_choices,
+                next_finalizer,
+                depth,
+                next_type,
+                ident,
+                ctx,
+            )
+        n = state["final"]
+        relabel_nodes_of_trees(n, g)
+        return n
+    else:
 
-    handle_symbol(starting_symbol, final_finalize, depth, "root", ctx={})
-    n = state["final"]
-    relabel_nodes_of_trees(n, g)
-    return n
+        def filter_choices(possible_choices: list[type], depth):
+            valid_productions = [vp for vp in possible_choices if g.get_distance_to_terminal(vp) <= depth]
+            return valid_productions
+
+        def handle_symbol(
+            next_type,
+            next_finalizer,
+            depth: int,
+            ident: str,
+            ctx: dict[str, str],
+        ):
+            expand_node(
+                r,
+                g,
+                handle_symbol,
+                filter_choices,
+                next_finalizer,
+                depth,
+                next_type,
+                ident,
+                ctx,
+            )
+
+        state = {}
+
+        def final_finalize(x):
+            state["final"] = x
+
+        handle_symbol(starting_symbol, final_finalize, max_depth, "root", ctx={})
+        n = state["final"]
+        relabel_nodes_of_trees(n, g)
+        return n
 
 
 def full_method(
     r: Source,
     g: Grammar,
-    depth: int,
+    max_depth: int,
+    min_depth: int | None = None,
     starting_symbol: type[Any] = int,
 ):
     """Full tree-initialization method.
@@ -136,7 +204,7 @@ def full_method(
     def final_finalize(x):
         state["final"] = x
 
-    handle_symbol(starting_symbol, final_finalize, depth, "root", ctx={})
+    handle_symbol(starting_symbol, final_finalize, max_depth, "root", ctx={})
     n = state["final"]
     relabel_nodes_of_trees(n, g)
     return n
@@ -145,7 +213,8 @@ def full_method(
 def pi_grow_method(
     r: Source,
     g: Grammar,
-    depth: int,
+    max_depth: int,
+    min_depth: int | None = None,
     starting_symbol: type[Any] = int,
 ):
     """PI Grow tree-initialization method.
@@ -172,7 +241,7 @@ def pi_grow_method(
         if next_type in g.recursive_prods:
             nRecs[0] += 1
 
-    handle_symbol(starting_symbol, final_finalize, depth, "root", ctx={})
+    handle_symbol(starting_symbol, final_finalize, max_depth, "root", ctx={})
 
     def filter_choices(possible_choices: list[type], depth):
         valid_productions = [vp for vp in possible_choices if g.distanceToTerminal[vp] <= depth]
