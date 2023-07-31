@@ -15,7 +15,7 @@ class FullInitializer(PopulationInitializer):
     """All individuals are created with full trees (maximum depth in all
     branches)."""
 
-    def __init__(self, min_init_depth=0, max_init_depth=None):
+    def __init__(self, min_init_depth=0, max_init_depth=0):
         self.min_init_depth = min_init_depth
         self.max_init_depth = max_init_depth
 
@@ -27,7 +27,7 @@ class FullInitializer(PopulationInitializer):
         target_size: int,
         **kwargs,
     ) -> list[Individual]:
-        if not self.max_init_depth:
+        if self.max_init_depth == 0:
             self.max_init_depth = representation.max_depth
         assert self.max_init_depth <= representation.max_depth
         assert self.min_init_depth <= self.max_init_depth
@@ -53,7 +53,7 @@ class GrowInitializer(PopulationInitializer):
     """All individuals are created expanding productions until a maximum depth,
     but without the requirement of reaching that depth."""
 
-    def __init__(self, min_init_depth=0, max_init_depth=None):
+    def __init__(self, min_init_depth=0, max_init_depth=0):
         self.min_init_depth = min_init_depth
         self.max_init_depth = max_init_depth
 
@@ -65,7 +65,7 @@ class GrowInitializer(PopulationInitializer):
         target_size: int,
         **kwargs,
     ) -> list[Individual]:
-        if not self.max_init_depth:
+        if self.max_init_depth == 0:
             self.max_init_depth == representation.max_depth
         assert self.max_init_depth <= representation.max_depth
         assert self.min_init_depth <= self.max_init_depth
@@ -92,7 +92,7 @@ class PositionIndependentGrowInitializer(PopulationInitializer):
     """All individuals are created expanding productions until a maximum depth,
     but without the requirement of reaching that depth."""
 
-    def __init__(self, min_init_depth=0, max_init_depth=None):
+    def __init__(self, min_init_depth=0, max_init_depth=0):
         self.min_init_depth = min_init_depth
         self.max_init_depth = max_init_depth
 
@@ -104,7 +104,7 @@ class PositionIndependentGrowInitializer(PopulationInitializer):
         target_size: int,
         **kwargs,
     ) -> list[Individual]:
-        if not self.max_init_depth:
+        if self.max_init_depth == 0:
             self.max_init_depth == representation.max_depth
         assert self.max_init_depth <= representation.max_depth
         assert self.min_init_depth <= self.max_init_depth
@@ -130,7 +130,7 @@ class RampedInitializer(PopulationInitializer):
     """This method uses the grow method from the minimum grammar depth to the
     maximum."""
 
-    def __init__(self, min_init_depth=0, max_init_depth=None, method=grow_method):
+    def __init__(self, min_init_depth=0, max_init_depth=0, method=grow_method):
         self.min_init_depth = min_init_depth
         self.max_init_depth = max_init_depth
         self.method = method
@@ -143,7 +143,7 @@ class RampedInitializer(PopulationInitializer):
         target_size: int,
     ) -> list[Individual]:
         self.min_init_depth = max(representation.min_depth, self.min_init_depth)
-        if not self.max_init_depth:
+        if self.max_init_depth == 0:
             self.max_init_depth = representation.max_depth
         assert self.max_init_depth <= representation.max_depth
         assert self.min_init_depth <= self.max_init_depth
@@ -179,7 +179,7 @@ class RampedHalfAndHalfInitializer(PopulationInitializer):
     There's an equal chance of using full or grow method.
     """
 
-    def __init__(self, min_init_depth=0, max_init_depth=None):
+    def __init__(self, min_init_depth=0, max_init_depth=0):
         self.min_init_depth = min_init_depth
         self.max_init_depth = max_init_depth
 
@@ -191,7 +191,7 @@ class RampedHalfAndHalfInitializer(PopulationInitializer):
         target_size: int,
     ) -> list[Individual]:
         self.min_init_depth = max(representation.min_depth, self.min_init_depth)
-        if not self.max_init_depth:
+        if self.max_init_depth == 0:
             self.max_init_depth = representation.max_depth
         assert self.max_init_depth <= representation.max_depth
         assert self.min_init_depth <= self.max_init_depth
