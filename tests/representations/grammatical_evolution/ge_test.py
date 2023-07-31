@@ -6,6 +6,7 @@ from typing import Annotated
 
 from geneticengine.core.decorators import abstract
 
+from geneticengine.analysis.production_analysis import count_productions
 from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.tree.initializations import grow_method, pi_grow_method
@@ -33,6 +34,11 @@ class Leaf(Root):
 @dataclass
 class LeafVar(Root):
     name: Annotated[str, VarRange(["x", "y", "z"])]
+
+
+@dataclass
+class LeafLiteral(Root):
+    name: int
 
 
 @dataclass
@@ -93,3 +99,20 @@ class TestPhenotypeToGenotype:
         assert x == x2
         assert x1 == x2
         assert x == x3
+
+    def test_literal_range(self):
+        r = RandomSource(seed=1)
+        g = extract_grammar([Leaf, Rec, RecAlt, LeafVar, LeafLiteral], RootSuper)
+        max_depth = 10
+        x = random_node(r, g, max_depth, RootSuper, method=pi_grow_method)
+        ind1 = phenotype_to_genotype(r=r, g=g, p=x, depth=max_depth)
+        x1 = create_tree(g, ind1, max_depth, initialization_mode=grow_method)
+        ind2 = phenotype_to_genotype(r=r, g=g, p=x, depth=max_depth + 5)
+        x2 = create_tree(g, ind2, max_depth + 5, initialization_mode=grow_method)
+        phenotype_to_genotype(r=r, g=g, p=x, depth=max_depth + 5)
+        x3 = create_tree(g, ind2, max_depth + 5, initialization_mode=grow_method)
+        assert contains_type(x, LeafLiteral)
+        assert count_productions(x, g) == count_productions(x1, g)
+        assert count_productions(x, g) == count_productions(x2, g)
+        assert count_productions(x1, g) == count_productions(x2, g)
+        assert count_productions(x, g) == count_productions(x3, g)

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-import math
 from typing import Any
 
 from geneticengine.core.grammar import Grammar
@@ -64,7 +63,7 @@ def phenotype_to_genotype(
     p: TreeNode,
     depth: int,
 ) -> Genotype:
-    """A imperfect method that tries to reconstruct the genotype from the
+    """An imperfect method that tries to reconstruct the genotype from the
     phenotype.
 
     It is not possible to reconstruct integers and floats, due to the
@@ -107,10 +106,11 @@ def phenotype_to_genotype(
         return randint_inverse(1, MAX_VALUE, k)
 
     def normalvariate_inverse(mean: float, sigma: float, v: float):
-        z0 = (v - mean) / sigma
-        u1 = math.e ** ((z0**2) / (-2.0))
-        u2 = 0 if z0 > 0 else 0.5
-        return random_float_inverse(0.0, 1.0, u1), random_float_inverse(0.0, 1.0, u2)
+        # z0 = (v - mean) / sigma
+        # u1 = math.e ** ((z0**2) / (-2.0))
+        # u2 = 0 if z0 > 0 else 0.5
+        # return random_float_inverse(0.0, 1.0, u1), random_float_inverse(0.0, 1.0, u2)
+        return r.randint(1, MAX_VALUE), r.randint(1, MAX_VALUE)
 
     def apply_inverse_metahandler(
         g: Grammar,
