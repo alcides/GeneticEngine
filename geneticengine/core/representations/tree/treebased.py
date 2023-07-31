@@ -49,7 +49,8 @@ def random_individual(
 ) -> TreeNode:
     try:
         assert max_depth >= g.get_min_tree_depth()
-        assert max_depth >= min_depth
+        if min_depth:
+            assert max_depth >= min_depth
     except AssertionError:
         if g.get_min_tree_depth() == 1000000:
             raise GeneticEngineError(
