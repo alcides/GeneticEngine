@@ -18,13 +18,16 @@ from geneticengine.metahandlers.vars import VarRange
 class RootSuper(ABC):
     pass
 
+
 @abstract
 class Root(RootSuper):
     pass
 
+
 @dataclass
 class Leaf(Root):
     pass
+
 
 @dataclass
 class LeafVar(Root):
@@ -47,8 +50,7 @@ class Useless(Root):
         pass  # a does not have a type
 
 
-class TestGrammar:
-
+class TestPhenotypeToGenotype:
     def test_rec(self):
         r = RandomSource(seed=1)
         g = extract_grammar([Leaf, Rec, RecAlt], RootSuper)
@@ -58,9 +60,12 @@ class TestGrammar:
         x1 = create_tree(g, ind1, max_depth, initialization_mode=grow_method)
         ind2 = phenotype_to_genotype(g=g, p=x, depth=max_depth + 5)
         x2 = create_tree(g, ind2, max_depth + 5, initialization_mode=grow_method)
+        phenotype_to_genotype(g=g, p=x, depth=max_depth + 5)
+        x3 = create_tree(g, ind2, max_depth + 5, initialization_mode=grow_method)
         assert x == x1
         assert x == x2
         assert x1 == x2
+        assert x == x3
 
     def test_var_range(self):
         r = RandomSource(seed=1)
@@ -71,11 +76,9 @@ class TestGrammar:
         x1 = create_tree(g, ind1, max_depth, initialization_mode=grow_method)
         ind2 = phenotype_to_genotype(g=g, p=x, depth=max_depth + 5)
         x2 = create_tree(g, ind2, max_depth + 5, initialization_mode=grow_method)
+        phenotype_to_genotype(g=g, p=x, depth=max_depth + 5)
+        x3 = create_tree(g, ind2, max_depth + 5, initialization_mode=grow_method)
         assert x == x1
         assert x == x2
         assert x1 == x2
-
-
-test = TestGrammar
-test.test_rec(test)
-test.test_var_range(test)
+        assert x == x3
