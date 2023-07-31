@@ -164,22 +164,23 @@ def mutate_specific_type_inner(
         args = list(i.gengy_init_values)
         for idx, (_, field_type) in enumerate(get_arguments(i)):
             child = args[idx]
-            n_options = len(
-                list(find_in_tree_exact(g, specific_type, child, max_depth)),
-            )
-            if n_options <= n:
-                args[idx] = mutate_specific_type_inner(
-                    r,
-                    g,
-                    child,
-                    max_depth,
-                    ty,
-                    specific_type,
-                    n,
-                    depth_aware_mut,
+            if hasattr(child, "gengy_nodes"):
+                n_options = len(
+                    list(find_in_tree_exact(g, specific_type, child, max_depth)),
                 )
-            else:
-                n -= n_options
+                if n_options <= n:
+                    args[idx] = mutate_specific_type_inner(
+                        r,
+                        g,
+                        child,
+                        max_depth,
+                        ty,
+                        specific_type,
+                        n,
+                        depth_aware_mut,
+                    )
+                else:
+                    n -= n_options
         return mk_save_init(i, lambda x: x)(*args)
 
 
@@ -255,7 +256,7 @@ def find_in_tree(g: Grammar, ty: type, o: TreeNode, max_depth: int):
 
 
 def find_in_tree_exact(g: Grammar, ty: type, o: TreeNode, max_depth: int):
-    if hasattr(o, "gengy_types_this_way"):
+    if hasattr(o, "gengy_types_this_way") and ty in o.gengy_types_this_way:
         vals = o.gengy_types_this_way[ty]
         if vals:
 
@@ -541,7 +542,7 @@ class TypeSpecificTBMutation(DefaultTBMutation):
     """Selects a random node of a given type, and generates a new
     replacement."""
 
-    def __init__(self, specific_type: type, depth_aware: bool):
+    def __init__(self, specific_type: type, depth_aware: bool = False):
         super().__init__(depth_aware=depth_aware)
 
         self.specific_type = specific_type

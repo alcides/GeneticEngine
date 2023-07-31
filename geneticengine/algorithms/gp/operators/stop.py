@@ -33,8 +33,8 @@ class GenerationStoppingCriterium(StoppingCriterium):
 class TimeStoppingCriterium(StoppingCriterium):
     """Runs the evolution during a given amount of time.
 
-    Note that termination is not pre-emptive. If fitnessfunction is
-    flow, this might take more than the pre-specified time.
+    Note that termination is not pre-emptive. If the fitness function is
+    slow, this might take more than the pre-specified time.
     """
 
     def __init__(self, max_time: int):
