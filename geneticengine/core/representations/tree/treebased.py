@@ -32,7 +32,7 @@ def random_node(
     r: Source,
     g: Grammar,
     max_depth: int,
-    min_depth: int = None,
+    min_depth: int = 0,
     starting_symbol: type[Any] | None = None,
     method: InitializationMethodType = grow_method,
 ):
@@ -44,13 +44,12 @@ def random_individual(
     r: Source,
     g: Grammar,
     max_depth: int = 5,
-    min_depth: int = None,
+    min_depth: int = 0,
     method: InitializationMethodType = grow_method,
 ) -> TreeNode:
     try:
         assert max_depth >= g.get_min_tree_depth()
-        if min_depth:
-            assert max_depth >= min_depth
+        assert max_depth >= min_depth
     except AssertionError:
         if g.get_min_tree_depth() == 1000000:
             raise GeneticEngineError(

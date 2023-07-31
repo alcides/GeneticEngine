@@ -197,7 +197,7 @@ def create_tree(
     initialization_mode: InitializationMethodType = grow_method,
 ) -> TreeNode:
     rand: Source = ListWrapper(ind.dna)
-    return random_node(rand, g, depth, g.starting_symbol, initialization_mode)
+    return random_node(rand, g, depth, starting_symbol=g.starting_symbol, method=initialization_mode)
 
 
 class DefaultGEMutation(MutationOperator[Genotype]):

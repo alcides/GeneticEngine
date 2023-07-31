@@ -1,6 +1,6 @@
 from __future__ import annotations
 import sys
-from typing import Any, Optional, TypeVar
+from typing import Any, TypeVar
 from typing import Callable
 
 from geneticengine.core.decorators import get_gengy
@@ -47,14 +47,14 @@ def apply_metahandler(
     )  # todo: last argument
 
 
-InitializationMethodType = Callable[[Source, Grammar, int, Optional[int], type[Any]], Any]
+InitializationMethodType = Callable[[Source, Grammar, int, int, type[Any]], Any]
 
 
 def grow_method(
     r: Source,
     g: Grammar,
     max_depth: int,
-    min_depth: int | None = None,
+    min_depth: int = 0,
     starting_symbol: type[Any] = int,
 ):
     """Implements the standard Grow tree-initialization method, where trees are
@@ -64,7 +64,7 @@ def grow_method(
     Position Independent Grow, until the minimum tree depth is reached.
     From then onwards, normal grow is used.
     """
-    if min_depth:
+    if min_depth > 0:
         assert min_depth <= max_depth
 
         def filter_choices(possible_choices: list[type], depth):
@@ -164,7 +164,7 @@ def full_method(
     r: Source,
     g: Grammar,
     max_depth: int,
-    min_depth: int | None = None,
+    min_depth: int = 0,
     starting_symbol: type[Any] = int,
 ):
     """Full tree-initialization method.
@@ -214,7 +214,7 @@ def pi_grow_method(
     r: Source,
     g: Grammar,
     max_depth: int,
-    min_depth: int | None = None,
+    min_depth: int = 0,
     starting_symbol: type[Any] = int,
 ):
     """PI Grow tree-initialization method.

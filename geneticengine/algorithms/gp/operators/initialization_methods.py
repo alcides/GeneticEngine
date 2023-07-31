@@ -15,7 +15,7 @@ class FullInitializer(PopulationInitializer):
     """All individuals are created with full trees (maximum depth in all
     branches)."""
 
-    def __init__(self, min_depth=None):
+    def __init__(self, min_depth=0):
         self.min_depth = min_depth
 
     def initialize(
@@ -48,7 +48,7 @@ class GrowInitializer(PopulationInitializer):
     """All individuals are created expanding productions until a maximum depth,
     but without the requirement of reaching that depth."""
 
-    def __init__(self, min_depth=None):
+    def __init__(self, min_depth=0):
         self.min_depth = min_depth
 
     def initialize(
@@ -82,7 +82,7 @@ class PositionIndependentGrowInitializer(PopulationInitializer):
     """All individuals are created expanding productions until a maximum depth,
     but without the requirement of reaching that depth."""
 
-    def __init__(self, min_depth=None):
+    def __init__(self, min_depth=0):
         self.min_depth = min_depth
 
     def initialize(
@@ -115,8 +115,9 @@ class RampedInitializer(PopulationInitializer):
     """This method uses the grow method from the minimum grammar depth to the
     maximum."""
 
-    def __init__(self, min_depth=None):
+    def __init__(self, min_depth=0, method=grow_method):
         self.min_depth = min_depth
+        self.method = method
 
     def initialize(
         self,
@@ -125,9 +126,11 @@ class RampedInitializer(PopulationInitializer):
         random_source: Source,
         target_size: int,
     ) -> list[Individual]:
+        min_depth = max(representation.min_depth, self.min_depth)
+
         def bound(i: int):
-            interval = (representation.max_depth - representation.min_depth) + 1
-            v = representation.min_depth + (i % interval)
+            interval = (representation.max_depth - min_depth) + 1
+            v = min_depth + (i % interval)
             return v
 
         return [
@@ -138,7 +141,8 @@ class RampedInitializer(PopulationInitializer):
                         r=random_source,
                         g=representation.grammar,
                         max_depth=bound(i),
-                        method=grow_method,
+                        min_depth=min_depth,
+                        method=self.method,
                     ),
                 ),
                 genotype_to_phenotype=representation.genotype_to_phenotype,
@@ -155,7 +159,7 @@ class RampedHalfAndHalfInitializer(PopulationInitializer):
     There's an equal chance of using full or grow method.
     """
 
-    def __init__(self, min_depth=None):
+    def __init__(self, min_depth=0):
         self.min_depth = min_depth
 
     def initialize(
@@ -165,9 +169,11 @@ class RampedHalfAndHalfInitializer(PopulationInitializer):
         random_source: Source,
         target_size: int,
     ) -> list[Individual]:
+        min_depth = max(representation.min_depth, self.min_depth)
+
         def bound(i: int):
-            interval = (representation.max_depth - representation.min_depth) + 1
-            v = representation.min_depth + (i % interval)
+            interval = (representation.max_depth - min_depth) + 1
+            v = min_depth + (i % interval)
             return v
 
         mid = target_size // 2
@@ -179,7 +185,7 @@ class RampedHalfAndHalfInitializer(PopulationInitializer):
                         r=random_source,
                         g=representation.grammar,
                         max_depth=bound(i),
-                        min_depth=self.min_depth,
+                        min_depth=min_depth,
                         method=random_source.choice([grow_method, full_method]),
                     ),
                 ),
@@ -194,7 +200,7 @@ class RampedHalfAndHalfInitializer(PopulationInitializer):
                         r=random_source,
                         g=representation.grammar,
                         max_depth=representation.max_depth,
-                        min_depth=self.min_depth,
+                        min_depth=min_depth,
                         method=random_source.choice([grow_method, full_method]),
                     ),
                 ),
@@ -209,7 +215,7 @@ class InjectInitialPopulationWrapper(PopulationInitializer):
     """Starts with an initial population, and relies on another initializer if
     it's necessary to fulfill the population size."""
 
-    def __init__(self, programs: list[Any], backup: PopulationInitializer, min_depth=None):
+    def __init__(self, programs: list[Any], backup: PopulationInitializer, min_depth=0):
         self.min_depth = min_depth
         self.programs = programs
         self.backup_initializer = backup
