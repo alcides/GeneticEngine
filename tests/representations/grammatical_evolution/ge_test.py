@@ -87,7 +87,7 @@ class TestPhenotypeToGenotype:
         x1 = create_tree(g, ind1, max_depth, initialization_mode=grow_method)
         ind2 = phenotype_to_genotype(r=r, g=g, p=x, depth=max_depth + 5)
         x2 = create_tree(g, ind2, max_depth + 5, initialization_mode=grow_method)
-        ind3 = phenotype_to_genotype(r=r, g=g, p=x, depth=max_depth + 5)
+        ind3 = phenotype_to_genotype(r=r, g=g, p=x2, depth=max_depth + 5)
         x3 = create_tree(g, ind3, max_depth + 5, initialization_mode=grow_method)
         assert x == x1
         assert x == x2
@@ -103,7 +103,7 @@ class TestPhenotypeToGenotype:
         x1 = create_tree(g, ind1, max_depth, initialization_mode=grow_method)
         ind2 = phenotype_to_genotype(r=r, g=g, p=x, depth=max_depth + 5)
         x2 = create_tree(g, ind2, max_depth + 5, initialization_mode=grow_method)
-        ind3 = phenotype_to_genotype(r=r, g=g, p=x, depth=max_depth + 5)
+        ind3 = phenotype_to_genotype(r=r, g=g, p=x2, depth=max_depth + 5)
         x3 = create_tree(g, ind3, max_depth + 5, initialization_mode=grow_method)
         assert contains_type(x, LeafVar)
         assert x == x1
@@ -120,7 +120,7 @@ class TestPhenotypeToGenotype:
         x1 = create_tree(g, ind1, max_depth, initialization_mode=grow_method)
         ind2 = phenotype_to_genotype(r=r, g=g, p=x, depth=max_depth + 5)
         x2 = create_tree(g, ind2, max_depth + 5, initialization_mode=grow_method)
-        ind3 = phenotype_to_genotype(r=r, g=g, p=x, depth=max_depth + 5)
+        ind3 = phenotype_to_genotype(r=r, g=g, p=x2, depth=max_depth + 5)
         x3 = create_tree(g, ind3, max_depth + 5, initialization_mode=grow_method)
         assert contains_type(x, LeafLiteral)
         assert count_productions(x, g) == count_productions(x1, g)
