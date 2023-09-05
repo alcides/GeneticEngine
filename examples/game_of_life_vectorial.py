@@ -117,7 +117,7 @@ class MatrixSum(Number):
 
     def summing(self, matrix):
         s = sum(matrix)
-        if type(s) == int or type(s) == np.int32 or type(s) == np.int64:
+        if isinstance(s, int) or isinstance(s, np.int32) or isinstance(s, np.int64):
             return s
         else:
             return sum(s)

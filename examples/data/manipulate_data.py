@@ -6,7 +6,7 @@ import pandas as pd
 
 
 def introduce_noise(file_name, label_col="label", percentage_noise=10):
-    if type(percentage_noise) != int or percentage_noise <= 0 or percentage_noise > 100:
+    if not isinstance(percentage_noise, int) or percentage_noise <= 0 or percentage_noise > 100:
         raise TypeError(
             "[percentage_noise] should be an int between 0 and 100.",
         )
