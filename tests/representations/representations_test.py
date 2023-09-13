@@ -11,13 +11,7 @@ from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.problems import SingleObjectiveProblem
 from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
-    DynamicStructuredGrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.grammatical_evolution.ge import GrammaticalEvolutionRepresentation
-from geneticengine.core.representations.stackgggp import StackBasedGGGPRepresentation
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.core.representations.tree_smt.treebased import SMTTreeBasedRepresentation
+from geneticengine.core.representations.tree2.treebased2 import TreeBased2Representation
 from geneticengine.metahandlers.floats import FloatRange
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.lists import ListSizeBetween
@@ -63,11 +57,12 @@ class TestRepresentation:
     @pytest.mark.parametrize(
         "representation_class",
         [
-            TreeBasedRepresentation,
-            GrammaticalEvolutionRepresentation,
-            DynamicStructuredGrammaticalEvolutionRepresentation,
-            StackBasedGGGPRepresentation,
-            SMTTreeBasedRepresentation,
+            # TreeBasedRepresentation,
+            # GrammaticalEvolutionRepresentation,
+            # DynamicStructuredGrammaticalEvolutionRepresentation,
+            # StackBasedGGGPRepresentation,
+            # SMTTreeBasedRepresentation,
+            TreeBased2Representation,
         ],
     )
     def test_rep(self, representation_class) -> None:

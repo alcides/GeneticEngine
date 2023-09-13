@@ -8,9 +8,7 @@ from geneticengine.core.tree import TreeNode
 
 
 def count_productions(individual: TreeNode, g: Grammar):
-    """
-    Returns the number of occurences of each non terminal.
-    """
+    """Returns the number of occurences of each non terminal."""
     counts = {prod: 1 for prod in g.all_nodes}
 
     def add_count(ty):
@@ -35,9 +33,8 @@ def count_productions(individual: TreeNode, g: Grammar):
 
 
 def production_probabilities(individual: Individual, g: Grammar):
-    """
-    Returns the probability of seeing a certain production occur in an individual.
-    """
+    """Returns the probability of seeing a certain production occur in an
+    individual."""
     counts = count_productions(individual.get_phenotype(), g)
     probs = counts.copy()
     for rule in g.alternatives:

@@ -63,7 +63,7 @@ class Source(abc.ABC):
         self,
         mean: float,
         sigma: float,
-        prod: str,
+        prod: str = "",
     ) -> float:
         # Box-Muller transform https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
         # I also found this approach https://rh8liuqy.github.io/Box_Muller_Algorithm.html using numpy library instead of math library

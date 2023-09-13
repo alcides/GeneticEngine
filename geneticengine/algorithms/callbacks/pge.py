@@ -3,7 +3,7 @@ from __future__ import annotations
 from geneticengine.algorithms.callbacks.callback import Callback
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.gp.individual import Individual
-from geneticengine.analysis.production_analysis import production_probabilities
+from geneticengine.core.analysis.production_analysis import production_probabilities
 
 
 class PGECallback(Callback):

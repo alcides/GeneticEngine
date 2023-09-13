@@ -61,7 +61,7 @@ class Representation(Generic[g, p]):
         assert self.min_depth <= self.max_depth
 
     @abc.abstractmethod
-    def create_individual(self, r: Source, depth: int | None = None, **kwargs) -> g:
+    def create_individual(self, random_source: Source, max_depth: int, **kwargs) -> g:
         ...
 
     @abc.abstractmethod
