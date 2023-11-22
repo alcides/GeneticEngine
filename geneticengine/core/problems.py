@@ -28,7 +28,7 @@ class Problem(abc.ABC):
             multi objective problem.
     """
 
-    minimize: list[bool]
+    minimize: list[bool] | bool
     epsilon: float
 
     @abc.abstractmethod
@@ -71,7 +71,8 @@ class SingleObjectiveProblem(Problem):
 
     def evaluate(self, phenotype: P) -> Fitness:
         v = float(self.ff["ff"](phenotype))
-        key = -v if self.minimize[0] else v
+        minimize_value = self.minimize[0] if isinstance(self.minimize, list) else self.minimize
+        key = -v if minimize_value else v
         return Fitness(key, [v])
 
     def number_of_objectives(self) -> int:
@@ -82,8 +83,12 @@ class MultiObjectiveProblem(Problem):
     """MultiObjectiveProblem is a class that extends the Problem class.
 
     Args:
-        minimize (list[bool]): When switch on, the fitness function is reversed, so that a higher result from the
+        minimize (list[bool] | bool): When switch on, the fitness function is reversed, so that a higher result from the
             fitness function corresponds to a less fit solution.
+            When a list is passed, each element of the list corresponds to a fitness component. When a bool is passed
+            all the fitness component of the problem are minimized or maximized. when giving a bool, the selection
+            algorithm must have that into consideration and create a list of bools with the same size as the number of
+            the fitness components of an Individual.
         fitness_function (Callable[[P], list[bool]]): The fitness function. Should take in any valid individual and
             return a list of float.
         best_individual_criteria_function (Optional(Callable[[P], float]): This function allow the user to choose how to
@@ -91,12 +96,12 @@ class MultiObjectiveProblem(Problem):
             fitness is the one considered as the best in that generation)
     """
 
-    minimize: list[bool]
+    minimize: list[bool] | bool
     ff: dict[str, Any]
 
     def __init__(
         self,
-        minimize: list[bool],
+        minimize: list[bool] | bool,
         fitness_function: Callable[[P], list[float]],
         best_individual_criteria_function: Callable[[P], float] | None = None,
         aggregate_fitness: Callable[[list[float]], float] | None = None,
@@ -104,7 +109,14 @@ class MultiObjectiveProblem(Problem):
         self.minimize = minimize
 
         def default_single_objective_merge(d: Any) -> float:
-            return sum(m and -fit or +fit for (fit, m) in zip(fitness_function(d), self.minimize))
+            if isinstance(self.minimize, list):
+                return sum(m and -fit or +fit for (fit, m) in zip(fitness_function(d), self.minimize))
+            elif isinstance(self.minimize, bool):
+                return sum(-fit if self.minimize else fit for fit in fitness_function(d))
+            else:
+                assert False, "minimize must be either a list[bool] or a bool"
+
+
 
         self.ff = {
             "ff": fitness_function,
@@ -122,7 +134,7 @@ class MultiObjectiveProblem(Problem):
         return Fitness(single, multiple)
 
     def number_of_objectives(self) -> int:
-        return len(self.minimize)
+        return len(self.minimize) if isinstance(self.minimize, list) else 1
 
 
 def wrap_depth_minimization(p: SingleObjectiveProblem) -> SingleObjectiveProblem:
@@ -135,4 +147,7 @@ def wrap_depth_minimization(p: SingleObjectiveProblem) -> SingleObjectiveProblem
         else:
             return p.evaluate(i)[0] - i.gengy_distance_to_term * 10**-25
 
-    return SingleObjectiveProblem(minimize=p.minimize[0], fitness_function=w)
+    return SingleObjectiveProblem(
+        minimize=p.minimize if isinstance(p.minimize, bool) else p.minimize[0],
+        fitness_function=w
+    )
