@@ -6,7 +6,7 @@ from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.gp.operators.stop import EvaluationLimitCriterium
 
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import SingleObjectiveProblem
+from geneticengine.core.problems import SingleObjectiveProblem, MultiObjectiveProblem
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
 
 
@@ -22,6 +22,10 @@ class Option(Root):
 def fitness_function(r: Root) -> float:
     assert isinstance(r, Option)
     return r.a
+
+def fitness_function_multi(r: Root) -> [float]:
+    assert isinstance(r, Option)
+    return [r.a]
 
 
 class TestStoppingCriteria:
@@ -39,3 +43,18 @@ class TestStoppingCriteria:
         gp.evolve()
 
         assert gp.evaluator.get_count() < limit + 2 * population_size
+
+    # def test_evaluationsmultiobjective(self):
+    #     limit = 1
+    #     population_size = 11
+    #
+    #     grammar = extract_grammar([Option], Root)
+    #     gp = GP(
+    #         representation=TreeBasedRepresentation(grammar=grammar, max_depth=2),
+    #         stopping_criterium=EvaluationLimitCriterium(limit),
+    #         problem=MultiObjectiveProblem(minimize=False, fitness_function=fitness_function_multi),
+    #         population_size=population_size,
+    #     )
+    #     gp.evolve()
+    #
+    #     assert gp.evaluator.get_count() < limit + 2 * population_size
