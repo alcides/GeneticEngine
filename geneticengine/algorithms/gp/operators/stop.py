@@ -118,10 +118,22 @@ class AllFitnessTargetStoppingCriterium(StoppingCriterium):
     ) -> bool:
         evaluator.eval(problem, population)
         best_fitness = best_individual(population, problem).get_fitness(problem)
-        return all(
-            (a < b if m else a > b)
-            for (a, b, m) in zip(best_fitness.fitness_components, self.target_fitnesses, problem.minimize)
-        )
+
+        def compare_fitness(a, b, minimize):
+            return a < b if minimize else a > b
+
+        if isinstance(problem.minimize, list):
+            return all(
+                compare_fitness(a, b, m)
+                for a, b, m in zip(best_fitness.fitness_components, self.target_fitnesses, problem.minimize)
+            )
+        elif isinstance(problem.minimize, bool):
+            return all(
+                compare_fitness(a, b, problem.minimize)
+                for a, b in zip(best_fitness.fitness_components, self.target_fitnesses)
+            )
+
+        assert False
 
 
 class AnyOfStoppingCriterium(StoppingCriterium):
