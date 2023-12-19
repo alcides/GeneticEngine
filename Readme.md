@@ -74,7 +74,7 @@ This work was supported by Fundação para a Ciência e Tecnologia (FCT) through
 * Guilherme Espada PhD fellowship (UI/BD/151179/2021)
 * Paulo Santos CMU|Portugal PhD fellowship (SFRH/BD/151469/2021)
 * [the FCT Exploratory project RAP](http://wiki.alcidesfonseca.com/research/projects/rap/) (EXPL/CCI-COM/1306/2021)
-* the FCT Advanced Computing projects (CPCA/A1/395424/2021, CPCA/A1/5613/2020, CPCA/A2/6009/2020)
+* the FCT Advanced Computing projects (2022.15800.CPCA.A1, CPCA/A1/395424/2021, CPCA/A1/5613/2020, CPCA/A2/6009/2020)
 
 And by Lisboa2020, Compete2020 and FEDER through:
 
