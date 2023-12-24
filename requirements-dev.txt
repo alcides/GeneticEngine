@@ -1,6 +1,6 @@
 black
 docformatter
-mypy==1.7.0
+mypy==1.7.1
 myst_parser
 pre-commit
 pycln
