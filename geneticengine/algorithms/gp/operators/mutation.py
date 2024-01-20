@@ -36,10 +36,13 @@ class GenericMutationStep(GeneticStep):
     ) -> list[Individual]:
         if not self.operator:
             self.operator = representation.get_mutation()
-        return [
-            self.wrap(
-                representation,
-                self.operator.mutate(
+
+        ret = []
+        for index, ind in enumerate(population[:target_size]):
+            v = random_source.random_float(0, 1)
+            if v <= self.probability:
+                print("beofre", ind.genotype)
+                mutated = self.operator.mutate(
                     ind.genotype,
                     problem,
                     evaluator,
@@ -47,10 +50,14 @@ class GenericMutationStep(GeneticStep):
                     random_source,
                     index,
                     generation,
-                ),
-            )
-            for index, ind in enumerate(population[:target_size])
-        ]
+                )
+                print("after", mutated)
+                nind = self.wrap(representation, mutated)
+                ret.append(nind)
+            else:
+                ret.append(ind)
+
+        return ret
 
     def wrap(self, representation: Representation, genotype: Any) -> Individual:
         return Individual(

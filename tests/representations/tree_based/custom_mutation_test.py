@@ -56,9 +56,11 @@ class CustomMutationOperator(MutationOperator[Root]):
         el = random_source.randint(0, len(cpy.options) - 1)
         to_be_mutated = cpy.options[el]
         if isinstance(to_be_mutated, OptionA):
-            to_be_mutated.value += random_source.randint(-5, 5)
-        if isinstance(to_be_mutated, OptionB):
-            to_be_mutated.value += random_source.random_float(to_be_mutated.value * -0.1, to_be_mutated.value * 0.1)
+            to_be_mutated.value += 1
+        elif isinstance(to_be_mutated, OptionB):
+            to_be_mutated.value += 0.1
+        else:
+            assert False
         return cpy
 
 
@@ -107,6 +109,7 @@ def test_custom_mutation():
 
     for ind in new_population:
         ph = ind.get_phenotype()
+        print(ph.options)
         assert isinstance(ph, Root)
         assert len(ph.options) == 2
         assert isinstance(ph.options[0], OptionA)

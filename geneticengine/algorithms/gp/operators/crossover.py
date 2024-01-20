@@ -37,7 +37,11 @@ class GenericCrossoverStep(GeneticStep):
         for i in range(target_size // 2):
             j = i % len(population)
             ind1, ind2 = population[j], population[j + 1]  # todo: select individuals using a selection method
-            (n1, n2) = self.crossover(ind1, ind2, problem, representation, random_source, i, generation)
+            v = random_source.random_float(0, 1)
+            if v <= self.probability:
+                (n1, n2) = self.crossover(ind1, ind2, problem, representation, random_source, i, generation)
+            else:
+                (n1, n2) = (ind1, ind2)
             retlist.append(n1)
             retlist.append(n2)
 
