@@ -41,7 +41,6 @@ class GenericMutationStep(GeneticStep):
         for index, ind in enumerate(population[:target_size]):
             v = random_source.random_float(0, 1)
             if v <= self.probability:
-                print("beofre", ind.genotype)
                 mutated = self.operator.mutate(
                     ind.genotype,
                     problem,
@@ -51,7 +50,6 @@ class GenericMutationStep(GeneticStep):
                     index,
                     generation,
                 )
-                print("after", mutated)
                 nind = self.wrap(representation, mutated)
                 ret.append(nind)
             else:
