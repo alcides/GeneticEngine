@@ -6,9 +6,9 @@ from typing import Any
 from typing import Callable
 
 from geneticengine.exceptions import GeneticEngineError
-from geneticengine.grammars.coding.classes import Expr
-from geneticengine.grammars.coding.classes import Number
-from geneticengine.grammars.coding.classes import Statement
+from geml.grammars.coding.classes import Expr
+from geml.grammars.coding.classes import Number
+from geml.grammars.coding.classes import Statement
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.vars import VarRange
 

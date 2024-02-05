@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from geneticengine.core.decorators import abstract
-from geneticengine.grammars.sgp import Number
+from geml.grammars.sgp import Number
 
 
 @abstract

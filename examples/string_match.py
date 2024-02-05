@@ -5,11 +5,11 @@ from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.problems import Problem
 from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.grammars.letter import Char
-from geneticengine.grammars.letter import Consonant
-from geneticengine.grammars.letter import LetterString
-from geneticengine.grammars.letter import String
-from geneticengine.grammars.letter import Vowel
+from geml.grammars.letter import Char
+from geml.grammars.letter import Consonant
+from geml.grammars.letter import LetterString
+from geml.grammars.letter import String
+from geml.grammars.letter import Vowel
 
 # ===================================
 # This is a simple example on how to use GeneticEngine to solve a GP problem.

@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from typing import Any
 from typing import Callable
 
-from geneticengine.grammars.coding.classes import Condition
-from geneticengine.grammars.coding.classes import Number
+from geml.grammars.coding.classes import Condition
+from geml.grammars.coding.classes import Number
 
 
 @dataclass

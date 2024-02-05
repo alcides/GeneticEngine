@@ -18,12 +18,12 @@ from geneticengine.core.representations.grammatical_evolution.structured_ge impo
     StructuredGrammaticalEvolutionRepresentation,
 )
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.grammars.coding.numbers import Literal
-from geneticengine.grammars.coding.numbers import Mul
-from geneticengine.grammars.coding.numbers import Number
-from geneticengine.grammars.coding.numbers import Plus
-from geneticengine.grammars.coding.numbers import SafeDiv
-from geneticengine.grammars.coding.numbers import Var
+from geml.grammars.coding.numbers import Literal
+from geml.grammars.coding.numbers import Mul
+from geml.grammars.coding.numbers import Number
+from geml.grammars.coding.numbers import Plus
+from geml.grammars.coding.numbers import SafeDiv
+from geml.grammars.coding.numbers import Var
 from geneticengine.metahandlers.vars import VarRange
 
 # ===================================

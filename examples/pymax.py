@@ -7,10 +7,10 @@ from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.problems import Problem
 from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.grammars.coding.classes import Expr
-from geneticengine.grammars.coding.classes import XAssign
-from geneticengine.grammars.coding.control_flow import Code
-from geneticengine.grammars.coding.control_flow import ForLoop
+from geml.grammars.coding.classes import Expr
+from geml.grammars.coding.classes import XAssign
+from geml.grammars.coding.control_flow import Code
+from geml.grammars.coding.control_flow import ForLoop
 
 # ===================================
 # This is a simple example on how to use GeneticEngine to solve a GP problem.

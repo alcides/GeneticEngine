@@ -5,27 +5,27 @@ If you want to use Genetic Engine in your Machine Learning pipelines, you can us
 ## Classification
 
 ```
-from geneticengine.off_the_shelf.classifiers import GeneticProgrammingClassifier
+from geml.classifiers import GeneticProgrammingClassifier
 
 model = GeneticProgrammingClassifier()
 model.fit(X, y)
 ```
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.off_the_shelf.classifiers.GeneticProgrammingClassifier
+.. autoapiclass:: geml.classifiers.GeneticProgrammingClassifier
 ```
 
 ## Regression
 
 ```
-from geneticengine.off_the_shelf.regressors import GeneticProgrammingRegressor
+from geml.regressors import GeneticProgrammingRegressor
 
 model = GeneticProgrammingRegressor()
 model.fit(X, y)
 ```
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.off_the_shelf.regressors.GeneticProgrammingRegressor
+.. autoapiclass:: geml.regressors.GeneticProgrammingRegressor
 ```
 
 

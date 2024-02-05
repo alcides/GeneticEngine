@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from geneticengine.grammars.sgp import Number
+from geml.grammars.sgp import Number
 
 
 @dataclass

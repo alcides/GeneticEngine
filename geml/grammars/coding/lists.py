@@ -6,8 +6,8 @@ from typing import Any
 from typing import Callable
 
 from geneticengine.exceptions import GeneticEngineError
-from geneticengine.grammars.coding.classes import Number
-from geneticengine.grammars.coding.classes import NumberList
+from geml.grammars.coding.classes import Number
+from geml.grammars.coding.classes import NumberList
 from geneticengine.metahandlers.lists import ListSizeBetween
 from geneticengine.metahandlers.vars import VarRange
 

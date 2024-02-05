@@ -13,11 +13,11 @@ from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.problems import Problem
 from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.grammars.coding.classes import Condition
-from geneticengine.grammars.coding.classes import Expr
-from geneticengine.grammars.coding.logical_ops import And
-from geneticengine.grammars.coding.logical_ops import Not
-from geneticengine.grammars.coding.logical_ops import Or
+from geml.grammars.coding.classes import Condition
+from geml.grammars.coding.classes import Expr
+from geml.grammars.coding.logical_ops import And
+from geml.grammars.coding.logical_ops import Not
+from geml.grammars.coding.logical_ops import Or
 from geneticengine.metahandlers.ints import IntRange
 
 # ===================================

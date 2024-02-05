@@ -15,16 +15,16 @@ from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.problems import Problem
 from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.grammars.coding.classes import Condition
-from geneticengine.grammars.coding.classes import Expr
-from geneticengine.grammars.coding.classes import Number
-from geneticengine.grammars.coding.conditions import Equals
-from geneticengine.grammars.coding.conditions import GreaterThan
-from geneticengine.grammars.coding.conditions import LessThan
-from geneticengine.grammars.coding.logical_ops import And
-from geneticengine.grammars.coding.logical_ops import Not
-from geneticengine.grammars.coding.logical_ops import Or
-from geneticengine.grammars.coding.numbers import Literal
+from geml.grammars.coding.classes import Condition
+from geml.grammars.coding.classes import Expr
+from geml.grammars.coding.classes import Number
+from geml.grammars.coding.conditions import Equals
+from geml.grammars.coding.conditions import GreaterThan
+from geml.grammars.coding.conditions import LessThan
+from geml.grammars.coding.logical_ops import And
+from geml.grammars.coding.logical_ops import Not
+from geml.grammars.coding.logical_ops import Or
+from geml.grammars.coding.numbers import Literal
 from geneticengine.metahandlers.ints import IntRange
 
 # ===================================

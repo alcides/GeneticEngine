@@ -18,29 +18,29 @@ from geneticengine.core.representations.grammatical_evolution.structured_ge impo
     StructuredGrammaticalEvolutionRepresentation,
 )
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.grammars.coding.classes import Number
-from geneticengine.grammars.coding.classes import Statement
-from geneticengine.grammars.coding.classes import XAssign
-from geneticengine.grammars.coding.conditions import Equals
-from geneticengine.grammars.coding.conditions import GreaterOrEqualThan
-from geneticengine.grammars.coding.conditions import GreaterThan
-from geneticengine.grammars.coding.conditions import Is
-from geneticengine.grammars.coding.conditions import IsNot
-from geneticengine.grammars.coding.conditions import LessOrEqualThan
-from geneticengine.grammars.coding.conditions import LessThan
-from geneticengine.grammars.coding.conditions import NotEquals
-from geneticengine.grammars.coding.control_flow import IfThen
-from geneticengine.grammars.coding.control_flow import IfThenElse
-from geneticengine.grammars.coding.logical_ops import And
-from geneticengine.grammars.coding.logical_ops import Or
-from geneticengine.grammars.coding.numbers import Abs
-from geneticengine.grammars.coding.numbers import Literal
-from geneticengine.grammars.coding.numbers import Max
-from geneticengine.grammars.coding.numbers import Min
-from geneticengine.grammars.coding.numbers import Mul
-from geneticengine.grammars.coding.numbers import Plus
-from geneticengine.grammars.coding.numbers import SafeDiv
-from geneticengine.grammars.coding.numbers import Var
+from geml.grammars.coding.classes import Number
+from geml.grammars.coding.classes import Statement
+from geml.grammars.coding.classes import XAssign
+from geml.grammars.coding.conditions import Equals
+from geml.grammars.coding.conditions import GreaterOrEqualThan
+from geml.grammars.coding.conditions import GreaterThan
+from geml.grammars.coding.conditions import Is
+from geml.grammars.coding.conditions import IsNot
+from geml.grammars.coding.conditions import LessOrEqualThan
+from geml.grammars.coding.conditions import LessThan
+from geml.grammars.coding.conditions import NotEquals
+from geml.grammars.coding.control_flow import IfThen
+from geml.grammars.coding.control_flow import IfThenElse
+from geml.grammars.coding.logical_ops import And
+from geml.grammars.coding.logical_ops import Or
+from geml.grammars.coding.numbers import Abs
+from geml.grammars.coding.numbers import Literal
+from geml.grammars.coding.numbers import Max
+from geml.grammars.coding.numbers import Min
+from geml.grammars.coding.numbers import Mul
+from geml.grammars.coding.numbers import Plus
+from geml.grammars.coding.numbers import SafeDiv
+from geml.grammars.coding.numbers import Var
 from geneticengine.metahandlers.vars import VarRange
 
 # ===================================

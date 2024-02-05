@@ -18,14 +18,14 @@ from geneticengine.core.random.sources import RandomSource
 from geneticengine.core.representations.tree.initializations import grow_method
 from geneticengine.core.representations.tree.treebased import random_individual
 from geneticengine.core.representations.tree.utils import get_nodes_depth_specific
-from geneticengine.grammars.basic_math import SafeDiv
-from geneticengine.grammars.sgp import Mul
-from geneticengine.grammars.sgp import Number
-from geneticengine.grammars.sgp import Plus
-from geneticengine.grammars.sgp import Var
+from geml.grammars.basic_math import SafeDiv
+from geml.grammars.sgp import Mul
+from geml.grammars.sgp import Number
+from geml.grammars.sgp import Plus
+from geml.grammars.sgp import Var
 from geneticengine.metahandlers.floats import FloatList
 from geneticengine.metahandlers.vars import VarRange
-from geneticengine.metrics import f1_score
+from geml.metrics import f1_score
 
 # An example of classification using Probabilistic GE (https://arxiv.org/pdf/2103.08389.pdf).
 # The main differences with the normal classification example are the addition of weights/probabilities to the
@@ -132,8 +132,9 @@ class ClassificationBenchmark:
         g = self.get_grammar()
 
         def find_depth_specific_nodes(r, g, depth):
-            ind = random_individual(r,g,depth,method=grow_method)
-            return get_nodes_depth_specific(ind,g)
+            ind = random_individual(r, g, depth, method=grow_method)
+            return get_nodes_depth_specific(ind, g)
+
         r = RandomSource(123)
         print(g.get_branching_average_proxy(r, find_depth_specific_nodes, 100, 17))
 

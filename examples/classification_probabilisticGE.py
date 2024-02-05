@@ -15,14 +15,14 @@ from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.problems import Problem
 from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.grammars.basic_math import SafeDiv
-from geneticengine.grammars.sgp import Mul
-from geneticengine.grammars.sgp import Number
-from geneticengine.grammars.sgp import Plus
-from geneticengine.grammars.sgp import Var
+from geml.grammars.basic_math import SafeDiv
+from geml.grammars.sgp import Mul
+from geml.grammars.sgp import Number
+from geml.grammars.sgp import Plus
+from geml.grammars.sgp import Var
 from geneticengine.metahandlers.floats import FloatList
 from geneticengine.metahandlers.vars import VarRange
-from geneticengine.metrics import f1_score
+from geml.metrics import f1_score
 
 # An example of classification using Probabilistic GE (https://arxiv.org/pdf/2103.08389.pdf).
 # The main differences with the normal classification example are the addition of weights/probabilities to the

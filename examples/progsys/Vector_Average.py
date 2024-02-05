@@ -20,21 +20,21 @@ from geneticengine.core.representations.grammatical_evolution.structured_ge impo
     StructuredGrammaticalEvolutionRepresentation,
 )
 from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.grammars.coding.classes import Number
-from geneticengine.grammars.coding.classes import Statement
-from geneticengine.grammars.coding.classes import XAssign
-from geneticengine.grammars.coding.conditions import Equals
-from geneticengine.grammars.coding.conditions import GreaterOrEqualThan
-from geneticengine.grammars.coding.conditions import GreaterThan
-from geneticengine.grammars.coding.conditions import Is
-from geneticengine.grammars.coding.conditions import IsNot
-from geneticengine.grammars.coding.conditions import LessOrEqualThan
-from geneticengine.grammars.coding.conditions import LessThan
-from geneticengine.grammars.coding.conditions import NotEquals
-from geneticengine.grammars.coding.control_flow import IfThen
-from geneticengine.grammars.coding.control_flow import IfThenElse
-from geneticengine.grammars.coding.logical_ops import And
-from geneticengine.grammars.coding.logical_ops import Or
+from geml.grammars.coding.classes import Number
+from geml.grammars.coding.classes import Statement
+from geml.grammars.coding.classes import XAssign
+from geml.grammars.coding.conditions import Equals
+from geml.grammars.coding.conditions import GreaterOrEqualThan
+from geml.grammars.coding.conditions import GreaterThan
+from geml.grammars.coding.conditions import Is
+from geml.grammars.coding.conditions import IsNot
+from geml.grammars.coding.conditions import LessOrEqualThan
+from geml.grammars.coding.conditions import LessThan
+from geml.grammars.coding.conditions import NotEquals
+from geml.grammars.coding.control_flow import IfThen
+from geml.grammars.coding.control_flow import IfThenElse
+from geml.grammars.coding.logical_ops import And
+from geml.grammars.coding.logical_ops import Or
 from geneticengine.metahandlers.vars import VarRange
 
 
@@ -64,7 +64,7 @@ for i, n in enumerate(vars):
 
 XAssign.__init__.__annotations__["value"] = Number
 lists.Var.__init__.__annotations__["name"] = Annotated[str, VarRange(vars)]
-lists.Var.feature_indices = variables  # type: ignore
+lists.Var.feature_indices = variables
 
 
 def preprocess():

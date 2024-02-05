@@ -6,12 +6,12 @@ import numpy as np
 
 from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.core.grammar import extract_grammar
-from geneticengine.grammars.sgp import Literal
-from geneticengine.grammars.sgp import Mul
-from geneticengine.grammars.sgp import Number
-from geneticengine.grammars.sgp import Plus
-from geneticengine.grammars.sgp import simplify
-from geneticengine.grammars.sgp import Var
+from geml.grammars.sgp import Literal
+from geml.grammars.sgp import Mul
+from geml.grammars.sgp import Number
+from geml.grammars.sgp import Plus
+from geml.grammars.sgp import simplify
+from geml.grammars.sgp import Var
 from geneticengine.metahandlers.vars import VarRange
 
 SEED = 100

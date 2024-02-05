@@ -6,8 +6,8 @@ from typing import Annotated
 from typing import Any
 from typing import Callable
 
-from geneticengine.grammars.coding.classes import Condition
-from geneticengine.grammars.coding.classes import Statement
+from geml.grammars.coding.classes import Condition
+from geml.grammars.coding.classes import Statement
 from geneticengine.metahandlers.ints import IntRange
 from geneticengine.metahandlers.lists import ListSizeBetween
 

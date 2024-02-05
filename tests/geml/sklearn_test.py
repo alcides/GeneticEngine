@@ -3,7 +3,7 @@ from __future__ import annotations
 import pandas as pd
 
 from sklearn.metrics import accuracy_score
-from geneticengine.off_the_shelf.classifiers import GeneticProgrammingClassifier
+from geml.classifiers import GeneticProgrammingClassifier
 
 
 class TestSklearnAPI:

@@ -13,13 +13,13 @@ from geneticengine.core.grammar import extract_grammar
 from geneticengine.core.grammar import Grammar
 from geneticengine.core.problems import MultiObjectiveProblem
 from geneticengine.core.problems import Problem
-from geneticengine.grammars.basic_math import SafeDiv
-from geneticengine.grammars.basic_math import SafeLog
-from geneticengine.grammars.basic_math import SafeSqrt
-from geneticengine.grammars.sgp import Mul
-from geneticengine.grammars.sgp import Number
-from geneticengine.grammars.sgp import Plus
-from geneticengine.grammars.sgp import Var
+from geml.grammars.basic_math import SafeDiv
+from geml.grammars.basic_math import SafeLog
+from geml.grammars.basic_math import SafeSqrt
+from geml.grammars.sgp import Mul
+from geml.grammars.sgp import Number
+from geml.grammars.sgp import Plus
+from geml.grammars.sgp import Var
 from geneticengine.metahandlers.floats import FloatList
 from geneticengine.metahandlers.vars import VarRange
 
