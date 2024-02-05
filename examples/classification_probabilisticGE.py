@@ -149,4 +149,5 @@ class ClassificationProbabilisticGEBenchmark:
 
 
 if __name__ == "__main__":
-    ClassificationProbabilisticGEBenchmark().main(seed=0)
+    pass
+    # TODO: ClassificationProbabilisticGEBenchmark().main(seed=0)
