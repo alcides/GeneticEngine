@@ -4,10 +4,10 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
 
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.tree.utils import GengyList
-from geneticengine.core.utils import is_terminal
-from geneticengine.metahandlers.lists import ListSizeBetween
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.solutions.tree import GengyList
+from geneticengine.grammar.utils import is_terminal
+from geneticengine.grammar.metahandlers.lists import ListSizeBetween
 
 
 class Root(ABC):

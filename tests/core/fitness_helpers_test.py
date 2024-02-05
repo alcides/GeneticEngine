@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from abc import ABC
 from dataclasses import dataclass
-from geneticengine.algorithms.gp.individual import Individual
-from geneticengine.core.evaluators import SequentialEvaluator
-from geneticengine.core.fitness_helpers import best_individual, is_better, sort_population
+from geneticengine.solutions.individual import Individual
+from geneticengine.evaluation import SequentialEvaluator
+from geneticengine.problems.helpers import best_individual, is_better, sort_population
 
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import MultiObjectiveProblem, SingleObjectiveProblem
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.problems import MultiObjectiveProblem, SingleObjectiveProblem
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 
 
 class Root(ABC):

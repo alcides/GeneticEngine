@@ -5,45 +5,45 @@ Here are a few MetaHandlers provided by GeneticEngine
 #### Ints
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.metahandlers.ints.IntRange
+.. autoapiclass:: geneticengine.grammar.metahandlers.ints.IntRange
 ```
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.metahandlers.ints.IntList
+.. autoapiclass:: geneticengine.grammar.metahandlers.ints.IntList
 ```
 
 #### Floats
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.metahandlers.floats.FloatRange
+.. autoapiclass:: geneticengine.grammar.metahandlers.floats.FloatRange
 ```
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.metahandlers.floats.FloatList
+.. autoapiclass:: geneticengine.grammar.metahandlers.floats.FloatList
 ```
 
 #### Lists
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.metahandlers.lists.ListSizeBetween
+.. autoapiclass:: geneticengine.grammar.metahandlers.lists.ListSizeBetween
 ```
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.metahandlers.lists.ListSizeBetweenWithoutListOperations
+.. autoapiclass:: geneticengine.grammar.metahandlers.lists.ListSizeBetweenWithoutListOperations
 ```
 
 #### Strings
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.metahandlers.lists.StringSizeBetween
+.. autoapiclass:: geneticengine.grammar.metahandlers.lists.StringSizeBetween
 ```
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.metahandlers.lists.WeightedStringHandler
+.. autoapiclass:: geneticengine.grammar.metahandlers.lists.WeightedStringHandler
 ```
 
 #### Vars
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.metahandlers.vars.VarRange
+.. autoapiclass:: geneticengine.grammar.metahandlers.vars.VarRange
 ```

@@ -2,22 +2,22 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from utils import get_data
-from utils import import_embedded
+from .utils import get_data
+from .utils import import_embedded
 
 from geneticengine.algorithms.gp.simplegp import SimpleGP
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.problems import SingleObjectiveProblem
+from geneticengine.representations.grammatical_evolution.dynamic_structured_ge import (
     DynamicStructuredGrammaticalEvolutionRepresentation,
 )
-from geneticengine.core.representations.grammatical_evolution.ge import (
+from geneticengine.representations.grammatical_evolution.ge import (
     GrammaticalEvolutionRepresentation,
 )
-from geneticengine.core.representations.grammatical_evolution.structured_ge import (
+from geneticengine.representations.grammatical_evolution.structured_ge import (
     StructuredGrammaticalEvolutionRepresentation,
 )
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geml.grammars.coding.classes import Number
 from geml.grammars.coding.classes import Statement
 from geml.grammars.coding.classes import XAssign
@@ -41,7 +41,7 @@ from geml.grammars.coding.numbers import Mul
 from geml.grammars.coding.numbers import Plus
 from geml.grammars.coding.numbers import SafeDiv
 from geml.grammars.coding.numbers import Var
-from geneticengine.metahandlers.vars import VarRange
+from geneticengine.grammar.metahandlers.vars import VarRange
 
 
 # ===================================

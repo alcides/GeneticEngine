@@ -8,8 +8,8 @@ from typing import Callable
 from geneticengine.exceptions import GeneticEngineError
 from geml.grammars.coding.classes import Number
 from geml.grammars.coding.classes import NumberList
-from geneticengine.metahandlers.lists import ListSizeBetween
-from geneticengine.metahandlers.vars import VarRange
+from geneticengine.grammar.metahandlers.lists import ListSizeBetween
+from geneticengine.grammar.metahandlers.vars import VarRange
 
 
 @dataclass

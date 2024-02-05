@@ -9,10 +9,10 @@ import pandas as pd
 from sklearn import metrics
 
 from geneticengine.algorithms.gp.simplegp import SimpleGP
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.metahandlers.ints import IntRange
-from geneticengine.metahandlers.vars import VarRange
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.grammar.metahandlers.ints import IntRange
+from geneticengine.grammar.metahandlers.vars import VarRange
 
 dataset2 = pd.read_csv("dataset_secundario.csv", sep=";")
 

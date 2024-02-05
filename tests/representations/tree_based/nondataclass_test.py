@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from geneticengine.core.decorators import abstract
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.tree.treebased import (
+from geneticengine.grammar.decorators import abstract
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.random.sources import RandomSource
+from geneticengine.representations.tree.treebased import (
     crossover as tree_crossover,
 )
-from geneticengine.core.representations.tree.treebased import mutate
-from geneticengine.core.representations.tree.treebased import random_node
+from geneticengine.representations.tree.treebased import mutate
+from geneticengine.representations.tree.treebased import random_node
 
 
 @abstract

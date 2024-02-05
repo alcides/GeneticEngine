@@ -7,16 +7,16 @@ from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.gp.operators.stop import TimeStoppingCriterium
 from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.algorithms.random_search import RandomSearch
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.problems import SingleObjectiveProblem
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geml.grammars.basic_math import SafeDiv
 from geml.grammars.sgp import Literal
 from geml.grammars.sgp import Mul
 from geml.grammars.sgp import Number
 from geml.grammars.sgp import Plus
 from geml.grammars.sgp import Var
-from geneticengine.metahandlers.vars import VarRange
+from geneticengine.grammar.metahandlers.vars import VarRange
 
 # ===================================
 # This is a simple example on how to use GeneticEngine to solve a GP problem.

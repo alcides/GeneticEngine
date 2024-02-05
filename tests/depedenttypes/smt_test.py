@@ -7,11 +7,11 @@ from typing import TypeVar
 
 import pytest
 
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.tree_smt.smt import SMTResolver
-from geneticengine.core.representations.tree_smt.treebased import random_node
-from geneticengine.metahandlers.smt import SMT
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.random.sources import RandomSource
+from geneticengine.representations.tree_smt.smt import SMTResolver
+from geneticengine.representations.tree_smt.treebased import random_node
+from geneticengine.grammar.metahandlers.smt import SMT
 
 
 class Root(ABC):

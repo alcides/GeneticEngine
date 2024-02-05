@@ -9,16 +9,16 @@ import numpy as np
 from sklearn.metrics import f1_score
 
 from geneticengine.algorithms.gp.simplegp import SimpleGP
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.grammar import Grammar
-from geneticengine.core.problems import Problem
-from geneticengine.core.problems import SingleObjectiveProblem
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.grammar.grammar import Grammar
+from geneticengine.problems import Problem
+from geneticengine.problems import SingleObjectiveProblem
 from geml.grammars.coding.classes import Condition
 from geml.grammars.coding.classes import Expr
 from geml.grammars.coding.logical_ops import And
 from geml.grammars.coding.logical_ops import Not
 from geml.grammars.coding.logical_ops import Or
-from geneticengine.metahandlers.ints import IntRange
+from geneticengine.grammar.metahandlers.ints import IntRange
 
 # ===================================
 # This is an example on how to use GeneticEngine to solve a GP problem.

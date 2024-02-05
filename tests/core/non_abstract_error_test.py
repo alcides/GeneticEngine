@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from geneticengine.core.grammar import extract_grammar
+from geneticengine.grammar.grammar import extract_grammar
 
 
 class A:

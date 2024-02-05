@@ -5,10 +5,10 @@ from dataclasses import dataclass
 from geneticengine.algorithms.callbacks.csv_callback import CSVCallback
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.problems import SingleObjectiveProblem
+from geneticengine.random.sources import RandomSource
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 
 
 class Root(ABC):

@@ -1,5 +1,5 @@
 from geneticengine.algorithms.callbacks.callback import Callback
-from geneticengine.core.fitness_helpers import best_individual, is_better
+from geneticengine.problems.helpers import best_individual, is_better
 
 
 class ElitismDebugCallback(Callback):

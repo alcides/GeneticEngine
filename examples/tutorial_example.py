@@ -10,11 +10,11 @@ from geneticengine.algorithms.gp.operators.stop import (
     SingleFitnessTargetStoppingCriterium,
     GenerationStoppingCriterium,
 )
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.metahandlers.ints import IntRange
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.problems import SingleObjectiveProblem
+from geneticengine.random.sources import RandomSource
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.grammar.metahandlers.ints import IntRange
 
 
 class Scalar(ABC):

@@ -10,11 +10,11 @@ from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
 from geneticengine.algorithms.gp.operators.selection import TournamentSelection
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 
-from geneticengine.core.decorators import abstract
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation, TypeSpecificTBMutation
-from geneticengine.metahandlers.lists import ListSizeBetween
+from geneticengine.grammar.decorators import abstract
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.problems import SingleObjectiveProblem
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation, TypeSpecificTBMutation
+from geneticengine.grammar.metahandlers.lists import ListSizeBetween
 
 
 @abstract
@@ -26,33 +26,38 @@ class Root:
 class Middle(Root):
     child: Root
 
+
 @abstract
 class Concrete:
     pass
+
 
 @dataclass
 class RootToConcrete(Root):
     a: Concrete
     b: Concrete
 
+
 class ConcreteTerm(Concrete):
     pass
+
 
 @dataclass
 class MiddleList(Root):
     z: Annotated[list[Root], ListSizeBetween(2, 3)]
 
 
-
 gp_parameters = {
-    "probability_crossover" : .9,
-    "probability_mutation" : 1,
-    "number_of_generations" : 5,
-    "max_depth" : 10,
-    "population_size" : 2,
-    "tournament_size" : 2,
-    "n_elites" : 1,
+    "probability_crossover": 0.9,
+    "probability_mutation": 1,
+    "number_of_generations": 5,
+    "max_depth": 10,
+    "population_size": 2,
+    "tournament_size": 2,
+    "n_elites": 1,
 }
+
+
 def algorithm_steps():
     """The default step in Genetic Programming."""
     return ParallelStep(
@@ -67,9 +72,13 @@ def algorithm_steps():
         weights=[gp_parameters["n_elites"], 100 - gp_parameters["n_elites"]],
     )
 
-def fitness_function(x : Root):
+
+def fitness_function(x: Root):
     return 1
+
+
 problem = SingleObjectiveProblem(minimize=False, fitness_function=fitness_function)
+
 
 class TestNodesDepthSpecific:
     def test_nodes_depth_specific_simple(self):

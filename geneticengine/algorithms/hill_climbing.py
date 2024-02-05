@@ -10,10 +10,10 @@ from geneticengine.algorithms.gp.operators.mutation import HillClimbingMutation
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.algorithms.gp.structure import StoppingCriterium
-from geneticengine.core.problems import Problem
-from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.random.sources import Source
-from geneticengine.core.representations.api import Representation
+from geneticengine.problems import Problem
+from geneticengine.random.sources import RandomSource
+from geneticengine.random.sources import Source
+from geneticengine.representations.api import Representation
 
 
 class HC(GP):

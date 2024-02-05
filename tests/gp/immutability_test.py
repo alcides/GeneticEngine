@@ -3,24 +3,24 @@ from abc import ABC
 
 from dataclasses import dataclass
 from typing import Annotated
-from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
 from geneticengine.algorithms.gp.operators.selection import TournamentSelection
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.representations.grammatical_evolution.ge import GrammaticalEvolutionRepresentation
+from geneticengine.problems import SingleObjectiveProblem
+from geneticengine.representations.grammatical_evolution.ge import GrammaticalEvolutionRepresentation
 
 import pytest
 
-from geneticengine.core.decorators import abstract
-from geneticengine.core.evaluators import SequentialEvaluator
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.metahandlers.floats import FloatRange
-from geneticengine.metahandlers.ints import IntervalRange
-from geneticengine.metahandlers.ints import IntRange
-from geneticengine.metahandlers.lists import ListSizeBetween
-from geneticengine.metahandlers.vars import VarRange
+from geneticengine.grammar.decorators import abstract
+from geneticengine.evaluation import SequentialEvaluator
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.random.sources import RandomSource
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.grammar.metahandlers.floats import FloatRange
+from geneticengine.grammar.metahandlers.ints import IntervalRange
+from geneticengine.grammar.metahandlers.ints import IntRange
+from geneticengine.grammar.metahandlers.lists import ListSizeBetween
+from geneticengine.grammar.metahandlers.vars import VarRange
 from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
 from geneticengine.algorithms.gp.gp import default_generic_programming_step
 

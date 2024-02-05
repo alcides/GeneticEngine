@@ -2,24 +2,24 @@ from abc import ABC
 from copy import deepcopy
 from dataclasses import dataclass
 from typing import Annotated
-from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
-from geneticengine.core.evaluators import Evaluator, SequentialEvaluator
-from geneticengine.core.random.sources import RandomSource, Source
-from geneticengine.core.representations.api import MutationOperator, Representation
+from geneticengine.evaluation import Evaluator, SequentialEvaluator
+from geneticengine.random.sources import RandomSource, Source
+from geneticengine.representations.api import MutationOperator, Representation
 
 from geneticengine.algorithms.gp.operators.combinators import ParallelStep, SequenceStep
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
 from geneticengine.algorithms.gp.operators.elitism import ElitismStep
 from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
 from geneticengine.algorithms.gp.operators.selection import TournamentSelection
-from geneticengine.core.problems import Problem, SingleObjectiveProblem
+from geneticengine.problems import Problem, SingleObjectiveProblem
 
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.algorithms.gp.gp import GP
 
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.metahandlers.lists import ListSizeBetween
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.grammar.metahandlers.lists import ListSizeBetween
 
 
 class NonTerminal(ABC):

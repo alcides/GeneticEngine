@@ -8,8 +8,8 @@ from typing import Callable
 
 from geml.grammars.coding.classes import Condition
 from geml.grammars.coding.classes import Statement
-from geneticengine.metahandlers.ints import IntRange
-from geneticengine.metahandlers.lists import ListSizeBetween
+from geneticengine.grammar.metahandlers.ints import IntRange
+from geneticengine.grammar.metahandlers.lists import ListSizeBetween
 
 
 @dataclass

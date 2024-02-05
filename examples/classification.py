@@ -9,22 +9,22 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 from geneticengine.algorithms.gp.simplegp import SimpleGP
-from geneticengine.core.decorators import get_gengy
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.grammar import Grammar
-from geneticengine.core.problems import Problem
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.tree.initializations import grow_method
-from geneticengine.core.representations.tree.treebased import random_individual
-from geneticengine.core.representations.tree.utils import get_nodes_depth_specific
+from geneticengine.grammar.decorators import get_gengy
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.grammar.grammar import Grammar
+from geneticengine.problems import Problem
+from geneticengine.problems import SingleObjectiveProblem
+from geneticengine.random.sources import RandomSource
+from geneticengine.representations.tree.initializations import grow_method
+from geneticengine.representations.tree.treebased import random_individual
+from geneticengine.representations.tree.utils import get_nodes_depth_specific
 from geml.grammars.basic_math import SafeDiv
 from geml.grammars.sgp import Mul
 from geml.grammars.sgp import Number
 from geml.grammars.sgp import Plus
 from geml.grammars.sgp import Var
-from geneticengine.metahandlers.floats import FloatList
-from geneticengine.metahandlers.vars import VarRange
+from geneticengine.grammar.metahandlers.floats import FloatList
+from geneticengine.grammar.metahandlers.vars import VarRange
 from geml.metrics import f1_score
 
 # An example of classification using Probabilistic GE (https://arxiv.org/pdf/2103.08389.pdf).

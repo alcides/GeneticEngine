@@ -5,14 +5,14 @@ from typing import Annotated
 import numpy as np
 
 from geneticengine.algorithms.gp.simplegp import SimpleGP
-from geneticengine.core.grammar import extract_grammar
+from geneticengine.grammar.grammar import extract_grammar
 from geml.grammars.sgp import Literal
 from geml.grammars.sgp import Mul
 from geml.grammars.sgp import Number
 from geml.grammars.sgp import Plus
 from geml.grammars.sgp import simplify
 from geml.grammars.sgp import Var
-from geneticengine.metahandlers.vars import VarRange
+from geneticengine.grammar.metahandlers.vars import VarRange
 
 SEED = 100
 

@@ -3,10 +3,10 @@ from __future__ import annotations
 from abc import ABC
 
 from geneticengine.algorithms.gp.simplegp import SimpleGP
-from geneticengine.core.decorators import weight
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.grammar.decorators import weight
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.problems import SingleObjectiveProblem
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 
 # ===================================
 # This is an example of how to create Probabilistic grammars.

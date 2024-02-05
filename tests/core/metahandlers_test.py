@@ -6,15 +6,15 @@ from typing import Annotated
 
 import numpy as np
 
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.tree.treebased import random_node
-from geneticengine.metahandlers.floats import FloatRange
-from geneticengine.metahandlers.ints import IntervalRange
-from geneticengine.metahandlers.ints import IntRange
-from geneticengine.metahandlers.lists import ListSizeBetween
-from geneticengine.metahandlers.strings import StringSizeBetween, WeightedStringHandler
-from geneticengine.metahandlers.vars import VarRange
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.random.sources import RandomSource
+from geneticengine.representations.tree.treebased import random_node
+from geneticengine.grammar.metahandlers.floats import FloatRange
+from geneticengine.grammar.metahandlers.ints import IntervalRange
+from geneticengine.grammar.metahandlers.ints import IntRange
+from geneticengine.grammar.metahandlers.lists import ListSizeBetween
+from geneticengine.grammar.metahandlers.strings import StringSizeBetween, WeightedStringHandler
+from geneticengine.grammar.metahandlers.vars import VarRange
 
 
 class Root(ABC):

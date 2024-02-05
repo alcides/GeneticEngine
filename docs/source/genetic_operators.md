@@ -27,19 +27,19 @@ These initializers are only available for the tree-based representation.
 ### Full population initialization
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.core.representations.tree.operators.FullInitializer
+.. autoapiclass:: geneticengine.representations.tree.operators.FullInitializer
 ```
 
 ### Grow population initialization
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.core.representations.tree.operators.GrowInitializer
+.. autoapiclass:: geneticengine.representations.tree.operators.GrowInitializer
 ```
 
 ### Position Independent Grow population initialization
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.core.representations.tree.operators.PositionIndependentGrowInitializer
+.. autoapiclass:: geneticengine.representations.tree.operators.PositionIndependentGrowInitializer
 ```
 
 ### Ramped Half-and-Half population initialization
@@ -47,7 +47,7 @@ These initializers are only available for the tree-based representation.
 
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.core.representations.tree.operators.RampedHalfAndHalfInitializer
+.. autoapiclass:: geneticengine.representations.tree.operators.RampedHalfAndHalfInitializer
 ```
 
 

@@ -7,10 +7,10 @@ import numpy as np
 import pandas as pd
 
 from geneticengine.algorithms.gp.simplegp import SimpleGP
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.grammar import Grammar
-from geneticengine.core.problems import MultiObjectiveProblem
-from geneticengine.core.problems import Problem
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.grammar.grammar import Grammar
+from geneticengine.problems import MultiObjectiveProblem
+from geneticengine.problems import Problem
 from geml.grammars.basic_math import Exp
 from geml.grammars.basic_math import SafeDiv
 from geml.grammars.basic_math import SafeLog
@@ -22,8 +22,8 @@ from geml.grammars.sgp import Mul
 from geml.grammars.sgp import Number
 from geml.grammars.sgp import Plus
 from geml.grammars.sgp import Var
-from geneticengine.metahandlers.ints import IntRange
-from geneticengine.metahandlers.vars import VarRange
+from geneticengine.grammar.metahandlers.ints import IntRange
+from geneticengine.grammar.metahandlers.vars import VarRange
 
 # ===================================
 # This is a simple example of normal regression using normal GP,

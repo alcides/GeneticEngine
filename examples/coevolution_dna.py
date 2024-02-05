@@ -9,9 +9,9 @@ from geneticengine.algorithms.gp.operators.stop import (
     EvaluationLimitCriterium,
     SingleFitnessTargetStoppingCriterium,
 )
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.metahandlers.lists import ListSizeBetween
-from geneticengine.metahandlers.strings import StringSizeBetween
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.grammar.metahandlers.lists import ListSizeBetween
+from geneticengine.grammar.metahandlers.strings import StringSizeBetween
 
 from scipy.stats import entropy
 

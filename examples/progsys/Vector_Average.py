@@ -2,24 +2,24 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from utils import get_data
-from utils import import_embedded
+from .utils import get_data
+from .utils import import_embedded
 
-import geneticengine.grammars.coding.lists as lists
-import geneticengine.grammars.coding.numbers as numbers
+import geml.grammars.coding.lists as lists
+import geml.grammars.coding.numbers as numbers
 from geneticengine.algorithms.gp.simplegp import SimpleGP
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.problems import SingleObjectiveProblem
+from geneticengine.representations.grammatical_evolution.dynamic_structured_ge import (
     DynamicStructuredGrammaticalEvolutionRepresentation,
 )
-from geneticengine.core.representations.grammatical_evolution.ge import (
+from geneticengine.representations.grammatical_evolution.ge import (
     GrammaticalEvolutionRepresentation,
 )
-from geneticengine.core.representations.grammatical_evolution.structured_ge import (
+from geneticengine.representations.grammatical_evolution.structured_ge import (
     StructuredGrammaticalEvolutionRepresentation,
 )
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geml.grammars.coding.classes import Number
 from geml.grammars.coding.classes import Statement
 from geml.grammars.coding.classes import XAssign
@@ -35,7 +35,7 @@ from geml.grammars.coding.control_flow import IfThen
 from geml.grammars.coding.control_flow import IfThenElse
 from geml.grammars.coding.logical_ops import And
 from geml.grammars.coding.logical_ops import Or
-from geneticengine.metahandlers.vars import VarRange
+from geneticengine.grammar.metahandlers.vars import VarRange
 
 
 # ===================================
@@ -64,7 +64,7 @@ for i, n in enumerate(vars):
 
 XAssign.__init__.__annotations__["value"] = Number
 lists.Var.__init__.__annotations__["name"] = Annotated[str, VarRange(vars)]
-lists.Var.feature_indices = variables
+lists.Var.feature_indices = variables  # type: ignore
 
 
 def preprocess():

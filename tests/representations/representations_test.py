@@ -7,21 +7,21 @@ from typing import Annotated
 import pytest
 from geneticengine.algorithms.gp.gp import GP
 
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.grammar import Grammar
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.grammar.grammar import Grammar
+from geneticengine.problems import SingleObjectiveProblem
+from geneticengine.random.sources import RandomSource
+from geneticengine.representations.grammatical_evolution.dynamic_structured_ge import (
     DynamicStructuredGrammaticalEvolutionRepresentation,
 )
-from geneticengine.core.representations.grammatical_evolution.ge import GrammaticalEvolutionRepresentation
-from geneticengine.core.representations.stackgggp import StackBasedGGGPRepresentation
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.core.representations.tree_smt.treebased import SMTTreeBasedRepresentation
-from geneticengine.metahandlers.floats import FloatRange
-from geneticengine.metahandlers.ints import IntRange
-from geneticengine.metahandlers.lists import ListSizeBetween
-from geneticengine.metahandlers.vars import VarRange
+from geneticengine.representations.grammatical_evolution.ge import GrammaticalEvolutionRepresentation
+from geneticengine.representations.stackgggp import StackBasedGGGPRepresentation
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.representations.tree_smt.treebased import SMTTreeBasedRepresentation
+from geneticengine.grammar.metahandlers.floats import FloatRange
+from geneticengine.grammar.metahandlers.ints import IntRange
+from geneticengine.grammar.metahandlers.lists import ListSizeBetween
+from geneticengine.grammar.metahandlers.vars import VarRange
 
 
 class Root(ABC):

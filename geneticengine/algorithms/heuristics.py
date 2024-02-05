@@ -3,13 +3,13 @@ from __future__ import annotations
 from abc import ABC
 from abc import abstractmethod
 
-from geneticengine.algorithms.gp.individual import Individual
-from geneticengine.core.fitness_helpers import best_individual
-from geneticengine.core.grammar import Grammar
-from geneticengine.core.problems import Problem
-from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.api import Representation
-from geneticengine.core.evaluators import Evaluator
+from geneticengine.solutions.individual import Individual
+from geneticengine.problems.helpers import best_individual
+from geneticengine.grammar.grammar import Grammar
+from geneticengine.problems import Problem
+from geneticengine.random.sources import RandomSource
+from geneticengine.representations.api import Representation
+from geneticengine.evaluation import Evaluator
 
 
 class Heuristics(ABC):

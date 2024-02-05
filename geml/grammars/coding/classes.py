@@ -8,7 +8,7 @@ from typing import Callable
 from typing import Generic
 from typing import TypeVar
 
-from geneticengine.core.decorators import abstract
+from geneticengine.grammar.decorators import abstract
 
 
 class Statement(ABC):

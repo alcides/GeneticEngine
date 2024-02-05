@@ -7,19 +7,19 @@ from typing import Annotated
 import pytest
 
 from geneticengine.algorithms.gp.gp import default_generic_programming_step
-from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.operators.combinators import SequenceStep
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
 from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
 from geneticengine.algorithms.gp.operators.selection import TournamentSelection
 from geneticengine.algorithms.gp.structure import GeneticStep
-from geneticengine.core.evaluators import Evaluator, SequentialEvaluator
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import Fitness, Problem, SingleObjectiveProblem
-from geneticengine.core.random.sources import RandomSource, Source
-from geneticengine.core.representations.api import Representation
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.metahandlers.lists import ListSizeBetween
+from geneticengine.evaluation import Evaluator, SequentialEvaluator
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.problems import Fitness, Problem, SingleObjectiveProblem
+from geneticengine.random.sources import RandomSource, Source
+from geneticengine.representations.api import Representation
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.grammar.metahandlers.lists import ListSizeBetween
 
 
 class Alt(ABC):

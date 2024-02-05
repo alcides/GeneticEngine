@@ -4,13 +4,13 @@ from typing import Callable, Optional, TypeVar
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.gp.operators.initializers import StandardInitializer
 
-from geneticengine.core.grammar import Grammar
+from geneticengine.grammar.grammar import Grammar
 
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.random.sources import RandomSource, Source
-from geneticengine.core.representations.api import Representation
-from geneticengine.core.representations.tree.operators import InjectInitialPopulationWrapper
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.problems import SingleObjectiveProblem
+from geneticengine.random.sources import RandomSource, Source
+from geneticengine.representations.api import Representation
+from geneticengine.representations.tree.operators import InjectInitialPopulationWrapper
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 
 a = TypeVar("a")
 b = TypeVar("b")

@@ -8,20 +8,20 @@ from geneticengine.algorithms.gp.operators.stop import (
     SingleFitnessTargetStoppingCriterium,
     GenerationStoppingCriterium,
 )
-from geneticengine.core.decorators import abstract
-from geneticengine.core.decorators import weight
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
+from geneticengine.grammar.decorators import abstract
+from geneticengine.grammar.decorators import weight
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.problems import SingleObjectiveProblem
+from geneticengine.representations.grammatical_evolution.dynamic_structured_ge import (
     DynamicStructuredGrammaticalEvolutionRepresentation,
 )
-from geneticengine.core.representations.grammatical_evolution.ge import (
+from geneticengine.representations.grammatical_evolution.ge import (
     GrammaticalEvolutionRepresentation,
 )
-from geneticengine.core.representations.grammatical_evolution.structured_ge import (
+from geneticengine.representations.grammatical_evolution.structured_ge import (
     StructuredGrammaticalEvolutionRepresentation,
 )
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 
 
 @abstract

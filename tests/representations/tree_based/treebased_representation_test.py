@@ -4,10 +4,10 @@ from dataclasses import dataclass
 from typing import Annotated
 
 
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation, random_node
-from geneticengine.metahandlers.lists import ListSizeBetween
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.random.sources import RandomSource
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation, random_node
+from geneticengine.grammar.metahandlers.lists import ListSizeBetween
 
 
 @dataclass

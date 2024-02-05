@@ -5,9 +5,9 @@ from dataclasses import dataclass
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.gp.operators.stop import EvaluationLimitCriterium
 
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import SingleObjectiveProblem, MultiObjectiveProblem
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.problems import SingleObjectiveProblem, MultiObjectiveProblem
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 
 
 class Root(ABC):
@@ -23,7 +23,8 @@ def fitness_function(r: Root) -> float:
     assert isinstance(r, Option)
     return r.a
 
-def fitness_function_multi(r: Root) -> [float]:
+
+def fitness_function_multi(r: Root) -> list[float]:
     assert isinstance(r, Option)
     return [r.a]
 

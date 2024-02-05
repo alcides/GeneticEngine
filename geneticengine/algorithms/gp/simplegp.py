@@ -31,26 +31,26 @@ from geneticengine.algorithms.gp.operators.stop import TimeStoppingCriterium
 from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.algorithms.gp.structure import StoppingCriterium
-from geneticengine.core.grammar import Grammar
-from geneticengine.core.evaluators import SequentialEvaluator
-from geneticengine.core.problems import MultiObjectiveProblem
-from geneticengine.core.problems import Problem
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.problems import wrap_depth_minimization
-from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.api import Representation
-from geneticengine.core.representations.tree.operators import (
+from geneticengine.grammar.grammar import Grammar
+from geneticengine.evaluation import SequentialEvaluator
+from geneticengine.problems import MultiObjectiveProblem
+from geneticengine.problems import Problem
+from geneticengine.problems import SingleObjectiveProblem
+from geneticengine.problems import wrap_depth_minimization
+from geneticengine.random.sources import RandomSource
+from geneticengine.representations.api import Representation
+from geneticengine.representations.tree.operators import (
     FullInitializer,
     GrowInitializer,
     InjectInitialPopulationWrapper,
     RampedHalfAndHalfInitializer,
 )
-from geneticengine.core.representations.tree.treebased import DefaultTBCrossover
-from geneticengine.core.representations.tree.treebased import DefaultTBMutation
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.core.representations.tree.treebased import TypeSpecificTBCrossover
-from geneticengine.core.representations.tree.treebased import TypeSpecificTBMutation
-from geneticengine.core.evaluators import Evaluator
+from geneticengine.representations.tree.treebased import DefaultTBCrossover
+from geneticengine.representations.tree.treebased import DefaultTBMutation
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.representations.tree.treebased import TypeSpecificTBCrossover
+from geneticengine.representations.tree.treebased import TypeSpecificTBMutation
+from geneticengine.evaluation import Evaluator
 
 P = TypeVar("P")
 
@@ -122,11 +122,13 @@ class SimpleGP(GP):
         grammar: Grammar,
         representation: type | None = None,
         problem: Problem | None = None,
-        evaluation_function: Callable[
-            [Any],
-            float,
-        ]
-        | None = None,  # DEPRECATE in the next version
+        evaluation_function: (
+            Callable[
+                [Any],
+                float,
+            ]
+            | None
+        ) = None,  # DEPRECATE in the next version
         minimize: bool = False,  # DEPRECATE in the next version
         target_fitness: float | None = None,  # DEPRECATE in the next version
         favor_less_complex_trees: bool = False,  # DEPRECATE in the next version
@@ -278,7 +280,7 @@ class SimpleGP(GP):
 
         evaluator: Evaluator = SequentialEvaluator()
         if parallel_evaluation:
-            from geneticengine.core.parallel_evaluation import ParallelEvaluator
+            from geneticengine.evaluation.parallel_evaluation import ParallelEvaluator
 
             evaluator = ParallelEvaluator()
 

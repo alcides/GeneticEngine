@@ -9,8 +9,8 @@ from geneticengine.exceptions import GeneticEngineError
 from geml.grammars.coding.classes import Expr
 from geml.grammars.coding.classes import Number
 from geml.grammars.coding.classes import Statement
-from geneticengine.metahandlers.ints import IntRange
-from geneticengine.metahandlers.vars import VarRange
+from geneticengine.grammar.metahandlers.ints import IntRange
+from geneticengine.grammar.metahandlers.vars import VarRange
 
 
 @dataclass

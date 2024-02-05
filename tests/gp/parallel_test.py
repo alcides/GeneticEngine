@@ -7,12 +7,12 @@ from geneticengine.algorithms.callbacks.callback import Callback
 from geneticengine.algorithms.callbacks.callback import DebugCallback
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.tree.operators import FullInitializer
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.core.parallel_evaluation import ParallelEvaluator
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.problems import SingleObjectiveProblem
+from geneticengine.random.sources import RandomSource
+from geneticengine.representations.tree.operators import FullInitializer
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.evaluation.parallel_evaluation import ParallelEvaluator
 
 
 class Root(ABC):

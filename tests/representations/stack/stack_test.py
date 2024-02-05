@@ -4,10 +4,10 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
 
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.stackgggp import StackBasedGGGPRepresentation
-from geneticengine.metahandlers.lists import ListSizeBetween
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.random.sources import RandomSource
+from geneticengine.representations.stackgggp import StackBasedGGGPRepresentation
+from geneticengine.grammar.metahandlers.lists import ListSizeBetween
 
 
 class Root(ABC):
@@ -43,7 +43,7 @@ class TestStackBased:
 
         repr = StackBasedGGGPRepresentation(g, max_depth)
         genotype = repr.create_individual(r, max_depth)
-        
+
         for i in range(10):
             genotype = repr.get_mutation().mutate(genotype, None, None, repr, r, 0, i)
 

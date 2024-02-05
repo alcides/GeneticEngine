@@ -5,7 +5,7 @@ import time
 from typing import Any, Callable
 
 from geneticengine.algorithms.callbacks.callback import Callback
-from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.operators.combinators import ParallelStep, SequenceStep
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
 from geneticengine.algorithms.gp.operators.elitism import ElitismStep
@@ -20,11 +20,11 @@ from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.algorithms.gp.structure import StoppingCriterium
 from geneticengine.algorithms.heuristics import Heuristics
-from geneticengine.core.problems import Problem
-from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.random.sources import Source
-from geneticengine.core.representations.api import Representation
-from geneticengine.core.evaluators import Evaluator, SequentialEvaluator
+from geneticengine.problems import Problem
+from geneticengine.random.sources import RandomSource
+from geneticengine.random.sources import Source
+from geneticengine.representations.api import Representation
+from geneticengine.evaluation import Evaluator, SequentialEvaluator
 
 
 def default_multipopulation_step():

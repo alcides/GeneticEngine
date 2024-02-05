@@ -5,7 +5,7 @@ from typing import Any
 from typing import Callable
 
 from geneticengine.algorithms.callbacks.callback import Callback
-from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.solutions.individual import Individual
 
 
 class CSVCallback(Callback):
@@ -16,11 +16,13 @@ class CSVCallback(Callback):
         filename: str = "evolution_results.csv",
         filter_population: Callable[[list[Individual]], list[Individual]] = lambda x: x,
         only_record_best_ind: bool = True,
-        extra_columns: dict[
-            str,
-            Callable[[int, list[Individual], float, Any, Individual], Any],
-        ]
-        | None = None,
+        extra_columns: (
+            dict[
+                str,
+                Callable[[int, list[Individual], float, Any, Individual], Any],
+            ]
+            | None
+        ) = None,
     ):
         self.filename = filename
         self.filter_population = filter_population

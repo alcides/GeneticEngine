@@ -4,8 +4,8 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
 
-from geneticengine.metahandlers.ints import IntRange
-from geneticengine.metahandlers.vars import VarRange
+from geneticengine.grammar.metahandlers.ints import IntRange
+from geneticengine.grammar.metahandlers.vars import VarRange
 
 
 class Number(ABC):

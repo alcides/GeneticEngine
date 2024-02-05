@@ -2,12 +2,12 @@ from __future__ import annotations
 from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
-from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.solutions.individual import Individual
 
-from geneticengine.core.grammar import Grammar, extract_grammar
-from geneticengine.core.random.sources import RandomSource, Source
-from geneticengine.core.representations.grammatical_evolution.ge import GrammaticalEvolutionRepresentation
-from geneticengine.metahandlers.base import MetaHandlerGenerator
+from geneticengine.grammar.grammar import Grammar, extract_grammar
+from geneticengine.random.sources import RandomSource, Source
+from geneticengine.representations.grammatical_evolution.ge import GrammaticalEvolutionRepresentation
+from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator
 
 
 class RandomDNA(MetaHandlerGenerator):

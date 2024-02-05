@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC
 
-from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.algorithms.gp.operators.stop import TimeStoppingCriterium
 

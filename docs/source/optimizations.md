@@ -7,7 +7,7 @@ On linux and macos, it is possible to perform evaluation in parallel, using mult
 To enable such behaviour, you should replace the default SequentialEvaluator with ParallelEvaluator
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.core.parallel_evaluation.ParallelEvaluator
+.. autoapiclass:: geneticengine.representations.tree.parallel_evaluation.ParallelEvaluator
 ```
 
 

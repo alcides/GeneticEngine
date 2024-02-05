@@ -3,10 +3,10 @@ from geneticengine.algorithms.callbacks.callback import DebugCallback
 from geneticengine.algorithms.gp.multipopulationgp import MultiPopulationGP
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import Problem, SingleObjectiveProblem
-from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.problems import Problem, SingleObjectiveProblem
+from geneticengine.random.sources import RandomSource
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 
 
 @dataclass

@@ -12,12 +12,12 @@ from sklearn.base import TransformerMixin
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.algorithms.hill_climbing import HC
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.api import Representation
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.metahandlers.vars import VarRange
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.problems import SingleObjectiveProblem
+from geneticengine.random.sources import RandomSource
+from geneticengine.representations.api import Representation
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.grammar.metahandlers.vars import VarRange
 from geml.grammars.basic_math import SafeDiv
 from geml.grammars.basic_math import SafeLog
 from geml.grammars.basic_math import SafeSqrt
@@ -37,7 +37,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
 
     Args:
         nodes (List[Number]): The list of nodes to be used in the grammar. You can design your own, or use the ones in geneticengine.grammars.[sgp,literals,basic_math]. The default uses [ Plus, Mul, ExpLiteral, Var, SafeDiv, SafeLog, SafeSqrt ] + exp_literals.
-        representation (Representation): The individual representation used by the GP program. The default is TreeBasedRepresentation. Currently Genetic Engine also supports Grammatical Evolution: geneticengine.core.representations.grammatical_evolution.GrammaticalEvolutionRepresentation. You can also deisgn your own.
+        representation (Representation): The individual representation used by the GP program. The default is TreeBasedRepresentation. Currently Genetic Engine also supports Grammatical Evolution: geneticengine.representations.grammatical_evolution.GrammaticalEvolutionRepresentation. You can also deisgn your own.
         seed (int): The seed for the RandomSource (default = 123).
         population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (n_elites + n_novelties + 1) must hold.
         n_elites (int): Number of elites, i.e. the number of best individuals that are preserved every generation (default = 5).
@@ -213,7 +213,7 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
 
     Args:
         nodes (List[Number]): The list of nodes to be used in the grammar. You can design your own, or use the ones in geneticengine.grammars.[sgp,literals,basic_math]. The default uses [ Plus, Mul, ExpLiteral, Var, SafeDiv, SafeLog, SafeSqrt ] + exp_literals.
-        representation (Representation): The individual representation used by the GP program. The default is TreeBasedRepresentation. Currently Genetic Engine also supports Grammatical Evolution: geneticengine.core.representations.grammatical_evolution.GrammaticalEvolutionRepresentation. You can also deisgn your own.
+        representation (Representation): The individual representation used by the GP program. The default is TreeBasedRepresentation. Currently Genetic Engine also supports Grammatical Evolution: geneticengine.representations.grammatical_evolution.GrammaticalEvolutionRepresentation. You can also deisgn your own.
         seed (int): The seed for the RandomSource (default = 123).
         population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (n_elites + n_novelties + 1) must hold.
         number_of_generations (int): Number of generations (default = 100).

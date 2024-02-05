@@ -6,11 +6,11 @@ from dataclasses import dataclass
 from typing import Annotated, Any
 
 from geneticengine.algorithms.gp.simplegp import SimpleGP
-from geneticengine.core.decorators import weight
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.metahandlers.ints import IntRange
-from geneticengine.metahandlers.vars import VarRange
+from geneticengine.grammar.decorators import weight
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.problems import SingleObjectiveProblem
+from geneticengine.grammar.metahandlers.ints import IntRange
+from geneticengine.grammar.metahandlers.vars import VarRange
 
 
 # ===================================

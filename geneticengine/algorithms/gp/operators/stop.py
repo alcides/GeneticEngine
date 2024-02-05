@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.structure import StoppingCriterium
-from geneticengine.core.evaluators import Evaluator
-from geneticengine.core.fitness_helpers import best_individual
-from geneticengine.core.problems import Fitness, Problem
+from geneticengine.evaluation import Evaluator
+from geneticengine.problems.helpers import best_individual
+from geneticengine.problems import Fitness, Problem
 
 
 class GenerationStoppingCriterium(StoppingCriterium):

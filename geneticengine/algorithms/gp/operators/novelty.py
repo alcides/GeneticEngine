@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.structure import GeneticStep
-from geneticengine.core.problems import Problem
-from geneticengine.core.random.sources import Source
-from geneticengine.core.representations.api import Representation
-from geneticengine.core.evaluators import Evaluator
+from geneticengine.problems import Problem
+from geneticengine.random.sources import Source
+from geneticengine.representations.api import Representation
+from geneticengine.evaluation import Evaluator
 
 
 class NoveltyStep(GeneticStep):

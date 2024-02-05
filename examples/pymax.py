@@ -3,10 +3,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from geneticengine.algorithms.gp.simplegp import SimpleGP
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.grammar import Grammar
-from geneticengine.core.problems import Problem
-from geneticengine.core.problems import SingleObjectiveProblem
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.grammar.grammar import Grammar
+from geneticengine.problems import Problem
+from geneticengine.problems import SingleObjectiveProblem
 from geml.grammars.coding.classes import Expr
 from geml.grammars.coding.classes import XAssign
 from geml.grammars.coding.control_flow import Code

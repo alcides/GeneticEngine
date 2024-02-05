@@ -8,14 +8,14 @@ from geneticengine.algorithms.gp.operators.combinators import ParallelStep
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
 from geneticengine.algorithms.gp.operators.elitism import ElitismStep
 from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
-from geneticengine.core.evaluators import Evaluator
-from geneticengine.core.problems import Problem, SingleObjectiveProblem
-from geneticengine.core.random.sources import RandomSource, Source
-from geneticengine.core.representations.api import CrossoverOperator, MutationOperator, Representation
+from geneticengine.evaluation import Evaluator
+from geneticengine.problems import Problem, SingleObjectiveProblem
+from geneticengine.random.sources import RandomSource, Source
+from geneticengine.representations.api import CrossoverOperator, MutationOperator, Representation
 
-from geneticengine.metahandlers.lists import ListSizeBetween
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.tree.treebased import (
+from geneticengine.grammar.metahandlers.lists import ListSizeBetween
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.representations.tree.treebased import (
     TreeBasedRepresentation,
     random_node,
 )

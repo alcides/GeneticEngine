@@ -4,11 +4,11 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
 
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.tree.initializations import pi_grow_method
-from geneticengine.core.representations.tree.treebased import random_node
-from geneticengine.metahandlers.lists import ListSizeBetween
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.random.sources import RandomSource
+from geneticengine.representations.tree.initializations import pi_grow_method
+from geneticengine.representations.tree.treebased import random_node
+from geneticengine.grammar.metahandlers.lists import ListSizeBetween
 
 
 class Root(ABC):
