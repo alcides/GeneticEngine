@@ -32,7 +32,7 @@ from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.algorithms.gp.structure import StoppingCriterium
 from geneticengine.grammar.grammar import Grammar
-from geneticengine.evaluation import SequentialEvaluator
+from geneticengine.evaluation.sequential import SequentialEvaluator
 from geneticengine.problems import MultiObjectiveProblem
 from geneticengine.problems import Problem
 from geneticengine.problems import SingleObjectiveProblem
@@ -280,7 +280,7 @@ class SimpleGP(GP):
 
         evaluator: Evaluator = SequentialEvaluator()
         if parallel_evaluation:
-            from geneticengine.evaluation.parallel_evaluation import ParallelEvaluator
+            from geneticengine.evaluation.parallel import ParallelEvaluator
 
             evaluator = ParallelEvaluator()
 

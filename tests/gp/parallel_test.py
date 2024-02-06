@@ -12,7 +12,7 @@ from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import RandomSource
 from geneticengine.representations.tree.operators import FullInitializer
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.evaluation.parallel_evaluation import ParallelEvaluator
+from geneticengine.evaluation.parallel import ParallelEvaluator
 
 
 class Root(ABC):

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Callable
+from typing import Any, Callable
 from typing import Generic
 from typing import TypeVar
 import weakref
@@ -20,11 +20,13 @@ class Individual(Generic[G, P]):
     genotype: G
     genotype_to_phenotype: GenericWrapper[Callable[[G], P]]
     phenotype: P | None = None
+    metadata: dict[str, Any]
 
-    def __init__(self, genotype: G, genotype_to_phenotype: Callable[[G], P]):
+    def __init__(self, genotype: G, genotype_to_phenotype: Callable[[G], P], metadata: dict[str, Any] = None):
         self.genotype = genotype
         self.genotype_to_phenotype = GenericWrapper(genotype_to_phenotype)
         self.fitness_store: weakref.WeakKeyDictionary[Problem, Fitness] = weakref.WeakKeyDictionary()
+        self.metadata = {} if metadata is None else metadata
 
     def get_phenotype(self):
         if self.phenotype is None:

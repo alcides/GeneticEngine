@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Generator
 
 
 from geneticengine.solutions.individual import Individual
@@ -11,7 +11,7 @@ class Evaluator(ABC):
         self.count = 0
 
     @abstractmethod
-    def eval(self, problem: Problem, indivs: list[Individual[Any, Any]]):
+    def eval(self, problem: Problem, indivs: list[Individual[Any, Any]]) -> Generator[Individual, None, None]:
         ...
 
     def register_evaluation(self):
@@ -25,11 +25,4 @@ class Evaluator(ABC):
             phenotype = individual.get_phenotype()
             individual.set_fitness(problem, problem.evaluate(phenotype=phenotype))
             self.register_evaluation()
-
-
-class SequentialEvaluator(Evaluator):
-    """Default evaluator for individuals, executes sequentially."""
-
-    def eval(self, problem: Problem, indivs: list[Individual[Any, Any]]):
-        for individual in indivs:
-            self.eval_single(problem, individual)
+            yield individual
