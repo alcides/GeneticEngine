@@ -13,7 +13,8 @@ from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
 from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
 from geneticengine.algorithms.gp.operators.selection import TournamentSelection
 from geneticengine.algorithms.gp.structure import GeneticStep
-from geneticengine.evaluation import Evaluator, SequentialEvaluator
+from geneticengine.evaluation import Evaluator
+from geneticengine.evaluation.sequential import SequentialEvaluator
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import Fitness, Problem, SingleObjectiveProblem
 from geneticengine.random.sources import RandomSource, Source

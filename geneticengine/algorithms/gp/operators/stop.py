@@ -94,7 +94,7 @@ class SingleFitnessTargetStoppingCriterium(StoppingCriterium):
         elapsed_time: float,
         evaluator: Evaluator,
     ) -> bool:
-        evaluator.eval(problem, population)
+        evaluator.evaluate(problem, population)
         best_fitness = best_individual(population, problem).get_fitness(problem)
         return (
             problem.is_better(best_fitness, Fitness(self.target_fitness, []))
@@ -116,7 +116,7 @@ class AllFitnessTargetStoppingCriterium(StoppingCriterium):
         elapsed_time: float,
         evaluator: Evaluator,
     ) -> bool:
-        evaluator.eval(problem, population)
+        evaluator.evaluate(problem, population)
         best_fitness = best_individual(population, problem).get_fitness(problem)
 
         def compare_fitness(a, b, minimize):

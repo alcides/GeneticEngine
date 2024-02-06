@@ -12,7 +12,7 @@ from geneticengine.representations.grammatical_evolution.ge import GrammaticalEv
 import pytest
 
 from geneticengine.grammar.decorators import abstract
-from geneticengine.evaluation import SequentialEvaluator
+from geneticengine.evaluation.sequential import SequentialEvaluator
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.random.sources import RandomSource
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation

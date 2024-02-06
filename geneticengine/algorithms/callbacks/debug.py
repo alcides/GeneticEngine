@@ -9,7 +9,7 @@ class ElitismDebugCallback(Callback):
         self.bests = []
 
     def process_iteration(self, generation: int, population, time: float, gp):
-        gp.evaluator.eval(gp.problem, population)
+        gp.evaluator.evaluate(gp.problem, population)
         best = best_individual(population=population, problem=gp.problem)
         assert is_better(gp.problem, best, self.bests[-1])
         self.bests.append(best)

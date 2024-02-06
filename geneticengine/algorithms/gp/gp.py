@@ -23,7 +23,8 @@ from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
 from geneticengine.random.sources import Source
 from geneticengine.representations.api import Representation
-from geneticengine.evaluation import Evaluator, SequentialEvaluator
+from geneticengine.evaluation import Evaluator
+from geneticengine.evaluation.sequential import SequentialEvaluator
 
 
 def default_generic_programming_step():
@@ -93,7 +94,7 @@ class GP(Heuristics):
             self.random_source,
             self.population_size,
         )
-        self.evaluator.eval(self.problem, population)
+        self.evaluator.evaluate(self.problem, population)
 
         generation = 0
         start = time.time()
@@ -121,7 +122,7 @@ class GP(Heuristics):
                 self.population_size,
                 generation,
             )
-            self.evaluator.eval(self.problem, population)
+            self.evaluator.evaluate(self.problem, population)
             assert len(population) == self.population_size
             for cb in self.callbacks:
                 cb.process_iteration(generation, population, elapsed_time(), gp=self)

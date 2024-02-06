@@ -1,7 +1,7 @@
 import pytest
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
 from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
-from geneticengine.evaluation import SequentialEvaluator
+from geneticengine.evaluation.sequential import SequentialEvaluator
 from geneticengine.problems import SingleObjectiveProblem
 
 from geneticengine.random.sources import RandomSource

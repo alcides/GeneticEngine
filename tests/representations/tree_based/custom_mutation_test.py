@@ -4,7 +4,8 @@ from dataclasses import dataclass
 from typing import Annotated
 from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
-from geneticengine.evaluation import Evaluator, SequentialEvaluator
+from geneticengine.evaluation import Evaluator
+from geneticengine.evaluation.sequential import SequentialEvaluator
 from geneticengine.random.sources import RandomSource, Source
 from geneticengine.representations.api import MutationOperator, Representation
 

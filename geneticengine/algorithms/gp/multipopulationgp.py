@@ -24,7 +24,8 @@ from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
 from geneticengine.random.sources import Source
 from geneticengine.representations.api import Representation
-from geneticengine.evaluation import Evaluator, SequentialEvaluator
+from geneticengine.evaluation import Evaluator
+from geneticengine.evaluation.sequential import SequentialEvaluator
 
 
 def default_multipopulation_step():
@@ -114,7 +115,7 @@ class MultiPopulationGP(Heuristics):
             for pop_size, problem in zip(self.population_sizes, self.problems)
         ]
         for population, problem in zip(populations, self.problems):
-            self.evaluator.eval(problem, population)
+            self.evaluator.evaluate(problem, population)
 
         generation = 0
         start = time.time()
@@ -159,7 +160,7 @@ class MultiPopulationGP(Heuristics):
                     pop.extend(bests)
 
             for population, problem in zip(populations, self.problems):
-                self.evaluator.eval(problem, population)
+                self.evaluator.evaluate(problem, population)
 
             assert all(
                 len(population) == population_size

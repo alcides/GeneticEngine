@@ -36,7 +36,7 @@ class ProgressCallback(Callback):
         print(
             f"[{self.__class__.__name__}] Generation {generation}. Time {time:.2f}. Best fitness: {best_fitness}",
         )
-        gp.evaluator.eval(gp.problem, population)
+        gp.evaluator.evaluate(gp.problem, population)
 
 
 class PrintBestCallback(Callback):

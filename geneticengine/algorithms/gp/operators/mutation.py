@@ -100,7 +100,7 @@ class HillClimbingMutation(MutationOperator[g]):
             Individual(genotype=g, genotype_to_phenotype=representation.genotype_to_phenotype) for g in new_genotypes
         ]
 
-        evaluator.eval(problem, new_individuals)
+        evaluator.evaluate(problem, new_individuals)
         bi = best_individual(new_individuals, problem)
 
         return bi.genotype

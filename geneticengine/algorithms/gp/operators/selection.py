@@ -39,7 +39,7 @@ class TournamentSelection(GeneticStep):
         assert isinstance(problem, SingleObjectiveProblem)
         winners: list[Individual] = []
         candidates = population.copy()
-        evaluator.eval(problem, candidates)
+        evaluator.evaluate(problem, candidates)
         for _ in range(target_size):
             candidates = [random_source.choice(population) for _ in range(self.tournament_size)]
             winner = max(candidates, key=Individual.key_function(problem))
@@ -77,7 +77,7 @@ class LexicaseSelection(GeneticStep):
     ) -> list[Individual]:
         assert isinstance(problem, MultiObjectiveProblem)
         candidates = population.copy()
-        evaluator.eval(problem, candidates)
+        evaluator.evaluate(problem, candidates)
         n_cases = problem.number_of_objectives()
         cases = random_source.shuffle(list(range(n_cases)))
         winners = []

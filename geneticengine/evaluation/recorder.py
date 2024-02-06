@@ -45,7 +45,7 @@ class SingleObjectiveProgressRecorder:
         self.csv_writer.writerow([name for name in self.fields])
 
     def eval(self, individuals: list[Individual]):
-        for ind in self.evaluator.eval(self.problem, individuals):
+        for ind in self.evaluator.evaluate(self.problem, individuals):
             if self.best_individual is None:
                 self.best_individual = ind
             elif self.problem.is_better(ind.get_fitness(self.problem), self.best_individual.get_fitness(self.problem)):
