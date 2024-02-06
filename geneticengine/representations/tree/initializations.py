@@ -5,7 +5,7 @@ from typing import Callable
 
 from geneticengine.grammar.decorators import get_gengy
 from geneticengine.grammar.grammar import Grammar
-from geneticengine.random.sources import Source
+from geneticengine.random.sources import RandomSource
 from geneticengine.solutions.tree import GengyList
 from geneticengine.representations.tree.utils import relabel_nodes_of_trees
 from geneticengine.grammar.utils import build_finalizers
@@ -19,7 +19,7 @@ from geneticengine.grammar.metahandlers.base import is_metahandler
 
 
 def apply_metahandler(
-    r: Source,
+    r: RandomSource,
     g: Grammar,
     receiver,
     new_symbol,
@@ -47,11 +47,11 @@ def apply_metahandler(
     )  # todo: last argument
 
 
-InitializationMethodType = Callable[[Source, Grammar, int, type[Any]], Any]
+InitializationMethodType = Callable[[RandomSource, Grammar, int, type[Any]], Any]
 
 
 def grow_method(
-    r: Source,
+    r: RandomSource,
     g: Grammar,
     depth: int,
     starting_symbol: type[Any] = int,
@@ -94,7 +94,7 @@ def grow_method(
 
 
 def full_method(
-    r: Source,
+    r: RandomSource,
     g: Grammar,
     depth: int,
     starting_symbol: type[Any] = int,
@@ -143,7 +143,7 @@ def full_method(
 
 
 def pi_grow_method(
-    r: Source,
+    r: RandomSource,
     g: Grammar,
     depth: int,
     starting_symbol: type[Any] = int,
@@ -211,7 +211,7 @@ T = TypeVar("T")
 
 
 def random_list(
-    r: Source,
+    r: RandomSource,
     receiver,
     new_symbol,
     depth: int,
@@ -233,7 +233,7 @@ def random_list(
 
 
 def expand_node(
-    r: Source,
+    r: RandomSource,
     g: Grammar,
     new_symbol,  # Method to find new_symbol (?)
     filter_choices,

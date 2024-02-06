@@ -3,7 +3,7 @@ import copy
 import string
 
 from geneticengine.grammar.grammar import Grammar
-from geneticengine.random.sources import Source
+from geneticengine.random.sources import RandomSource
 from geneticengine.representations.tree.initializations import pi_grow_method
 from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator
 
@@ -25,7 +25,7 @@ class StringSizeBetween(MetaHandlerGenerator):
 
     def generate(
         self,
-        r: Source,
+        r: RandomSource,
         g: Grammar,
         rec,
         new_symbol,
@@ -39,7 +39,7 @@ class StringSizeBetween(MetaHandlerGenerator):
 
     def mutate(
         self,
-        r: Source,
+        r: RandomSource,
         g: Grammar,
         random_node,
         depth: int,
@@ -65,7 +65,7 @@ class StringSizeBetween(MetaHandlerGenerator):
 
     def crossover(
         self,
-        r: Source,
+        r: RandomSource,
         g: Grammar,
         options,
         arg,
@@ -115,7 +115,7 @@ class WeightedStringHandler(MetaHandlerGenerator):
 
     def generate(
         self,
-        r: Source,
+        r: RandomSource,
         g: Grammar,
         rec,
         newsymbol,

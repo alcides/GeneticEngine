@@ -9,7 +9,7 @@ from typing import TypeVar
 T = TypeVar("T")
 
 
-class Source(abc.ABC):
+class RandomSource(abc.ABC):
     @abc.abstractmethod
     def randint(self, min: int, max: int, prod: str = "") -> int:
         ...
@@ -73,7 +73,7 @@ class Source(abc.ABC):
         return z0 * sigma + mean
 
 
-class RandomSource(Source):
+class NativeRandomSource(RandomSource):
     def __init__(self, seed: int = 0):
         self.seed = seed
         self.random = random.Random(seed)

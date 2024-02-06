@@ -14,13 +14,13 @@ from geneticengine.algorithms.callbacks.csv_callback import CSVCallback
 from geneticengine.algorithms.gp.gp import GP
 from geneticengine.grammar.grammar import Grammar, extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
-from geneticengine.random.sources import RandomSource
+from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammar.synthetic_grammar import create_arbitrary_grammar
 
 
 def create_target_individual(grammar_seed: int, g: Grammar):
-    r = RandomSource(grammar_seed)
+    r = NativeRandomSource(grammar_seed)
     representation = TreeBasedRepresentation(g, max_depth=g.get_min_tree_depth())
     target_individual = representation.create_individual(r, depth=10)
     individual_phenotype = representation.genotype_to_phenotype(target_individual)
@@ -65,7 +65,7 @@ def single_run(
         problem=problem,
         population_size=10,
         stopping_criterium=stopping_criterium,
-        random_source=RandomSource(seed),
+        random_source=NativeRandomSource(seed),
         callbacks=[
             ProgressCallback(),
             CSVCallback(

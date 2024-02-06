@@ -6,7 +6,7 @@ from dataclasses import dataclass
 import pytest
 
 from geneticengine.grammar.grammar import extract_grammar
-from geneticengine.random.sources import RandomSource
+from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.tree.initializations import pi_grow_method
 from geneticengine.representations.tree.treebased import random_node
 from geneticengine.grammar.utils import get_arguments
@@ -53,14 +53,14 @@ def contains_type(t, ty: type):
 
 class TestGrammar:
     def test_root(self):
-        r = RandomSource(seed=1)
+        r = NativeRandomSource(seed=1)
         g = extract_grammar([Leaf], Root)
         x = random_node(r, g, 2, Root)
         assert isinstance(x, Leaf)
         assert isinstance(x, Root)
 
     def test_rec(self):
-        r = RandomSource(seed=1)
+        r = NativeRandomSource(seed=1)
         g = extract_grammar([Leaf, Rec], Root)
         x = random_node(r, g, 10, Root, method=pi_grow_method)
         # print(x) -- Leaf()
@@ -68,7 +68,7 @@ class TestGrammar:
         assert isinstance(x, Root)
 
     def test_rec_alt(self):
-        r = RandomSource(seed=245)
+        r = NativeRandomSource(seed=245)
         g = extract_grammar([Leaf, Rec, RecAlt], Root)
         x = random_node(
             r,

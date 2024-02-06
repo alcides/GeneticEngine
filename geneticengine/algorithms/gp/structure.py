@@ -4,7 +4,7 @@ import abc
 
 from geneticengine.solutions.individual import Individual
 from geneticengine.problems import Problem
-from geneticengine.random.sources import Source
+from geneticengine.random.sources import RandomSource
 from geneticengine.representations.api import Representation
 from geneticengine.evaluation import Evaluator
 
@@ -15,7 +15,7 @@ class PopulationInitializer(abc.ABC):
         self,
         problem: Problem,
         representation: Representation,
-        random_source: Source,
+        random_source: RandomSource,
         target_size: int,
     ) -> list[Individual]:
         ...
@@ -28,7 +28,7 @@ class GeneticStep(abc.ABC):
         problem: Problem,
         evaluator: Evaluator,
         representation: Representation,
-        random_source: Source,
+        random_source: RandomSource,
         population: list[Individual],
         target_size: int,
         generation: int,

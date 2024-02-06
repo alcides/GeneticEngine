@@ -5,7 +5,7 @@ from typing import Annotated
 from geneticengine.solutions.individual import Individual
 
 from geneticengine.grammar.grammar import Grammar, extract_grammar
-from geneticengine.random.sources import RandomSource, Source
+from geneticengine.random.sources import NativeRandomSource, RandomSource
 from geneticengine.representations.grammatical_evolution.ge import GrammaticalEvolutionRepresentation
 from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator
 
@@ -19,7 +19,7 @@ class RandomDNA(MetaHandlerGenerator):
 
     def generate(
         self,
-        r: Source,
+        r: RandomSource,
         g: Grammar,
         rec,
         new_symbol,
@@ -41,7 +41,7 @@ class Leaf(Root):
 
 
 def test_metahandler_gen():
-    r = RandomSource(seed=1)
+    r = NativeRandomSource(seed=1)
     g = extract_grammar([Leaf], Root)
     rep = GrammaticalEvolutionRepresentation(g, max_depth=2)
     ind = Individual(genotype=rep.create_individual(r=r, g=g), genotype_to_phenotype=rep.genotype_to_phenotype)

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from geneticengine.grammar.decorators import abstract
 from geneticengine.grammar.grammar import extract_grammar
-from geneticengine.random.sources import RandomSource
+from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.tree.treebased import (
     crossover as tree_crossover,
 )
@@ -26,7 +26,7 @@ class Inner(Node):
 
 
 def test_crossover():
-    r = RandomSource(seed=1)
+    r = NativeRandomSource(seed=1)
     g = extract_grammar([Leaf, Inner], Node)
     x = random_node(r, g, 20, Node)
     for i in range(100):
@@ -35,7 +35,7 @@ def test_crossover():
 
 
 def test_mutation():
-    r = RandomSource(seed=1)
+    r = NativeRandomSource(seed=1)
     g = extract_grammar([Leaf, Inner], Node)
     x = random_node(r, g, 20, Node)
     for i in range(100):

@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import Annotated
 
 from geneticengine.grammar.grammar import extract_grammar
-from geneticengine.random.sources import RandomSource
+from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.stackgggp import StackBasedGGGPRepresentation
 from geneticengine.grammar.metahandlers.lists import ListSizeBetween
 
@@ -36,7 +36,7 @@ class Middle(Root):
 
 class TestStackBased:
     def test_stack_generation(self):
-        r = RandomSource(seed=1)
+        r = NativeRandomSource(seed=1)
         g = extract_grammar([Concrete, Middle, MiddleList], Root, False)
 
         max_depth = 10

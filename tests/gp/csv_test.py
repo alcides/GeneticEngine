@@ -7,7 +7,7 @@ from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
-from geneticengine.random.sources import RandomSource
+from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 
 
@@ -41,7 +41,7 @@ class TestCSVCallback:
             population_size=10,
             stopping_criterium=GenerationStoppingCriterium(max_generations=max_generations),
             callbacks=[csv_callback],
-            random_source=RandomSource(seed),
+            random_source=NativeRandomSource(seed),
         )
         gp.evolve()
 
@@ -96,7 +96,7 @@ class TestCSVCallback:
             population_size=population_size,
             stopping_criterium=GenerationStoppingCriterium(max_generations=max_generations),
             callbacks=[csv_callback],
-            random_source=RandomSource(seed),
+            random_source=NativeRandomSource(seed),
         )
         gp.evolve()
 

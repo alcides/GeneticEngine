@@ -17,7 +17,7 @@ from geneticengine.evaluation import Evaluator
 from geneticengine.evaluation.sequential import SequentialEvaluator
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import Fitness, Problem, SingleObjectiveProblem
-from geneticengine.random.sources import RandomSource, Source
+from geneticengine.random.sources import NativeRandomSource, RandomSource
 from geneticengine.representations.api import Representation
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammar.metahandlers.lists import ListSizeBetween
@@ -44,7 +44,7 @@ class CacheFitness(GeneticStep):
         problem: Problem,
         evaluator: Evaluator,
         representation: Representation,
-        random_source: Source,
+        random_source: RandomSource,
         population: list[Individual],
         target_size: int,
         generation: int,
@@ -67,7 +67,7 @@ class TestPreCache:
     def test_immutability(self, test_step):
         g = extract_grammar([Sub], Base)
         rep = TreeBasedRepresentation(g, max_depth=10)
-        r = RandomSource(3)
+        r = NativeRandomSource(3)
 
         def fitness_function(x):
             assert False

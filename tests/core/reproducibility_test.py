@@ -6,7 +6,7 @@ from geneticengine.algorithms.gp.gp import GP
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
-from geneticengine.random.sources import RandomSource
+from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.grammatical_evolution.dynamic_structured_ge import (
     DynamicStructuredGrammaticalEvolutionRepresentation,
 )
@@ -26,66 +26,66 @@ class X:
 
 
 def test_random_int():
-    r = RandomSource(1)
+    r = NativeRandomSource(1)
     v1 = r.randint(0, 10)
-    r = RandomSource(2)
+    r = NativeRandomSource(2)
     v2 = r.randint(0, 10)
-    r = RandomSource(1)
+    r = NativeRandomSource(1)
     v3 = r.randint(0, 10)
     assert v1 == v3
     assert v1 != v2
 
 
 def test_random_bool():
-    r = RandomSource(1)
+    r = NativeRandomSource(1)
     v1 = [r.random_bool() for _ in range(100)]
-    r = RandomSource(2)
+    r = NativeRandomSource(2)
     v2 = [r.random_bool() for _ in range(100)]
-    r = RandomSource(1)
+    r = NativeRandomSource(1)
     v3 = [r.random_bool() for _ in range(100)]
     assert v1 == v3
     assert v1 != v2
 
 
 def test_random_float():
-    r = RandomSource(1)
+    r = NativeRandomSource(1)
     v1 = r.random_float(0, 10)
-    r = RandomSource(2)
+    r = NativeRandomSource(2)
     v2 = r.random_float(0, 10)
-    r = RandomSource(1)
+    r = NativeRandomSource(1)
     v3 = r.random_float(0, 10)
     assert v1 == v3
     assert v1 != v2
 
 
 def test_random_norm():
-    r = RandomSource(1)
+    r = NativeRandomSource(1)
     v1 = [r.normalvariate(3, 4) for _ in range(100)]
-    r = RandomSource(2)
+    r = NativeRandomSource(2)
     v2 = [r.normalvariate(3, 4) for _ in range(100)]
-    r = RandomSource(1)
+    r = NativeRandomSource(1)
     v3 = [r.normalvariate(3, 4) for _ in range(100)]
     assert v1 == v3
     assert v1 != v2
 
 
 def test_random_choice():
-    r = RandomSource(1)
+    r = NativeRandomSource(1)
     v1 = r.choice([n for n in range(0, 1000)])
-    r = RandomSource(2)
+    r = NativeRandomSource(2)
     v2 = r.choice([n for n in range(0, 1000)])
-    r = RandomSource(1)
+    r = NativeRandomSource(1)
     v3 = r.choice([n for n in range(0, 1000)])
     assert v1 == v3
     assert v1 != v2
 
 
 def test_random_choice_weighted():
-    r = RandomSource(1)
+    r = NativeRandomSource(1)
     v1 = r.choice_weighted([n for n in range(0, 1000)], [n for n in range(0, 1000)])
-    r = RandomSource(2)
+    r = NativeRandomSource(2)
     v2 = r.choice_weighted([n for n in range(0, 1000)], [n for n in range(0, 1000)])
-    r = RandomSource(1)
+    r = NativeRandomSource(1)
     v3 = r.choice_weighted([n for n in range(0, 1000)], [n for n in range(0, 1000)])
     assert v1 == v3
     assert v1 != v2
@@ -94,17 +94,17 @@ def test_random_choice_weighted():
 def test_random_shuffle():
     original = [n for n in range(100)]
 
-    r = RandomSource(1)
+    r = NativeRandomSource(1)
     v1 = copy.copy(original)
     v1 = r.shuffle(v1)
     v1 = r.shuffle(v1)
 
-    r = RandomSource(2)
+    r = NativeRandomSource(2)
     v2 = copy.copy(original)
     v2 = r.shuffle(v2)
     v2 = r.shuffle(v2)
 
-    r = RandomSource(1)
+    r = NativeRandomSource(1)
     v3 = copy.copy(original)
     v3 = r.shuffle(v3)
     v3 = r.shuffle(v3)
@@ -116,17 +116,17 @@ def test_random_shuffle():
 def test_random_pop():
     original = [n for n in range(100)]
 
-    r = RandomSource(1)
+    r = NativeRandomSource(1)
     l1 = copy.copy(original)
     v1 = r.pop_random(l1)
     v1 += r.pop_random(l1)
 
-    r = RandomSource(2)
+    r = NativeRandomSource(2)
     l2 = copy.copy(original)
     v2 = r.pop_random(l2)
     v2 += r.pop_random(l2)
 
-    r = RandomSource(1)
+    r = NativeRandomSource(1)
     l3 = copy.copy(original)
     v3 = r.pop_random(l3)
     v3 += r.pop_random(l3)
@@ -154,7 +154,7 @@ def test_random_gp(representation):
         gp = GP(
             problem=SingleObjectiveProblem(lambda x: x.i * x.j),
             representation=representation(grammar, max_depth=3),
-            random_source=RandomSource(0),
+            random_source=NativeRandomSource(0),
             stopping_criterium=GenerationStoppingCriterium(10),
         )
         e = gp.evolve()

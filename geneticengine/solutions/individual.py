@@ -20,6 +20,7 @@ class Individual(Generic[G, P]):
     genotype: G
     genotype_to_phenotype: GenericWrapper[Callable[[G], P]]
     phenotype: P | None = None
+    fitness_store: weakref.WeakKeyDictionary[Problem, Fitness]
     metadata: dict[str, Any]
 
     def __init__(self, genotype: G, genotype_to_phenotype: Callable[[G], P], metadata: dict[str, Any] = None):

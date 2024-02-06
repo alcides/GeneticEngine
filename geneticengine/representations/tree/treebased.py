@@ -5,7 +5,7 @@ from typing import TypeVar
 
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.problems import Problem
-from geneticengine.random.sources import Source
+from geneticengine.random.sources import RandomSource
 from geneticengine.representations.api import CrossoverOperator
 from geneticengine.representations.api import MutationOperator
 from geneticengine.representations.api import Representation
@@ -29,7 +29,7 @@ T = TypeVar("T")
 
 
 def random_node(
-    r: Source,
+    r: RandomSource,
     g: Grammar,
     max_depth: int,
     starting_symbol: type[Any] | None = None,
@@ -40,7 +40,7 @@ def random_node(
 
 
 def random_individual(
-    r: Source,
+    r: RandomSource,
     g: Grammar,
     max_depth: int = 5,
     method: InitializationMethodType = grow_method,
@@ -63,7 +63,7 @@ def random_individual(
 
 
 def mutate_inner(
-    r: Source,
+    r: RandomSource,
     g: Grammar,
     i: TreeNode,
     max_depth: int,
@@ -141,7 +141,7 @@ def mutate_inner(
 
 
 def mutate_specific_type_inner(
-    r: Source,
+    r: RandomSource,
     g: Grammar,
     i: TreeNode,
     max_depth: int,
@@ -185,7 +185,7 @@ def mutate_specific_type_inner(
 
 
 def mutate_specific_type(
-    r: Source,
+    r: RandomSource,
     g: Grammar,
     i: TreeNode,
     max_depth: int,
@@ -224,7 +224,7 @@ def mutate_specific_type(
 
 
 def mutate(
-    r: Source,
+    r: RandomSource,
     g: Grammar,
     i: TreeNode,
     max_depth: int,
@@ -268,7 +268,7 @@ def find_in_tree_exact(g: Grammar, ty: type, o: TreeNode, max_depth: int):
 
 
 def crossover_inner(
-    r: Source,
+    r: RandomSource,
     g: Grammar,
     i: TreeNode,
     o: TreeNode,
@@ -352,7 +352,7 @@ def crossover_inner(
 
 
 def crossover_specific_type_inner(
-    r: Source,
+    r: RandomSource,
     g: Grammar,
     i: TreeNode,
     o: TreeNode,
@@ -398,7 +398,7 @@ def crossover_specific_type_inner(
 
 
 def crossover_specific_type(
-    r: Source,
+    r: RandomSource,
     g: Grammar,
     i: TreeNode,
     o: TreeNode,
@@ -441,7 +441,7 @@ def crossover_specific_type(
 
 
 def crossover(
-    r: Source,
+    r: RandomSource,
     g: Grammar,
     p1: TreeNode,
     p2: TreeNode,
@@ -524,7 +524,7 @@ class DefaultTBMutation(MutationOperator[TreeNode]):
         problem: Problem,
         evaluator: Evaluator,
         representation: Representation,
-        random_source: Source,
+        random_source: RandomSource,
         index_in_population: int,
         generation: int,
     ) -> TreeNode:
@@ -553,7 +553,7 @@ class TypeSpecificTBMutation(DefaultTBMutation):
         problem: Problem,
         evaluator: Evaluator,
         representation: Representation,
-        random_source: Source,
+        random_source: RandomSource,
         index_in_population: int,
         generation: int,
     ) -> TreeNode:
@@ -587,7 +587,7 @@ class DefaultTBCrossover(CrossoverOperator[TreeNode]):
         g2: TreeNode,
         problem: Problem,
         representation: Representation,
-        random_source: Source,
+        random_source: RandomSource,
         index_in_population: int,
         generation: int,
     ) -> tuple[TreeNode, TreeNode]:
@@ -610,7 +610,7 @@ class TypeSpecificTBCrossover(DefaultTBCrossover):
         g2: TreeNode,
         problem: Problem,
         representation: Representation,
-        random_source: Source,
+        random_source: RandomSource,
         index_in_population: int,
         generation: int,
     ) -> tuple[TreeNode, TreeNode]:
@@ -650,7 +650,7 @@ class TreeBasedRepresentation(Representation[TreeNode, TreeNode]):
 
     def create_individual(
         self,
-        r: Source,
+        r: RandomSource,
         depth: int | None = None,
         initialization_method: InitializationMethodType = grow_method,
         **kwargs,

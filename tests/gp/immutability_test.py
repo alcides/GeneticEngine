@@ -14,7 +14,7 @@ import pytest
 from geneticengine.grammar.decorators import abstract
 from geneticengine.evaluation.sequential import SequentialEvaluator
 from geneticengine.grammar.grammar import extract_grammar
-from geneticengine.random.sources import RandomSource
+from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammar.metahandlers.floats import FloatRange
 from geneticengine.grammar.metahandlers.ints import IntervalRange
@@ -79,7 +79,7 @@ class TestImmutability:
     def test_hash(self):
         g = extract_grammar([A, B], A)
         rep = TreeBasedRepresentation(g, max_depth=10)
-        r = RandomSource(3)
+        r = NativeRandomSource(3)
         ind = rep.create_individual(r, 10)
         assert isinstance(hash(ind), int)
 
@@ -101,7 +101,7 @@ class TestImmutability:
     )
     def test_immutability(self, test_step, g):
         rep = GrammaticalEvolutionRepresentation(g, max_depth=10)
-        r = RandomSource(3)
+        r = NativeRandomSource(3)
         problem = SingleObjectiveProblem(fitness_function=lambda x: 1)
 
         population_size = 1000

@@ -5,7 +5,7 @@ from typing import Annotated
 
 
 from geneticengine.grammar.grammar import extract_grammar
-from geneticengine.random.sources import RandomSource
+from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation, random_node
 from geneticengine.grammar.metahandlers.lists import ListSizeBetween
 
@@ -22,7 +22,7 @@ class B:
 
 class TestTreeBased:
     def test_mutation_empty_list(self):
-        r = RandomSource(seed=1)
+        r = NativeRandomSource(seed=1)
         g = extract_grammar([Root, B], Root)
         print(g)
         print(g.get_grammar_properties_summary())

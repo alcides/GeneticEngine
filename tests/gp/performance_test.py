@@ -4,7 +4,7 @@ from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
 from geneticengine.evaluation.sequential import SequentialEvaluator
 from geneticengine.problems import SingleObjectiveProblem
 
-from geneticengine.random.sources import RandomSource
+from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.common import GenericPopulationInitializer
 from geneticengine.representations.grammatical_evolution.dynamic_structured_ge import (
     DefaultDSGECrossover,
@@ -56,7 +56,7 @@ from utils.benchmark_grammars_test import Root, grammar
 )
 @pytest.mark.benchmark(group="initializers", disable_gc=True, warmup=True, warmup_iterations=10, min_rounds=500)
 def test_bench_initialization(benchmark, fun):
-    r = RandomSource(seed=1)
+    r = NativeRandomSource(seed=1)
 
     def population_initialization():
         n = random_node(r, grammar, 20, Root, method=fun)
@@ -83,7 +83,7 @@ def test_bench_initialization(benchmark, fun):
 )
 @pytest.mark.benchmark(group="initializers_class", disable_gc=True, warmup=True, warmup_iterations=1, min_rounds=5)
 def test_bench_initialization_class(benchmark, representation, initializer):
-    r = RandomSource(seed=1)
+    r = NativeRandomSource(seed=1)
     p = SingleObjectiveProblem(lambda x: 3)
     target_depth = 20
     target_size = 100
@@ -112,7 +112,7 @@ def test_bench_initialization_class(benchmark, representation, initializer):
 )
 @pytest.mark.benchmark(group="mutation", disable_gc=True, warmup=True, warmup_iterations=1, min_rounds=5)
 def test_bench_mutation(benchmark, representation, mut):
-    r = RandomSource(seed=1)
+    r = NativeRandomSource(seed=1)
     target_depth = 20
     target_size = 100
 
@@ -147,7 +147,7 @@ def test_bench_mutation(benchmark, representation, mut):
 )
 @pytest.mark.benchmark(group="crossover", disable_gc=True, warmup=True, warmup_iterations=1, min_rounds=5)
 def test_bench_crossover(benchmark, representation, xo):
-    r = RandomSource(seed=1)
+    r = NativeRandomSource(seed=1)
     target_depth = 20
     target_size = 100
 

@@ -7,7 +7,7 @@ from geneticengine.algorithms.gp.operators.initializers import StandardInitializ
 from geneticengine.grammar.grammar import Grammar
 
 from geneticengine.problems import SingleObjectiveProblem
-from geneticengine.random.sources import RandomSource, Source
+from geneticengine.random.sources import NativeRandomSource, RandomSource
 from geneticengine.representations.api import Representation
 from geneticengine.representations.tree.operators import InjectInitialPopulationWrapper
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
@@ -37,7 +37,7 @@ class CooperativeGP:
         population1_size: int = 100,
         population2_size: int = 200,
         coevolutions: int = 1000,
-        random_source: Optional[Source] = None,
+        random_source: Optional[RandomSource] = None,
         kwargs1: Optional[dict] = None,
         kwargs2: Optional[dict] = None,
     ):
@@ -67,7 +67,7 @@ class CooperativeGP:
         self.representation2 = representation2 or TreeBasedRepresentation(grammar=self.g2, max_depth=10)
         self.kwargs1 = kwargs1 or {}
         self.kwargs2 = kwargs2 or {}
-        self.random_source = random_source or RandomSource()
+        self.random_source = random_source or NativeRandomSource()
 
     def evolve(self) -> tuple[a, b]:
         @dataclass

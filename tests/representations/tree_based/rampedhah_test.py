@@ -6,7 +6,7 @@ from typing import Annotated
 
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
-from geneticengine.random.sources import RandomSource
+from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.tree.operators import (
     RampedHalfAndHalfInitializer,
 )
@@ -40,7 +40,7 @@ class Middle(Root):
 
 class TestRamped:
     def test_ramped_half_and_half(self):
-        r = RandomSource(seed=1)
+        r = NativeRandomSource(seed=1)
         g = extract_grammar([Concrete, Middle], Root, False)
         problem = SingleObjectiveProblem(
             minimize=False,

@@ -5,7 +5,7 @@ from typing import Any
 
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.problems import Problem
-from geneticengine.random.sources import Source
+from geneticengine.random.sources import RandomSource
 from geneticengine.representations.api import CrossoverOperator
 from geneticengine.representations.api import MutationOperator
 from geneticengine.representations.api import Representation
@@ -27,7 +27,7 @@ class Genotype:
 
 
 def random_individual(
-    r: Source,
+    r: RandomSource,
     g: Grammar,
     depth: int = 5,
     starting_symbol: Any = None,
@@ -35,7 +35,7 @@ def random_individual(
     return Genotype([r.randint(0, MAX_VALUE) for _ in range(GENE_LENGTH)])
 
 
-def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
+def mutate(r: RandomSource, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
     rindex = r.randint(0, 255)
     clone = [i for i in ind.dna]
     clone[rindex] = r.randint(0, 10000)
@@ -43,7 +43,7 @@ def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
 
 
 def crossover(
-    r: Source,
+    r: RandomSource,
     g: Grammar,
     p1: Genotype,
     p2: Genotype,
@@ -56,7 +56,7 @@ def crossover(
 
 
 @dataclass
-class ListWrapper(Source):
+class ListWrapper(RandomSource):
     dna: list[int]
     index: int = 0
 
@@ -76,7 +76,7 @@ def create_tree(
     depth: int,
     initialization_mode: InitializationMethodType = pi_grow_method,
 ) -> TreeNode:
-    rand: Source = ListWrapper(ind.dna)
+    rand: RandomSource = ListWrapper(ind.dna)
     return random_node(rand, g, depth, g.starting_symbol, initialization_mode)
 
 
@@ -89,7 +89,7 @@ class DefaultGEMutation(MutationOperator[Genotype]):
         problem: Problem,
         evaluator: Evaluator,
         representation: Representation,
-        random_source: Source,
+        random_source: RandomSource,
         index_in_population: int,
         generation: int,
     ) -> Genotype:
@@ -110,7 +110,7 @@ class DefaultGECrossover(CrossoverOperator[Genotype]):
         g2: Genotype,
         problem: Problem,
         representation: Representation,
-        random_source: Source,
+        random_source: RandomSource,
         index_in_population: int,
         generation: int,
     ) -> tuple[Genotype, Genotype]:
@@ -139,7 +139,7 @@ class GrammaticalEvolutionRepresentation(Representation[Genotype, TreeNode]):
 
     def create_individual(
         self,
-        r: Source,
+        r: RandomSource,
         depth: int | None = None,
         **kwargs,
     ) -> Genotype:

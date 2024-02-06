@@ -13,7 +13,7 @@ from geneticengine.algorithms.gp.operators.selection import TournamentSelection
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
-from geneticengine.random.sources import RandomSource
+from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.tree.operators import FullInitializer
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 
@@ -57,7 +57,7 @@ class TestGrammar:
         g = extract_grammar([Leaf, OtherLeaf], UnderTest)
         gp = GP(
             representation=TreeBasedRepresentation(g, 10),
-            random_source=RandomSource(seed=123),
+            random_source=NativeRandomSource(seed=123),
             problem=SingleObjectiveProblem(
                 fitness_function=lambda x: x.gengy_nodes,
                 minimize=True,

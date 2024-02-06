@@ -3,7 +3,7 @@ from __future__ import annotations
 from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.problems import Problem
-from geneticengine.random.sources import Source
+from geneticengine.random.sources import RandomSource
 from geneticengine.representations.api import CrossoverOperator
 from geneticengine.representations.api import Representation
 from geneticengine.evaluation import Evaluator
@@ -26,7 +26,7 @@ class GenericCrossoverStep(GeneticStep):
         problem: Problem,
         evaluator: Evaluator,
         representation: Representation,
-        random_source: Source,
+        random_source: RandomSource,
         population: list[Individual],
         target_size: int,
         generation: int,
@@ -56,7 +56,7 @@ class GenericCrossoverStep(GeneticStep):
         individual2: Individual,
         problem: Problem,
         representation: Representation,
-        random_source: Source,
+        random_source: RandomSource,
         index: int,
         generation: int,
     ):

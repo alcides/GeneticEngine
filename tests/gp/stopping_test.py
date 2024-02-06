@@ -43,7 +43,7 @@ class TestStoppingCriteria:
         )
         gp.evolve()
 
-        assert gp.evaluator.get_count() < limit + 2 * population_size
+        assert gp.evaluator.number_of_evaluations() < limit + 2 * population_size
 
     def test_evaluationsmultiobjective(self):
         limit = 1
@@ -58,4 +58,4 @@ class TestStoppingCriteria:
         )
         gp.evolve()
 
-        assert gp.evaluator.get_count() < limit + 2 * population_size
+        assert gp.evaluator.number_of_evaluations() < limit + 2 * population_size

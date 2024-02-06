@@ -10,7 +10,7 @@ from geneticengine.algorithms.gp.gp import GP
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.problems import SingleObjectiveProblem
-from geneticengine.random.sources import RandomSource
+from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.grammatical_evolution.dynamic_structured_ge import (
     DynamicStructuredGrammaticalEvolutionRepresentation,
 )
@@ -71,7 +71,7 @@ class TestRepresentation:
         ],
     )
     def test_rep(self, representation_class) -> None:
-        r = RandomSource(seed=1)
+        r = NativeRandomSource(seed=1)
         g: Grammar = extract_grammar([IntRangeM, ListRangeM, FloatRangeM, Branch, Concrete], Root)
         max_depth = 3
 

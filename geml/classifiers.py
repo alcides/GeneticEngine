@@ -14,7 +14,7 @@ from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
-from geneticengine.random.sources import RandomSource
+from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.api import Representation
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammar.metahandlers.vars import VarRange
@@ -90,7 +90,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
         self.representation_class = representation_class
         self.evolved_ind = None
         self.nodes = nodes
-        self.random = RandomSource(seed)
+        self.random = NativeRandomSource(seed)
         self.seed = seed
         self.population_size = population_size
         self.max_depth = max_depth
@@ -244,7 +244,7 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
         self.representation_class = representation_class
         self.evolved_ind = None
         self.nodes = nodes
-        self.random = RandomSource(seed)
+        self.random = NativeRandomSource(seed)
         self.seed = seed
         self.population_size = population_size
         self.max_depth = max_depth
@@ -298,7 +298,7 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
                 fitness_function=fitness_function,
             ),
             stopping_criterium=GenerationStoppingCriterium(self.number_of_generations),
-            random_source=RandomSource(self.seed),
+            random_source=NativeRandomSource(self.seed),
         )
 
         ind = model.evolve()

@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TypeVar
 
 from geneticengine.grammar.grammar import Grammar
-from geneticengine.random.sources import Source
+from geneticengine.random.sources import RandomSource
 from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator
 
 T = TypeVar("T")
@@ -26,7 +26,7 @@ class VarRange(MetaHandlerGenerator):
 
     def generate(
         self,
-        r: Source,
+        r: RandomSource,
         g: Grammar,
         rec,
         new_symbol,

@@ -2,16 +2,22 @@ from __future__ import annotations
 
 from abc import ABC
 from abc import abstractmethod
+from geneticengine.algorithms.api import SynthesisAlgorithm
+from geneticengine.evaluation.api import Evaluator
 
-from geneticengine.solutions.individual import Individual
-from geneticengine.problems.helpers import best_individual
+from geneticengine.evaluation.budget import SearchBudget
+from geneticengine.evaluation.recorder import SingleObjectiveProgressTracker
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.problems import Problem
+from geneticengine.problems.helpers import best_individual
+from geneticengine.random.sources import NativeRandomSource
 from geneticengine.random.sources import RandomSource
-from geneticengine.representations.api import Representation
-from geneticengine.evaluation import Evaluator
+from geneticengine.representations.api import Representation, SolutionRepresentation
+
+from geneticengine.solutions.individual import Individual
 
 
+# TODO: Remove
 class Heuristics(ABC):
     """An Abstract class that gp.py, hill_climbing.py and random_search extends
     to.
@@ -63,3 +69,23 @@ class Heuristics(ABC):
         self.evaluator.evaluate(problem, individuals)
         bi = best_individual(individuals, problem)
         return bi
+
+
+class HeuristicSearch(SynthesisAlgorithm):
+    """Randomly generates new solutions and keeps the best one."""
+
+    random: RandomSource
+
+    def __init__(
+        self,
+        problem: Problem,
+        budget: SearchBudget,
+        representation: SolutionRepresentation,
+        random: RandomSource = None,
+        recorder: SingleObjectiveProgressTracker | None = None,
+    ):
+        super().__init__(problem, budget, representation, recorder)
+        if random is None:
+            self.random = NativeRandomSource(0)
+        else:
+            self.random = random

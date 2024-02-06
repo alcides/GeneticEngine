@@ -2,6 +2,7 @@ import csv
 from time import time_ns
 from typing import Any, Callable, Optional
 from geneticengine.evaluation import Evaluator
+from geneticengine.evaluation.sequential import SequentialEvaluator
 from geneticengine.problems import Problem
 from geneticengine.solutions import Individual
 
@@ -9,20 +10,23 @@ from geneticengine.solutions import Individual
 FieldMapper = Callable[[Individual, Problem], Any]
 
 
-class SingleObjectiveProgressRecorder:
+class SingleObjectiveProgressTracker:
     evaluator: Evaluator
     best_individual: Optional[Individual]
 
     def __init__(
         self,
-        evaluator: Evaluator,
         problem: Problem,
+        evaluator: Evaluator = None,
         csv_path: str = None,
         fields: dict[str, FieldMapper] = None,
         extra_fields: dict[str, FieldMapper] = None,
     ):
         self.start_time = time_ns()
-        self.evaluator = evaluator
+        if evaluator is None:
+            self.evaluator = SequentialEvaluator()
+        else:
+            self.evaluator = evaluator
         self.problem = problem
         self.best_individual = None
         if csv_path is not None:
@@ -37,15 +41,17 @@ class SingleObjectiveProgressRecorder:
                 "Execution Time": lambda i, _: time_ns() - self.start_time,
                 "Phenotype": lambda i, _: i.get_phenotype(),
             }
-            for comp in range(problem.number_of_objectives()):
+            for comp in range(self.problem.number_of_objectives()):
                 self.fields[f"Fitness{comp}"] = lambda i, p: i.get_fitness(p).fitness_components[comp]
-            for name in extra_fields:
-                self.fields[name] = extra_fields[name]
+            if extra_fields is not None:
+                for name in extra_fields:
+                    self.fields[name] = extra_fields[name]
+        if self.csv_writer:
+            self.csv_writer.writerow([name for name in self.fields])
 
-        self.csv_writer.writerow([name for name in self.fields])
-
-    def eval(self, individuals: list[Individual]):
-        for ind in self.evaluator.evaluate(self.problem, individuals):
+    def evaluate(self, individuals: list[Individual]):
+        self.evaluator.evaluate(self.problem, individuals)
+        for ind in individuals:
             if self.best_individual is None:
                 self.best_individual = ind
             elif self.problem.is_better(ind.get_fitness(self.problem), self.best_individual.get_fitness(self.problem)):
@@ -56,3 +62,14 @@ class SingleObjectiveProgressRecorder:
                 self.csv_writer.writerow(
                     [self.fields[name](self.best_individual, self.problem) for name in self.fields],
                 )
+
+    def get_best_individual(self) -> Individual:
+        return self.best_individual
+
+    def get_elapsed_time(self) -> float:
+        """The elapsed time since the start in seconds."""
+        return (time_ns() - self.start_time) / 1_000_000  # seconds
+
+    def get_number_evaluations(self) -> int:
+        """The cumulative number of evaluations performed."""
+        return self.evaluator.number_of_evaluations()

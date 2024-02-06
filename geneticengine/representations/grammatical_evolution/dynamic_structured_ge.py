@@ -6,7 +6,7 @@ from typing import Any
 from geneticengine.grammar.decorators import get_gengy
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.problems import Problem
-from geneticengine.random.sources import Source
+from geneticengine.random.sources import RandomSource
 from geneticengine.representations.api import CrossoverOperator
 from geneticengine.representations.api import MutationOperator
 from geneticengine.representations.api import Representation
@@ -73,7 +73,7 @@ def assert_depth_error(max_depth, g, starting_symbol):
 
 
 def random_individual(
-    r: Source,
+    r: RandomSource,
     g: Grammar,
     starting_symbol: Any,
     current_genotype: Genotype | None = None,
@@ -201,7 +201,7 @@ def random_individual(
 
 
 def random_individual_simple(
-    r: Source,
+    r: RandomSource,
     g: Grammar,
     starting_symbol: Any,
     current_genotype: Genotype | None = None,
@@ -231,7 +231,7 @@ def random_individual_simple(
 
 
 def create_individual(
-    r: Source,
+    r: RandomSource,
     g: Grammar,
     starting_symbol: Any = None,
     current_genotype: Genotype | None = None,
@@ -244,7 +244,7 @@ def create_individual(
     return random_individual(r, g, starting_symbol, current_genotype, max_depth)
 
 
-def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int, all_codons_equal_probability=False) -> Genotype:
+def mutate(r: RandomSource, g: Grammar, ind: Genotype, max_depth: int, all_codons_equal_probability=False) -> Genotype:
     if all_codons_equal_probability:
 
         def weight(key):
@@ -269,7 +269,7 @@ def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int, all_codons_equa
     return Genotype(dna)
 
 
-def per_codon_mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int, codon_prob: float) -> Genotype:
+def per_codon_mutate(r: RandomSource, g: Grammar, ind: Genotype, max_depth: int, codon_prob: float) -> Genotype:
     dna = ind.dna
     for key in dna.keys():
         if key != LEFTOVER_KEY and key != "":
@@ -280,7 +280,7 @@ def per_codon_mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int, codon
 
 
 def crossover(
-    r: Source,
+    r: RandomSource,
     g: Grammar,
     p1: Genotype,
     p2: Genotype,
@@ -300,7 +300,7 @@ def crossover(
     return (Genotype(c1), Genotype(c2))
 
 
-class DynamicStructuredListWrapper(Source):
+class DynamicStructuredListWrapper(RandomSource):
     ind: Genotype
     indexes: dict[str, int]
 
@@ -346,7 +346,7 @@ def create_tree(
     depth: int,
     initialization_mode: InitializationMethodType = pi_grow_method,
 ) -> TreeNode:
-    rand: Source = DynamicStructuredListWrapper(ind)
+    rand: RandomSource = DynamicStructuredListWrapper(ind)
     return random_node(rand, g, depth, g.starting_symbol, initialization_mode)
 
 
@@ -362,7 +362,7 @@ class DefaultDSGEMutation(MutationOperator[Genotype]):
         problem: Problem,
         evaluator: Evaluator,
         representation: Representation,
-        random_source: Source,
+        random_source: RandomSource,
         index_in_population: int,
         generation: int,
     ) -> Genotype:
@@ -382,7 +382,7 @@ class EquiprobableCodonDSGEMutation(MutationOperator[Genotype]):
         problem: Problem,
         evaluator: Evaluator,
         representation: Representation,
-        random_source: Source,
+        random_source: RandomSource,
         index_in_population: int,
         generation: int,
     ) -> Genotype:
@@ -408,7 +408,7 @@ class PerCodonDSGEMutation(MutationOperator[Genotype]):
         problem: Problem,
         evaluator: Evaluator,
         representation: Representation,
-        random_source: Source,
+        random_source: RandomSource,
         index_in_population: int,
         generation: int,
     ) -> Genotype:
@@ -430,7 +430,7 @@ class DefaultDSGECrossover(CrossoverOperator[Genotype]):
         g2: Genotype,
         problem: Problem,
         representation: Representation,
-        random_source: Source,
+        random_source: RandomSource,
         index_in_population: int,
         generation: int,
     ) -> tuple[Genotype, Genotype]:
@@ -465,7 +465,7 @@ class DynamicStructuredGrammaticalEvolutionRepresentation(
 
     def create_individual(
         self,
-        r: Source,
+        r: RandomSource,
         depth: int | None = None,
         **kwargs,
     ) -> Genotype:

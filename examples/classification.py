@@ -14,7 +14,7 @@ from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.problems import Problem
 from geneticengine.problems import SingleObjectiveProblem
-from geneticengine.random.sources import RandomSource
+from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.tree.initializations import grow_method
 from geneticengine.representations.tree.treebased import random_individual
 from geneticengine.representations.tree.utils import get_nodes_depth_specific
@@ -135,7 +135,7 @@ class ClassificationBenchmark:
             ind = random_individual(r, g, depth, method=grow_method)
             return get_nodes_depth_specific(ind, g)
 
-        r = RandomSource(123)
+        r = NativeRandomSource(123)
         print(g.get_branching_average_proxy(r, find_depth_specific_nodes, 100, 17))
 
         prob = self.get_problem()

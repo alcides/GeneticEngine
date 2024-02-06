@@ -11,7 +11,7 @@ from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
 from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.algorithms.gp.structure import StoppingCriterium
 from geneticengine.problems import Problem
-from geneticengine.random.sources import Source
+from geneticengine.random.sources import RandomSource
 from geneticengine.representations.api import Representation
 
 
@@ -33,7 +33,7 @@ class RandomMutations(GP):
         self,
         representation: Representation[Any, Any],
         problem: Problem,
-        random_source: Source,
+        random_source: RandomSource,
         initializer: PopulationInitializer,
         stopping_criterium: StoppingCriterium,
         callbacks: list[Callback] | None = None,

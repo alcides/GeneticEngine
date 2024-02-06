@@ -6,7 +6,7 @@ from typing import TypeVar
 
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.problems import Problem
-from geneticengine.random.sources import Source
+from geneticengine.random.sources import RandomSource
 from geneticengine.evaluation import Evaluator
 
 g = TypeVar("g")
@@ -24,7 +24,7 @@ class MutationOperator(Generic[g], abc.ABC):
         problem: Problem,
         evaluator: Evaluator,
         representation: Representation,
-        random_source: Source,
+        random_source: RandomSource,
         index_in_population: int,
         generation: int,
     ) -> g:
@@ -42,7 +42,7 @@ class CrossoverOperator(Generic[g], abc.ABC):
         g2: g,
         problem: Problem,
         representation: Representation,
-        random_source: Source,
+        random_source: RandomSource,
         index_in_population: int,
         generation: int,
     ) -> tuple[g, g]:
@@ -61,7 +61,7 @@ class Representation(Generic[g, p]):
         assert self.min_depth <= self.max_depth
 
     @abc.abstractmethod
-    def create_individual(self, r: Source, depth: int | None = None, **kwargs) -> g:
+    def create_individual(self, r: RandomSource, depth: int | None = None, **kwargs) -> g:
         ...
 
     @abc.abstractmethod
@@ -80,4 +80,14 @@ class Representation(Generic[g, p]):
     def phenotype_to_genotype(self, phenotype: p) -> g:
         """Takes an existing program and adapts it to be used in the right
         representation."""
+        ...
+
+
+class SolutionRepresentation(Generic[g, p]):
+    @abc.abstractmethod
+    def instantiate(self, random: RandomSource, **kwargs) -> g:
+        ...
+
+    @abc.abstractmethod
+    def map(self, internal: g) -> p:
         ...

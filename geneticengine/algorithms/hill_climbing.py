@@ -11,8 +11,8 @@ from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriteri
 from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.algorithms.gp.structure import StoppingCriterium
 from geneticengine.problems import Problem
+from geneticengine.random.sources import NativeRandomSource
 from geneticengine.random.sources import RandomSource
-from geneticengine.random.sources import Source
 from geneticengine.representations.api import Representation
 
 
@@ -34,7 +34,7 @@ class HC(GP):
         self,
         representation: Representation[Any, Any],
         problem: Problem,
-        random_source: Source = RandomSource(0),
+        random_source: RandomSource = NativeRandomSource(0),
         initializer: PopulationInitializer = StandardInitializer(),
         stopping_criterium: StoppingCriterium = GenerationStoppingCriterium(100),
         callbacks: list[Callback] | None = None,

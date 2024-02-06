@@ -1,10 +1,44 @@
-from abc import ABC
+from abc import ABC, abstractmethod
+from typing import Optional
+from geneticengine.evaluation.budget import SearchBudget
 
-from geneticengine.evaluation.recorder import SingleObjectiveProgressRecorder
+from geneticengine.evaluation.recorder import SingleObjectiveProgressTracker
+from geneticengine.evaluation.sequential import SequentialEvaluator
+from geneticengine.problems import Problem
+from geneticengine.representations.api import SolutionRepresentation
+from geneticengine.solutions.individual import Individual
 
 
 class SynthesisAlgorithm(ABC):
-    recorder: SingleObjectiveProgressRecorder
+    tracker: SingleObjectiveProgressTracker
+    problem: Problem
+    budget: SearchBudget
+    representation: SolutionRepresentation
 
-    def __init__(self, recorder: SingleObjectiveProgressRecorder):
-        self.recorder = recorder
+    def __init__(
+        self,
+        problem: Problem,
+        budget: SearchBudget,
+        representation: SolutionRepresentation,
+        tracker: Optional[SingleObjectiveProgressTracker] = None,
+    ):
+        self.problem = problem
+        self.budget = budget
+        self.representation = representation
+
+        if tracker is None:
+            self.tracker = SingleObjectiveProgressTracker(problem, SequentialEvaluator())
+        else:
+            self.tracker = tracker
+
+    def is_done(self) -> bool:
+        """Whether the synthesis should stop, or not."""
+        return self.budget.is_done(self.tracker)
+
+    def get_best_solution(self) -> Individual:
+        """Returns the best solution found during the search."""
+        return self.tracker.get_best_individual()
+
+    @abstractmethod
+    def search(self):
+        ...

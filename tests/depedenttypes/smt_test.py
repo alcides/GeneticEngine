@@ -8,7 +8,7 @@ from typing import TypeVar
 import pytest
 
 from geneticengine.grammar.grammar import extract_grammar
-from geneticengine.random.sources import RandomSource
+from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.tree_smt.smt import SMTResolver
 from geneticengine.representations.tree_smt.treebased import random_node
 from geneticengine.grammar.metahandlers.smt import SMT
@@ -70,7 +70,7 @@ class TestMetaHandler:
         SMTResolver.clean()
 
     def skeleton(self, *t, depth=3):
-        r = RandomSource(seed=1)
+        r = NativeRandomSource(seed=1)
         g = extract_grammar(list(t), Root)
         n = random_node(r, g, depth, Root)
         assert isinstance(n, Root)

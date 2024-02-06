@@ -10,7 +10,7 @@ from geneticengine.algorithms.gp.operators.elitism import ElitismStep
 from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
 from geneticengine.evaluation import Evaluator
 from geneticengine.problems import Problem, SingleObjectiveProblem
-from geneticengine.random.sources import RandomSource, Source
+from geneticengine.random.sources import NativeRandomSource, RandomSource
 from geneticengine.representations.api import CrossoverOperator, MutationOperator, Representation
 
 from geneticengine.grammar.metahandlers.lists import ListSizeBetween
@@ -54,7 +54,7 @@ def fitness(i: BinaryList):
 
 
 if __name__ == "__main__":
-    r = RandomSource()
+    r = NativeRandomSource()
     g = extract_grammar([One, Zero, BinaryList], BinaryList)
     repr = TreeBasedRepresentation(grammar=g, max_depth=4)
     prob = SingleObjectiveProblem(
@@ -69,7 +69,7 @@ if __name__ == "__main__":
             problem: Problem,
             evaluator: Evaluator,
             representation: Representation,
-            random_source: Source,
+            random_source: RandomSource,
             index_in_population: int,
             generation: int,
         ) -> BinaryList:
@@ -87,7 +87,7 @@ if __name__ == "__main__":
             g2: BinaryList,
             problem: Problem,
             representation: Representation,
-            random_source: Source,
+            random_source: RandomSource,
             index_in_population: int,
             generation: int,
         ) -> tuple[BinaryList, BinaryList]:

@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import Annotated
 
 from geneticengine.grammar.grammar import extract_grammar
-from geneticengine.random.sources import RandomSource
+from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.tree.initializations import pi_grow_method
 from geneticengine.representations.tree.treebased import random_node
 from geneticengine.grammar.metahandlers.lists import ListSizeBetween
@@ -42,7 +42,7 @@ class ConcreteList(Root):
 
 class TestDepthing:
     def test_normal_depthing(self) -> None:
-        r = RandomSource(seed=1)
+        r = NativeRandomSource(seed=1)
         g = extract_grammar([Concrete], Root, False)
         x = random_node(r, g, 4, Root, method=pi_grow_method)
         g = extract_grammar([Concrete, Middle], Root, False)
@@ -65,7 +65,7 @@ class TestDepthing:
         assert a.gengy_weighted_nodes == 10
 
     def test_expansion_depthing(self) -> None:
-        r = RandomSource(seed=1)
+        r = NativeRandomSource(seed=1)
         g = extract_grammar([Concrete], Root, True)
         x = random_node(r, g, 4, Root, method=pi_grow_method)
         g = extract_grammar([Concrete, Middle], Root, True)

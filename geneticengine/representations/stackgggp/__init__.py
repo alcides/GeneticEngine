@@ -7,7 +7,7 @@ stacks.
 import copy
 from typing import Any, Optional
 from geneticengine.grammar.grammar import Grammar
-from geneticengine.random.sources import Source
+from geneticengine.random.sources import RandomSource
 
 from geneticengine.representations.api import CrossoverOperator, MutationOperator, Representation
 from geneticengine.representations.grammatical_evolution.ge import (
@@ -125,7 +125,7 @@ class StackBasedGGGPRepresentation(Representation[Genotype, TreeNode]):
 
     def create_individual(
         self,
-        r: Source,
+        r: RandomSource,
         depth: Optional[int] = None,
         **kwargs,
     ) -> Genotype:

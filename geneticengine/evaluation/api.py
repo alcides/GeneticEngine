@@ -17,7 +17,7 @@ class Evaluator(ABC):
     def register_evaluation(self):
         self.count += 1
 
-    def get_count(self):
+    def number_of_evaluations(self):
         return self.count
 
     def eval_single(self, problem: Problem, individual: Individual):

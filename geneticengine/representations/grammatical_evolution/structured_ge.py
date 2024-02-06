@@ -6,7 +6,7 @@ from typing import Any
 
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.problems import Problem
-from geneticengine.random.sources import Source
+from geneticengine.random.sources import RandomSource
 from geneticengine.representations.api import CrossoverOperator
 from geneticengine.representations.api import MutationOperator
 from geneticengine.representations.api import Representation
@@ -32,7 +32,7 @@ class Genotype:
 
 
 def random_individual(
-    r: Source,
+    r: RandomSource,
     g: Grammar,
     depth: int = 5,
     starting_symbol: Any = None,
@@ -57,7 +57,7 @@ def random_individual(
     return Genotype(dna)
 
 
-def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
+def mutate(r: RandomSource, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
     rkey = r.choice(list(ind.dna.keys()))
     rindex = r.randint(0, len(ind.dna[rkey]) - 1)
 
@@ -67,7 +67,7 @@ def mutate(r: Source, g: Grammar, ind: Genotype, max_depth: int) -> Genotype:
 
 
 def crossover(
-    r: Source,
+    r: RandomSource,
     g: Grammar,
     p1: Genotype,
     p2: Genotype,
@@ -87,7 +87,7 @@ def crossover(
     return (Genotype(c1), Genotype(c2))
 
 
-class StructuredListWrapper(Source):
+class StructuredListWrapper(RandomSource):
     dna: dict[str, list[int]]
     indexes: dict[str, int]
 
@@ -119,7 +119,7 @@ def create_tree(
     depth: int,
     initialization_mode: InitializationMethodType = pi_grow_method,
 ) -> TreeNode:
-    rand: Source = StructuredListWrapper(ind.dna)
+    rand: RandomSource = StructuredListWrapper(ind.dna)
     return random_node(rand, g, depth, g.starting_symbol, initialization_mode)
 
 
@@ -135,7 +135,7 @@ class DefaultSGEMutation(MutationOperator[Genotype]):
         problem: Problem,
         evaluator: Evaluator,
         representation: Representation,
-        random_source: Source,
+        random_source: RandomSource,
         index_in_population: int,
         generation: int,
     ) -> Genotype:
@@ -157,7 +157,7 @@ class DefaultSGECrossover(CrossoverOperator[Genotype]):
         g2: Genotype,
         problem: Problem,
         representation: Representation,
-        random_source: Source,
+        random_source: RandomSource,
         index_in_population: int,
         generation: int,
     ) -> tuple[Genotype, Genotype]:
@@ -188,7 +188,7 @@ class StructuredGrammaticalEvolutionRepresentation(Representation[Genotype, Tree
 
     def create_individual(
         self,
-        r: Source,
+        r: RandomSource,
         depth: int | None = None,
         **kwargs,
     ) -> Genotype:
@@ -197,7 +197,7 @@ class StructuredGrammaticalEvolutionRepresentation(Representation[Genotype, Tree
 
     def mutate_individual(
         self,
-        r: Source,
+        r: RandomSource,
         ind: Genotype,
         depth: int,
         ty: type,
@@ -209,7 +209,7 @@ class StructuredGrammaticalEvolutionRepresentation(Representation[Genotype, Tree
 
     def crossover_individuals(
         self,
-        r: Source,
+        r: RandomSource,
         i1: Genotype,
         i2: Genotype,
         depth: int,

@@ -5,7 +5,7 @@ from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriteri
 
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import Problem, SingleObjectiveProblem
-from geneticengine.random.sources import RandomSource
+from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 
 
@@ -23,7 +23,7 @@ representation = TreeBasedRepresentation(grammar=grammar, max_depth=2)
 problem1: Problem = SingleObjectiveProblem(fitness_function=fitness_function, minimize=False)
 problem2: Problem = SingleObjectiveProblem(fitness_function=fitness_function, minimize=True)
 problems = [problem1, problem2]
-r = RandomSource(seed=3)
+r = NativeRandomSource(seed=3)
 
 gp = MultiPopulationGP(
     representation=representation,

@@ -37,7 +37,7 @@ from geneticengine.problems import MultiObjectiveProblem
 from geneticengine.problems import Problem
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.problems import wrap_depth_minimization
-from geneticengine.random.sources import RandomSource
+from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.api import Representation
 from geneticengine.representations.tree.operators import (
     FullInitializer,
@@ -132,7 +132,7 @@ class SimpleGP(GP):
         minimize: bool = False,  # DEPRECATE in the next version
         target_fitness: float | None = None,  # DEPRECATE in the next version
         favor_less_complex_trees: bool = False,  # DEPRECATE in the next version
-        source_generator: Callable[[int], RandomSource] = RandomSource,
+        source_generator: Callable[[int], NativeRandomSource] = NativeRandomSource,
         seed: int = 123,
         population_size: int = 200,
         initialization_method: str = "ramped",

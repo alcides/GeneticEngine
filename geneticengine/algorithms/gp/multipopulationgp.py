@@ -21,8 +21,8 @@ from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.algorithms.gp.structure import StoppingCriterium
 from geneticengine.algorithms.heuristics import Heuristics
 from geneticengine.problems import Problem
+from geneticengine.random.sources import NativeRandomSource
 from geneticengine.random.sources import RandomSource
-from geneticengine.random.sources import Source
 from geneticengine.representations.api import Representation
 from geneticengine.evaluation import Evaluator
 from geneticengine.evaluation.sequential import SequentialEvaluator
@@ -66,7 +66,7 @@ class MultiPopulationGP(Heuristics):
         representation: Representation[Any, Any],
         problem: Problem | None = None,
         problems: list[Problem] | None = None,
-        random_source: Source = RandomSource(0),
+        random_source: RandomSource = NativeRandomSource(0),
         population_sizes: list[int] = [50, 50, 50, 50],
         initializer: PopulationInitializer = StandardInitializer(),
         step: GeneticStep | None = None,

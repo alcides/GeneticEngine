@@ -4,7 +4,7 @@ from typing import get_args
 
 
 from geneticengine.grammar.grammar import Grammar
-from geneticengine.random.sources import Source
+from geneticengine.random.sources import RandomSource
 from geneticengine.representations.tree_smt import smt
 from geneticengine.representations.tree_smt.initializations import is_metahandler
 from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator
@@ -24,7 +24,7 @@ class SMT(MetaHandlerGenerator):
 
     def generate(
         self,
-        r: Source,
+        r: RandomSource,
         g: Grammar,
         rec,
         new_symbol,

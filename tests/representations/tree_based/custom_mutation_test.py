@@ -6,7 +6,7 @@ from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.evaluation import Evaluator
 from geneticengine.evaluation.sequential import SequentialEvaluator
-from geneticengine.random.sources import RandomSource, Source
+from geneticengine.random.sources import NativeRandomSource, RandomSource
 from geneticengine.representations.api import MutationOperator, Representation
 
 from geneticengine.algorithms.gp.operators.combinators import ParallelStep, SequenceStep
@@ -49,7 +49,7 @@ class CustomMutationOperator(MutationOperator[Root]):
         problem: Problem,
         evaluator: Evaluator,
         representation: Representation,
-        random_source: Source,
+        random_source: RandomSource,
         index_in_population: int,
         generation: int,
     ) -> Root:
@@ -106,7 +106,15 @@ def test_custom_mutation():
     ]
 
     custom_mutation_step = GenericMutationStep(1, operator=CustomMutationOperator())
-    new_population = custom_mutation_step.iterate(p, SequentialEvaluator(), repr, RandomSource(3), population, 10, 0)
+    new_population = custom_mutation_step.iterate(
+        p,
+        SequentialEvaluator(),
+        repr,
+        NativeRandomSource(3),
+        population,
+        10,
+        0,
+    )
 
     for ind in new_population:
         ph = ind.get_phenotype()

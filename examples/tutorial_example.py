@@ -12,7 +12,7 @@ from geneticengine.algorithms.gp.operators.stop import (
 )
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
-from geneticengine.random.sources import RandomSource
+from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammar.metahandlers.ints import IntRange
 
@@ -76,7 +76,7 @@ def main(seed=123):
         representation=TreeBasedRepresentation(grammar, 10),
         problem=prob,
         population_size=20,
-        random_source=RandomSource(seed),
+        random_source=NativeRandomSource(seed),
         stopping_criterium=stopping_criterium,
     )
     best = alg.evolve()
