@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from .utils import get_data
-from .utils import import_embedded
+from examples.progsys.utils import get_data
+from examples.progsys.utils import import_embedded
 
 import geml.grammars.coding.lists as lists
 import geml.grammars.coding.numbers as numbers
