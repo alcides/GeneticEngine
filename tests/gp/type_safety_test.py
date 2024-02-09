@@ -36,19 +36,10 @@ class UnderTest(Root):
     b: Root
 
 
-# TODO: Callback
-class TestCallback:
-    def process_iteration(
-        self,
-        generation: int,
-        population,
-        time: float,
-        gp: GeneticProgramming,
-    ) -> None:
-        for ind in population:
-            x = ind.genotype
-            assert isinstance(x, UnderTest)
-            assert isinstance(x.a, Leaf)
+def fitness_function(x):
+    assert isinstance(x, UnderTest)
+    assert isinstance(x.a, Leaf)
+    return x.gengy_nodes
 
 
 class TestGrammar:

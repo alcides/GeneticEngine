@@ -1,20 +1,19 @@
 from abc import ABC
+import copy
 from dataclasses import dataclass
 from typing import Annotated
-from geneticengine.algorithms.gp.operators.combinators import ParallelStep
-from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
-from geneticengine.algorithms.gp.operators.elitism import ElitismStep
-from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
 from geneticengine.evaluation.budget import AnyOf, TargetFitness, TimeBudget
 from geneticengine.problems import SingleObjectiveProblem
-from geneticengine.random.sources import NativeRandomSource
+from geneticengine.random.sources import NativeRandomSource, RandomSource
 
 from geneticengine.grammar.metahandlers.lists import ListSizeBetween
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.representations.tree.treebased import (
     TreeBasedRepresentation,
+    random_node,
 )
 from geneticengine.algorithms.gp.gp import GeneticProgramming
+from geneticengine.solutions.tree import TreeNode
 
 
 SIZE = 50
@@ -46,58 +45,47 @@ def fitness(i: BinaryList):
     return str(i).count("1") / SIZE
 
 
+class BinaryListTreeBasedRepresentation(TreeBasedRepresentation):
+    def __init__(self, grammar, max_depth):
+        super().__init__(grammar, max_depth)
+
+    def mutate(self, random: RandomSource, internal: TreeNode, **kwargs) -> TreeNode:
+        assert isinstance(internal, BinaryList)
+
+        random_pos = random.randint(0, SIZE - 1)
+        next_val = random_node(r=random, g=g, max_depth=1, starting_symbol=Bit)
+        c = copy.deepcopy(internal)
+        c.byte[random_pos] = next_val
+        return c
+
+    def crossover(
+        self,
+        random: RandomSource,
+        parent1: TreeNode,
+        parent2: TreeNode,
+        **kwargs,
+    ) -> tuple[TreeNode, TreeNode]:
+        assert isinstance(parent1, BinaryList)
+        assert isinstance(parent2, BinaryList)
+        p = random.randint(0, len(parent1.byte))
+        p1 = copy.deepcopy(parent1.byte[:p])
+        q1 = copy.deepcopy(parent2.byte[:p])
+        p2 = copy.deepcopy(parent2.byte[: len(parent2.byte) - p])
+        q2 = copy.deepcopy(parent1.byte[: len(parent1.byte) - p])
+        b1 = BinaryList(byte=p1 + p2)
+        b2 = BinaryList(byte=q1 + q2)
+        assert isinstance(b1, TreeNode)
+        assert isinstance(b2, TreeNode)
+        return (b1, b2)
+
+
 if __name__ == "__main__":
     r = NativeRandomSource()
     g = extract_grammar([One, Zero, BinaryList], BinaryList)
-    repr = TreeBasedRepresentation(grammar=g, max_depth=4)
+    repr = BinaryListTreeBasedRepresentation(grammar=g, max_depth=4)
     prob = SingleObjectiveProblem(
         fitness_function=fitness,
         minimize=False,
-    )
-
-    # class BitFlip(MutationOperator[BinaryList]):
-    #     def mutate(
-    #         self,
-    #         genotype: BinaryList,
-    #         problem: Problem,
-    #         evaluator: Evaluator,
-    #         representation: Representation,
-    #         random: RandomSource,
-    #         index_in_population: int,
-    #         generation: int,
-    #     ) -> BinaryList:
-    #         assert isinstance(genotype, BinaryList)
-    #         random_pos = random.randint(0, SIZE - 1)
-    #         next_val = random_node(r=random, g=g, max_depth=1, starting_symbol=Bit)
-    #         copy = deepcopy(genotype)
-    #         copy.byte[random_pos] = next_val
-    #         return copy
-
-    # class SinglePointCrossover(CrossoverOperator[BinaryList]):
-    #     def crossover(
-    #         self,
-    #         g1: BinaryList,
-    #         g2: BinaryList,
-    #         problem: Problem,
-    #         representation: Representation,
-    #         random: RandomSource,
-    #         index_in_population: int,
-    #         generation: int,
-    #     ) -> tuple[BinaryList, BinaryList]:
-    #         p = random.randint(0, len(g1.byte))
-    #         p1 = copy.deepcopy(g1.byte[:p])
-    #         q1 = copy.deepcopy(g2.byte[:p])
-    #         p2 = copy.deepcopy(g2.byte[: len(g2.byte) - p])
-    #         q2 = copy.deepcopy(g1.byte[: len(g1.byte) - p])
-    #         return (BinaryList(byte=p1 + p2), BinaryList(byte=q1 + q2))
-
-    step = ParallelStep(
-        [
-            GenericMutationStep(probability=0.5),  # TODO: , operator=BitFlip()),
-            GenericCrossoverStep(probability=0.5),  # TODO:, operator=SinglePointCrossover()),
-            ElitismStep(),
-        ],
-        weights=[5, 4, 1],
     )
 
     gp = GeneticProgramming(
@@ -106,7 +94,6 @@ if __name__ == "__main__":
         representation=repr,
         random=r,
         population_size=10,
-        step=step,
     )
     out = gp.search()
     print(out)
