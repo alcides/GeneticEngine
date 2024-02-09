@@ -224,7 +224,7 @@ def mutate_specific_type(
         return relabeled_new_tree
 
 
-def mutate(
+def tree_mutate(
     r: RandomSource,
     g: Grammar,
     i: TreeNode,
@@ -441,7 +441,7 @@ def crossover_specific_type(
         return relabeled_new_tree
 
 
-def crossover(
+def tree_crossover(
     r: RandomSource,
     g: Grammar,
     p1: TreeNode,
@@ -537,7 +537,7 @@ class TreeBasedRepresentation(
         return genotype
 
     def mutate(self, random: RandomSource, internal: TreeNode, **kwargs) -> TreeNode:
-        return mutate(
+        return tree_mutate(
             random,
             self.grammar,
             internal,
@@ -552,4 +552,4 @@ class TreeBasedRepresentation(
         parent2: TreeNode,
         **kwargs,
     ) -> tuple[TreeNode, TreeNode]:
-        return crossover(random, self.grammar, parent1, parent2, self.max_depth)
+        return tree_crossover(random, self.grammar, parent1, parent2, self.max_depth)

@@ -151,12 +151,12 @@ def test_random_gp(representation):
     for _ in range(2):
         gp = GeneticProgramming(
             problem=SingleObjectiveProblem(lambda x: x.i * x.j),
-            budget=EvaluationBudget(100 * 10),
+            budget=EvaluationBudget(100),
+            population_size=10,
             representation=representation(grammar, max_depth=3),
             random=NativeRandomSource(0),
         )
         e = gp.search()
         v = e.get_phenotype().i, e.get_phenotype().j
         vals.append(v)
-    print(vals)
     assert vals[0] == vals[1]

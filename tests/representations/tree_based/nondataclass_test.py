@@ -3,10 +3,8 @@ from __future__ import annotations
 from geneticengine.grammar.decorators import abstract
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.random.sources import NativeRandomSource
-from geneticengine.representations.tree.treebased import (
-    crossover as tree_crossover,
-)
-from geneticengine.representations.tree.treebased import mutate
+from geneticengine.representations.tree.treebased import tree_crossover
+from geneticengine.representations.tree.treebased import tree_mutate
 from geneticengine.representations.tree.treebased import random_node
 
 
@@ -39,4 +37,4 @@ def test_mutation():
     g = extract_grammar([Leaf, Inner], Node)
     x = random_node(r, g, 20, Node)
     for i in range(100):
-        x = mutate(r, g, x, 20, Node)
+        x = tree_mutate(r, g, x, 20, Node)

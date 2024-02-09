@@ -48,6 +48,7 @@ class SingleObjectiveProgressTracker:
                     self.fields[name] = extra_fields[name]
         if self.csv_writer:
             self.csv_writer.writerow([name for name in self.fields])
+            self.csv_file.flush()
 
     def evaluate(self, individuals: list[Individual]):
         problem = self.problem
@@ -63,6 +64,7 @@ class SingleObjectiveProgressTracker:
                 self.csv_writer.writerow(
                     [self.fields[name](self.best_individual, problem) for name in self.fields],
                 )
+                self.csv_file.flush()
 
     def get_best_individual(self) -> Individual:
         return self.best_individual

@@ -12,4 +12,5 @@ class SequentialEvaluator(Evaluator):
         for individual in indivs:
             if not individual.has_fitness(problem):
                 f = self.eval_single(problem, individual)
+                self.count += 1
                 individual.set_fitness(problem, f)
