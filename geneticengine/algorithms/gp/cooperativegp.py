@@ -112,7 +112,6 @@ class CooperativeGP:
             )
             ind = gp1.search()
             self.bests.b1 = ind.get_phenotype()
-            print("DATASET:", ind.get_fitness(p1))
 
             gp2 = GeneticProgramming(
                 problem=p2,
@@ -124,6 +123,5 @@ class CooperativeGP:
             )
             ind = gp2.search()
             self.bests.b2 = ind.get_phenotype()
-            print("____________ Explanation:", ind.get_fitness(p2), ind.get_phenotype())
 
         return (self.bests.b1, self.bests.b2)
