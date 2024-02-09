@@ -8,7 +8,6 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-from geneticengine.algorithms.callbacks.pge import PGECallback
 from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.grammar.decorators import get_gengy
 from geneticengine.grammar.grammar import extract_grammar
@@ -132,7 +131,7 @@ class ClassificationProbabilisticGEBenchmark:
             g,
             problem=prob,
             probability_crossover=1,
-            evolve_grammar=PGECallback(),
+            # TODO: evolve_grammar=PGECallback(),
             probability_mutation=0.5,
             number_of_generations=20,
             max_depth=10,
@@ -142,7 +141,7 @@ class ClassificationProbabilisticGEBenchmark:
             n_elites=5,
             **args,
         )
-        best = alg.evolve()
+        best = alg.search()
         print(
             f"Fitness of {best.get_fitness(prob)} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
         )

@@ -52,7 +52,7 @@ if __name__ == "__main__":
         number_of_generations=10,
         minimize=False,
     )
-    ind = alg.evolve()
+    ind = alg.search()
 
     def count(xs):
         d = {}

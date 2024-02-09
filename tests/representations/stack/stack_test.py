@@ -42,10 +42,10 @@ class TestStackBased:
         max_depth = 10
 
         repr = StackBasedGGGPRepresentation(g, max_depth)
-        genotype = repr.create_individual(r, max_depth)
+        genotype = repr.instantiate(r, max_depth)
 
         for i in range(10):
-            genotype = repr.get_mutation().mutate(genotype, None, None, repr, r, 0, i)
+            genotype = repr.mutate(genotype, None, None, repr, r, 0, i)
 
-        phenotype = repr.genotype_to_phenotype(genotype)
+        phenotype = repr.map(genotype)
         assert phenotype is not None

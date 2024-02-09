@@ -2,7 +2,7 @@ from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
-from geneticengine.representations.api import Representation
+from geneticengine.representations.api import SolutionRepresentation
 
 
 class GenericPopulationInitializer(PopulationInitializer):
@@ -11,7 +11,7 @@ class GenericPopulationInitializer(PopulationInitializer):
     def initialize(
         self,
         problem: Problem,
-        representation: Representation,
+        representation: SolutionRepresentation,
         random_source: RandomSource,
         target_size: int,
     ) -> list[Individual]:
@@ -22,11 +22,11 @@ class GenericPopulationInitializer(PopulationInitializer):
 
         return [
             Individual(
-                representation.create_individual(
+                representation.instantiate(
                     r=random_source,
                     depth=bound(i),
                 ),
-                genotype_to_phenotype=representation.genotype_to_phenotype,
+                genotype_to_phenotype=representation.map,
             )
             for i in range(target_size)
         ]

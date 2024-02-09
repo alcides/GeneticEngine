@@ -59,5 +59,5 @@ gp = SimpleGP(
     test_data=fitness_test,
 )
 
-ind = gp.evolve()
+ind = gp.search()
 print(simplify(ind.get_phenotype()))

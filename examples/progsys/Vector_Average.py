@@ -130,7 +130,7 @@ def evolve(g, seed, mode, representation=""):
         probability_crossover=0.9,
         timer_stop_criteria=mode,
     )
-    ind = alg.evolve()
+    ind = alg.search()
     return ind.get_phenotype(), ind.fitness, g
 
 

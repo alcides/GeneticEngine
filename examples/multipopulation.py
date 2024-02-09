@@ -1,7 +1,6 @@
 from dataclasses import dataclass
-from geneticengine.algorithms.callbacks.callback import DebugCallback
 from geneticengine.algorithms.gp.multipopulationgp import MultiPopulationGP
-from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
+from geneticengine.evaluation.budget import EvaluationBudget
 
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import Problem, SingleObjectiveProblem
@@ -26,13 +25,12 @@ problems = [problem1, problem2]
 r = NativeRandomSource(seed=3)
 
 gp = MultiPopulationGP(
+    problem=problem1,
+    budget=EvaluationBudget(100),
     representation=representation,
-    random_source=r,
-    problems=problems,
+    random=r,
     population_sizes=[10, 10],
-    stopping_criterium=GenerationStoppingCriterium(100),
     migration_size=2,
-    callbacks=[DebugCallback()],
 )
-fs = gp.evolve()
-print([(f.get_phenotype(), f.get_fitness(p).fitness_components[0]) for f, p in zip(fs, problems)])
+f = gp.search()
+print((f.get_phenotype(), f.get_fitness(problem1).fitness_components[0]))

@@ -50,17 +50,18 @@ class SingleObjectiveProgressTracker:
             self.csv_writer.writerow([name for name in self.fields])
 
     def evaluate(self, individuals: list[Individual]):
-        self.evaluator.evaluate(self.problem, individuals)
+        problem = self.problem
+        self.evaluator.evaluate(problem, individuals)
         for ind in individuals:
             if self.best_individual is None:
                 self.best_individual = ind
-            elif self.problem.is_better(ind.get_fitness(self.problem), self.best_individual.get_fitness(self.problem)):
+            elif problem.is_better(ind.get_fitness(problem), self.best_individual.get_fitness(problem)):
                 self.best_individual = ind
             else:
                 continue
             if self.csv_writer:
                 self.csv_writer.writerow(
-                    [self.fields[name](self.best_individual, self.problem) for name in self.fields],
+                    [self.fields[name](self.best_individual, problem) for name in self.fields],
                 )
 
     def get_best_individual(self) -> Individual:
@@ -73,3 +74,6 @@ class SingleObjectiveProgressTracker:
     def get_number_evaluations(self) -> int:
         """The cumulative number of evaluations performed."""
         return self.evaluator.number_of_evaluations()
+
+    def get_problem(self) -> Problem:
+        return self.problem

@@ -152,7 +152,7 @@ class ClassificationBenchmark:
             n_elites=5,
             **args,
         )
-        best = alg.evolve()
+        best = alg.search()
         print(
             f"Fitness of {best.get_fitness(prob)} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
         )

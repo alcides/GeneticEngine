@@ -4,8 +4,7 @@ from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
-from geneticengine.representations.api import CrossoverOperator
-from geneticengine.representations.api import Representation
+from geneticengine.representations.api import RepresentationWithCrossover, SolutionRepresentation
 from geneticengine.evaluation import Evaluator
 
 
@@ -16,30 +15,29 @@ class GenericCrossoverStep(GeneticStep):
     def __init__(
         self,
         probability: float = 1,
-        operator: CrossoverOperator | None = None,
     ):
         self.probability = probability
-        self.operator = operator
 
     def iterate(
         self,
         problem: Problem,
         evaluator: Evaluator,
-        representation: Representation,
+        representation: SolutionRepresentation,
         random_source: RandomSource,
         population: list[Individual],
         target_size: int,
         generation: int,
     ) -> list[Individual]:
-        self.operator = self.operator if self.operator else representation.get_crossover()
-
+        assert isinstance(representation, RepresentationWithCrossover)
         retlist: list[Individual] = []
         for i in range(target_size // 2):
             j = i % len(population)
             ind1, ind2 = population[j], population[j + 1]  # todo: select individuals using a selection method
+            assert isinstance(ind1, Individual)
+            assert isinstance(ind2, Individual)
             v = random_source.random_float(0, 1)
             if v <= self.probability:
-                (n1, n2) = self.crossover(ind1, ind2, problem, representation, random_source, i, generation)
+                (n1, n2) = self.crossover(random_source, ind1, ind2, representation=representation)
             else:
                 (n1, n2) = (ind1, ind2)
             retlist.append(n1)
@@ -52,25 +50,18 @@ class GenericCrossoverStep(GeneticStep):
 
     def crossover(
         self,
+        random: RandomSource,
         individual1: Individual,
         individual2: Individual,
-        problem: Problem,
-        representation: Representation,
-        random_source: RandomSource,
-        index: int,
-        generation: int,
+        representation: SolutionRepresentation,
     ):
-        assert self.operator
-        (g1, g2) = self.operator.crossover(
+        assert isinstance(representation, RepresentationWithCrossover)
+        (g1, g2) = representation.crossover(
+            random,
             individual1.genotype,
             individual2.genotype,
-            problem,
-            representation,
-            random_source,
-            index,
-            generation,
         )
         return (
-            Individual(g1, representation.genotype_to_phenotype),
-            Individual(g2, representation.genotype_to_phenotype),
+            Individual(g1, representation.map),
+            Individual(g2, representation.map),
         )

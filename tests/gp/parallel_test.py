@@ -3,10 +3,8 @@ from __future__ import annotations
 from abc import ABC
 from dataclasses import dataclass
 
-from geneticengine.algorithms.callbacks.callback import Callback
-from geneticengine.algorithms.callbacks.callback import DebugCallback
-from geneticengine.algorithms.gp.gp import GP
-from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
+from geneticengine.algorithms.gp.gp import GeneticProgramming
+from geneticengine.evaluation.budget import EvaluationBudget
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
@@ -35,13 +33,14 @@ class UnderTest(Root):
     b: Root
 
 
-class TestCallback(Callback):
+# TODO
+class TestCallback:
     def process_iteration(
         self,
         generation: int,
         population,
         time: float,
-        gp: GP,
+        gp: GeneticProgramming,
     ) -> None:
         for ind in population:
             x = ind.genotype
@@ -52,7 +51,7 @@ class TestCallback(Callback):
 class TestParallel:
     def test_parallel(self):
         g = extract_grammar([Leaf, OtherLeaf], UnderTest)
-        gp = GP(
+        gp = GeneticProgramming(
             representation=TreeBasedRepresentation(g, 10),
             random_source=NativeRandomSource(seed=123),
             problem=SingleObjectiveProblem(
@@ -60,12 +59,11 @@ class TestParallel:
                 minimize=True,
             ),
             population_size=20,
-            stopping_criterium=GenerationStoppingCriterium(10),
+            budget=EvaluationBudget(1000),
             initializer=FullInitializer(),
-            callbacks=[DebugCallback(), TestCallback()],
             evaluator=ParallelEvaluator,
         )
-        ind = gp.evolve()
+        ind = gp.search()
         tree = ind.get_phenotype()
         assert isinstance(tree, UnderTest)
         assert isinstance(tree.a, Leaf)

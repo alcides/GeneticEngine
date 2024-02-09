@@ -5,9 +5,7 @@ from typing import get_args
 
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.random.sources import RandomSource
-from geneticengine.representations.tree_smt import smt
-from geneticengine.representations.tree_smt.initializations import is_metahandler
-from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator
+from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator, is_metahandler
 from geneticengine.grammar.metahandlers.smt.parser import p_expr
 
 
@@ -36,19 +34,20 @@ class SMT(MetaHandlerGenerator):
         c = context.copy()
 
         ident = c["_"]
-        smt.SMTResolver.register_type(ident, base_type)
+        # smt.SMTResolver.register_type(ident, base_type)
 
-        smt.SMTResolver.add_clause(
-            [lambda types: self.restriction.translate(c, types)],
-            {},
-        )
+        # smt.SMTResolver.add_clause(
+        #     [lambda types: self.restriction.translate(c, types)],
+        #     {},
+        # )
 
         if base_type == int or base_type == bool or base_type == float:
             # we need the result, add receiver
-            smt.SMTResolver.add_clause(
-                [],
-                {ident: rec},
-            )
+            # smt.SMTResolver.add_clause(
+            #     [],
+            #     {ident: rec},
+            # )
+            pass
         else:
             # just synth normally
             new_symbol(base_type, rec, depth, ident, context)

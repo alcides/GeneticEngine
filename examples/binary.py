@@ -3,12 +3,12 @@ from copy import deepcopy
 import copy
 from dataclasses import dataclass
 from typing import Annotated
-from geneticengine.algorithms.callbacks.callback import ProgressCallback
 from geneticengine.algorithms.gp.operators.combinators import ParallelStep
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
 from geneticengine.algorithms.gp.operators.elitism import ElitismStep
 from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
 from geneticengine.evaluation import Evaluator
+from geneticengine.evaluation.budget import AnyOf, TargetFitness, TimeBudget
 from geneticengine.problems import Problem, SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource, RandomSource
 from geneticengine.representations.api import CrossoverOperator, MutationOperator, Representation
@@ -19,9 +19,7 @@ from geneticengine.representations.tree.treebased import (
     TreeBasedRepresentation,
     random_node,
 )
-from geneticengine.algorithms.gp.gp import GP
-from geneticengine.algorithms.gp.operators.stop import SingleFitnessTargetStoppingCriterium, TimeStoppingCriterium
-from geneticengine.algorithms.gp.operators.stop import AnyOfStoppingCriterium
+from geneticengine.algorithms.gp.gp import GeneticProgramming
 
 
 SIZE = 50
@@ -107,14 +105,13 @@ if __name__ == "__main__":
         weights=[5, 4, 1],
     )
 
-    gp = GP(
-        representation=repr,
+    gp = GeneticProgramming(
         problem=prob,
-        random_source=r,
+        budget=AnyOf(TargetFitness(1), TimeBudget(3)),
+        representation=repr,
+        random=r,
         population_size=10,
-        callbacks=[ProgressCallback()],
-        stopping_criterium=AnyOfStoppingCriterium(SingleFitnessTargetStoppingCriterium(1.0), TimeStoppingCriterium(3)),
         step=step,
     )
-    out = gp.evolve()
+    out = gp.search()
     print(out)

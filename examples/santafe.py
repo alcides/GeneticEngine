@@ -5,9 +5,9 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Annotated
 
-from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.algorithms.hill_climbing import HC
+from geneticengine.evaluation.budget import EvaluationBudget
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.problems import Problem
@@ -198,16 +198,16 @@ class SantaFeBenchmark:
             n_elites=5,
             **args,
         )
-        ind = alg.evolve()
+        ind = alg.search()
         print("\n======\nGP\n======\n")
         print(f"{ind.get_fitness(alg.problem)} - {ind}")
 
         alg_hc = HC(
-            representation=TreeBasedRepresentation(g, 10),
             problem=SingleObjectiveProblem(fitness_function),
-            stopping_criterium=GenerationStoppingCriterium(50),
+            representation=TreeBasedRepresentation(g, 10),
+            budget=EvaluationBudget(1000),
         )
-        ind = alg_hc.evolve()
+        ind = alg_hc.search()
         print("\n======\nHC\n======\n")
         print(f"{ind.get_fitness(alg_hc.problem)} - {ind}")
 

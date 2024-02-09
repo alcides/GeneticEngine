@@ -2,8 +2,8 @@ import copy
 from dataclasses import dataclass
 
 import pytest
-from geneticengine.algorithms.gp.gp import GP
-from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
+from geneticengine.algorithms.gp.gp import GeneticProgramming
+from geneticengine.evaluation.budget import EvaluationBudget
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
@@ -16,7 +16,6 @@ from geneticengine.representations.grammatical_evolution.structured_ge import (
 )
 from geneticengine.representations.stackgggp import StackBasedGGGPRepresentation
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.representations.tree_smt.treebased import SMTTreeBasedRepresentation
 
 
 @dataclass
@@ -139,7 +138,6 @@ def test_random_pop():
     "representation",
     [
         TreeBasedRepresentation,
-        SMTTreeBasedRepresentation,
         GrammaticalEvolutionRepresentation,
         StructuredGrammaticalEvolutionRepresentation,
         DynamicStructuredGrammaticalEvolutionRepresentation,
@@ -151,13 +149,13 @@ def test_random_gp(representation):
 
     vals = []
     for _ in range(2):
-        gp = GP(
+        gp = GeneticProgramming(
             problem=SingleObjectiveProblem(lambda x: x.i * x.j),
+            budget=EvaluationBudget(100 * 10),
             representation=representation(grammar, max_depth=3),
-            random_source=NativeRandomSource(0),
-            stopping_criterium=GenerationStoppingCriterium(10),
+            random=NativeRandomSource(0),
         )
-        e = gp.evolve()
+        e = gp.search()
         v = e.get_phenotype().i, e.get_phenotype().j
         vals.append(v)
     print(vals)

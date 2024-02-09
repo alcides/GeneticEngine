@@ -27,8 +27,8 @@ class TestFitnessHelpers:
         evaluator = SequentialEvaluator()
 
         population = [
-            Individual(genotype=Leaf(1), genotype_to_phenotype=representation.genotype_to_phenotype),
-            Individual(genotype=Leaf(2), genotype_to_phenotype=representation.genotype_to_phenotype),
+            Individual(genotype=Leaf(1), genotype_to_phenotype=representation.map),
+            Individual(genotype=Leaf(2), genotype_to_phenotype=representation.map),
         ]
 
         problem = SingleObjectiveProblem(fitness_function=lambda x: x.a, minimize=False)
@@ -53,8 +53,8 @@ class TestFitnessHelpers:
         representation = TreeBasedRepresentation(g, 2)
         evaluator = SequentialEvaluator()
 
-        a = Individual(genotype=Leaf(1), genotype_to_phenotype=representation.genotype_to_phenotype)
-        b = Individual(genotype=Leaf(2), genotype_to_phenotype=representation.genotype_to_phenotype)
+        a = Individual(genotype=Leaf(1), genotype_to_phenotype=representation.map)
+        b = Individual(genotype=Leaf(2), genotype_to_phenotype=representation.map)
 
         problem = SingleObjectiveProblem(fitness_function=lambda x: x.a, minimize=True)
         evaluator.evaluate(problem, [a, b])
@@ -69,9 +69,9 @@ class TestFitnessHelpers:
         representation = TreeBasedRepresentation(g, 2)
         evaluator = SequentialEvaluator()
 
-        a = Individual(genotype=Leaf(1), genotype_to_phenotype=representation.genotype_to_phenotype)
-        b = Individual(genotype=Leaf(3), genotype_to_phenotype=representation.genotype_to_phenotype)
-        c = Individual(genotype=Leaf(2), genotype_to_phenotype=representation.genotype_to_phenotype)
+        a = Individual(genotype=Leaf(1), genotype_to_phenotype=representation.map)
+        b = Individual(genotype=Leaf(3), genotype_to_phenotype=representation.map)
+        c = Individual(genotype=Leaf(2), genotype_to_phenotype=representation.map)
         population = [a, b, c]
 
         problem = SingleObjectiveProblem(fitness_function=lambda x: x.a, minimize=True)

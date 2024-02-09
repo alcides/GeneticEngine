@@ -5,16 +5,16 @@ stacks.
 """
 
 import copy
-from typing import Any, Optional
+from dataclasses import dataclass
+import sys
+from typing import Any
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.random.sources import RandomSource
 
-from geneticengine.representations.api import CrossoverOperator, MutationOperator, Representation
-from geneticengine.representations.grammatical_evolution.ge import (
-    DefaultGECrossover,
-    DefaultGEMutation,
-    Genotype,
-    ListWrapper,
+from geneticengine.representations.api import (
+    RepresentationWithCrossover,
+    RepresentationWithMutation,
+    SolutionRepresentation,
 )
 from geneticengine.solutions.tree import TreeNode
 from geneticengine.grammar.utils import (
@@ -25,6 +25,26 @@ from geneticengine.grammar.utils import (
     is_generic_list,
 )
 from geneticengine.grammar.metahandlers.base import is_metahandler
+
+
+@dataclass
+class Genotype:
+    dna: list[int]
+
+
+@dataclass
+class ListWrapper(RandomSource):
+    dna: list[int]
+    index: int = 0
+
+    def randint(self, min: int, max: int, prod: str = "") -> int:
+        self.index = (self.index + 1) % len(self.dna)
+        v = self.dna[self.index]
+        return v % (max - min + 1) + min
+
+    def random_float(self, min: float, max: float, prod: str = "") -> float:
+        k = self.randint(1, sys.maxsize, prod)
+        return 1 * (max - min) / k + min
 
 
 def add_to_stacks(stacks: dict[type, list[Any]], t: type, v: Any):
@@ -112,7 +132,11 @@ def create_tree_using_stacks(g: Grammar, r: ListWrapper, max_depth: int = 10):
     return stacks[g.starting_symbol][0]
 
 
-class StackBasedGGGPRepresentation(Representation[Genotype, TreeNode]):
+class StackBasedGGGPRepresentation(
+    SolutionRepresentation[Genotype, TreeNode],
+    RepresentationWithMutation[Genotype],
+    RepresentationWithCrossover[Genotype],
+):
     """This representation uses a list of integers to guide the generation of
     trees in the phenotype."""
 
@@ -120,34 +144,33 @@ class StackBasedGGGPRepresentation(Representation[Genotype, TreeNode]):
         self,
         grammar: Grammar,
         max_depth: int,
+        gene_length: int = 256,
     ):
-        super().__init__(grammar, max_depth)
+        self.grammar = grammar
+        self.max_depth = max_depth
+        self.gene_length = gene_length
 
-    def create_individual(
-        self,
-        r: RandomSource,
-        depth: Optional[int] = None,
-        **kwargs,
-    ) -> Genotype:
-        length = kwargs.get("length", 1000)
-        return Genotype(dna=[r.randint(0, 10000000) for _ in range(length)])
+    def instantiate(self, random: RandomSource, **kwargs) -> Genotype:
+        return Genotype(dna=[random.randint(0, sys.maxsize) for _ in range(self.gene_length)])
 
-    def genotype_to_phenotype(self, genotype: Genotype) -> TreeNode:
+    def map(self, genotype: Genotype) -> TreeNode:
         return create_tree_using_stacks(
             self.grammar,
             ListWrapper(genotype.dna),
             self.max_depth,
         )
 
-    def phenotype_to_genotype(self, phenotype: Any) -> Genotype:
-        """Takes an existing program and adapts it to be used in the right
-        representation."""
-        raise NotImplementedError(
-            "Reconstruction of genotype not supported in this representation.",
-        )
+    def mutate(self, random: RandomSource, internal: Genotype, **kwargs) -> Genotype:
+        rindex = random.randint(0, 255)
+        clone = [i for i in internal.dna]
+        clone[rindex] = random.randint(0, 10000)
+        return Genotype(clone)
 
-    def get_mutation(self) -> MutationOperator[Genotype]:
-        return DefaultGEMutation()
+    def crossover(
+        self, random: RandomSource, parent1: Genotype, parent2: Genotype, **kwargs
+    ) -> tuple[Genotype, Genotype]:
+        rindex = random.randint(0, 255)
 
-    def get_crossover(self) -> CrossoverOperator[Genotype]:
-        return DefaultGECrossover()
+        c1 = parent1.dna[:rindex] + parent2.dna[rindex:]
+        c2 = parent2.dna[:rindex] + parent1.dna[rindex:]
+        return (Genotype(c1), Genotype(c2))

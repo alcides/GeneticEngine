@@ -2,9 +2,8 @@ from abc import ABC
 import numpy as np
 import pandas as pd
 from dataclasses import dataclass
-from geneticengine.algorithms.callbacks.csv_callback import CSVCallback
-from geneticengine.algorithms.gp.gp import GP
-from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
+from geneticengine.algorithms.gp.gp import GeneticProgramming
+from geneticengine.evaluation.budget import EvaluationBudget
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
@@ -29,21 +28,20 @@ class TestCSVCallback:
 
         path = tmp_path / "test.csv"
 
-        csv_callback = CSVCallback(path)
+        # TODO: CSV callback
         objective = SingleObjectiveProblem(
             lambda p: 1,
             minimize=True,
         )
 
-        gp = GP(
+        gp = GeneticProgramming(
             representation=TreeBasedRepresentation(g, max_depth=10),
             problem=objective,
             population_size=10,
-            stopping_criterium=GenerationStoppingCriterium(max_generations=max_generations),
-            callbacks=[csv_callback],
-            random_source=NativeRandomSource(seed),
+            budget=EvaluationBudget(10 * max_generations),
+            random=NativeRandomSource(seed),
         )
-        gp.evolve()
+        gp.search()
 
         df = pd.read_csv(path)
 
@@ -77,28 +75,20 @@ class TestCSVCallback:
 
         path = tmp_path / "test.csv"
 
-        csv_callback = CSVCallback(
-            path,
-            extra_columns={
-                "a": lambda i, pop, fit, gp, ind: extra_val,
-                "b": lambda i, pop, fit, gp, ind: i,
-                "c": lambda i, pop, fit, gp, ind: len(pop),
-            },
-        )
+        # TODO: extra fields
         objective = SingleObjectiveProblem(
             lambda p: 1,
             minimize=True,
         )
 
-        gp = GP(
+        gp = GeneticProgramming(
             representation=TreeBasedRepresentation(g, max_depth=10),
             problem=objective,
             population_size=population_size,
-            stopping_criterium=GenerationStoppingCriterium(max_generations=max_generations),
-            callbacks=[csv_callback],
-            random_source=NativeRandomSource(seed),
+            budget=EvaluationBudget(population_size * max_generations),
+            random=NativeRandomSource(seed),
         )
-        gp.evolve()
+        gp.search()
 
         df = pd.read_csv(path)
 

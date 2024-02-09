@@ -7,6 +7,7 @@ from typing import Annotated
 import pytest
 
 from geneticengine.algorithms.gp.gp import default_generic_programming_step
+from geneticengine.representations.api import SolutionRepresentation
 from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.operators.combinators import SequenceStep
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
@@ -18,7 +19,6 @@ from geneticengine.evaluation.sequential import SequentialEvaluator
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import Fitness, Problem, SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource, RandomSource
-from geneticengine.representations.api import Representation
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammar.metahandlers.lists import ListSizeBetween
 
@@ -43,7 +43,7 @@ class CacheFitness(GeneticStep):
         self,
         problem: Problem,
         evaluator: Evaluator,
-        representation: Representation,
+        representation: SolutionRepresentation,
         random_source: RandomSource,
         population: list[Individual],
         target_size: int,
@@ -76,8 +76,7 @@ class TestPreCache:
         population_size = 1000
 
         initial_population = [
-            Individual(genotype=rep.create_individual(r, 10), genotype_to_phenotype=rep.genotype_to_phenotype)
-            for _ in range(population_size)
+            Individual(genotype=rep.instantiate(r, 10), genotype_to_phenotype=rep.map) for _ in range(population_size)
         ]
 
         def encode_population(pop: list[Individual]) -> list[str]:

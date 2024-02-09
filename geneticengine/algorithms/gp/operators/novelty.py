@@ -4,7 +4,7 @@ from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
-from geneticengine.representations.api import Representation
+from geneticengine.representations.api import SolutionRepresentation
 from geneticengine.evaluation import Evaluator
 
 
@@ -15,7 +15,7 @@ class NoveltyStep(GeneticStep):
         self,
         problem: Problem,
         evaluator: Evaluator,
-        representation: Representation,
+        representation: SolutionRepresentation,
         random_source: RandomSource,
         population: list[Individual],
         target_size: int,
@@ -23,8 +23,8 @@ class NoveltyStep(GeneticStep):
     ) -> list[Individual]:
         return [
             Individual(
-                representation.create_individual(random_source, depth=None),
-                representation.genotype_to_phenotype,
+                representation.instantiate(random_source),
+                representation.map,
             )
             for _ in range(target_size)
         ]

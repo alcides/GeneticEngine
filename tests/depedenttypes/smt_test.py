@@ -9,9 +9,8 @@ import pytest
 
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.random.sources import NativeRandomSource
-from geneticengine.representations.tree_smt.smt import SMTResolver
-from geneticengine.representations.tree_smt.treebased import random_node
 from geneticengine.grammar.metahandlers.smt import SMT
+from geneticengine.representations.tree.treebased import random_node
 
 
 class Root(ABC):
@@ -65,9 +64,6 @@ T = TypeVar("T")
 
 
 class TestMetaHandler:
-    @pytest.fixture(autouse=True)
-    def clean_smt(self):
-        SMTResolver.clean()
 
     def skeleton(self, *t, depth=3):
         r = NativeRandomSource(seed=1)

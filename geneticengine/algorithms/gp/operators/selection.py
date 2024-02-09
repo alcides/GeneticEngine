@@ -8,7 +8,7 @@ from geneticengine.problems import Fitness, MultiObjectiveProblem
 from geneticengine.problems import Problem
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import RandomSource
-from geneticengine.representations.api import Representation
+from geneticengine.representations.api import SolutionRepresentation
 from geneticengine.evaluation import Evaluator
 
 
@@ -30,13 +30,12 @@ class TournamentSelection(GeneticStep):
         self,
         problem: Problem,
         evaluator: Evaluator,
-        representation: Representation,
+        representation: SolutionRepresentation,
         random_source: RandomSource,
         population: list[Individual],
         target_size: int,
         generation: int,
     ) -> list[Individual]:
-        assert isinstance(problem, SingleObjectiveProblem)
         winners: list[Individual] = []
         candidates = population.copy()
         evaluator.evaluate(problem, candidates)
@@ -69,7 +68,7 @@ class LexicaseSelection(GeneticStep):
         self,
         problem: Problem,
         evaluator: Evaluator,
-        representation: Representation,
+        representation: SolutionRepresentation,
         random_source: RandomSource,
         population: list[Individual],
         target_size: int,

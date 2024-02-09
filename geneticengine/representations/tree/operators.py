@@ -5,7 +5,7 @@ from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
-from geneticengine.representations.api import Representation
+from geneticengine.representations.api import SolutionRepresentation
 from geneticengine.representations.tree.initializations import full_method, grow_method
 from geneticengine.representations.tree.initializations import pi_grow_method
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
@@ -18,7 +18,7 @@ class FullInitializer(PopulationInitializer):
     def initialize(
         self,
         problem: Problem,
-        representation: Representation,
+        representation: SolutionRepresentation,
         random_source: RandomSource,
         target_size: int,
         **kwargs,
@@ -26,13 +26,13 @@ class FullInitializer(PopulationInitializer):
         assert isinstance(representation, TreeBasedRepresentation)
         return [
             Individual(
-                representation.create_individual(
+                representation.instantiate(
                     random_source,
                     depth=representation.max_depth,
                     initialization_method=full_method,
                     **kwargs,
                 ),
-                genotype_to_phenotype=representation.genotype_to_phenotype,
+                genotype_to_phenotype=representation.map,
             )
             for _ in range(target_size)
         ]
@@ -45,7 +45,7 @@ class GrowInitializer(PopulationInitializer):
     def initialize(
         self,
         problem: Problem,
-        representation: Representation,
+        representation: SolutionRepresentation,
         random_source: RandomSource,
         target_size: int,
         **kwargs,
@@ -53,13 +53,13 @@ class GrowInitializer(PopulationInitializer):
         assert isinstance(representation, TreeBasedRepresentation)
         return [
             Individual(
-                representation.create_individual(
+                representation.instantiate(
                     random_source,
                     representation.max_depth,
                     initialization_method=grow_method,
                     **kwargs,
                 ),
-                genotype_to_phenotype=representation.genotype_to_phenotype,
+                genotype_to_phenotype=representation.map,
             )
             for _ in range(target_size)
         ]
@@ -72,7 +72,7 @@ class PositionIndependentGrowInitializer(PopulationInitializer):
     def initialize(
         self,
         problem: Problem,
-        representation: Representation,
+        representation: SolutionRepresentation,
         random_source: RandomSource,
         target_size: int,
         **kwargs,
@@ -80,13 +80,13 @@ class PositionIndependentGrowInitializer(PopulationInitializer):
         assert isinstance(representation, TreeBasedRepresentation)
         return [
             Individual(
-                representation.create_individual(
+                representation.instantiate(
                     random_source,
                     representation.max_depth,
                     initialization_method=pi_grow_method,
                     **kwargs,
                 ),
-                genotype_to_phenotype=representation.genotype_to_phenotype,
+                genotype_to_phenotype=representation.map,
             )
             for _ in range(target_size)
         ]
@@ -99,7 +99,7 @@ class RampedInitializer(PopulationInitializer):
     def initialize(
         self,
         problem: Problem,
-        representation: Representation,
+        representation: SolutionRepresentation,
         random_source: RandomSource,
         target_size: int,
     ) -> list[Individual]:
@@ -112,8 +112,10 @@ class RampedInitializer(PopulationInitializer):
 
         return [
             Individual(
-                representation.create_individual(r=random_source, depth=bound(i), initialization_method=pi_grow_method),
-                genotype_to_phenotype=representation.genotype_to_phenotype,
+                representation.initialization_method(
+                    random=random_source, depth=bound(i), initialization_method=pi_grow_method
+                ),
+                genotype_to_phenotype=representation.map,
             )
             for i in range(target_size)
         ]
@@ -130,7 +132,7 @@ class RampedHalfAndHalfInitializer(PopulationInitializer):
     def initialize(
         self,
         problem: Problem,
-        representation: Representation,
+        representation: SolutionRepresentation,
         random_source: RandomSource,
         target_size: int,
     ) -> list[Individual]:
@@ -144,22 +146,22 @@ class RampedHalfAndHalfInitializer(PopulationInitializer):
         mid = target_size // 2
         pop = [
             Individual(
-                representation.create_individual(
-                    r=random_source,
+                representation.instantiate(
+                    random=random_source,
                     depth=bound(i),
                     initialization_method=random_source.choice([grow_method, full_method]),
                 ),
-                genotype_to_phenotype=representation.genotype_to_phenotype,
+                genotype_to_phenotype=representation.map,
             )
             for i in range(mid)
         ] + [
             Individual(
-                representation.create_individual(
-                    r=random_source,
+                representation.instantiate(
+                    random=random_source,
                     depth=representation.max_depth,
                     initialization_method=random_source.choice([grow_method, full_method]),
                 ),
-                genotype_to_phenotype=representation.genotype_to_phenotype,
+                genotype_to_phenotype=representation.map,
             )
             for i in range(target_size - mid)
         ]
@@ -177,7 +179,7 @@ class InjectInitialPopulationWrapper(PopulationInitializer):
     def initialize(
         self,
         problem: Problem,
-        representation: Representation,
+        representation: SolutionRepresentation,
         random_source: RandomSource,
         target_size: int,
     ) -> list[Individual]:

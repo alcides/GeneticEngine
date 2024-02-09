@@ -80,7 +80,7 @@ class TestImmutability:
         g = extract_grammar([A, B], A)
         rep = TreeBasedRepresentation(g, max_depth=10)
         r = NativeRandomSource(3)
-        ind = rep.create_individual(r, 10)
+        ind = rep.instantiate(r, depth=10)
         assert isinstance(hash(ind), int)
 
     @pytest.mark.parametrize(
@@ -107,7 +107,7 @@ class TestImmutability:
         population_size = 1000
 
         initial_population = [
-            Individual(genotype=rep.create_individual(r, 10), genotype_to_phenotype=rep.genotype_to_phenotype)
+            Individual(genotype=rep.instantiate(r, depth=10), genotype_to_phenotype=rep.map)
             for _ in range(population_size)
         ]
 

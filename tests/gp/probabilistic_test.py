@@ -2,12 +2,8 @@ from __future__ import annotations
 
 import pytest
 
-from geneticengine.algorithms.gp.gp import GP
-from geneticengine.algorithms.gp.operators.stop import (
-    AnyOfStoppingCriterium,
-    SingleFitnessTargetStoppingCriterium,
-    GenerationStoppingCriterium,
-)
+from geneticengine.algorithms.gp.gp import GeneticProgramming
+from geneticengine.evaluation.budget import AnyOf, EvaluationBudget, TargetFitness
 from geneticengine.grammar.decorators import abstract
 from geneticengine.grammar.decorators import weight
 from geneticengine.grammar.grammar import extract_grammar
@@ -44,43 +40,42 @@ class TestProbabilisticGrammar:
     def test_probabilistic_grammar_tree_based(self):
         g = extract_grammar([OptionA, OptionB], Option)
 
-        gp = GP(
+        gp = GeneticProgramming(
             representation=TreeBasedRepresentation(grammar=g, max_depth=10),
             problem=SingleObjectiveProblem(
                 lambda p: isinstance(p, OptionA) and 1 or 2,
                 minimize=True,
             ),
             population_size=1000,
-            stopping_criterium=GenerationStoppingCriterium(max_generations=50),
+            budget=EvaluationBudget(50 * 1000),
         )
-        ind = gp.evolve()
+        ind = gp.search()
         tree = ind.get_phenotype()
         assert isinstance(tree, OptionA)
 
     def test_probabilistic_grammar_ge(self):
         g = extract_grammar([OptionA, OptionB], Option)
 
-        stopping_criterium = AnyOfStoppingCriterium(
-            GenerationStoppingCriterium(max_generations=50),
-            SingleFitnessTargetStoppingCriterium(0),
-        )
-        gp = GP(
+        gp = GeneticProgramming(
             representation=GrammaticalEvolutionRepresentation(grammar=g, max_depth=10),
             problem=SingleObjectiveProblem(
                 lambda p: isinstance(p, OptionA) and 1 or 2,
                 minimize=True,
             ),
             population_size=1000,
-            stopping_criterium=stopping_criterium,
+            budget=AnyOf(
+                EvaluationBudget(50 * 1000),
+                TargetFitness(0),
+            ),
         )
-        ind = gp.evolve()
+        ind = gp.search()
         tree = ind.get_phenotype()
         assert isinstance(tree, OptionA)
 
     def test_probabilistic_grammar_sge(self):
         g = extract_grammar([OptionA, OptionB], Option)
 
-        gp = GP(
+        gp = GeneticProgramming(
             representation=StructuredGrammaticalEvolutionRepresentation(
                 grammar=g,
                 max_depth=10,
@@ -90,33 +85,33 @@ class TestProbabilisticGrammar:
                 minimize=True,
             ),
             population_size=1000,
-            stopping_criterium=AnyOfStoppingCriterium(
-                GenerationStoppingCriterium(max_generations=50),
-                SingleFitnessTargetStoppingCriterium(0),
+            budget=AnyOf(
+                EvaluationBudget(50 * 1000),
+                TargetFitness(0),
             ),
         )
-        ind = gp.evolve()
+        ind = gp.search()
         tree = ind.get_phenotype()
         assert isinstance(tree, OptionA)
 
     def test_probabilistic_grammar_dsge(self):
         g = extract_grammar([OptionA, OptionB], Option)
 
-        gp = GP(
-            representation=DynamicStructuredGrammaticalEvolutionRepresentation(
-                grammar=g,
-                max_depth=10,
-            ),
+        gp = GeneticProgramming(
             problem=SingleObjectiveProblem(
                 lambda p: isinstance(p, OptionA) and 1 or 2,
                 minimize=True,
             ),
-            population_size=1000,
-            stopping_criterium=AnyOfStoppingCriterium(
-                GenerationStoppingCriterium(max_generations=50),
-                SingleFitnessTargetStoppingCriterium(0),
+            budget=AnyOf(
+                EvaluationBudget(50 * 1000),
+                TargetFitness(0),
             ),
+            representation=DynamicStructuredGrammaticalEvolutionRepresentation(
+                grammar=g,
+                max_depth=10,
+            ),
+            population_size=1000,
         )
-        ind = gp.evolve()
+        ind = gp.search()
         tree = ind.get_phenotype()
         assert isinstance(tree, OptionA)

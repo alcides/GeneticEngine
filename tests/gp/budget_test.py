@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from abc import ABC
 from dataclasses import dataclass
-from geneticengine.algorithms.gp.gp import GP
-from geneticengine.algorithms.gp.operators.stop import EvaluationLimitCriterium
+from geneticengine.algorithms.gp.gp import GeneticProgramming
+from geneticengine.evaluation.budget import EvaluationBudget
 
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem, MultiObjectiveProblem
@@ -29,33 +29,33 @@ def fitness_function_multi(r: Root) -> list[float]:
     return [r.a]
 
 
-class TestStoppingCriteria:
+class TestBudget:
     def test_evaluations(self):
-        limit = 1
+        limit = 60
         population_size = 11
 
         grammar = extract_grammar([Option], Root)
-        gp = GP(
+        gp = GeneticProgramming(
             representation=TreeBasedRepresentation(grammar=grammar, max_depth=2),
-            stopping_criterium=EvaluationLimitCriterium(limit),
+            budget=EvaluationBudget(limit),
             problem=SingleObjectiveProblem(fitness_function=fitness_function),
             population_size=population_size,
         )
-        gp.evolve()
+        gp.search()
 
-        assert gp.evaluator.number_of_evaluations() < limit + 2 * population_size
+        assert gp.tracker.evaluator.number_of_evaluations() <= limit + population_size
 
     def test_evaluationsmultiobjective(self):
-        limit = 1
+        limit = 33
         population_size = 11
 
         grammar = extract_grammar([Option], Root)
-        gp = GP(
+        gp = GeneticProgramming(
             representation=TreeBasedRepresentation(grammar=grammar, max_depth=2),
-            stopping_criterium=EvaluationLimitCriterium(limit),
+            budget=EvaluationBudget(limit),
             problem=MultiObjectiveProblem(minimize=False, fitness_function=fitness_function_multi),
             population_size=population_size,
         )
-        gp.evolve()
+        gp.search()
 
-        assert gp.evaluator.number_of_evaluations() < limit + 2 * population_size
+        assert gp.tracker.evaluator.number_of_evaluations() < limit + population_size

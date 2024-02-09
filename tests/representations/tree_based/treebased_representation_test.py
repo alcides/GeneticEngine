@@ -27,9 +27,8 @@ class TestTreeBased:
         print(g)
         print(g.get_grammar_properties_summary())
         tbr = TreeBasedRepresentation(g, max_depth=3)
-        mutation = tbr.get_mutation()
         t = random_node(r, g, max_depth=3)
-        t = tbr.create_individual(r)
+        # t = tbr.instantiate(r)
         for i in range(1000):
-            t = mutation.mutate(t, None, None, tbr, r, 0, i)
+            t = tbr.mutate(r, t)
         assert len(t.l) >= 0

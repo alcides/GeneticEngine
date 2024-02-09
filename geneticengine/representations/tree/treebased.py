@@ -4,14 +4,16 @@ from typing import Any
 from typing import TypeVar
 
 from geneticengine.grammar.grammar import Grammar
-from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
-from geneticengine.representations.api import CrossoverOperator
-from geneticengine.representations.api import MutationOperator
-from geneticengine.representations.api import Representation
+from geneticengine.representations.api import (
+    RepresentationWithCrossover,
+    RepresentationWithMutation,
+    SolutionRepresentation,
+)
 from geneticengine.representations.tree.initializations import (
     InitializationMethodType,
     grow_method,
+    pi_grow_method,
 )
 from geneticengine.representations.tree.initializations import mk_save_init
 from geneticengine.representations.tree.utils import relabel_nodes
@@ -22,7 +24,6 @@ from geneticengine.grammar.utils import get_generic_parameter
 from geneticengine.grammar.utils import has_annotated_crossover
 from geneticengine.grammar.utils import has_annotated_mutation
 from geneticengine.grammar.utils import is_abstract
-from geneticengine.evaluation import Evaluator
 from geneticengine.exceptions import GeneticEngineError
 
 T = TypeVar("T")
@@ -507,170 +508,37 @@ def crossover(
     return relabeled_new_tree1, relabeled_new_tree2
 
 
-class DefaultTBMutation(MutationOperator[TreeNode]):
-    """Selects a random node, and generates a new replacement."""
-
-    def __init__(self, depth_aware: bool = False):
-        """
-        Args:
-            depth_aware (bool): whether the mutation should be depth-aware.
-
-        """
-        self.depth_aware = depth_aware
-
-    def mutate(
-        self,
-        genotype: TreeNode,
-        problem: Problem,
-        evaluator: Evaluator,
-        representation: Representation,
-        random_source: RandomSource,
-        index_in_population: int,
-        generation: int,
-    ) -> TreeNode:
-        assert isinstance(representation, TreeBasedRepresentation)
-        return mutate(
-            random_source,
-            representation.grammar,
-            genotype,
-            representation.max_depth,
-            representation.grammar.starting_symbol,
-        )
-
-
-class TypeSpecificTBMutation(DefaultTBMutation):
-    """Selects a random node of a given type, and generates a new
-    replacement."""
-
-    def __init__(self, specific_type: type, depth_aware: bool = False):
-        super().__init__(depth_aware=depth_aware)
-
-        self.specific_type = specific_type
-
-    def mutate(
-        self,
-        genotype: TreeNode,
-        problem: Problem,
-        evaluator: Evaluator,
-        representation: Representation,
-        random_source: RandomSource,
-        index_in_population: int,
-        generation: int,
-    ) -> TreeNode:
-        assert isinstance(representation, TreeBasedRepresentation)
-        return mutate_specific_type(
-            random_source,
-            representation.grammar,
-            genotype,
-            representation.max_depth,
-            representation.grammar.starting_symbol,
-            self.specific_type,
-            self.depth_aware,
-        )
-
-
-class DefaultTBCrossover(CrossoverOperator[TreeNode]):
-    """Selects a sub-tree from one parent and replaces it with a compatible
-    tree from the other parent."""
-
-    def __init__(self, depth_aware: bool = False):
-        """
-        Args:
-            depth_aware (bool): whether the mutation should be depth-aware.
-
-        """
-        self.depth_aware = depth_aware
-
-    def crossover(
-        self,
-        g1: TreeNode,
-        g2: TreeNode,
-        problem: Problem,
-        representation: Representation,
-        random_source: RandomSource,
-        index_in_population: int,
-        generation: int,
-    ) -> tuple[TreeNode, TreeNode]:
-        assert isinstance(representation, TreeBasedRepresentation)
-        return crossover(random_source, representation.grammar, g1, g2, representation.max_depth)
-
-
-class TypeSpecificTBCrossover(DefaultTBCrossover):
-    """Selects a sub-tree from one parent and replaces it with a compatible
-    tree from the other parent."""
-
-    def __init__(self, specific_type: type, depth_aware: bool):
-        super().__init__(depth_aware=depth_aware)
-
-        self.specific_type = specific_type
-
-    def crossover(
-        self,
-        g1: TreeNode,
-        g2: TreeNode,
-        problem: Problem,
-        representation: Representation,
-        random_source: RandomSource,
-        index_in_population: int,
-        generation: int,
-    ) -> tuple[TreeNode, TreeNode]:
-        assert isinstance(representation, TreeBasedRepresentation)
-        t1 = crossover_specific_type(
-            random_source,
-            representation.grammar,
-            g1,
-            g2,
-            representation.max_depth,
-            representation.grammar.starting_symbol,
-            self.specific_type,
-            self.depth_aware,
-        )
-        t2 = crossover_specific_type(
-            random_source,
-            representation.grammar,
-            g2,
-            g1,
-            representation.max_depth,
-            representation.grammar.starting_symbol,
-            self.specific_type,
-            self.depth_aware,
-        )
-        return (t1, t2)
-
-
-class TreeBasedRepresentation(Representation[TreeNode, TreeNode]):
+class TreeBasedRepresentation(
+    SolutionRepresentation[TreeNode, TreeNode],
+    RepresentationWithMutation[TreeNode],
+    RepresentationWithCrossover[TreeNode],
+):
     """This class represents the tree representation of an individual.
 
     In this approach, the genotype and the phenotype are exactly the
     same.
     """
 
-    def __init__(self, grammar: Grammar, max_depth: int):
-        super().__init__(grammar, max_depth)
+    def __init__(
+        self, grammar: Grammar, max_depth: int, initialization_method: InitializationMethodType = pi_grow_method
+    ):
+        self.grammar = grammar
+        self.max_depth = max_depth
+        self.initialization_method = initialization_method
 
-    def create_individual(
-        self,
-        r: RandomSource,
-        depth: int | None = None,
-        initialization_method: InitializationMethodType = grow_method,
-        **kwargs,
-    ) -> TreeNode:
-        actual_depth = depth or self.max_depth
-        return random_individual(r, self.grammar, actual_depth, initialization_method)
+    def instantiate(self, random: RandomSource, **kwargs) -> TreeNode:
+        actual_depth = kwargs.get("depth", self.max_depth)
+        return random_individual(random, self.grammar, max_depth=actual_depth, method=self.initialization_method)
 
-    def genotype_to_phenotype(self, genotype: TreeNode) -> TreeNode:
+    def map(self, genotype: TreeNode) -> TreeNode:
         return genotype
 
-    def phenotype_to_genotype(self, phenotype: Any) -> TreeNode:
-        """Takes an existing program and adapts it to be used in the right
-        representation."""
-        return relabel_nodes_of_trees(
-            phenotype,
-            self.grammar,
+    def mutate(self, random: RandomSource, internal: TreeNode, **kwargs) -> TreeNode:
+        return mutate(
+            random, self.grammar, internal, max_depth=self.max_depth, target_type=self.grammar.starting_symbol
         )
 
-    def get_mutation(self) -> MutationOperator[TreeNode]:
-        return DefaultTBMutation()
-
-    def get_crossover(self) -> CrossoverOperator[TreeNode]:
-        return DefaultTBCrossover()
+    def crossover(
+        self, random: RandomSource, parent1: TreeNode, parent2: TreeNode, **kwargs
+    ) -> tuple[TreeNode, TreeNode]:
+        return crossover(random, self.grammar, parent1, parent2, self.max_depth)

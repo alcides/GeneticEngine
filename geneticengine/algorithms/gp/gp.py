@@ -1,9 +1,9 @@
 from __future__ import annotations
+from geneticengine.algorithms.heuristics import HeuristicSearch
 
-import time
-from typing import Any, Callable
 
-from geneticengine.algorithms.callbacks.callback import Callback
+from geneticengine.evaluation.budget import SearchBudget
+from geneticengine.evaluation.recorder import SingleObjectiveProgressTracker
 from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.operators.combinators import ParallelStep, SequenceStep
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
@@ -14,17 +14,11 @@ from geneticengine.algorithms.gp.operators.initializers import (
 from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
 from geneticengine.algorithms.gp.operators.novelty import NoveltyStep
 from geneticengine.algorithms.gp.operators.selection import TournamentSelection
-from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.algorithms.gp.structure import PopulationInitializer
-from geneticengine.algorithms.gp.structure import StoppingCriterium
-from geneticengine.algorithms.heuristics import Heuristics
 from geneticengine.problems import Problem
-from geneticengine.random.sources import NativeRandomSource
 from geneticengine.random.sources import RandomSource
-from geneticengine.representations.api import Representation
-from geneticengine.evaluation import Evaluator
-from geneticengine.evaluation.sequential import SequentialEvaluator
+from geneticengine.representations.api import RepresentationWithMutation, SolutionRepresentation
 
 
 def default_generic_programming_step():
@@ -43,92 +37,61 @@ def default_generic_programming_step():
     )
 
 
-class GP(Heuristics):
+class GeneticProgramming(HeuristicSearch):
     """Represents the Genetic Programming algorithm. Defaults as given in A
     Field Guide to GP, p.17, by Poli and Mcphee:
 
     Args:
-        representation (Representation): The individual representation used by the GP program.
         problem (Problem): A SingleObjectiveProblem or a MultiObjectiveProblem problem.
-        random_source (RandomSource]): A RNG instance
+        budget (SearchBudget): how long to search for
+        representation (Representation): The individual representation used by the GP program.
+        random (RandomSource): A RNG instance
+        recorder (SingleObjectiveProgressTracker): How to record the results of evaluations
         population_size (int): The population size (default = 200).
-        initializer (PopulationInitializer): The method to generate new individuals.
-        step (GeneticStep): The main step of evolution.
-        stopping_criterium (StoppingCriterium): The class that defines how the evolution stops.
-        callbacks (List[Callback]): The callbacks to define what is done with the returned prints from the algorithm
-            (default = []).
+        population_initializer (PopulationInitializer): The method to generate new individuals.
+        step (GeneticStep): The main structure of evolution.
     """
 
     def __init__(
         self,
-        representation: Representation[Any, Any],
         problem: Problem,
-        random_source: RandomSource = NativeRandomSource(0),
-        population_size: int = 200,
-        initializer: PopulationInitializer = StandardInitializer(),
+        budget: SearchBudget,
+        representation: SolutionRepresentation,
+        random: RandomSource = None,
+        recorder: SingleObjectiveProgressTracker | None = None,
+        population_size: int = 100,
+        population_initializer: PopulationInitializer = None,
         step: GeneticStep | None = None,
-        stopping_criterium: StoppingCriterium = GenerationStoppingCriterium(100),
-        callbacks: list[Callback] | None = None,
-        evaluator: Callable[[], Evaluator] = SequentialEvaluator,
     ):
-        super().__init__(representation, problem, evaluator())
-        self.initializer = initializer
+        super().__init__(problem, budget, representation, random, recorder)
         self.population_size = population_size
-        self.random_source = random_source
-        self.step = step if step else default_generic_programming_step()
-        self.stopping_criterium = stopping_criterium
-        self.callbacks = callbacks if callbacks else []
+        self.population_initializer = (
+            population_initializer if population_initializer is not None else StandardInitializer()
+        )
+        self.step = step if step is not None else default_generic_programming_step()
 
-    def evolve(self) -> Individual:
-        """The main function of the GP object. This function runs the GP
-        algorithm over the set number of generations, evolving better
-        solutions.
-
-        Returns:
-            A tuple with the individual, its fitness and its phenotype.
-        """
-
-        population = self.initializer.initialize(
+    def search(self) -> Individual:
+        assert isinstance(self.representation, RepresentationWithMutation)
+        # TODO: Crossover
+        generation = 0
+        population = self.population_initializer.initialize(
             self.problem,
             self.representation,
-            self.random_source,
+            self.random,
             self.population_size,
         )
-        self.evaluator.evaluate(self.problem, population)
-
-        generation = 0
-        start = time.time()
-
-        def elapsed_time():
-            return time.time() - start
-
-        for cb in self.callbacks:
-            cb.process_iteration(generation, population, elapsed_time(), gp=self)
-
-        while not self.stopping_criterium.is_ended(
-            self.problem,
-            population,
-            generation,
-            elapsed_time(),
-            self.evaluator,
-        ):
+        self.tracker.evaluate(population)
+        while not self.is_done():
             generation += 1
             population = self.step.iterate(
                 self.problem,
-                self.evaluator,
+                self.tracker.evaluator,
                 self.representation,
-                self.random_source,
+                self.random,
                 population,
                 self.population_size,
                 generation,
             )
-            self.evaluator.evaluate(self.problem, population)
-            assert len(population) == self.population_size
-            for cb in self.callbacks:
-                cb.process_iteration(generation, population, elapsed_time(), gp=self)
+            self.tracker.evaluate(population)
 
-        self.final_population = population
-        best_individual = self.get_best_individual(self.problem, population)
-        for cb in self.callbacks:
-            cb.end_evolution()
-        return best_individual
+        return self.tracker.get_best_individual()

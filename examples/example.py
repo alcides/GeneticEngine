@@ -3,10 +3,10 @@ from __future__ import annotations
 from random import random
 from typing import Annotated
 
-from geneticengine.algorithms.gp.gp import GP
-from geneticengine.algorithms.gp.operators.stop import TimeStoppingCriterium
+from geneticengine.algorithms.gp.gp import GeneticProgramming
 from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.algorithms.random_search import RandomSearch
+from geneticengine.evaluation.budget import TimeBudget
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
@@ -49,33 +49,21 @@ problem = SingleObjectiveProblem(
     minimize=True,
     fitness_function=fit,
 )
-stopping_criterium = TimeStoppingCriterium(3)
+budget = TimeBudget(3)
 
 
-alg_gp = GP(
-    representation=representation,
-    problem=problem,
-    stopping_criterium=stopping_criterium,
-)
-ind = alg_gp.evolve()
+alg_gp = GeneticProgramming(problem=problem, budget=budget, representation=representation)
+ind = alg_gp.search()
 print("\n======\nGP\n======\n")
 print(f"{ind.get_fitness(problem)} - {ind}")
 
 
-alg_hc = HC(
-    representation=representation,
-    problem=problem,
-    stopping_criterium=stopping_criterium,
-)
-ind = alg_hc.evolve()
+alg_hc = HC(problem=problem, budget=budget, representation=representation)
+ind = alg_hc.search()
 print("\n======\nHC\n======\n")
 print(f"{ind.get_fitness(problem)} - {ind}")
 
-alg_rs = RandomSearch(
-    representation=representation,
-    problem=problem,
-    stopping_criterium=stopping_criterium,
-)
-ind = alg_rs.evolve()
+alg_rs = RandomSearch(problem=problem, budget=budget, representation=representation)
+ind = alg_rs.search()
 print("\n======\nRS\n======\n")
 print(f"{ind.get_fitness(problem)} - {ind}")

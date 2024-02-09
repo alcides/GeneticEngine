@@ -80,7 +80,7 @@ class PyMaxBenchmark:
         g = self.get_grammar()
         prob = self.get_problem()
         alg = SimpleGP(g, problem=prob, max_depth=8, population_size=25, number_of_generations=10, **args)
-        best = alg.evolve()
+        best = alg.search()
         fitness = best.get_fitness(prob)
         print(f"Fitness of {fitness} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}")
 

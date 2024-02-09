@@ -5,17 +5,16 @@ from typing import Annotated, Any
 
 import numpy as np
 import pandas as pd
-from geneticengine.algorithms.callbacks.callback import Callback
 from sklearn.base import BaseEstimator
 from sklearn.base import TransformerMixin
 
-from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.algorithms.hill_climbing import HC
+from geneticengine.evaluation.budget import TimeBudget
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
-from geneticengine.representations.api import Representation
+from geneticengine.representations.api import SolutionRepresentation
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammar.metahandlers.vars import VarRange
 from geml.grammars.basic_math import SafeDiv
@@ -54,7 +53,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
     def __init__(
         self,
         nodes: list[type[Number]] | None = None,
-        representation_class: type[Representation] = TreeBasedRepresentation,
+        representation_class: type[SolutionRepresentation] = TreeBasedRepresentation,
         population_size: int = 200,
         n_elites: int = 5,  # Shouldn't this be a percentage of population size?
         n_novelties: int = 10,
@@ -69,7 +68,6 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
         probability_mutation: float = 0.01,
         probability_crossover: float = 0.9,
         # -----
-        callbacks: list[Callback] | None = None,
         parallel: bool = False,
     ):
         if nodes is None:
@@ -102,7 +100,6 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
         self.probability_mutation = probability_mutation
         self.probability_crossover = probability_crossover
         self.scoring = {None: scoring}
-        self.callbacks = callbacks
         self.parallel_evaluation = parallel
 
     def _preprocess_X(self, X):
@@ -168,11 +165,10 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
             probability_crossover=self.probability_crossover,
             hill_climbing=self.hill_climbing,
             seed=self.seed,
-            callbacks=self.callbacks,
             parallel_evaluation=self.parallel_evaluation,
         )
 
-        ind = model.evolve()
+        ind = model.search()
         self.evolved_phenotype = ind.get_phenotype()
         self.sympy_compatible_phenotype = fix_all(str(self.evolved_phenotype))
 
@@ -232,7 +228,7 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
             SafeSqrt,
             *exp_literals,
         ],  # "type: ignore"
-        representation_class: type[Representation] = TreeBasedRepresentation,
+        representation_class: type[SolutionRepresentation] = TreeBasedRepresentation,
         population_size: int = 200,
         number_of_generations: int = 100,
         max_depth: int = 15,
@@ -292,16 +288,16 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
             return fitness
 
         model = HC(
-            representation=self.representation_class(self.grammar, self.max_depth),
             problem=SingleObjectiveProblem(
                 minimize=False,
                 fitness_function=fitness_function,
             ),
-            stopping_criterium=GenerationStoppingCriterium(self.number_of_generations),
-            random_source=NativeRandomSource(self.seed),
+            budget=TimeBudget(3),
+            representation=self.representation_class(self.grammar, self.max_depth),
+            random=NativeRandomSource(self.seed),
         )
 
-        ind = model.evolve()
+        ind = model.search()
         self.evolved_phenotype = ind.get_phenotype()
         self.sympy_compatible_phenotype = fix_all(str(self.evolved_phenotype))
 

@@ -45,7 +45,7 @@ alg = SimpleGP(
     population_size=200,
     number_of_generations=200,
 )
-(b, bf) = alg.evolve()
+(b, bf) = alg.search()
 print(bf, b)
 ```
 

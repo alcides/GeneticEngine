@@ -141,7 +141,7 @@ Now we can run Genetic Engine, parameterized with this grammar and this fitness 
 
 ```python
 alg = SimpleGP(g, fitness_function, TreeBasedRepresentation, minimize=True, population_size=10, number_of_generations=5)
-(b, bf) = alg.evolve()
+(b, bf) = alg.search()
 print(bf, b)
 ```
 
@@ -211,7 +211,7 @@ alg = SimpleGP(
     population_size=200,
     number_of_generations=200,
 )
-(b, bf) = alg.evolve()
+(b, bf) = alg.search()
 print(bf, b)
 ```
 And the final lines of the output:

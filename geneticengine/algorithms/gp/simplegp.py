@@ -4,13 +4,7 @@ from typing import Any
 from typing import Callable
 from typing import TypeVar
 
-from geneticengine.algorithms.callbacks.callback import Callback
-from geneticengine.algorithms.callbacks.callback import DebugCallback
-from geneticengine.algorithms.callbacks.callback import PrintBestCallback
-from geneticengine.algorithms.callbacks.callback import ProgressCallback
-from geneticengine.algorithms.callbacks.csv_callback import CSVCallback
-from geneticengine.algorithms.callbacks.pge import PGECallback
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp import GeneticProgramming
 from geneticengine.algorithms.gp.operators.combinators import ExclusiveParallelStep
 from geneticengine.algorithms.gp.operators.combinators import ParallelStep
 from geneticengine.algorithms.gp.operators.combinators import SequenceStep
@@ -21,16 +15,10 @@ from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
 from geneticengine.algorithms.gp.operators.novelty import NoveltyStep
 from geneticengine.algorithms.gp.operators.selection import LexicaseSelection
 from geneticengine.algorithms.gp.operators.selection import TournamentSelection
-from geneticengine.algorithms.gp.operators.stop import (
-    AllFitnessTargetStoppingCriterium,
-    AnyOfStoppingCriterium,
-    SingleFitnessTargetStoppingCriterium,
-    GenerationStoppingCriterium,
-)
-from geneticengine.algorithms.gp.operators.stop import TimeStoppingCriterium
 from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.algorithms.gp.structure import PopulationInitializer
-from geneticengine.algorithms.gp.structure import StoppingCriterium
+from geneticengine.evaluation.budget import AnyOf, EvaluationBudget, SearchBudget, TargetFitness, TimeBudget
+from geneticengine.evaluation.recorder import SingleObjectiveProgressTracker
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.evaluation.sequential import SequentialEvaluator
 from geneticengine.problems import MultiObjectiveProblem
@@ -38,24 +26,20 @@ from geneticengine.problems import Problem
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.problems import wrap_depth_minimization
 from geneticengine.random.sources import NativeRandomSource
-from geneticengine.representations.api import Representation
+from geneticengine.representations.api import SolutionRepresentation
 from geneticengine.representations.tree.operators import (
     FullInitializer,
     GrowInitializer,
     InjectInitialPopulationWrapper,
     RampedHalfAndHalfInitializer,
 )
-from geneticengine.representations.tree.treebased import DefaultTBCrossover
-from geneticengine.representations.tree.treebased import DefaultTBMutation
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.representations.tree.treebased import TypeSpecificTBCrossover
-from geneticengine.representations.tree.treebased import TypeSpecificTBMutation
 from geneticengine.evaluation import Evaluator
 
 P = TypeVar("P")
 
 
-class SimpleGP(GP):
+class SimpleGP(GeneticProgramming):
     """A simpler API to create GP instances.
 
     Defaults as given in A Field Guide to GP, p.17, by Poli and Mcphee.
@@ -95,8 +79,6 @@ class SimpleGP(GP):
         hill_climbing (bool): Allows the user to change the standard mutation operations to the hill-climbing mutation
             operation, in which an individual is mutated to 5 different new individuals, after which the best is chosen
             to survive (default = False).
-        specific_type_mutation (type): Specify a type that is given preference when mutation occurs (default = None),
-        specific_type_crossover (type): Specify a type that is given preference when crossover occurs (default = None),
         depth_aware_mut (bool): If chosen, mutations are depth-aware, giving preference to operate on nodes closer to
             the root. (default = True).
         depth_aware_co (bool): If chosen, crossovers are depth-aware, giving preference to operate on nodes closer to
@@ -112,8 +94,6 @@ class SimpleGP(GP):
         test_data (Callable[[Any], Any]): Give test data (format: (X_test, y_test)) to test the individuals on test data
             during training and save that to the csv (default = None).
         only_record_best_inds (bool): Specify whether one or all individuals are saved to the csv files (default = True)
-        callbacks (List[Callback]): The callbacks to define what is done with the returned prints from the algorithm
-            (default = []).
         parallel_evaluation (bool): Performs evaluation of fitness in multiprocessing (default = False).
     """
 
@@ -150,8 +130,6 @@ class SimpleGP(GP):
         probability_crossover: float = 0.9,
         either_mut_or_cro: float | None = None,
         hill_climbing: bool = False,  # TODO
-        specific_type_mutation: type | None = None,
-        specific_type_crossover: type | None = None,
         depth_aware_mut: bool = False,
         depth_aware_co: bool = False,
         # -----
@@ -165,8 +143,7 @@ class SimpleGP(GP):
         # -----
         save_to_csv: str | None = None,
         save_genotype_as_string: bool = True,
-        test_data: None
-        | (
+        test_data: None | (
             Callable[
                 [Any],
                 float,
@@ -176,11 +153,10 @@ class SimpleGP(GP):
         # -----
         verbose=1,
         parallel_evaluation=False,
-        callbacks: list[Callback] | None = None,
         **kwargs,
     ):
         representation_class = representation or TreeBasedRepresentation
-        representation_instance: Representation = representation_class(
+        representation_instance: SolutionRepresentation = representation_class(
             grammar,
             max_depth,
         )
@@ -217,16 +193,6 @@ class SimpleGP(GP):
 
         mutation_operator = representation_instance.get_mutation()
         crossover_operator = representation_instance.get_crossover()
-        if isinstance(representation_instance, TreeBasedRepresentation):
-            if specific_type_mutation:
-                mutation_operator = TypeSpecificTBMutation(specific_type_mutation, depth_aware=depth_aware_mut)
-            else:
-                mutation_operator = DefaultTBMutation(depth_aware=depth_aware_mut)
-
-            if specific_type_crossover:
-                crossover_operator = TypeSpecificTBCrossover(specific_type_crossover, depth_aware=depth_aware_co)
-            else:
-                crossover_operator = DefaultTBCrossover(depth_aware=depth_aware_co)
         if either_mut_or_cro is not None:
             mutation_step = GenericMutationStep(
                 1,
@@ -262,37 +228,31 @@ class SimpleGP(GP):
             [n_elites, n_novelties, population_size - n_novelties - n_elites],
         )
 
-        stopping_criterium: StoppingCriterium
+        budget: SearchBudget
         if timer_stop_criteria:
-            stopping_criterium = TimeStoppingCriterium(timer_limit)
+            budget = TimeBudget(timer_limit)
         else:
-            stopping_criterium = GenerationStoppingCriterium(number_of_generations)
+            budget = EvaluationBudget(number_of_generations * population_size)
         if target_fitness is not None:
-            tg: StoppingCriterium
-            if isinstance(processed_problem, SingleObjectiveProblem):
-                tg = SingleFitnessTargetStoppingCriterium(target_fitness)
-            else:
-                tg = AllFitnessTargetStoppingCriterium([target_fitness])
-            stopping_criterium = AnyOfStoppingCriterium(stopping_criterium, tg)
-
-        self.callbacks: list[Callback] = []
-        self.callbacks.extend(callbacks or [])
+            tg = TargetFitness(target_fitness)
+            budget = AnyOf(budget, tg)
 
         evaluator: Evaluator = SequentialEvaluator()
         if parallel_evaluation:
             from geneticengine.evaluation.parallel import ParallelEvaluator
 
             evaluator = ParallelEvaluator()
+        tracker = SingleObjectiveProgressTracker(processed_problem, evaluator)
 
-        if evolve_grammar:
-            self.callbacks.append(PGECallback(evolve_learning_rate))
+        # if evolve_grammar:
+        #     self.callbacks.append(PGECallback(evolve_learning_rate))
 
-        if verbose > 2:
-            self.callbacks.append(DebugCallback())
-        if verbose > 1:
-            self.callbacks.append(PrintBestCallback())
-        if verbose == 1:
-            self.callbacks.append(ProgressCallback())
+        # if verbose > 2:
+        #     self.callbacks.append(DebugCallback())
+        # if verbose > 1:
+        #     self.callbacks.append(PrintBestCallback())
+        # if verbose == 1:
+        #     self.callbacks.append(ProgressCallback())
 
         if save_to_csv:
             extra_columns = {}
@@ -306,22 +266,22 @@ class SimpleGP(GP):
                     ind.genotype,
                 )
 
-            c = CSVCallback(
-                save_to_csv,
-                only_record_best_ind=only_record_best_inds,
-                extra_columns=extra_columns,
-            )
-            self.callbacks.append(c)
+            # c = CSVCallback(
+            #     save_to_csv,
+            #     only_record_best_ind=only_record_best_inds,
+            #     extra_columns=extra_columns,
+            # )
+            # self.callbacks.append(c)
         super().__init__(
-            representation_instance,
             processed_problem,
-            random_source,
-            population_size,
-            population_initializer,
-            step,
-            stopping_criterium,
-            self.callbacks,
-            evaluator=lambda: evaluator,
+            budget=budget,
+            representation=representation_instance,
+            random=random_source,
+            recorder=tracker,
+            population_size=population_size,
+            population_initializer=population_initializer,
+            step=step,
+            # TODO: evaluator=lambda: evaluator,
         )
 
     def process_problem(

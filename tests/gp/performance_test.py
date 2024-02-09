@@ -7,19 +7,13 @@ from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.common import GenericPopulationInitializer
 from geneticengine.representations.grammatical_evolution.dynamic_structured_ge import (
-    DefaultDSGECrossover,
     DynamicStructuredGrammaticalEvolutionRepresentation,
-    DefaultDSGEMutation,
 )
 from geneticengine.representations.grammatical_evolution.ge import (
-    DefaultGECrossover,
     GrammaticalEvolutionRepresentation,
-    DefaultGEMutation,
 )
 from geneticengine.representations.grammatical_evolution.structured_ge import (
-    DefaultSGECrossover,
     StructuredGrammaticalEvolutionRepresentation,
-    DefaultSGEMutation,
 )
 from geneticengine.representations.stackgggp import StackBasedGGGPRepresentation
 from geneticengine.representations.tree.initializations import full_method, grow_method, pi_grow_method
@@ -31,16 +25,8 @@ from geneticengine.representations.tree.operators import (
     RampedInitializer,
 )
 from geneticengine.representations.tree.treebased import (
-    DefaultTBCrossover,
-    DefaultTBMutation,
     TreeBasedRepresentation,
     random_node,
-)
-from geneticengine.representations.tree_smt.operators import SMTGrowInitializer
-from geneticengine.representations.tree_smt.treebased import (
-    DefaultSMTTBCrossover,
-    DefaultSMTTBMutation,
-    SMTTreeBasedRepresentation,
 )
 
 from utils.benchmark_grammars_test import Root, grammar
@@ -74,7 +60,6 @@ def test_bench_initialization(benchmark, fun):
         (TreeBasedRepresentation, PositionIndependentGrowInitializer),
         (TreeBasedRepresentation, RampedInitializer),
         (TreeBasedRepresentation, RampedHalfAndHalfInitializer),
-        (SMTTreeBasedRepresentation, SMTGrowInitializer),
         (GrammaticalEvolutionRepresentation, GenericPopulationInitializer),
         (StructuredGrammaticalEvolutionRepresentation, GenericPopulationInitializer),
         (DynamicStructuredGrammaticalEvolutionRepresentation, GenericPopulationInitializer),
@@ -100,25 +85,24 @@ def test_bench_initialization_class(benchmark, representation, initializer):
 
 
 @pytest.mark.parametrize(
-    "representation,mut",
+    "representation",
     [
-        (TreeBasedRepresentation, DefaultTBMutation),
-        (SMTTreeBasedRepresentation, DefaultSMTTBMutation),
-        (GrammaticalEvolutionRepresentation, DefaultGEMutation),
-        (StructuredGrammaticalEvolutionRepresentation, DefaultSGEMutation),
-        (DynamicStructuredGrammaticalEvolutionRepresentation, DefaultDSGEMutation),
-        (StackBasedGGGPRepresentation, DefaultGEMutation),
+        TreeBasedRepresentation,
+        GrammaticalEvolutionRepresentation,
+        StructuredGrammaticalEvolutionRepresentation,
+        DynamicStructuredGrammaticalEvolutionRepresentation,
+        StackBasedGGGPRepresentation,
     ],
 )
 @pytest.mark.benchmark(group="mutation", disable_gc=True, warmup=True, warmup_iterations=1, min_rounds=5)
-def test_bench_mutation(benchmark, representation, mut):
+def test_bench_mutation(benchmark, representation):
     r = NativeRandomSource(seed=1)
     target_depth = 20
     target_size = 100
 
     repr = representation(grammar=grammar, max_depth=target_depth)
 
-    gs = GenericMutationStep(operator=mut())
+    gs = GenericMutationStep()
 
     def mutation():
         p = SingleObjectiveProblem(lambda x: 3)
@@ -135,25 +119,24 @@ def test_bench_mutation(benchmark, representation, mut):
 
 
 @pytest.mark.parametrize(
-    "representation,xo",
+    "representation",
     [
-        (TreeBasedRepresentation, DefaultTBCrossover),
-        (SMTTreeBasedRepresentation, DefaultSMTTBCrossover),
-        (GrammaticalEvolutionRepresentation, DefaultGECrossover),
-        (StructuredGrammaticalEvolutionRepresentation, DefaultSGECrossover),
-        (DynamicStructuredGrammaticalEvolutionRepresentation, DefaultDSGECrossover),
-        (StackBasedGGGPRepresentation, DefaultGECrossover),
+        TreeBasedRepresentation,
+        GrammaticalEvolutionRepresentation,
+        StructuredGrammaticalEvolutionRepresentation,
+        DynamicStructuredGrammaticalEvolutionRepresentation,
+        StackBasedGGGPRepresentation,
     ],
 )
 @pytest.mark.benchmark(group="crossover", disable_gc=True, warmup=True, warmup_iterations=1, min_rounds=5)
-def test_bench_crossover(benchmark, representation, xo):
+def test_bench_crossover(benchmark, representation):
     r = NativeRandomSource(seed=1)
     target_depth = 20
     target_size = 100
 
     repr = representation(grammar=grammar, max_depth=target_depth)
 
-    gs = GenericCrossoverStep(operator=xo())
+    gs = GenericCrossoverStep()
 
     def mutation():
         p = SingleObjectiveProblem(lambda x: 3)

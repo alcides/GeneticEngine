@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import Annotated
 
 import pytest
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp import GeneticProgramming
 
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
@@ -17,7 +17,6 @@ from geneticengine.representations.grammatical_evolution.dynamic_structured_ge i
 from geneticengine.representations.grammatical_evolution.ge import GrammaticalEvolutionRepresentation
 from geneticengine.representations.stackgggp import StackBasedGGGPRepresentation
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.representations.tree_smt.treebased import SMTTreeBasedRepresentation
 from geneticengine.grammar.metahandlers.floats import FloatRange
 from geneticengine.grammar.metahandlers.ints import IntRange
 from geneticengine.grammar.metahandlers.lists import ListSizeBetween
@@ -67,7 +66,6 @@ class TestRepresentation:
             GrammaticalEvolutionRepresentation,
             DynamicStructuredGrammaticalEvolutionRepresentation,
             StackBasedGGGPRepresentation,
-            SMTTreeBasedRepresentation,
         ],
     )
     def test_rep(self, representation_class) -> None:
@@ -80,5 +78,7 @@ class TestRepresentation:
         def fitness_function(x: Root) -> float:
             return 0.5
 
-        gp = GP(representation=repr, problem=SingleObjectiveProblem(fitness_function=fitness_function), random_source=r)
-        gp.evolve()
+        gp = GeneticProgramming(
+            representation=repr, problem=SingleObjectiveProblem(fitness_function=fitness_function), random=r
+        )
+        gp.search()

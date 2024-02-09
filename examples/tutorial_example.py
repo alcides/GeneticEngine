@@ -4,16 +4,12 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
 
-from geneticengine.algorithms.gp.gp import GP
-from geneticengine.algorithms.gp.operators.stop import (
-    AnyOfStoppingCriterium,
-    SingleFitnessTargetStoppingCriterium,
-    GenerationStoppingCriterium,
-)
+from geneticengine.algorithms.gp.gp import GeneticProgramming
+from geneticengine.evaluation.budget import AnyOf, TargetFitness, TimeBudget
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
-from geneticengine.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.representations.grammatical_evolution.ge import GrammaticalEvolutionRepresentation
 from geneticengine.grammar.metahandlers.ints import IntRange
 
 
@@ -67,19 +63,14 @@ def main(seed=123):
         minimize=True,
     )
 
-    stopping_criterium = AnyOfStoppingCriterium(
-        GenerationStoppingCriterium(100),
-        SingleFitnessTargetStoppingCriterium(0),
-    )
-
-    alg = GP(
-        representation=TreeBasedRepresentation(grammar, 10),
+    alg = GeneticProgramming(
         problem=prob,
+        budget=AnyOf(TargetFitness(0), TimeBudget(3)),
         population_size=20,
-        random_source=NativeRandomSource(seed),
-        stopping_criterium=stopping_criterium,
+        representation=GrammaticalEvolutionRepresentation(grammar, 10),
+        random=NativeRandomSource(seed),
     )
-    best = alg.evolve()
+    best = alg.search()
     print(
         f"Fitness of {best.get_fitness(prob)} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
     )

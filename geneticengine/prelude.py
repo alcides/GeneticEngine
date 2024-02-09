@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from geneticengine.algorithms.gp.gp import GP  # noqa
+from geneticengine.algorithms.gp.gp import GeneticProgramming  # noqa
 from geneticengine.grammar.decorators import abstract  # noqa
 from geneticengine.grammar.grammar import extract_grammar  # noqa
 from geneticengine.random.sources import NativeRandomSource  # noqa

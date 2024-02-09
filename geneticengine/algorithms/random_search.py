@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from geneticengine.algorithms.heuristics import HeuristicSearch
-
 from geneticengine.solutions.individual import Individual
 
 

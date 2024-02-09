@@ -2,16 +2,10 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 
-from geneticengine.algorithms.callbacks.callback import ProgressCallback
-from geneticengine.algorithms.gp.operators.stop import (
-    AnyOfStoppingCriterium,
-    SingleFitnessTargetStoppingCriterium,
-    GenerationStoppingCriterium,
-)
 from polyleven import levenshtein
 
-from geneticengine.algorithms.callbacks.csv_callback import CSVCallback
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp import GeneticProgramming
+from geneticengine.evaluation.budget import AnyOf, EvaluationBudget, TargetFitness
 from geneticengine.grammar.grammar import Grammar, extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
@@ -22,8 +16,8 @@ from geneticengine.grammar.synthetic_grammar import create_arbitrary_grammar
 def create_target_individual(grammar_seed: int, g: Grammar):
     r = NativeRandomSource(grammar_seed)
     representation = TreeBasedRepresentation(g, max_depth=g.get_min_tree_depth())
-    target_individual = representation.create_individual(r, depth=10)
-    individual_phenotype = representation.genotype_to_phenotype(target_individual)
+    target_individual = representation.instantiate(r, depth=10)
+    individual_phenotype = representation.map(target_individual)
     return individual_phenotype
 
 
@@ -54,32 +48,27 @@ def single_run(
         minimize=True,
     )
 
-    stopping_criterium = AnyOfStoppingCriterium(
-        GenerationStoppingCriterium(10),
-        SingleFitnessTargetStoppingCriterium(0),
-    )
-
     filename = f"synthetic_grammar_{seed}.csv"
-    alg = GP(
-        representation=TreeBasedRepresentation(g, max_depth=g.get_min_tree_depth() + 10),
+    alg = GeneticProgramming(
         problem=problem,
+        budget=AnyOf(TargetFitness(0), EvaluationBudget(100)),
+        representation=TreeBasedRepresentation(g, max_depth=g.get_min_tree_depth() + 10),
         population_size=10,
-        stopping_criterium=stopping_criterium,
-        random_source=NativeRandomSource(seed),
-        callbacks=[
-            ProgressCallback(),
-            CSVCallback(
-                filename=filename,
-                extra_columns={
-                    "non_terminals_count": lambda generation, population, time, gp, ind: non_terminals_count,
-                    "recursive_non_terminals_count": lambda generation, population, time, gp, ind: recursive_non_terminals_count,
-                    "fixed_productions_per_non_terminal": lambda generation, population, time, gp, ind: fixed_productions_per_non_terminal,
-                    "fixed_non_terminals_per_production": lambda generation, population, time, gp, ind: fixed_non_terminals_per_production,
-                },
-            ),
-        ],
+        random=NativeRandomSource(seed),
+        # callbacks=[
+        #     ProgressCallback(),
+        #     CSVCallback(
+        #         filename=filename,
+        #         extra_columns={
+        #             "non_terminals_count": lambda generation, population, time, gp, ind: non_terminals_count,
+        #             "recursive_non_terminals_count": lambda generation, population, time, gp, ind: recursive_non_terminals_count,
+        #             "fixed_productions_per_non_terminal": lambda generation, population, time, gp, ind: fixed_productions_per_non_terminal,
+        #             "fixed_non_terminals_per_production": lambda generation, population, time, gp, ind: fixed_non_terminals_per_production,
+        #         },
+        #     ),
+        # ],
     )
-    ind = alg.evolve()
+    ind = alg.search()
     print(ind)
     print(f"With fitness: {ind.get_fitness(problem)}")
 

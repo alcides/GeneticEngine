@@ -2,18 +2,18 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Annotated
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp import GeneticProgramming
 from geneticengine.algorithms.gp.operators.combinators import ParallelStep, SequenceStep
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
 from geneticengine.algorithms.gp.operators.elitism import ElitismStep
 from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
 from geneticengine.algorithms.gp.operators.selection import TournamentSelection
-from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
+from geneticengine.evaluation.budget import EvaluationBudget
 
 from geneticengine.grammar.decorators import abstract
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
-from geneticengine.representations.tree.treebased import TreeBasedRepresentation, TypeSpecificTBMutation
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammar.metahandlers.lists import ListSizeBetween
 
 
@@ -66,7 +66,7 @@ def algorithm_steps():
             SequenceStep(
                 TournamentSelection(gp_parameters["tournament_size"]),
                 GenericCrossoverStep(gp_parameters["probability_crossover"]),
-                GenericMutationStep(gp_parameters["probability_mutation"], operator=TypeSpecificTBMutation(Concrete)),
+                GenericMutationStep(gp_parameters["probability_mutation"]),
             ),
         ],
         weights=[gp_parameters["n_elites"], 100 - gp_parameters["n_elites"]],
@@ -83,12 +83,12 @@ problem = SingleObjectiveProblem(minimize=False, fitness_function=fitness_functi
 class TestNodesDepthSpecific:
     def test_nodes_depth_specific_simple(self):
         g = extract_grammar([Concrete, Middle, MiddleList, ConcreteTerm, RootToConcrete], Root)
-        alg = GP(
+        alg = GeneticProgramming(
             representation=TreeBasedRepresentation(g, gp_parameters["max_depth"]),
+            budget=EvaluationBudget(100),
             problem=problem,
             step=algorithm_steps(),
-            stopping_criterium=GenerationStoppingCriterium(gp_parameters["number_of_generations"]),
             population_size=gp_parameters["population_size"],
         )
-        ind = alg.evolve()
+        ind = alg.search()
         assert ind

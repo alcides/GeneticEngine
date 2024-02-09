@@ -3,14 +3,12 @@ from __future__ import annotations
 from abc import ABC
 from dataclasses import dataclass
 
-from geneticengine.algorithms.callbacks.callback import Callback
-from geneticengine.algorithms.callbacks.callback import DebugCallback
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp import GeneticProgramming
 from geneticengine.algorithms.gp.operators.combinators import SequenceStep
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
 from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
 from geneticengine.algorithms.gp.operators.selection import TournamentSelection
-from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
+from geneticengine.evaluation.budget import EvaluationBudget
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
@@ -38,13 +36,14 @@ class UnderTest(Root):
     b: Root
 
 
-class TestCallback(Callback):
+# TODO: Callback
+class TestCallback:
     def process_iteration(
         self,
         generation: int,
         population,
         time: float,
-        gp: GP,
+        gp: GeneticProgramming,
     ) -> None:
         for ind in population:
             x = ind.genotype
@@ -55,24 +54,23 @@ class TestCallback(Callback):
 class TestGrammar:
     def test_safety(self):
         g = extract_grammar([Leaf, OtherLeaf], UnderTest)
-        gp = GP(
-            representation=TreeBasedRepresentation(g, 10),
-            random_source=NativeRandomSource(seed=123),
+        gp = GeneticProgramming(
             problem=SingleObjectiveProblem(
                 fitness_function=lambda x: x.gengy_nodes,
                 minimize=True,
             ),
+            budget=EvaluationBudget(100),
+            representation=TreeBasedRepresentation(g, 10),
+            random=NativeRandomSource(seed=123),
             population_size=20,
-            stopping_criterium=GenerationStoppingCriterium(10),
-            initializer=FullInitializer(),
+            population_initializer=FullInitializer(),
             step=SequenceStep(
                 TournamentSelection(10),
                 GenericCrossoverStep(1),
                 GenericMutationStep(1),
             ),
-            callbacks=[DebugCallback(), TestCallback()],
         )
-        ind = gp.evolve()
+        ind = gp.search()
         tree = ind.get_phenotype()
         assert isinstance(tree, UnderTest)
         assert isinstance(tree.a, Leaf)

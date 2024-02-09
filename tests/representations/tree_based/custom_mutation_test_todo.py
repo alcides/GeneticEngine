@@ -2,12 +2,11 @@ from abc import ABC
 from copy import deepcopy
 from dataclasses import dataclass
 from typing import Annotated
+from geneticengine.evaluation.budget import EvaluationBudget
 from geneticengine.solutions.individual import Individual
-from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.evaluation import Evaluator
 from geneticengine.evaluation.sequential import SequentialEvaluator
 from geneticengine.random.sources import NativeRandomSource, RandomSource
-from geneticengine.representations.api import MutationOperator, Representation
 
 from geneticengine.algorithms.gp.operators.combinators import ParallelStep, SequenceStep
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
@@ -17,7 +16,7 @@ from geneticengine.algorithms.gp.operators.selection import TournamentSelection
 from geneticengine.problems import Problem, SingleObjectiveProblem
 
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp import GeneticProgramming
 
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.metahandlers.lists import ListSizeBetween
@@ -83,14 +82,14 @@ def algorithm_steps():
 def test_custom_mutation_baseline():
     g = extract_grammar([OptionA, OptionB], Root)
     p = SingleObjectiveProblem(lambda x: 1)
-    alg = GP(
+    alg = GeneticProgramming(
         representation=TreeBasedRepresentation(g, 2),
         problem=p,
+        budget=EvaluationBudget(2000),
         step=algorithm_steps(),
-        stopping_criterium=GenerationStoppingCriterium(10),
         population_size=200,
     )
-    ind = alg.evolve()
+    ind = alg.search()
     assert ind
 
 

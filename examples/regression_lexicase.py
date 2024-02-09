@@ -151,7 +151,7 @@ class LexicaseRegressionBenchmark:
             selection_method=("lexicase", 0.01),
             **args,
         )
-        best = alg.evolve()
+        best = alg.search()
         print(
             f"Fitness of {best.get_fitness(prob)} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
         )

@@ -8,9 +8,9 @@ import pandas as pd
 from sklearn.base import BaseEstimator
 from sklearn.base import TransformerMixin
 
-from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
 from geneticengine.algorithms.gp.simplegp import SimpleGP
 from geneticengine.algorithms.hill_climbing import HC
+from geneticengine.evaluation.budget import TimeBudget
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
@@ -174,7 +174,7 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
             verbose=0,
         )
 
-        ind = model.evolve()
+        ind = model.search()
         self.evolved_phenotype = ind.get_phenotype()
         self.sympy_compatible_phenotype = fix_all(str(self.evolved_phenotype))
 
@@ -295,16 +295,16 @@ class HillClimbingRegressor(BaseEstimator, TransformerMixin):
             return fitness
 
         model = HC(
-            representation=self.representation_class(self.grammar, self.max_depth),
             problem=SingleObjectiveProblem(
                 minimize=False,
                 fitness_function=fitness_function,
             ),
-            stopping_criterium=GenerationStoppingCriterium(self.number_of_generations),
-            random_source=NativeRandomSource(self.seed),
+            budget=TimeBudget(3),
+            representation=self.representation_class(self.grammar, self.max_depth),
+            random=NativeRandomSource(self.seed),
         )
 
-        ind = model.evolve()
+        ind = model.search()
         self.evolved_phenotype = ind.get_phenotype()
         self.sympy_compatible_phenotype = fix_all(str(self.evolved_phenotype))
 

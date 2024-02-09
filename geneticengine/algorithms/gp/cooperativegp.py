@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Callable, Optional, TypeVar
 
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp import GeneticProgramming
 from geneticengine.algorithms.gp.operators.initializers import StandardInitializer
 
 from geneticengine.grammar.grammar import Grammar
@@ -75,8 +75,8 @@ class CooperativeGP:
             b1: a
             b2: b
 
-        b1: a = self.representation1.create_individual(self.random_source)  # type: ignore
-        b2: b = self.representation2.create_individual(self.random_source)  # type: ignore
+        b1: a = self.representation1.instantiate(self.random_source)  # type: ignore
+        b2: b = self.representation2.instantiate(self.random_source)  # type: ignore
         self.bests = Bests(b1, b2)
 
         f = self.ff["ff"]
@@ -99,7 +99,7 @@ class CooperativeGP:
             p1 = SingleObjectiveProblem(fitness_function=f1, minimize=True)
             p2 = SingleObjectiveProblem(fitness_function=f2, minimize=False)
 
-            gp1 = GP(
+            gp1 = GeneticProgramming(
                 problem=p1,
                 representation=self.representation1,
                 random_source=self.random_source,
@@ -110,12 +110,12 @@ class CooperativeGP:
                 ),  # TODO: we might want to keep individuals, and not only the phenotypes.
                 **self.kwargs1,
             )
-            ind = gp1.evolve()
+            ind = gp1.search()
             self.bests.b1 = ind.get_phenotype()
             pop1 = gp1.final_population
             print("DATASET:", ind.get_fitness(p1))
 
-            gp2 = GP(
+            gp2 = GeneticProgramming(
                 problem=p2,
                 representation=self.representation2,
                 random_source=self.random_source,
@@ -123,7 +123,7 @@ class CooperativeGP:
                 initializer=InjectInitialPopulationWrapper([e.get_phenotype() for e in pop2], init),
                 **self.kwargs2,
             )
-            ind = gp2.evolve()
+            ind = gp2.search()
             self.bests.b2 = ind.get_phenotype()
             pop2 = gp2.final_population
             print("____________ Explanation:", ind.get_fitness(p2), ind.get_phenotype())

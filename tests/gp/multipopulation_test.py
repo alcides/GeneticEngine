@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from geneticengine.algorithms.gp.multipopulationgp import MultiPopulationGP
-from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
+from geneticengine.evaluation.budget import EvaluationBudget
 
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
@@ -31,9 +31,9 @@ def test_multipopulation_basic():
         random_source=r,
         problems=problems,
         population_sizes=[10, 10],
-        stopping_criterium=GenerationStoppingCriterium(100),
+        budget=EvaluationBudget(20 * 100),
         migration_size=2,
     )
 
-    fs = gp.evolve()
+    fs = gp.search()
     assert fs[0].get_phenotype().a > fs[1].get_phenotype().a
