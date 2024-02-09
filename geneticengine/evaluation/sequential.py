@@ -10,4 +10,6 @@ class SequentialEvaluator(Evaluator):
 
     def evaluate(self, problem: Problem, indivs: list[Individual[Any, Any]]):
         for individual in indivs:
-            self.eval_single(problem, individual)
+            if not individual.has_fitness(problem):
+                f = self.eval_single(problem, individual)
+                individual.set_fitness(problem, f)

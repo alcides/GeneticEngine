@@ -18,10 +18,10 @@ class ParallelEvaluator(Evaluator):
 
     def evaluate(self, problem: Problem, indivs: list[Individual[Any, Any]]):
         def mapper(ind: Individual) -> Fitness:
-            self.eval_single(problem, ind)
-            return ind.get_fitness(problem)
+            return self.eval_single(problem, ind)
 
         with Pool(len(indivs)) as pool:
             fitnesses = pool.map(mapper, indivs)
             for i, f in zip(indivs, fitnesses):
                 i.set_fitness(problem, f)
+                self.register_evaluation()

@@ -3,7 +3,7 @@ from typing import Any
 
 
 from geneticengine.solutions.individual import Individual
-from geneticengine.problems import Problem
+from geneticengine.problems import Fitness, Problem
 
 
 class Evaluator(ABC):
@@ -20,8 +20,7 @@ class Evaluator(ABC):
     def number_of_evaluations(self):
         return self.count
 
-    def eval_single(self, problem: Problem, individual: Individual):
-        if not individual.has_fitness(problem):
-            phenotype = individual.get_phenotype()
-            individual.set_fitness(problem, problem.evaluate(phenotype=phenotype))
-            self.register_evaluation()
+    def eval_single(self, problem: Problem, individual: Individual) -> Fitness:
+        phenotype = individual.get_phenotype()
+        r = problem.evaluate(phenotype=phenotype)
+        return r

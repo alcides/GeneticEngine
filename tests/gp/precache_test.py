@@ -76,7 +76,7 @@ class TestPreCache:
         population_size = 1000
 
         initial_population = [
-            Individual(genotype=rep.instantiate(r, 10), genotype_to_phenotype=rep.map) for _ in range(population_size)
+            Individual(genotype=rep.instantiate(r), genotype_to_phenotype=rep.map) for _ in range(population_size)
         ]
 
         def encode_population(pop: list[Individual]) -> list[str]:

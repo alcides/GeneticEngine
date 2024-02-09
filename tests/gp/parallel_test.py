@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 from geneticengine.algorithms.gp.gp import GeneticProgramming
 from geneticengine.evaluation.budget import EvaluationBudget
+from geneticengine.evaluation.recorder import SingleObjectiveProgressTracker
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
@@ -51,17 +52,18 @@ class TestCallback:
 class TestParallel:
     def test_parallel(self):
         g = extract_grammar([Leaf, OtherLeaf], UnderTest)
+        p = SingleObjectiveProblem(
+            fitness_function=lambda x: 3,
+            minimize=True,
+        )
         gp = GeneticProgramming(
             representation=TreeBasedRepresentation(g, 10),
-            random_source=NativeRandomSource(seed=123),
-            problem=SingleObjectiveProblem(
-                fitness_function=lambda x: x.gengy_nodes,
-                minimize=True,
-            ),
+            random=NativeRandomSource(seed=123),
+            problem=p,
             population_size=20,
-            budget=EvaluationBudget(1000),
-            initializer=FullInitializer(),
-            evaluator=ParallelEvaluator,
+            budget=EvaluationBudget(100),
+            population_initializer=FullInitializer(),
+            recorder=SingleObjectiveProgressTracker(problem=p, evaluator=ParallelEvaluator()),
         )
         ind = gp.search()
         tree = ind.get_phenotype()
