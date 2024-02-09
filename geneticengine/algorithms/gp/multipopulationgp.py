@@ -2,7 +2,6 @@ from __future__ import annotations
 from functools import reduce
 
 
-from more_itertools import flatten
 from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.operators.combinators import ParallelStep, SequenceStep
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
@@ -22,6 +21,13 @@ from geneticengine.random.sources import RandomSource
 from geneticengine.evaluation.budget import SearchBudget
 from geneticengine.evaluation.recorder import SingleObjectiveProgressTracker
 from geneticengine.representations.api import SolutionRepresentation
+
+
+def flatten(matrix):
+    flat_list = []
+    for row in matrix:
+        flat_list += row
+    return flat_list
 
 
 def default_multipopulation_step():
