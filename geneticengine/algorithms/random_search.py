@@ -9,7 +9,7 @@ class RandomSearch(HeuristicSearch):
 
     def search(self) -> Individual:
         while not self.is_done():
-            n = self.representation.instantiate(self.random)
-            ind = Individual(genotype=n, genotype_to_phenotype=lambda x: self.representation.map(x))
+            n = self.representation.create_genotype(self.random)
+            ind = Individual(genotype=n, representation=self.representation)
             self.tracker.evaluate([ind])
         return self.tracker.get_best_individual()

@@ -529,11 +529,11 @@ class TreeBasedRepresentation(
         self.max_depth = max_depth
         self.initialization_method = initialization_method
 
-    def instantiate(self, random: RandomSource, **kwargs) -> TreeNode:
+    def create_genotype(self, random: RandomSource, **kwargs) -> TreeNode:
         actual_depth = kwargs.get("depth", self.max_depth)
         return random_individual(random, self.grammar, max_depth=actual_depth, method=self.initialization_method)
 
-    def map(self, genotype: TreeNode) -> TreeNode:
+    def genotype_to_phenotype(self, genotype: TreeNode) -> TreeNode:
         return genotype
 
     def mutate(self, random: RandomSource, internal: TreeNode, **kwargs) -> TreeNode:

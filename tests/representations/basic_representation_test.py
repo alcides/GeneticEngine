@@ -12,10 +12,10 @@ MAX_ELEMENTS = 10
 
 
 class LinearRepresentation(Representation[list[int], int], RepresentationWithMutation[list[int]]):
-    def instantiate(self, random: RandomSource, **kwargs) -> list[int]:
+    def create_genotype(self, random: RandomSource, **kwargs) -> list[int]:
         return [random.randint(0, MAX_NUMBER) for _ in range(MAX_ELEMENTS)]
 
-    def map(self, internal: list[int]) -> int:
+    def genotype_to_phenotype(self, internal: list[int]) -> int:
         return sum(internal)
 
     def mutate(self, random: RandomSource, internal: list[int]) -> list[int]:

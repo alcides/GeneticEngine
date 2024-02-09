@@ -75,8 +75,8 @@ class CooperativeGP:
             b1: a
             b2: b
 
-        b1: a = self.representation1.instantiate(self.random)  # type: ignore
-        b2: b = self.representation2.instantiate(self.random)  # type: ignore
+        b1: a = self.representation1.create_genotype(self.random)  # type: ignore
+        b2: b = self.representation2.create_genotype(self.random)  # type: ignore
         self.bests = Bests(b1, b2)
 
         f = self.ff["ff"]

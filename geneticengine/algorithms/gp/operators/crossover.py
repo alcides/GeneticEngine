@@ -62,6 +62,6 @@ class GenericCrossoverStep(GeneticStep):
             individual2.genotype,
         )
         return (
-            Individual(g1, representation.map),
-            Individual(g2, representation.map),
+            Individual(g1, representation=representation),
+            Individual(g2, representation=representation),
         )

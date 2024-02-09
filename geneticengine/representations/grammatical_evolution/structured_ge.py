@@ -82,7 +82,7 @@ class StructuredGrammaticalEvolutionRepresentation(
         self.gene_length = gene_length
         self.initialization_mode = initialization_mode
 
-    def instantiate(self, random: RandomSource, **kwargs) -> Genotype:
+    def create_genotype(self, random: RandomSource, **kwargs) -> Genotype:
         nodes = [str(node) for node in self.grammar.all_nodes]
         for node in self.grammar.all_nodes:
             arguments = get_arguments(node)
@@ -102,7 +102,7 @@ class StructuredGrammaticalEvolutionRepresentation(
 
         return Genotype(dna)
 
-    def map(self, genotype: Genotype) -> TreeNode:
+    def genotype_to_phenotype(self, genotype: Genotype) -> TreeNode:
         rand: RandomSource = StructuredListWrapper(genotype.dna)
         return random_node(rand, self.grammar, self.max_depth, self.grammar.starting_symbol, self.initialization_mode)
 

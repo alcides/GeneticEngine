@@ -45,11 +45,11 @@ class StandardInitializer(PopulationInitializer):
     ) -> list[Individual]:
         return [
             Individual(
-                representation.instantiate(
+                representation.create_genotype(
                     random,
                     **kwargs,
                 ),
-                genotype_to_phenotype=representation.map,
+                representation=representation,
             )
             for _ in range(target_size)
         ]

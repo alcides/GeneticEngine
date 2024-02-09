@@ -17,10 +17,10 @@ class GenericPopulationInitializer(PopulationInitializer):
     ) -> list[Individual]:
         return [
             Individual(
-                representation.instantiate(
+                representation.create_genotype(
                     random=random,
                 ),
-                genotype_to_phenotype=representation.map,
+                representation=representation,
             )
             for i in range(target_size)
         ]

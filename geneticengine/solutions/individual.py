@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from typing import Any, Callable
+from typing import Any
 from typing import Generic
 from typing import TypeVar
 import weakref
-from geneticengine.generic_utils import GenericWrapper
 
 from geneticengine.problems import Fitness, Problem
+from geneticengine.representations.api import Representation
 
 G = TypeVar("G")
 P = TypeVar("P")
@@ -18,20 +18,20 @@ class IndividualNotEvaluatedException(Exception):
 
 class Individual(Generic[G, P]):
     genotype: G
-    genotype_to_phenotype: GenericWrapper[Callable[[G], P]]
+    representation: Representation[G, P]
     phenotype: P | None = None
     fitness_store: weakref.WeakKeyDictionary[Problem, Fitness]
     metadata: dict[str, Any]
 
-    def __init__(self, genotype: G, genotype_to_phenotype: Callable[[G], P], metadata: dict[str, Any] = None):
+    def __init__(self, genotype: G, representation: Representation[G, P], metadata: dict[str, Any] = None):
         self.genotype = genotype
-        self.genotype_to_phenotype = GenericWrapper(genotype_to_phenotype)
+        self.representation = representation
         self.fitness_store: weakref.WeakKeyDictionary[Problem, Fitness] = weakref.WeakKeyDictionary()
         self.metadata = {} if metadata is None else metadata
 
     def get_phenotype(self):
         if self.phenotype is None:
-            self.phenotype = self.genotype_to_phenotype.get()(self.genotype)
+            self.phenotype = self.representation.genotype_to_phenotype(self.genotype)
         return self.phenotype
 
     def has_fitness(self, problem: Problem) -> bool:

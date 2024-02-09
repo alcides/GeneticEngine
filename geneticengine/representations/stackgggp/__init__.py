@@ -150,10 +150,10 @@ class StackBasedGGGPRepresentation(
         self.max_depth = max_depth
         self.gene_length = gene_length
 
-    def instantiate(self, random: RandomSource, **kwargs) -> Genotype:
+    def create_genotype(self, random: RandomSource, **kwargs) -> Genotype:
         return Genotype(dna=[random.randint(0, sys.maxsize) for _ in range(self.gene_length)])
 
-    def map(self, genotype: Genotype) -> TreeNode:
+    def genotype_to_phenotype(self, genotype: Genotype) -> TreeNode:
         return create_tree_using_stacks(
             self.grammar,
             ListWrapper(genotype.dna),

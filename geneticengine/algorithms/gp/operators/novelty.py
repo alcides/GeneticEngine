@@ -23,8 +23,8 @@ class NoveltyStep(GeneticStep):
     ) -> list[Individual]:
         return [
             Individual(
-                representation.instantiate(random),
-                representation.map,
+                representation.create_genotype(random),
+                representation,
             )
             for _ in range(target_size)
         ]

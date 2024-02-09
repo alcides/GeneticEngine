@@ -1,5 +1,4 @@
 from __future__ import annotations
-from typing import Any
 
 from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.structure import PopulationInitializer
@@ -7,6 +6,7 @@ from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
 from geneticengine.representations.api import Representation
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.solutions.tree import TreeNode
 
 # TODO: Redo initialization to be parameterless
 
@@ -26,10 +26,10 @@ class FullInitializer(PopulationInitializer):
         assert isinstance(representation, TreeBasedRepresentation)
         return [
             Individual(
-                representation.instantiate(
+                representation.create_genotype(
                     random,
                 ),
-                genotype_to_phenotype=representation.map,
+                representation=representation,
             )
             for _ in range(target_size)
         ]
@@ -50,10 +50,10 @@ class GrowInitializer(PopulationInitializer):
         assert isinstance(representation, TreeBasedRepresentation)
         return [
             Individual(
-                representation.instantiate(
+                representation.create_genotype(
                     random,
                 ),
-                genotype_to_phenotype=representation.map,
+                representation=representation,
             )
             for _ in range(target_size)
         ]
@@ -74,10 +74,10 @@ class PositionIndependentGrowInitializer(PopulationInitializer):
         assert isinstance(representation, TreeBasedRepresentation)
         return [
             Individual(
-                representation.instantiate(
+                representation.create_genotype(
                     random,
                 ),
-                genotype_to_phenotype=representation.map,
+                representation=representation,
             )
             for _ in range(target_size)
         ]
@@ -97,10 +97,10 @@ class RampedInitializer(PopulationInitializer):
         assert isinstance(representation, TreeBasedRepresentation)
         return [
             Individual(
-                representation.instantiate(
+                representation.create_genotype(
                     random,
                 ),
-                genotype_to_phenotype=representation.map,
+                representation=representation,
             )
             for _ in range(target_size)
         ]
@@ -124,10 +124,10 @@ class RampedHalfAndHalfInitializer(PopulationInitializer):
         assert isinstance(representation, TreeBasedRepresentation)
         return [
             Individual(
-                representation.instantiate(
+                representation.create_genotype(
                     random,
                 ),
-                genotype_to_phenotype=representation.map,
+                representation=representation,
             )
             for _ in range(target_size)
         ]
@@ -137,7 +137,7 @@ class InjectInitialPopulationWrapper(PopulationInitializer):
     """Starts with an initial population, and relies on another initializer if
     it's necessary to fulfill the population size."""
 
-    def __init__(self, programs: list[Any], backup: PopulationInitializer):
+    def __init__(self, programs: list[TreeNode | Individual], backup: PopulationInitializer):
         self.programs = programs
         self.backup_initializer = backup
 
@@ -149,13 +149,21 @@ class InjectInitialPopulationWrapper(PopulationInitializer):
         target_size: int,
     ) -> list[Individual]:
         assert isinstance(representation, TreeBasedRepresentation)
-        self.programs = [Individual(p1, genotype_to_phenotype=representation.map) for p1 in self.programs]
-        if target_size > len(self.programs):
-            return self.programs[:target_size]
+
+        def ensure_ind(x):
+            if isinstance(x, Individual):
+                return x
+            else:
+                return Individual(x, representation=representation)
+
+        programs = [ensure_ind(p1) for p1 in self.programs]
+
+        if target_size > len(programs):
+            return programs[:target_size]
         else:
-            return self.programs + self.backup_initializer.initialize(
+            return programs + self.backup_initializer.initialize(
                 problem,
                 representation,
                 random,
-                target_size - len(self.programs),
+                target_size - len(programs),
             )

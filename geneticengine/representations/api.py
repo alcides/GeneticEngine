@@ -12,11 +12,11 @@ p = TypeVar("p")
 
 class Representation(Generic[g, p]):
     @abc.abstractmethod
-    def instantiate(self, random: RandomSource, **kwargs) -> g:
+    def create_genotype(self, random: RandomSource, **kwargs) -> g:
         ...
 
     @abc.abstractmethod
-    def map(self, internal: g) -> p:
+    def genotype_to_phenotype(self, internal: g) -> p:
         ...
 
 

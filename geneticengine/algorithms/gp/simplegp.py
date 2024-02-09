@@ -176,7 +176,7 @@ class SimpleGP(GeneticProgramming):
 
         if force_individual:
             population_initializer = InjectInitialPopulationWrapper(
-                [representation_instance.map(force_individual)],
+                [representation_instance.genotype_to_phenotype(force_individual)],
                 population_initializer,
             )
 

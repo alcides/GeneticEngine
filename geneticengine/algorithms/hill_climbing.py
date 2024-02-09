@@ -30,17 +30,14 @@ class HC(HeuristicSearch):
         current_ind = None
         while not self.is_done():
             if current_ind is None:
-                n = self.representation.instantiate(self.random)
-                ind = Individual(genotype=n, genotype_to_phenotype=lambda x: self.representation.map(x))
+                n = self.representation.create_genotype(self.random)
+                ind = Individual(genotype=n, representation=self.representation)
                 self.tracker.evaluate([ind])
             else:
                 genotypes = [
                     self.representation.mutate(self.random, ind.genotype) for _ in range(self.number_of_mutations)
                 ]
-                neighbourhood = [
-                    Individual(genotype=n2, genotype_to_phenotype=lambda x: self.representation.map(x))
-                    for n2 in genotypes
-                ]
+                neighbourhood = [Individual(genotype=n2, representation=self.representation) for n2 in genotypes]
                 self.tracker.evaluate(neighbourhood)
             current_ind = self.tracker.get_best_individual()
         return self.tracker.get_best_individual()

@@ -16,10 +16,10 @@ class OnePlusOne(HeuristicSearch):
         current_ind = None
         while not self.is_done():
             if current_ind is None:
-                n = self.representation.instantiate(self.random)
-                ind = Individual(genotype=n, genotype_to_phenotype=lambda x: self.representation.map(x))
+                n = self.representation.create_genotype(self.random)
+                ind = Individual(genotype=n, representation=self.representation)
             else:
                 n2 = self.representation.mutate(self.random, ind.genotype)
-                ind = Individual(genotype=n2, genotype_to_phenotype=lambda x: self.representation.map(x))
+                ind = Individual(genotype=n2, representation=self.representation)
             self.tracker.evaluate([ind])
         return self.tracker.get_best_individual()

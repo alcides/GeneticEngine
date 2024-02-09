@@ -16,8 +16,8 @@ from geneticengine.grammar.synthetic_grammar import create_arbitrary_grammar
 def create_target_individual(grammar_seed: int, g: Grammar):
     r = NativeRandomSource(grammar_seed)
     representation = TreeBasedRepresentation(g, max_depth=g.get_min_tree_depth())
-    target_individual = representation.instantiate(r, depth=10)
-    individual_phenotype = representation.map(target_individual)
+    target_individual = representation.create_genotype(r, depth=10)
+    individual_phenotype = representation.genotype_to_phenotype(target_individual)
     return individual_phenotype
 
 

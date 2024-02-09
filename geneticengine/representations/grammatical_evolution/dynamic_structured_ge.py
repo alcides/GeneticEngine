@@ -277,10 +277,10 @@ class DynamicStructuredGrammaticalEvolutionRepresentation(
         self.gene_length = gene_length
         self.initialization_mode = initialization_mode
 
-    def instantiate(self, random: RandomSource, **kwargs) -> Genotype:
+    def create_genotype(self, random: RandomSource, **kwargs) -> Genotype:
         return random_individual(random, self.grammar, self.grammar.starting_symbol, None, self.max_depth)
 
-    def map(self, genotype: Genotype) -> TreeNode:
+    def genotype_to_phenotype(self, genotype: Genotype) -> TreeNode:
         rand: RandomSource = DynamicStructuredListWrapper(genotype)
         return random_node(rand, self.grammar, self.max_depth, self.grammar.starting_symbol, self.initialization_mode)
 

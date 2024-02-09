@@ -46,5 +46,5 @@ class GenericMutationStep(GeneticStep):
     def wrap(self, representation: Representation, genotype: Any) -> Individual:
         return Individual(
             genotype=genotype,
-            genotype_to_phenotype=representation.map,
+            representation=representation,
         )

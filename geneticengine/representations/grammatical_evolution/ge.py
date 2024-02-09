@@ -62,10 +62,10 @@ class GrammaticalEvolutionRepresentation(
         self.gene_length = gene_length
         self.initialization_mode = initialization_mode
 
-    def instantiate(self, random: RandomSource, **kwargs) -> Genotype:
+    def create_genotype(self, random: RandomSource, **kwargs) -> Genotype:
         return Genotype([random.randint(0, sys.maxsize) for _ in range(self.gene_length)])
 
-    def map(self, genotype: Genotype) -> TreeNode:
+    def genotype_to_phenotype(self, genotype: Genotype) -> TreeNode:
         rand: RandomSource = ListWrapper(genotype.dna)
         return random_node(rand, self.grammar, self.max_depth, self.grammar.starting_symbol, self.initialization_mode)
 

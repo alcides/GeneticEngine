@@ -44,6 +44,6 @@ def test_metahandler_gen():
     r = NativeRandomSource(seed=1)
     g = extract_grammar([Leaf], Root)
     rep = GrammaticalEvolutionRepresentation(g, max_depth=2)
-    ind = Individual(genotype=rep.instantiate(random=r), genotype_to_phenotype=rep.map)
+    ind = Individual(genotype=rep.create_genotype(random=r), representation=rep)
 
     assert ind.get_phenotype()
