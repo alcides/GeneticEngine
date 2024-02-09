@@ -4,7 +4,7 @@ from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
-from geneticengine.representations.api import RepresentationWithCrossover, SolutionRepresentation
+from geneticengine.representations.api import RepresentationWithCrossover, Representation
 from geneticengine.evaluation import Evaluator
 
 
@@ -22,8 +22,8 @@ class GenericCrossoverStep(GeneticStep):
         self,
         problem: Problem,
         evaluator: Evaluator,
-        representation: SolutionRepresentation,
-        random_source: RandomSource,
+        representation: Representation,
+        random: RandomSource,
         population: list[Individual],
         target_size: int,
         generation: int,
@@ -35,9 +35,9 @@ class GenericCrossoverStep(GeneticStep):
             ind1, ind2 = population[j], population[j + 1]  # todo: select individuals using a selection method
             assert isinstance(ind1, Individual)
             assert isinstance(ind2, Individual)
-            v = random_source.random_float(0, 1)
+            v = random.random_float(0, 1)
             if v <= self.probability:
-                (n1, n2) = self.crossover(random_source, ind1, ind2, representation=representation)
+                (n1, n2) = self.crossover(random, ind1, ind2, representation=representation)
             else:
                 (n1, n2) = (ind1, ind2)
             retlist.append(n1)
@@ -53,7 +53,7 @@ class GenericCrossoverStep(GeneticStep):
         random: RandomSource,
         individual1: Individual,
         individual2: Individual,
-        representation: SolutionRepresentation,
+        representation: Representation,
     ):
         assert isinstance(representation, RepresentationWithCrossover)
         (g1, g2) = representation.crossover(

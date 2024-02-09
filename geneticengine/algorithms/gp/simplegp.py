@@ -26,7 +26,7 @@ from geneticengine.problems import Problem
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.problems import wrap_depth_minimization
 from geneticengine.random.sources import NativeRandomSource
-from geneticengine.representations.api import SolutionRepresentation
+from geneticengine.representations.api import Representation
 from geneticengine.representations.tree.operators import (
     FullInitializer,
     GrowInitializer,
@@ -157,7 +157,7 @@ class SimpleGP(GeneticProgramming):
         **kwargs,
     ):
         representation_class = representation or TreeBasedRepresentation
-        representation_instance: SolutionRepresentation = representation_class(
+        representation_instance: Representation = representation_class(
             grammar,
             max_depth,
         )
@@ -188,7 +188,7 @@ class SimpleGP(GeneticProgramming):
             ),
             favor_less_complex_trees,
         )
-        random_source = source_generator(seed)
+        random = source_generator(seed)
 
         step: GeneticStep
 
@@ -273,7 +273,7 @@ class SimpleGP(GeneticProgramming):
             processed_problem,
             budget=budget,
             representation=representation_instance,
-            random=random_source,
+            random=random,
             recorder=tracker,
             population_size=population_size,
             population_initializer=population_initializer,

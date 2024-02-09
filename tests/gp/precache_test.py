@@ -7,7 +7,7 @@ from typing import Annotated
 import pytest
 
 from geneticengine.algorithms.gp.gp import default_generic_programming_step
-from geneticengine.representations.api import SolutionRepresentation
+from geneticengine.representations.api import Representation
 from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.operators.combinators import SequenceStep
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
@@ -43,8 +43,8 @@ class CacheFitness(GeneticStep):
         self,
         problem: Problem,
         evaluator: Evaluator,
-        representation: SolutionRepresentation,
-        random_source: RandomSource,
+        representation: Representation,
+        random: RandomSource,
         population: list[Individual],
         target_size: int,
         generation: int,
@@ -91,7 +91,7 @@ class TestPreCache:
                 problem=problem,
                 evaluator=SequentialEvaluator(),
                 representation=rep,
-                random_source=r,
+                random=r,
                 population=initial_population,
                 target_size=population_size,
                 generation=i,

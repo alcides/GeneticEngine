@@ -10,7 +10,7 @@ g = TypeVar("g")
 p = TypeVar("p")
 
 
-class SolutionRepresentation(Generic[g, p]):
+class Representation(Generic[g, p]):
     @abc.abstractmethod
     def instantiate(self, random: RandomSource, **kwargs) -> g:
         ...

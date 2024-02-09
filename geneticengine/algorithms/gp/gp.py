@@ -18,7 +18,7 @@ from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
-from geneticengine.representations.api import RepresentationWithMutation, SolutionRepresentation
+from geneticengine.representations.api import RepresentationWithMutation, Representation
 
 
 def default_generic_programming_step():
@@ -56,7 +56,7 @@ class GeneticProgramming(HeuristicSearch):
         self,
         problem: Problem,
         budget: SearchBudget,
-        representation: SolutionRepresentation,
+        representation: Representation,
         random: RandomSource = None,
         recorder: SingleObjectiveProgressTracker | None = None,
         population_size: int = 100,

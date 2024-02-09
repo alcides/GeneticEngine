@@ -9,7 +9,7 @@ from geneticengine.random.sources import RandomSource
 from geneticengine.representations.api import (
     RepresentationWithCrossover,
     RepresentationWithMutation,
-    SolutionRepresentation,
+    Representation,
 )
 from geneticengine.representations.tree.initializations import (
     InitializationMethodType,
@@ -56,7 +56,7 @@ class StructuredListWrapper(RandomSource):
 
 
 class StructuredGrammaticalEvolutionRepresentation(
-    SolutionRepresentation[Genotype, TreeNode],
+    Representation[Genotype, TreeNode],
     RepresentationWithMutation[Genotype],
     RepresentationWithCrossover[Genotype],
 ):
@@ -115,7 +115,11 @@ class StructuredGrammaticalEvolutionRepresentation(
         return Genotype(dna)
 
     def crossover(
-        self, random: RandomSource, parent1: Genotype, parent2: Genotype, **kwargs,
+        self,
+        random: RandomSource,
+        parent1: Genotype,
+        parent2: Genotype,
+        **kwargs,
     ) -> tuple[Genotype, Genotype]:
         keys = parent1.dna.keys()
 

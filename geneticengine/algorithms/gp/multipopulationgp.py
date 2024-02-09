@@ -20,7 +20,7 @@ from geneticengine.random.sources import RandomSource
 
 from geneticengine.evaluation.budget import SearchBudget
 from geneticengine.evaluation.recorder import SingleObjectiveProgressTracker
-from geneticengine.representations.api import SolutionRepresentation
+from geneticengine.representations.api import Representation
 
 
 def flatten(matrix):
@@ -70,7 +70,7 @@ class MultiPopulationGP(HeuristicSearch):
         self,
         problem: Problem,
         budget: SearchBudget,
-        representation: SolutionRepresentation,
+        representation: Representation,
         random: RandomSource = None,
         recorder: SingleObjectiveProgressTracker | None = None,
         population_sizes: list[int] = [50, 50, 50, 50],

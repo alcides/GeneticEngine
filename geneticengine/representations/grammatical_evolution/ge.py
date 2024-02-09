@@ -8,7 +8,7 @@ from geneticengine.random.sources import RandomSource
 from geneticengine.representations.api import (
     RepresentationWithCrossover,
     RepresentationWithMutation,
-    SolutionRepresentation,
+    Representation,
 )
 from geneticengine.representations.tree.initializations import (
     InitializationMethodType,
@@ -39,7 +39,7 @@ class ListWrapper(RandomSource):
 
 
 class GrammaticalEvolutionRepresentation(
-    SolutionRepresentation[Genotype, TreeNode],
+    Representation[Genotype, TreeNode],
     RepresentationWithMutation[Genotype],
     RepresentationWithCrossover[Genotype],
 ):
@@ -76,7 +76,11 @@ class GrammaticalEvolutionRepresentation(
         return Genotype(clone)
 
     def crossover(
-        self, random: RandomSource, parent1: Genotype, parent2: Genotype, **kwargs,
+        self,
+        random: RandomSource,
+        parent1: Genotype,
+        parent2: Genotype,
+        **kwargs,
     ) -> tuple[Genotype, Genotype]:
         rindex = random.randint(0, self.gene_length - 1)
         c1 = parent1.dna[:rindex] + parent2.dna[rindex:]

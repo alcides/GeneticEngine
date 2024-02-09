@@ -7,7 +7,7 @@ from geneticengine.evaluation.recorder import SingleObjectiveProgressTracker
 from geneticengine.problems import Problem
 from geneticengine.random.sources import NativeRandomSource
 from geneticengine.random.sources import RandomSource
-from geneticengine.representations.api import SolutionRepresentation
+from geneticengine.representations.api import Representation
 
 
 class HeuristicSearch(SynthesisAlgorithm):
@@ -19,7 +19,7 @@ class HeuristicSearch(SynthesisAlgorithm):
         self,
         problem: Problem,
         budget: SearchBudget,
-        representation: SolutionRepresentation,
+        representation: Representation,
         random: RandomSource = None,
         recorder: SingleObjectiveProgressTracker | None = None,
     ):

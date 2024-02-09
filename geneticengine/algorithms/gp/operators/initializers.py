@@ -4,7 +4,7 @@ from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
-from geneticengine.representations.api import SolutionRepresentation
+from geneticengine.representations.api import Representation
 
 
 class HalfAndHalfInitializer(PopulationInitializer):
@@ -17,16 +17,16 @@ class HalfAndHalfInitializer(PopulationInitializer):
     def initialize(
         self,
         problem: Problem,
-        representation: SolutionRepresentation,
-        random_source: RandomSource,
+        representation: Representation,
+        random: RandomSource,
         target_size: int,
         **kwargs,
     ) -> list[Individual]:
         mid = target_size // 2
-        return self.initializer1(problem, representation, random_source, mid) + self.initializer2(
+        return self.initializer1(problem, representation, random, mid) + self.initializer2(
             problem,
             representation,
-            random_source,
+            random,
             target_size - mid,
         )
 
@@ -38,15 +38,15 @@ class StandardInitializer(PopulationInitializer):
     def initialize(
         self,
         problem: Problem,
-        representation: SolutionRepresentation,
-        random_source: RandomSource,
+        representation: Representation,
+        random: RandomSource,
         target_size: int,
         **kwargs,
     ) -> list[Individual]:
         return [
             Individual(
                 representation.instantiate(
-                    random_source,
+                    random,
                     **kwargs,
                 ),
                 genotype_to_phenotype=representation.map,

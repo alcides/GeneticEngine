@@ -7,7 +7,7 @@ from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.problems import Fitness, MultiObjectiveProblem
 from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
-from geneticengine.representations.api import SolutionRepresentation
+from geneticengine.representations.api import Representation
 from geneticengine.evaluation import Evaluator
 
 
@@ -29,8 +29,8 @@ class TournamentSelection(GeneticStep):
         self,
         problem: Problem,
         evaluator: Evaluator,
-        representation: SolutionRepresentation,
-        random_source: RandomSource,
+        representation: Representation,
+        random: RandomSource,
         population: list[Individual],
         target_size: int,
         generation: int,
@@ -39,7 +39,7 @@ class TournamentSelection(GeneticStep):
         candidates = population.copy()
         evaluator.evaluate(problem, candidates)
         for _ in range(target_size):
-            candidates = [random_source.choice(population) for _ in range(self.tournament_size)]
+            candidates = [random.choice(population) for _ in range(self.tournament_size)]
             winner = max(candidates, key=Individual.key_function(problem))
             winners.append(winner)
 
@@ -67,8 +67,8 @@ class LexicaseSelection(GeneticStep):
         self,
         problem: Problem,
         evaluator: Evaluator,
-        representation: SolutionRepresentation,
-        random_source: RandomSource,
+        representation: Representation,
+        random: RandomSource,
         population: list[Individual],
         target_size: int,
         generation: int,
@@ -77,7 +77,7 @@ class LexicaseSelection(GeneticStep):
         candidates = population.copy()
         evaluator.evaluate(problem, candidates)
         n_cases = problem.number_of_objectives()
-        cases = random_source.shuffle(list(range(n_cases)))
+        cases = random.shuffle(list(range(n_cases)))
         winners = []
         minimize: list[bool]
 
@@ -125,9 +125,7 @@ class LexicaseSelection(GeneticStep):
 
                 candidates_to_check = new_candidates.copy()
 
-            winner = (
-                random_source.choice(candidates_to_check) if len(candidates_to_check) > 1 else candidates_to_check[0]
-            )
+            winner = random.choice(candidates_to_check) if len(candidates_to_check) > 1 else candidates_to_check[0]
             assert isinstance(winner.get_fitness(problem).fitness_components, list)
             winners.append(winner)
             candidates.remove(winner)

@@ -5,7 +5,7 @@ from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
-from geneticengine.representations.api import SolutionRepresentation
+from geneticengine.representations.api import Representation
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 
 # TODO: Redo initialization to be parameterless
@@ -18,8 +18,8 @@ class FullInitializer(PopulationInitializer):
     def initialize(
         self,
         problem: Problem,
-        representation: SolutionRepresentation,
-        random_source: RandomSource,
+        representation: Representation,
+        random: RandomSource,
         target_size: int,
         **kwargs,
     ) -> list[Individual]:
@@ -27,7 +27,7 @@ class FullInitializer(PopulationInitializer):
         return [
             Individual(
                 representation.instantiate(
-                    random_source,
+                    random,
                 ),
                 genotype_to_phenotype=representation.map,
             )
@@ -42,8 +42,8 @@ class GrowInitializer(PopulationInitializer):
     def initialize(
         self,
         problem: Problem,
-        representation: SolutionRepresentation,
-        random_source: RandomSource,
+        representation: Representation,
+        random: RandomSource,
         target_size: int,
         **kwargs,
     ) -> list[Individual]:
@@ -51,7 +51,7 @@ class GrowInitializer(PopulationInitializer):
         return [
             Individual(
                 representation.instantiate(
-                    random_source,
+                    random,
                 ),
                 genotype_to_phenotype=representation.map,
             )
@@ -66,8 +66,8 @@ class PositionIndependentGrowInitializer(PopulationInitializer):
     def initialize(
         self,
         problem: Problem,
-        representation: SolutionRepresentation,
-        random_source: RandomSource,
+        representation: Representation,
+        random: RandomSource,
         target_size: int,
         **kwargs,
     ) -> list[Individual]:
@@ -75,7 +75,7 @@ class PositionIndependentGrowInitializer(PopulationInitializer):
         return [
             Individual(
                 representation.instantiate(
-                    random_source,
+                    random,
                 ),
                 genotype_to_phenotype=representation.map,
             )
@@ -90,15 +90,15 @@ class RampedInitializer(PopulationInitializer):
     def initialize(
         self,
         problem: Problem,
-        representation: SolutionRepresentation,
-        random_source: RandomSource,
+        representation: Representation,
+        random: RandomSource,
         target_size: int,
     ) -> list[Individual]:
         assert isinstance(representation, TreeBasedRepresentation)
         return [
             Individual(
                 representation.instantiate(
-                    random_source,
+                    random,
                 ),
                 genotype_to_phenotype=representation.map,
             )
@@ -117,15 +117,15 @@ class RampedHalfAndHalfInitializer(PopulationInitializer):
     def initialize(
         self,
         problem: Problem,
-        representation: SolutionRepresentation,
-        random_source: RandomSource,
+        representation: Representation,
+        random: RandomSource,
         target_size: int,
     ) -> list[Individual]:
         assert isinstance(representation, TreeBasedRepresentation)
         return [
             Individual(
                 representation.instantiate(
-                    random_source,
+                    random,
                 ),
                 genotype_to_phenotype=representation.map,
             )
@@ -144,8 +144,8 @@ class InjectInitialPopulationWrapper(PopulationInitializer):
     def initialize(
         self,
         problem: Problem,
-        representation: SolutionRepresentation,
-        random_source: RandomSource,
+        representation: Representation,
+        random: RandomSource,
         target_size: int,
     ) -> list[Individual]:
         assert isinstance(representation, TreeBasedRepresentation)
@@ -156,6 +156,6 @@ class InjectInitialPopulationWrapper(PopulationInitializer):
             return self.programs + self.backup_initializer.initialize(
                 problem,
                 representation,
-                random_source,
+                random,
                 target_size - len(self.programs),
             )

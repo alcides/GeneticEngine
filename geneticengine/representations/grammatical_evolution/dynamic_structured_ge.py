@@ -13,7 +13,7 @@ from geneticengine.random.sources import RandomSource
 from geneticengine.representations.api import (
     RepresentationWithCrossover,
     RepresentationWithMutation,
-    SolutionRepresentation,
+    Representation,
 )
 from geneticengine.representations.tree.initializations import (
     InitializationMethodType,
@@ -251,7 +251,7 @@ def create_tree(
 
 
 class DynamicStructuredGrammaticalEvolutionRepresentation(
-    SolutionRepresentation[Genotype, TreeNode],
+    Representation[Genotype, TreeNode],
     RepresentationWithMutation[Genotype],
     RepresentationWithCrossover[Genotype],
 ):

@@ -5,7 +5,7 @@ from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
-from geneticengine.representations.api import SolutionRepresentation
+from geneticengine.representations.api import Representation
 from geneticengine.evaluation import Evaluator
 
 
@@ -20,8 +20,8 @@ class SequenceStep(GeneticStep):
         self,
         problem: Problem,
         evaluator: Evaluator,
-        representation: SolutionRepresentation,
-        random_source: RandomSource,
+        representation: Representation,
+        random: RandomSource,
         population: list[Individual],
         target_size: int,
         generation: int,
@@ -31,7 +31,7 @@ class SequenceStep(GeneticStep):
                 problem,
                 evaluator,
                 representation,
-                random_source,
+                random,
                 population,
                 target_size,
                 generation,
@@ -83,8 +83,8 @@ class ParallelStep(GeneticStep):
         self,
         problem: Problem,
         evaluator: Evaluator,
-        representation: SolutionRepresentation,
-        random_source: RandomSource,
+        representation: Representation,
+        random: RandomSource,
         population: list[Individual],
         target_size: int,
         generation: int,
@@ -98,7 +98,7 @@ class ParallelStep(GeneticStep):
                     problem,
                     evaluator,
                     representation,
-                    random_source,
+                    random,
                     deepcopy(population),
                     end - start,
                     generation,
@@ -136,8 +136,8 @@ class ExclusiveParallelStep(ParallelStep):
         self,
         problem: Problem,
         evaluator: Evaluator,
-        representation: SolutionRepresentation,
-        random_source: RandomSource,
+        representation: Representation,
+        random: RandomSource,
         population: list[Individual],
         target_size: int,
         generation: int,
@@ -155,7 +155,7 @@ class ExclusiveParallelStep(ParallelStep):
                     problem,
                     evaluator,
                     representation,
-                    random_source,
+                    random,
                     population[start:end],
                     end - start,
                     generation,

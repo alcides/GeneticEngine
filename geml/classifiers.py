@@ -14,7 +14,7 @@ from geneticengine.evaluation.budget import TimeBudget
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
-from geneticengine.representations.api import SolutionRepresentation
+from geneticengine.representations.api import Representation
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammar.metahandlers.vars import VarRange
 from geml.grammars.basic_math import SafeDiv
@@ -53,7 +53,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
     def __init__(
         self,
         nodes: list[type[Number]] | None = None,
-        representation_class: type[SolutionRepresentation] = TreeBasedRepresentation,
+        representation_class: type[Representation] = TreeBasedRepresentation,
         population_size: int = 200,
         n_elites: int = 5,  # Shouldn't this be a percentage of population size?
         n_novelties: int = 10,
@@ -228,7 +228,7 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
             SafeSqrt,
             *exp_literals,
         ],  # "type: ignore"
-        representation_class: type[SolutionRepresentation] = TreeBasedRepresentation,
+        representation_class: type[Representation] = TreeBasedRepresentation,
         population_size: int = 200,
         number_of_generations: int = 100,
         max_depth: int = 15,

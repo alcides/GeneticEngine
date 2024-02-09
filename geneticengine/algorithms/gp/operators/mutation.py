@@ -6,7 +6,7 @@ from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
-from geneticengine.representations.api import RepresentationWithMutation, SolutionRepresentation
+from geneticengine.representations.api import RepresentationWithMutation, Representation
 from geneticengine.evaluation import Evaluator
 
 
@@ -23,8 +23,8 @@ class GenericMutationStep(GeneticStep):
         self,
         problem: Problem,
         evaluator: Evaluator,
-        representation: SolutionRepresentation,
-        random_source: RandomSource,
+        representation: Representation,
+        random: RandomSource,
         population: list[Individual],
         target_size: int,
         generation: int,
@@ -33,9 +33,9 @@ class GenericMutationStep(GeneticStep):
         ret = []
         for index, ind in enumerate(population[:target_size]):
             assert isinstance(ind, Individual)
-            v = random_source.random_float(0, 1)
+            v = random.random_float(0, 1)
             if v <= self.probability:
-                mutated = representation.mutate(random_source, ind.genotype)
+                mutated = representation.mutate(random, ind.genotype)
                 nind = self.wrap(representation, mutated)
                 ret.append(nind)
             else:
@@ -43,7 +43,7 @@ class GenericMutationStep(GeneticStep):
 
         return ret
 
-    def wrap(self, representation: SolutionRepresentation, genotype: Any) -> Individual:
+    def wrap(self, representation: Representation, genotype: Any) -> Individual:
         return Individual(
             genotype=genotype,
             genotype_to_phenotype=representation.map,

@@ -6,7 +6,7 @@ from geneticengine.evaluation.budget import SearchBudget
 from geneticengine.evaluation.recorder import SingleObjectiveProgressTracker
 from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
-from geneticengine.representations.api import RepresentationWithMutation, SolutionRepresentation
+from geneticengine.representations.api import RepresentationWithMutation, Representation
 from geneticengine.solutions.individual import Individual
 
 
@@ -17,7 +17,7 @@ class HC(HeuristicSearch):
         self,
         problem: Problem,
         budget: SearchBudget,
-        representation: SolutionRepresentation,
+        representation: Representation,
         random: RandomSource = None,
         recorder: SingleObjectiveProgressTracker | None = None,
         number_of_mutations: int = 5,

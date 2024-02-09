@@ -8,7 +8,7 @@ from geneticengine.random.sources import RandomSource
 from geneticengine.representations.api import (
     RepresentationWithCrossover,
     RepresentationWithMutation,
-    SolutionRepresentation,
+    Representation,
 )
 from geneticengine.representations.tree.initializations import (
     InitializationMethodType,
@@ -509,7 +509,7 @@ def tree_crossover(
 
 
 class TreeBasedRepresentation(
-    SolutionRepresentation[TreeNode, TreeNode],
+    Representation[TreeNode, TreeNode],
     RepresentationWithMutation[TreeNode],
     RepresentationWithCrossover[TreeNode],
 ):

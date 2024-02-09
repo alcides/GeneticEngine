@@ -8,7 +8,7 @@ from geneticengine.grammar.grammar import Grammar
 
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource, RandomSource
-from geneticengine.representations.api import SolutionRepresentation
+from geneticengine.representations.api import Representation
 from geneticengine.representations.tree.operators import InjectInitialPopulationWrapper
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 
@@ -32,12 +32,12 @@ class CooperativeGP:
         grammar1: Grammar,
         grammar2: Grammar,
         function: Callable[[a, b], float],
-        representation1: Optional[SolutionRepresentation] = None,
-        representation2: Optional[SolutionRepresentation] = None,
+        representation1: Optional[Representation] = None,
+        representation2: Optional[Representation] = None,
         population1_size: int = 100,
         population2_size: int = 200,
         coevolutions: int = 1000,
-        random_source: Optional[RandomSource] = None,
+        random: Optional[RandomSource] = None,
         kwargs1: Optional[dict] = None,
         kwargs2: Optional[dict] = None,
     ):
@@ -52,7 +52,7 @@ class CooperativeGP:
             population1_size (int): Population size of species1
             population2_size (int): Population size of species2
             coevolutions (int): How many iterations of a pair of evolutions
-            random_source (Source): The random number generator
+            random (Source): The random number generator
             kwargs1 (dict): The extra arguments for the GP object of species1
             kwargs2 (dict): The extra arguments for the GP object of species2
         """
@@ -67,7 +67,7 @@ class CooperativeGP:
         self.representation2 = representation2 or TreeBasedRepresentation(grammar=self.g2, max_depth=10)
         self.kwargs1 = kwargs1 or {}
         self.kwargs2 = kwargs2 or {}
-        self.random_source = random_source or NativeRandomSource()
+        self.random = random or NativeRandomSource()
 
     def search(self) -> tuple[a, b]:
         @dataclass
@@ -75,8 +75,8 @@ class CooperativeGP:
             b1: a
             b2: b
 
-        b1: a = self.representation1.instantiate(self.random_source)  # type: ignore
-        b2: b = self.representation2.instantiate(self.random_source)  # type: ignore
+        b1: a = self.representation1.instantiate(self.random)  # type: ignore
+        b2: b = self.representation2.instantiate(self.random)  # type: ignore
         self.bests = Bests(b1, b2)
 
         f = self.ff["ff"]
@@ -91,8 +91,8 @@ class CooperativeGP:
         p1 = SingleObjectiveProblem(fitness_function=f1, minimize=True)
         p2 = SingleObjectiveProblem(fitness_function=f2, minimize=False)
 
-        pop1 = init.initialize(p1, self.representation1, self.random_source, self.population1_size)
-        pop2 = init.initialize(p2, self.representation2, self.random_source, self.population1_size)
+        pop1 = init.initialize(p1, self.representation1, self.random, self.population1_size)
+        pop2 = init.initialize(p2, self.representation2, self.random, self.population1_size)
 
         for _ in range(self.coevolutions):
             # We create new problems to avoid results from previous iterations being cached.
@@ -102,7 +102,7 @@ class CooperativeGP:
             gp1 = GeneticProgramming(
                 problem=p1,
                 representation=self.representation1,
-                random=self.random_source,
+                random=self.random,
                 population_size=self.population1_size,
                 population_initializer=InjectInitialPopulationWrapper(
                     [e.get_phenotype() for e in pop1],
@@ -117,7 +117,7 @@ class CooperativeGP:
             gp2 = GeneticProgramming(
                 problem=p2,
                 representation=self.representation2,
-                random=self.random_source,
+                random=self.random,
                 population_size=self.population2_size,
                 population_initializer=InjectInitialPopulationWrapper([e.get_phenotype() for e in pop2], init),
                 **self.kwargs2,

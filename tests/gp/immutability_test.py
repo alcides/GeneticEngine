@@ -121,7 +121,7 @@ class TestImmutability:
                 problem=problem,
                 evaluator=SequentialEvaluator(),
                 representation=rep,
-                random_source=r,
+                random=r,
                 population=initial_population,
                 target_size=population_size,
                 generation=i,

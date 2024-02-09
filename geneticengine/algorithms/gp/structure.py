@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import abc
-from geneticengine.representations.api import SolutionRepresentation
+from geneticengine.representations.api import Representation
 
 from geneticengine.solutions.individual import Individual
 from geneticengine.problems import Problem
@@ -14,8 +14,8 @@ class PopulationInitializer(abc.ABC):
     def initialize(
         self,
         problem: Problem,
-        representation: SolutionRepresentation,
-        random_source: RandomSource,
+        representation: Representation,
+        random: RandomSource,
         target_size: int,
     ) -> list[Individual]:
         ...
@@ -27,8 +27,8 @@ class GeneticStep(abc.ABC):
         self,
         problem: Problem,
         evaluator: Evaluator,
-        representation: SolutionRepresentation,
-        random_source: RandomSource,
+        representation: Representation,
+        random: RandomSource,
         population: list[Individual],
         target_size: int,
         generation: int,

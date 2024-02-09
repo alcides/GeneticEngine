@@ -62,13 +62,13 @@ if __name__ == "__main__":
     #         problem: Problem,
     #         evaluator: Evaluator,
     #         representation: Representation,
-    #         random_source: RandomSource,
+    #         random: RandomSource,
     #         index_in_population: int,
     #         generation: int,
     #     ) -> BinaryList:
     #         assert isinstance(genotype, BinaryList)
-    #         random_pos = random_source.randint(0, SIZE - 1)
-    #         next_val = random_node(r=random_source, g=g, max_depth=1, starting_symbol=Bit)
+    #         random_pos = random.randint(0, SIZE - 1)
+    #         next_val = random_node(r=random, g=g, max_depth=1, starting_symbol=Bit)
     #         copy = deepcopy(genotype)
     #         copy.byte[random_pos] = next_val
     #         return copy
@@ -80,11 +80,11 @@ if __name__ == "__main__":
     #         g2: BinaryList,
     #         problem: Problem,
     #         representation: Representation,
-    #         random_source: RandomSource,
+    #         random: RandomSource,
     #         index_in_population: int,
     #         generation: int,
     #     ) -> tuple[BinaryList, BinaryList]:
-    #         p = random_source.randint(0, len(g1.byte))
+    #         p = random.randint(0, len(g1.byte))
     #         p1 = copy.deepcopy(g1.byte[:p])
     #         q1 = copy.deepcopy(g2.byte[:p])
     #         p2 = copy.deepcopy(g2.byte[: len(g2.byte) - p])
