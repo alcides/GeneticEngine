@@ -18,8 +18,6 @@ from geml.grammars.coding.control_flow import ForLoop
 # The Pymax problem is a traditional maximisation problem, where the goal is to produce as large a number as possible.
 # ===================================
 
-# TODO: This example is not running correctly
-
 
 class VarX(Expr):
     def evaluate(self, x=0):

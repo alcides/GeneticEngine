@@ -18,7 +18,7 @@ from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
-from geneticengine.representations.api import RepresentationWithMutation, Representation
+from geneticengine.representations.api import RepresentationWithCrossover, RepresentationWithMutation, Representation
 
 
 def default_generic_programming_step():
@@ -72,7 +72,7 @@ class GeneticProgramming(HeuristicSearch):
 
     def search(self) -> Individual:
         assert isinstance(self.representation, RepresentationWithMutation)
-        # TODO: Crossover
+        assert isinstance(self.representation, RepresentationWithCrossover)
         generation = 0
         population = self.population_initializer.initialize(
             self.problem,
