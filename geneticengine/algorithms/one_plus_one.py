@@ -9,7 +9,7 @@ from geneticengine.solutions.individual import Individual
 
 
 class OnePlusOne(HeuristicSearch):
-    """The (1 + 1) Evolutionary Algorithm"""
+    """The (1 + 1) Evolutionary Algorithm."""
 
     def search(self) -> Individual:
         assert isinstance(self.representation, RepresentationWithMutation)

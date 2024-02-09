@@ -18,11 +18,13 @@ dataset2 = pd.read_csv("dataset_secundario.csv", sep=";")
 
 
 class DecisionNode(ABC):
-    def evaluate(self, X): ...
+    def evaluate(self, X):
+        ...
 
 
 class IntNode(ABC):
-    def evaluate(self, X): ...
+    def evaluate(self, X):
+        ...
 
 
 @dataclass

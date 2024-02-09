@@ -17,7 +17,8 @@ class PopulationInitializer(abc.ABC):
         representation: SolutionRepresentation,
         random_source: RandomSource,
         target_size: int,
-    ) -> list[Individual]: ...
+    ) -> list[Individual]:
+        ...
 
 
 class GeneticStep(abc.ABC):
@@ -31,7 +32,8 @@ class GeneticStep(abc.ABC):
         population: list[Individual],
         target_size: int,
         generation: int,
-    ) -> list[Individual]: ...
+    ) -> list[Individual]:
+        ...
 
     def __str__(self):
         return f"{self.__class__.__name__}"

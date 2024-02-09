@@ -5,7 +5,6 @@ from dataclasses import dataclass
 from typing import Annotated
 from typing import TypeVar
 
-import pytest
 
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.random.sources import NativeRandomSource
@@ -64,7 +63,6 @@ T = TypeVar("T")
 
 
 class TestMetaHandler:
-
     def skeleton(self, *t, depth=3):
         r = NativeRandomSource(seed=1)
         g = extract_grammar(list(t), Root)

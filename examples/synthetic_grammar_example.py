@@ -48,7 +48,6 @@ def single_run(
         minimize=True,
     )
 
-    filename = f"synthetic_grammar_{seed}.csv"
     alg = GeneticProgramming(
         problem=problem,
         budget=AnyOf(TargetFitness(0), EvaluationBudget(100)),

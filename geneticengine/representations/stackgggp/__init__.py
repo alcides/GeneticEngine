@@ -167,7 +167,7 @@ class StackBasedGGGPRepresentation(
         return Genotype(clone)
 
     def crossover(
-        self, random: RandomSource, parent1: Genotype, parent2: Genotype, **kwargs
+        self, random: RandomSource, parent1: Genotype, parent2: Genotype, **kwargs,
     ) -> tuple[Genotype, Genotype]:
         rindex = random.randint(0, 255)
 

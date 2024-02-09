@@ -5,7 +5,8 @@ from geneticengine.evaluation.recorder import SingleObjectiveProgressTracker
 
 class SearchBudget(ABC):
     @abstractmethod
-    def is_done(self, tracker: SingleObjectiveProgressTracker): ...
+    def is_done(self, tracker: SingleObjectiveProgressTracker):
+        ...
 
 
 class TimeBudget(SearchBudget):

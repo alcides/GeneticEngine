@@ -143,7 +143,8 @@ class SimpleGP(GeneticProgramming):
         # -----
         save_to_csv: str | None = None,
         save_genotype_as_string: bool = True,
-        test_data: None | (
+        test_data: None
+        | (
             Callable[
                 [Any],
                 float,

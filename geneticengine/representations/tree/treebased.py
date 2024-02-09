@@ -520,7 +520,7 @@ class TreeBasedRepresentation(
     """
 
     def __init__(
-        self, grammar: Grammar, max_depth: int, initialization_method: InitializationMethodType = pi_grow_method
+        self, grammar: Grammar, max_depth: int, initialization_method: InitializationMethodType = pi_grow_method,
     ):
         self.grammar = grammar
         self.max_depth = max_depth
@@ -535,10 +535,10 @@ class TreeBasedRepresentation(
 
     def mutate(self, random: RandomSource, internal: TreeNode, **kwargs) -> TreeNode:
         return mutate(
-            random, self.grammar, internal, max_depth=self.max_depth, target_type=self.grammar.starting_symbol
+            random, self.grammar, internal, max_depth=self.max_depth, target_type=self.grammar.starting_symbol,
         )
 
     def crossover(
-        self, random: RandomSource, parent1: TreeNode, parent2: TreeNode, **kwargs
+        self, random: RandomSource, parent1: TreeNode, parent2: TreeNode, **kwargs,
     ) -> tuple[TreeNode, TreeNode]:
         return crossover(random, self.grammar, parent1, parent2, self.max_depth)

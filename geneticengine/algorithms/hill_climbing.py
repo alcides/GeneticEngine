@@ -11,7 +11,7 @@ from geneticengine.solutions.individual import Individual
 
 
 class HC(HeuristicSearch):
-    """Hill Climbing performs a local search within a neighbourhood"""
+    """Hill Climbing performs a local search within a neighbourhood."""
 
     def __init__(
         self,

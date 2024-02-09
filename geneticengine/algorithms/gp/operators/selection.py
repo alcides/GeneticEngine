@@ -6,7 +6,6 @@ from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.problems import Fitness, MultiObjectiveProblem
 from geneticengine.problems import Problem
-from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import RandomSource
 from geneticengine.representations.api import SolutionRepresentation
 from geneticengine.evaluation import Evaluator

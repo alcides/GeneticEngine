@@ -113,7 +113,7 @@ class RampedInitializer(PopulationInitializer):
         return [
             Individual(
                 representation.initialization_method(
-                    random=random_source, depth=bound(i), initialization_method=pi_grow_method
+                    random=random_source, depth=bound(i), initialization_method=pi_grow_method,
                 ),
                 genotype_to_phenotype=representation.map,
             )

@@ -47,7 +47,8 @@ def dataset_fitness_function(d: Dataset):
 
 class Explanation(ABC):
     @abstractmethod
-    def eval(self, line: str) -> bool: ...
+    def eval(self, line: str) -> bool:
+        ...
 
 
 @dataclass

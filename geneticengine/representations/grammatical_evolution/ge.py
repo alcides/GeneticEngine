@@ -43,7 +43,6 @@ class GrammaticalEvolutionRepresentation(
     RepresentationWithMutation[Genotype],
     RepresentationWithCrossover[Genotype],
 ):
-
     def __init__(
         self,
         grammar: Grammar,
@@ -77,7 +76,7 @@ class GrammaticalEvolutionRepresentation(
         return Genotype(clone)
 
     def crossover(
-        self, random: RandomSource, parent1: Genotype, parent2: Genotype, **kwargs
+        self, random: RandomSource, parent1: Genotype, parent2: Genotype, **kwargs,
     ) -> tuple[Genotype, Genotype]:
         rindex = random.randint(0, self.gene_length - 1)
         c1 = parent1.dna[:rindex] + parent2.dna[rindex:]

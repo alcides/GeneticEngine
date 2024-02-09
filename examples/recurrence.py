@@ -33,7 +33,8 @@ for i in range(N):
 
 class Node(abc.ABC):
     @abc.abstractmethod
-    def evaluate(self, input: list[int]): ...
+    def evaluate(self, input: list[int]):
+        ...
 
 
 @dataclass

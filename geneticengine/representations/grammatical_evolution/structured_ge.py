@@ -115,7 +115,7 @@ class StructuredGrammaticalEvolutionRepresentation(
         return Genotype(dna)
 
     def crossover(
-        self, random: RandomSource, parent1: Genotype, parent2: Genotype, **kwargs
+        self, random: RandomSource, parent1: Genotype, parent2: Genotype, **kwargs,
     ) -> tuple[Genotype, Genotype]:
         keys = parent1.dna.keys()
 

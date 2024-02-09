@@ -79,6 +79,6 @@ class TestRepresentation:
             return 0.5
 
         gp = GeneticProgramming(
-            representation=repr, problem=SingleObjectiveProblem(fitness_function=fitness_function), random=r
+            representation=repr, problem=SingleObjectiveProblem(fitness_function=fitness_function), random=r,
         )
         gp.search()
