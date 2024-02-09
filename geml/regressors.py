@@ -14,7 +14,7 @@ from geneticengine.evaluation.budget import TimeBudget
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
-from geneticengine.representations.api import Representation
+from geneticengine.representations.api import SolutionRepresentation
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geml.grammars.basic_math import SafeDiv
 from geml.grammars.basic_math import SafeLog
@@ -55,7 +55,7 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
     def __init__(
         self,
         nodes: list[type[Number]] | None = None,
-        representation: type[Representation] = TreeBasedRepresentation,
+        representation: type[SolutionRepresentation] = TreeBasedRepresentation,
         population_size: int = 200,
         n_elites: int = 5,
         n_novelties: int = 10,
@@ -230,7 +230,7 @@ class HillClimbingRegressor(BaseEstimator, TransformerMixin):
             SafeSqrt,
             *exp_literals,
         ],  # "type: ignore"
-        representation_class: type[Representation] = TreeBasedRepresentation,
+        representation_class: type[SolutionRepresentation] = TreeBasedRepresentation,
         population_size: int = 200,
         number_of_generations: int = 100,
         max_depth: int = 15,

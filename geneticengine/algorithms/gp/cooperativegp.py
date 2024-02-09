@@ -8,7 +8,7 @@ from geneticengine.grammar.grammar import Grammar
 
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource, RandomSource
-from geneticengine.representations.api import Representation
+from geneticengine.representations.api import SolutionRepresentation
 from geneticengine.representations.tree.operators import InjectInitialPopulationWrapper
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 
@@ -32,8 +32,8 @@ class CooperativeGP:
         grammar1: Grammar,
         grammar2: Grammar,
         function: Callable[[a, b], float],
-        representation1: Optional[Representation] = None,
-        representation2: Optional[Representation] = None,
+        representation1: Optional[SolutionRepresentation] = None,
+        representation2: Optional[SolutionRepresentation] = None,
         population1_size: int = 100,
         population2_size: int = 200,
         coevolutions: int = 1000,
@@ -69,7 +69,7 @@ class CooperativeGP:
         self.kwargs2 = kwargs2 or {}
         self.random_source = random_source or NativeRandomSource()
 
-    def evolve(self) -> tuple[a, b]:
+    def search(self) -> tuple[a, b]:
         @dataclass
         class Bests:
             b1: a
@@ -102,9 +102,9 @@ class CooperativeGP:
             gp1 = GeneticProgramming(
                 problem=p1,
                 representation=self.representation1,
-                random_source=self.random_source,
+                random=self.random_source,
                 population_size=self.population1_size,
-                initializer=InjectInitialPopulationWrapper(
+                population_initializer=InjectInitialPopulationWrapper(
                     [e.get_phenotype() for e in pop1],
                     init,
                 ),  # TODO: we might want to keep individuals, and not only the phenotypes.
@@ -112,20 +112,18 @@ class CooperativeGP:
             )
             ind = gp1.search()
             self.bests.b1 = ind.get_phenotype()
-            pop1 = gp1.final_population
             print("DATASET:", ind.get_fitness(p1))
 
             gp2 = GeneticProgramming(
                 problem=p2,
                 representation=self.representation2,
-                random_source=self.random_source,
+                random=self.random_source,
                 population_size=self.population2_size,
-                initializer=InjectInitialPopulationWrapper([e.get_phenotype() for e in pop2], init),
+                population_initializer=InjectInitialPopulationWrapper([e.get_phenotype() for e in pop2], init),
                 **self.kwargs2,
             )
             ind = gp2.search()
             self.bests.b2 = ind.get_phenotype()
-            pop2 = gp2.final_population
             print("____________ Explanation:", ind.get_fitness(p2), ind.get_phenotype())
 
         return (self.bests.b1, self.bests.b2)

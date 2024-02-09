@@ -63,4 +63,4 @@ if __name__ == "__main__":
                 d[x] += 1
         return d
 
-    print(count([x.genotype.__class__ for x in alg.final_population]))
+    print(count(ind.genotype.__class__))

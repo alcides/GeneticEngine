@@ -176,7 +176,7 @@ class SimpleGP(GeneticProgramming):
 
         if force_individual:
             population_initializer = InjectInitialPopulationWrapper(
-                [representation_instance.phenotype_to_genotype(force_individual)],
+                [representation_instance.map(force_individual)],
                 population_initializer,
             )
 
@@ -192,14 +192,11 @@ class SimpleGP(GeneticProgramming):
 
         step: GeneticStep
 
-        mutation_operator = representation_instance.get_mutation()
-        crossover_operator = representation_instance.get_crossover()
         if either_mut_or_cro is not None:
             mutation_step = GenericMutationStep(
                 1,
-                operator=mutation_operator,
             )
-            crossover_step = GenericCrossoverStep(1, operator=crossover_operator)
+            crossover_step = GenericCrossoverStep(1)  # , operator=crossover_operator
             step = ExclusiveParallelStep(
                 [mutation_step, crossover_step],
                 [either_mut_or_cro, 1 - either_mut_or_cro],
@@ -207,9 +204,8 @@ class SimpleGP(GeneticProgramming):
         else:
             mutation_step = GenericMutationStep(
                 probability_mutation,
-                operator=mutation_operator,
             )
-            crossover_step = GenericCrossoverStep(probability_crossover, operator=crossover_operator)
+            crossover_step = GenericCrossoverStep(probability_crossover)  # , operator=crossover_operator
             step = SequenceStep(mutation_step, crossover_step)
 
         selection_step: GeneticStep

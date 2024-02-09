@@ -15,16 +15,10 @@ class GenericPopulationInitializer(PopulationInitializer):
         random_source: RandomSource,
         target_size: int,
     ) -> list[Individual]:
-        def bound(i: int):
-            interval = (representation.max_depth - representation.min_depth) + 1
-            v = representation.min_depth + (i % interval)
-            return v
-
         return [
             Individual(
                 representation.instantiate(
-                    r=random_source,
-                    depth=bound(i),
+                    random=random_source,
                 ),
                 genotype_to_phenotype=representation.map,
             )

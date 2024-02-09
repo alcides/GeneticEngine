@@ -6,6 +6,7 @@ from typing import Annotated
 
 import pytest
 from geneticengine.algorithms.gp.gp import GeneticProgramming
+from geneticengine.evaluation.budget import EvaluationBudget
 
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
@@ -79,6 +80,9 @@ class TestRepresentation:
             return 0.5
 
         gp = GeneticProgramming(
-            representation=repr, problem=SingleObjectiveProblem(fitness_function=fitness_function), random=r,
+            representation=repr,
+            problem=SingleObjectiveProblem(fitness_function=fitness_function),
+            random=r,
+            budget=EvaluationBudget(10),
         )
         gp.search()

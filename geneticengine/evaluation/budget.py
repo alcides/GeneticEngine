@@ -51,5 +51,5 @@ class TargetMultiFitness(SearchBudget):
         self.targets = targets
 
     def is_done(self, tracker: SingleObjectiveProgressTracker):  # TODO: MultiObjective?
-        comps = tracker.get_best_individual().get_fitness().fitness_components
-        return all(abs(c - self.v) < 0.001 for v, c in zip(self.targets, comps))
+        comps = tracker.get_best_individual().get_fitness(tracker.get_problem()).fitness_components
+        return all(abs(c - v) < 0.001 for v, c in zip(self.targets, comps))

@@ -19,7 +19,7 @@ from geneticengine.representations.tree.initializations import (
     InitializationMethodType,
 )
 from geneticengine.representations.tree.initializations import pi_grow_method
-from geneticengine.representations.tree.treebased import random_individual, random_node
+from geneticengine.representations.tree.treebased import random_node
 from geneticengine.solutions.tree import TreeNode
 from geneticengine.grammar.utils import get_arguments
 from geneticengine.grammar.utils import is_generic
@@ -293,7 +293,11 @@ class DynamicStructuredGrammaticalEvolutionRepresentation(
         return Genotype(dna)
 
     def crossover(
-        self, random: RandomSource, parent1: Genotype, parent2: Genotype, **kwargs,
+        self,
+        random: RandomSource,
+        parent1: Genotype,
+        parent2: Genotype,
+        **kwargs,
     ) -> tuple[Genotype, Genotype]:
         keys = parent1.dna.keys()
 

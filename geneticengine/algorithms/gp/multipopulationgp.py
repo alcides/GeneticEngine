@@ -105,7 +105,7 @@ class MultiPopulationGP(HeuristicSearch):
             for pop_size, initializer in zip(self.population_sizes, self.population_initializers)
         ]
 
-        self.tracker.evaluate(flatten(populations))
+        self.tracker.evaluate(list(flatten(populations)))
 
         while not self.is_done():
             generation += 1
@@ -122,7 +122,7 @@ class MultiPopulationGP(HeuristicSearch):
                 )
                 for population, population_size in zip(populations, self.population_sizes)
             ]
-            self.tracker.evaluate(flatten(populations))
+            self.tracker.evaluate(list(flatten(populations)))
 
             if self.migration_size > 0 and self.migration_step is not None:
                 for i, pop in enumerate(populations):
