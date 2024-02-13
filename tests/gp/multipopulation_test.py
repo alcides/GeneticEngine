@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import sys
 from geneticengine.algorithms.gp.multipopulationgp import MultiPopulationGP
 from geneticengine.evaluation.budget import EvaluationBudget
 
@@ -35,5 +36,6 @@ def test_multipopulation_basic():
         migration_size=2,
     )
 
-    gp.search()
-    # TODO: assert fs[0].get_phenotype().a > fs[1].get_phenotype().a
+    ind = gp.search()
+    min_size = -(sys.maxsize - 1)
+    assert ind.get_phenotype().a > min_size

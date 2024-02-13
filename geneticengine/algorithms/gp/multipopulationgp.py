@@ -46,9 +46,6 @@ def default_multipopulation_step():
     )
 
 
-# TODO: add support for 1 problem per population.
-
-
 class MultiPopulationGP(HeuristicSearch):
     """MultiPopulation version of Genetic Programming.
 
