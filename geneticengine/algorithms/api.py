@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Optional
 from geneticengine.evaluation.budget import SearchBudget
 
-from geneticengine.evaluation.recorder import SingleObjectiveProgressTracker
+from geneticengine.evaluation.tracker import SingleObjectiveProgressTracker
 from geneticengine.evaluation.sequential import SequentialEvaluator
 from geneticengine.problems import Problem
 from geneticengine.representations.api import Representation

@@ -40,8 +40,11 @@ class Individual(Generic[G, P]):
     def set_fitness(self, problem: Problem, fitness: Fitness):
         self.fitness_store[problem] = fitness
 
-    def get_fitness(self, problem: Problem) -> Fitness:
-        if problem in self.fitness_store:
+    def get_fitness(self, problem: Problem | None = None) -> Fitness:
+        if problem is None:
+            default_problem = list(self.fitness_store.keys())[0]
+            return self.fitness_store[default_problem]
+        elif problem in self.fitness_store:
             return self.fitness_store[problem]
         else:
             raise IndividualNotEvaluatedException()

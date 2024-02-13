@@ -9,7 +9,7 @@ from typing import Callable
 import numpy as np
 from sklearn.metrics import f1_score
 
-from geneticengine.algorithms.gp.simplegp import SimpleGP
+from geml.simplegp import SimpleGP
 from geneticengine.grammar.decorators import abstract
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
@@ -343,8 +343,8 @@ class GameOfLifeVectorialBenchmark:
             population_size=50,
             max_depth=10,
             # favor_less_complex_trees=True,
-            # probability_crossover=0.75,
-            # probability_mutation=0.01,
+            # crossover_probability=0.75,
+            # mutation_probability=0.01,
             # selection_method=("tournament", 2),
             **args,
         )

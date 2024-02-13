@@ -6,7 +6,7 @@ from typing import Annotated
 import numpy as np
 import pandas as pd
 
-from geneticengine.algorithms.gp.simplegp import SimpleGP
+from geml.simplegp import SimpleGP
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.problems import Problem
@@ -116,8 +116,8 @@ class RegressionBenchmark:
         alg = SimpleGP(
             g,
             problem=prob,
-            probability_crossover=0.75,
-            probability_mutation=0.01,
+            crossover_probability=0.75,
+            mutation_probability=0.01,
             number_of_generations=50,
             max_depth=10,
             population_size=50,

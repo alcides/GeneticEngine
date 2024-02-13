@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Annotated
 
-from geneticengine.algorithms.gp.simplegp import SimpleGP
+from geml.simplegp import SimpleGP
 from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.evaluation.budget import EvaluationBudget
 from geneticengine.grammar.grammar import extract_grammar
@@ -188,8 +188,8 @@ class SantaFeBenchmark:
         alg = SimpleGP(
             g,
             problem=problem,
-            probability_crossover=1,
-            probability_mutation=0.5,
+            crossover_probability=1,
+            mutation_probability=0.5,
             number_of_generations=20,
             max_depth=10,
             max_init_depth=6,

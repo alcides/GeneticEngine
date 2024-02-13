@@ -8,7 +8,7 @@ import pandas as pd
 from sklearn.base import BaseEstimator
 from sklearn.base import TransformerMixin
 
-from geneticengine.algorithms.gp.simplegp import SimpleGP
+from geml.simplegp import SimpleGP
 from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.evaluation.budget import TimeBudget
 from geneticengine.grammar.grammar import extract_grammar
@@ -46,27 +46,29 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
         favor_less_complex_trees (bool): If set to True, this gives a tiny penalty to deeper trees to favor simpler trees (default = False).
         hill_climbing (bool): Allows the user to change the standard mutation operations to the hill-climbing mutation operation, in which an individual is mutated to 5 different new individuals, after which the best is chosen to survive (default = False).
 
-        probability_mutation (float): probability that an individual is mutated (default = 0.01).
-        probability_crossover (float): probability that an individual is chosen for cross-over (default = 0.9).
+        mutation_probability (float): probability that an individual is mutated (default = 0.01).
+        crossover_probability (float): probability that an individual is chosen for cross-over (default = 0.9).
     """
 
     def __init__(
         self,
         nodes: list[type[Number]] | None = None,
-        representation_class: type[Representation] = TreeBasedRepresentation,
+        representation_name: str = "treebased",
         population_size: int = 200,
-        n_elites: int = 5,  # Shouldn't this be a percentage of population size?
-        n_novelties: int = 10,
-        number_of_generations: int = 100,
+        elitism: int = 5,  # Shouldn't this be a percentage of population size?
+        novelty: int = 10,
         max_depth: int = 15,
-        favor_less_complex_trees: bool = True,
-        hill_climbing: bool = False,
         seed: int = 123,
         scoring: Any = f1_score,
+        # Budget:
+        time_budget: int = 30,
+        number_of_generations: int = 100,
         # -----
         # As given in A Field Guide to GP, p.17, by Poli and Mcphee
-        probability_mutation: float = 0.01,
-        probability_crossover: float = 0.9,
+        mutation_probability: float = 0.01,
+        crossover_probability: float = 0.9,
+        selection_method=("tournament", 5),
+        initial_population: list[Any] | None = None,
         # -----
         parallel: bool = False,
     ):
@@ -81,26 +83,30 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
                 SafeSqrt,
                 *exp_literals,
             ]
-        assert population_size > (n_elites + n_novelties + 1)
+        assert population_size > (elitism + novelty + 1)
         assert Var in nodes
 
-        self.nodes = nodes
-        self.representation_class = representation_class
-        self.evolved_ind = None
-        self.nodes = nodes
-        self.random = NativeRandomSource(seed)
+        self.representation_name = representation_name
         self.seed = seed
-        self.population_size = population_size
+        self.random = NativeRandomSource(self.seed)
+
+        self.nodes = nodes
         self.max_depth = max_depth
-        self.favor_less_complex_trees = favor_less_complex_trees
-        self.n_elites = n_elites
-        self.n_novelties = n_novelties
-        self.hill_climbing = hill_climbing
-        self.number_of_generations = number_of_generations
-        self.probability_mutation = probability_mutation
-        self.probability_crossover = probability_crossover
+
         self.scoring = {None: scoring}
+
+        self.initial_population = initial_population
+        self.population_size = population_size
+        self.elitism = elitism
+        self.novelty = novelty
+        self.selection_method = selection_method
+
+        self.mutation_probability = mutation_probability
+        self.crossover_probability = crossover_probability
         self.parallel_evaluation = parallel
+
+        self.evaluations_budget = number_of_generations * population_size
+        self.time_budget = time_budget
 
     def _preprocess_X(self, X):
         if type(X) == pd.DataFrame:
@@ -149,23 +155,23 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
             return fitness
 
         model = SimpleGP(
+            fitness_function=fitness_function,
             grammar=self.grammar,
-            problem=SingleObjectiveProblem(
-                minimize=False,
-                fitness_function=fitness_function,
-            ),
-            representation=self.representation_class,
-            population_size=self.population_size,
-            n_elites=self.n_elites,
-            n_novelties=self.n_novelties,
-            number_of_generations=self.number_of_generations,
+            minimize=False,
+            representation=self.representation_name,
             max_depth=self.max_depth,
-            favor_less_complex_trees=self.favor_less_complex_trees,
-            probability_mutation=self.probability_mutation,
-            probability_crossover=self.probability_crossover,
-            hill_climbing=self.hill_climbing,
-            seed=self.seed,
+            target_fitness=0,
+            max_time=self.time_budget,
+            max_evaluations=self.evaluations_budget,
             parallel_evaluation=self.parallel_evaluation,
+            seed=self.seed,
+            population_size=self.population_size,
+            elitism=self.elitism,
+            novelty=self.novelty,
+            initial_population=self.initial_population,
+            mutation_probability=self.mutation_probability,
+            crossover_probability=self.crossover_probability,
+            selection_method=self.selection_method,
         )
 
         ind = model.search()
@@ -191,7 +197,6 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
             i = self.feature_indices[x]
             variables[x] = data[:, i]
         y_pred = self.evolved_phenotype.evaluate(**variables)
-
         return self.clean_prediction(y_pred, len(X))
 
     def clean_prediction(self, y_pred, target_size):

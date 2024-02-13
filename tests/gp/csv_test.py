@@ -3,7 +3,8 @@ import pandas as pd
 from dataclasses import dataclass
 from geneticengine.algorithms.gp.gp import GeneticProgramming
 from geneticengine.evaluation.budget import EvaluationBudget
-from geneticengine.evaluation.recorder import SingleObjectiveProgressTracker
+from geneticengine.evaluation.recorder import CSVSearchRecorder
+from geneticengine.evaluation.tracker import SingleObjectiveProgressTracker
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
@@ -46,7 +47,10 @@ class TestCSVCallback:
             population_size=population_size,
             budget=EvaluationBudget(population_size * max_generations),
             random=NativeRandomSource(seed),
-            recorder=SingleObjectiveProgressTracker(objective, csv_path=path),
+            tracker=SingleObjectiveProgressTracker(
+                objective,
+                recorders=[CSVSearchRecorder(csv_path=path, problem=objective)],
+            ),
         )
         gp.search()
         df = pd.read_csv(path)
@@ -75,7 +79,12 @@ class TestCSVCallback:
             population_size=population_size,
             budget=EvaluationBudget(population_size * max_generations),
             random=NativeRandomSource(seed),
-            recorder=SingleObjectiveProgressTracker(objective, csv_path=path, extra_fields={"Seed": lambda i, p: seed}),
+            tracker=SingleObjectiveProgressTracker(
+                objective,
+                recorders=[
+                    CSVSearchRecorder(csv_path=path, problem=objective, extra_fields={"Seed": lambda t, i, p: seed}),
+                ],
+            ),
         )
         gp.search()
         df = pd.read_csv(path)
@@ -105,7 +114,10 @@ class TestCSVCallback:
             population_size=population_size,
             budget=EvaluationBudget(population_size * max_generations),
             random=NativeRandomSource(seed),
-            recorder=SingleObjectiveProgressTracker(objective, csv_path=path, fields={"Seed": lambda i, p: seed}),
+            tracker=SingleObjectiveProgressTracker(
+                objective,
+                recorders=[CSVSearchRecorder(csv_path=path, problem=objective, fields={"Seed": lambda t, i, p: seed})],
+            ),
         )
         gp.search()
         df = pd.read_csv(path)

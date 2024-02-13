@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from geneticengine.algorithms.gp.simplegp import SimpleGP
+from geml.simplegp import SimpleGP
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.problems import Problem
@@ -54,8 +54,8 @@ class StringMatchBenchmark:
         alg = SimpleGP(
             g,
             problem=prob,
-            probability_crossover=0.75,
-            probability_mutation=0.01,
+            crossover_probability=0.75,
+            mutation_probability=0.01,
             max_depth=10,
             number_of_generations=30,
             population_size=50,

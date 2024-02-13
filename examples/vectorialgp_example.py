@@ -8,7 +8,7 @@ from typing import Any
 import numpy as np
 from sklearn.metrics import mean_squared_error
 
-from geneticengine.algorithms.gp.simplegp import SimpleGP
+from geml.simplegp import SimpleGP
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.problems import Problem
@@ -3171,8 +3171,8 @@ class VectorialGPBenchmark:
         alg = SimpleGP(
             g,
             problem=prob,
-            probability_crossover=0.75,
-            probability_mutation=0.01,
+            crossover_probability=0.75,
+            mutation_probability=0.01,
             number_of_generations=30,
             max_depth=10,
             population_size=50,

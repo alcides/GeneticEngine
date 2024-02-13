@@ -1,81 +1,50 @@
+from abc import ABC
 import csv
 from time import time_ns
-from typing import Any, Callable, Optional
-from geneticengine.evaluation import Evaluator
-from geneticengine.evaluation.sequential import SequentialEvaluator
+from typing import Any, Callable
 from geneticengine.problems import Problem
 from geneticengine.solutions import Individual
 
+FieldMapper = Callable[[Any, Individual, Problem], Any]
 
-FieldMapper = Callable[[Individual, Problem], Any]
+
+class SearchRecorder(ABC):
+    def register(self, tracker: Any, individual: Individual, problem: Problem, is_best=True):
+        ...
 
 
-class SingleObjectiveProgressTracker:
-    evaluator: Evaluator
-    best_individual: Optional[Individual]
-
+class CSVSearchRecorder(SearchRecorder):
     def __init__(
         self,
+        csv_path: str,
         problem: Problem,
-        evaluator: Evaluator = None,
-        csv_path: str = None,
         fields: dict[str, FieldMapper] = None,
         extra_fields: dict[str, FieldMapper] = None,
+        only_record_best_individuals: bool = True,
     ):
-        self.start_time = time_ns()
-        if evaluator is None:
-            self.evaluator = SequentialEvaluator()
-        else:
-            self.evaluator = evaluator
-        self.problem = problem
-        self.best_individual = None
-        if csv_path is not None:
-            self.csv_file = open(csv_path, "w", newline="")
-            self.csv_writer = csv.writer(self.csv_file)
-        else:
-            self.csv_writer = None
+        assert csv_path is not None
+        self.csv_file = open(csv_path, "w", newline="")
+        self.csv_writer = csv.writer(self.csv_file)
         if fields is not None:
             self.fields = fields
         else:
             self.fields = {
-                "Execution Time": lambda i, _: time_ns() - self.start_time,
-                "Phenotype": lambda i, _: i.get_phenotype(),
+                "Execution Time": lambda t, i, _: time_ns() - t.start_time,
+                "Phenotype": lambda t, i, _: i.get_phenotype(),
             }
-            for comp in range(self.problem.number_of_objectives()):
-                self.fields[f"Fitness{comp}"] = lambda i, p: i.get_fitness(p).fitness_components[comp]
-            if extra_fields is not None:
-                for name in extra_fields:
-                    self.fields[name] = extra_fields[name]
-        if self.csv_writer:
-            self.csv_writer.writerow([name for name in self.fields])
+            for comp in range(problem.number_of_objectives()):
+                self.fields[f"Fitness{comp}"] = lambda t, i, p: i.get_fitness(p).fitness_components[comp]
+        if extra_fields is not None:
+            for name in extra_fields:
+                self.fields[name] = extra_fields[name]
+        self.csv_writer.writerow([name for name in self.fields])
+        self.csv_file.flush()
+        self.header_printed = False
+        self.only_record_best_individuals = only_record_best_individuals
+
+    def register(self, tracker: Any, individual: Individual, problem: Problem, is_best=False):
+        if not self.only_record_best_individuals or is_best:
+            self.csv_writer.writerow(
+                [self.fields[name](tracker, individual, problem) for name in self.fields],
+            )
             self.csv_file.flush()
-
-    def evaluate(self, individuals: list[Individual]):
-        problem = self.problem
-        self.evaluator.evaluate(problem, individuals)
-        for ind in individuals:
-            if self.best_individual is None:
-                self.best_individual = ind
-            elif problem.is_better(ind.get_fitness(problem), self.best_individual.get_fitness(problem)):
-                self.best_individual = ind
-            else:
-                continue
-            if self.csv_writer:
-                self.csv_writer.writerow(
-                    [self.fields[name](self.best_individual, problem) for name in self.fields],
-                )
-                self.csv_file.flush()
-
-    def get_best_individual(self) -> Individual:
-        return self.best_individual
-
-    def get_elapsed_time(self) -> float:
-        """The elapsed time since the start in seconds."""
-        return (time_ns() - self.start_time) / 1_000_000  # seconds
-
-    def get_number_evaluations(self) -> int:
-        """The cumulative number of evaluations performed."""
-        return self.evaluator.number_of_evaluations()
-
-    def get_problem(self) -> Problem:
-        return self.problem

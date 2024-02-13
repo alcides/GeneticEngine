@@ -8,7 +8,7 @@ import pandas as pd
 from sklearn.base import BaseEstimator
 from sklearn.base import TransformerMixin
 
-from geneticengine.algorithms.gp.simplegp import SimpleGP
+from geml.simplegp import SimpleGP
 from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.evaluation.budget import TimeBudget
 from geneticengine.grammar.grammar import extract_grammar
@@ -48,8 +48,8 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
         hill_climbing (bool): Allows the user to change the standard mutation operations to the hill-climbing mutation operation, in which an individual is mutated to 5 different new individuals, after which the best is chosen to survive (default = False).
         metric (str): Choose the metric used in the fitness function. Currently available: mean square error (mse), and the r2 measure (r2), new once can be requested or easily implemented by the user (default = 'mse').
 
-        probability_mutation (float): probability that an individual is mutated (default = 0.01).
-        probability_crossover (float): probability that an individual is chosen for cross-over (default = 0.9).
+        mutation_probability (float): probability that an individual is mutated (default = 0.01).
+        crossover_probability (float): probability that an individual is chosen for cross-over (default = 0.9).
     """
 
     def __init__(
@@ -67,8 +67,8 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
         metric: str = "mse",
         # -----
         # As given in A Field Guide to GP, p.17, by Poli and Mcphee
-        probability_mutation: float = 0.01,
-        probability_crossover: float = 0.9,
+        mutation_probability: float = 0.01,
+        crossover_probability: float = 0.9,
         # -----
         timer_stop_criteria: bool = False,
         timer_limit: int = 60,
@@ -100,8 +100,8 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
         self.n_novelties = n_novelties
         self.hill_climbing = hill_climbing
         self.number_of_generations = number_of_generations
-        self.probability_mutation = probability_mutation
-        self.probability_crossover = probability_crossover
+        self.mutation_probability = mutation_probability
+        self.crossover_probability = crossover_probability
         self.timer_stop_criteria = timer_stop_criteria
         self.timer_limit = timer_limit
         self.metric = metric
@@ -165,8 +165,8 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
             number_of_generations=self.number_of_generations,
             max_depth=self.max_depth,
             favor_less_complex_trees=self.favor_less_complex_trees,
-            probability_mutation=self.probability_mutation,
-            probability_crossover=self.probability_crossover,
+            mutation_probability=self.mutation_probability,
+            crossover_probability=self.crossover_probability,
             hill_climbing=self.hill_climbing,
             seed=self.seed,
             timer_stop_criteria=self.timer_stop_criteria,

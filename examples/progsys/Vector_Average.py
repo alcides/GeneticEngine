@@ -7,7 +7,7 @@ from examples.progsys.utils import import_embedded
 
 import geml.grammars.coding.lists as lists
 import geml.grammars.coding.numbers as numbers
-from geneticengine.algorithms.gp.simplegp import SimpleGP
+from geml.simplegp import SimpleGP
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.representations.grammatical_evolution.dynamic_structured_ge import (
@@ -127,7 +127,7 @@ def evolve(g, seed, mode, representation=""):
         seed=seed,
         max_depth=10,
         population_size=50,
-        probability_crossover=0.9,
+        crossover_probability=0.9,
         timer_stop_criteria=mode,
     )
     ind = alg.search()

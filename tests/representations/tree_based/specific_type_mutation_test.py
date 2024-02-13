@@ -48,8 +48,8 @@ class MiddleList(Root):
 
 
 gp_parameters = {
-    "probability_crossover": 0.9,
-    "probability_mutation": 1,
+    "crossover_probability": 0.9,
+    "mutation_probability": 1,
     "number_of_generations": 5,
     "max_depth": 10,
     "population_size": 2,
@@ -65,8 +65,8 @@ def algorithm_steps():
             ElitismStep(),
             SequenceStep(
                 TournamentSelection(gp_parameters["tournament_size"]),
-                GenericCrossoverStep(gp_parameters["probability_crossover"]),
-                GenericMutationStep(gp_parameters["probability_mutation"]),
+                GenericCrossoverStep(gp_parameters["crossover_probability"]),
+                GenericMutationStep(gp_parameters["mutation_probability"]),
             ),
         ],
         weights=[gp_parameters["n_elites"], 100 - gp_parameters["n_elites"]],

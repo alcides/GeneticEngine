@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 from geneticengine.algorithms.gp.gp import GeneticProgramming
 from geneticengine.evaluation.budget import EvaluationBudget
-from geneticengine.evaluation.recorder import SingleObjectiveProgressTracker
+from geneticengine.evaluation.tracker import SingleObjectiveProgressTracker
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
@@ -63,7 +63,7 @@ class TestParallel:
             population_size=20,
             budget=EvaluationBudget(100),
             population_initializer=FullInitializer(),
-            recorder=SingleObjectiveProgressTracker(problem=p, evaluator=ParallelEvaluator()),
+            tracker=SingleObjectiveProgressTracker(problem=p, evaluator=ParallelEvaluator()),
         )
         ind = gp.search()
         tree = ind.get_phenotype()

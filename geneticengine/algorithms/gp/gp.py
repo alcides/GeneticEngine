@@ -3,7 +3,7 @@ from geneticengine.algorithms.heuristics import HeuristicSearch
 
 
 from geneticengine.evaluation.budget import SearchBudget
-from geneticengine.evaluation.recorder import SingleObjectiveProgressTracker
+from geneticengine.evaluation.tracker import SingleObjectiveProgressTracker
 from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.operators.combinators import ParallelStep, SequenceStep
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
@@ -58,12 +58,12 @@ class GeneticProgramming(HeuristicSearch):
         budget: SearchBudget,
         representation: Representation,
         random: RandomSource = None,
-        recorder: SingleObjectiveProgressTracker | None = None,
+        tracker: SingleObjectiveProgressTracker | None = None,
         population_size: int = 100,
         population_initializer: PopulationInitializer = None,
         step: GeneticStep | None = None,
     ):
-        super().__init__(problem, budget, representation, random, recorder)
+        super().__init__(problem, budget, representation, random, tracker)
         self.population_size = population_size
         self.population_initializer = (
             population_initializer if population_initializer is not None else StandardInitializer()

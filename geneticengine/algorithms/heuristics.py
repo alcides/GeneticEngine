@@ -3,7 +3,7 @@ from __future__ import annotations
 from geneticengine.algorithms.api import SynthesisAlgorithm
 
 from geneticengine.evaluation.budget import SearchBudget
-from geneticengine.evaluation.recorder import SingleObjectiveProgressTracker
+from geneticengine.evaluation.tracker import SingleObjectiveProgressTracker
 from geneticengine.problems import Problem
 from geneticengine.random.sources import NativeRandomSource
 from geneticengine.random.sources import RandomSource

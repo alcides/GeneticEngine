@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from geneticengine.evaluation.recorder import SingleObjectiveProgressTracker
+from geneticengine.evaluation.tracker import SingleObjectiveProgressTracker
 
 
 class SearchBudget(ABC):

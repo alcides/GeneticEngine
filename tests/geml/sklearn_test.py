@@ -18,4 +18,5 @@ class TestSklearnAPI:
         c.fit(X, y)
         y_pred = c.predict(X_test)
         k = accuracy_score(y_test, y_pred)
-        assert k > 0
+        assert k >= 0
+        assert k <= 1

@@ -2,11 +2,9 @@ from __future__ import annotations
 
 from abc import ABC
 
-from geneticengine.algorithms.gp.simplegp import SimpleGP
+from geml.simplegp import SimpleGP
 from geneticengine.grammar.decorators import weight
 from geneticengine.grammar.grammar import extract_grammar
-from geneticengine.problems import SingleObjectiveProblem
-from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 
 # ===================================
 # This is an example of how to create Probabilistic grammars.
@@ -41,16 +39,13 @@ if __name__ == "__main__":
     g = extract_grammar([A, B, C], R)
 
     alg = SimpleGP(
-        g,
-        representation=TreeBasedRepresentation,
-        problem=SingleObjectiveProblem(
-            fitness_function=fitness_function,
-            minimize=False,
-        ),
+        grammar=g,
+        representation="treebased",
+        fitness_function=fitness_function,
+        minimize=False,
         max_depth=10,
         population_size=1000,
-        number_of_generations=10,
-        minimize=False,
+        max_evaluations=10 * 1000,
     )
     ind = alg.search()
 

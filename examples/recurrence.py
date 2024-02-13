@@ -5,10 +5,9 @@ import copy
 from dataclasses import dataclass
 from typing import Annotated, Any
 
-from geneticengine.algorithms.gp.simplegp import SimpleGP
+from geml.simplegp import SimpleGP
 from geneticengine.grammar.decorators import weight
 from geneticengine.grammar.grammar import extract_grammar
-from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.grammar.metahandlers.ints import IntRange
 from geneticengine.grammar.metahandlers.vars import VarRange
 
@@ -118,29 +117,25 @@ def fitness_function(p):
 
 if __name__ == "__main__":
     g = extract_grammar([Op, Access, Literal, KnowledgeLiteral], Node)
-    prob = SingleObjectiveProblem(
-        minimize=True,
-        fitness_function=fitness_function,
-    )
     gp = SimpleGP(
         grammar=g,
-        problem=prob,
+        fitness_function=fitness_function,
         minimize=True,
         max_depth=5,
-        number_of_generations=100,
+        max_evaluations=100 * 100,
         population_size=100,
-        probability_mutation=0.5,
-        probability_crossover=0.4,
+        mutation_probability=0.5,
+        crossover_probability=0.4,
         target_fitness=0,
         novelty=10,
     )
     best: Any = gp.search()
     print(best.get_phenotype().gengy_nodes)
     print(best.get_phenotype().gengy_distance_to_term)
-    fitness = best.get_fitness(prob)
+    fitness = best.get_fitness(gp.get_problem())
     print(
         f"Fitness of {fitness} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
     )
 
-    print("Tamanho do Dataset:", len(dataset))
+    print("Dataset size:", len(dataset))
     print(fitness_function(best.get_phenotype()))

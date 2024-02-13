@@ -7,7 +7,7 @@ from typing import Any
 import numpy as np
 from sklearn.datasets import load_diabetes
 
-from geneticengine.algorithms.gp.simplegp import SimpleGP
+from geml.simplegp import SimpleGP
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.problems import Problem
