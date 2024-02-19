@@ -39,8 +39,8 @@ And then you can the program using:
 ```python
 grammar = extract_grammar([Literal, Plus], MyExpr)
 alg = SimpleGP(
-    grammar,
-    fitness_function,
+    grammar=grammar,
+    fitness_function=fitness_function,
     minimize=True,
     population_size=200,
     max_evaluations=10000,

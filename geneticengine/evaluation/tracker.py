@@ -34,6 +34,9 @@ class ProgressTracker(ABC):
     def evaluate(self, individuals: list[Individual]):
         ...
 
+    def get_best_individual(self) -> Individual:
+        ...
+
 
 class SingleObjectiveProgressTracker(ProgressTracker):
 
