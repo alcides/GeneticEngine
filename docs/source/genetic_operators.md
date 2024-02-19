@@ -10,47 +10,6 @@ These are two population initializers that work across all representations:
 .. autoapiclass:: geneticengine.algorithms.gp.operators.initializers.StandardInitializer
 ```
 
-### HalfAndHalfInitializer
-
-```{eval-rst}
-.. autoapiclass:: geneticengine.algorithms.gp.operators.initializers.HalfAndHalfInitializer
-```
-
-## Tree-based Population Initializers
-
-These initializers are only available for the tree-based representation.
-
- Although the same approach can be used in Grammatical Evolution-based approaches, it would be too artificial.
-
- If in the initial population, we define a maximum-depth of 5 (e.g., forced by the grow method), by the time you get to the first generation with a maximum allowed of 10, the genotype-to-phenotype mapping will ignore the structure defined by grow, and will create a completely different individual, even though the genotype did not change since the initial population.
-
-### Full population initialization
-
-```{eval-rst}
-.. autoapiclass:: geneticengine.representations.tree.operators.FullInitializer
-```
-
-### Grow population initialization
-
-```{eval-rst}
-.. autoapiclass:: geneticengine.representations.tree.operators.GrowInitializer
-```
-
-### Position Independent Grow population initialization
-
-```{eval-rst}
-.. autoapiclass:: geneticengine.representations.tree.operators.PositionIndependentGrowInitializer
-```
-
-### Ramped Half-and-Half population initialization
-
-
-
-```{eval-rst}
-.. autoapiclass:: geneticengine.representations.tree.operators.RampedHalfAndHalfInitializer
-```
-
-
 ### How to inject pre-existing programs into the initial population.
 
 The `InjectInitialPopulationWrapper` class allows you to pass a list of programs to include in the initial population. The remainder of the initial population will be selected via a backup initializer.
