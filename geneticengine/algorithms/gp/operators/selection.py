@@ -2,14 +2,13 @@ from __future__ import annotations
 
 import numpy as np
 
-from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.structure import GeneticStep
-from geneticengine.core.problems import Fitness, MultiObjectiveProblem
-from geneticengine.core.problems import Problem
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.random.sources import Source
-from geneticengine.core.representations.api import Representation
-from geneticengine.core.evaluators import Evaluator
+from geneticengine.problems import Fitness, MultiObjectiveProblem
+from geneticengine.problems import Problem
+from geneticengine.random.sources import RandomSource
+from geneticengine.representations.api import Representation
+from geneticengine.evaluation import Evaluator
 
 
 class TournamentSelection(GeneticStep):
@@ -31,17 +30,16 @@ class TournamentSelection(GeneticStep):
         problem: Problem,
         evaluator: Evaluator,
         representation: Representation,
-        random_source: Source,
+        random: RandomSource,
         population: list[Individual],
         target_size: int,
         generation: int,
     ) -> list[Individual]:
-        assert isinstance(problem, SingleObjectiveProblem)
         winners: list[Individual] = []
         candidates = population.copy()
-        evaluator.eval(problem, candidates)
+        evaluator.evaluate(problem, candidates)
         for _ in range(target_size):
-            candidates = [random_source.choice(population) for _ in range(self.tournament_size)]
+            candidates = [random.choice(population) for _ in range(self.tournament_size)]
             winner = max(candidates, key=Individual.key_function(problem))
             winners.append(winner)
 
@@ -70,18 +68,18 @@ class LexicaseSelection(GeneticStep):
         problem: Problem,
         evaluator: Evaluator,
         representation: Representation,
-        random_source: Source,
+        random: RandomSource,
         population: list[Individual],
         target_size: int,
         generation: int,
     ) -> list[Individual]:
         assert isinstance(problem, MultiObjectiveProblem)
         candidates = population.copy()
-        evaluator.eval(problem, candidates)
+        evaluator.evaluate(problem, candidates)
         n_cases = problem.number_of_objectives()
-        cases = random_source.shuffle(list(range(n_cases)))
+        cases = random.shuffle(list(range(n_cases)))
         winners = []
-        minimize : list[bool]
+        minimize: list[bool]
 
         if n_cases == 1 and isinstance(problem.minimize, bool):
             n_cases = len(candidates[0].get_fitness(problem).fitness_components)
@@ -127,9 +125,7 @@ class LexicaseSelection(GeneticStep):
 
                 candidates_to_check = new_candidates.copy()
 
-            winner = (
-                random_source.choice(candidates_to_check) if len(candidates_to_check) > 1 else candidates_to_check[0]
-            )
+            winner = random.choice(candidates_to_check) if len(candidates_to_check) > 1 else candidates_to_check[0]
             assert isinstance(winner.get_fitness(problem).fitness_components, list)
             winners.append(winner)
             candidates.remove(winner)

@@ -6,15 +6,15 @@ from typing import Annotated
 
 import numpy as np
 
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.tree.treebased import random_node
-from geneticengine.metahandlers.floats import FloatRange
-from geneticengine.metahandlers.ints import IntervalRange
-from geneticengine.metahandlers.ints import IntRange
-from geneticengine.metahandlers.lists import ListSizeBetween
-from geneticengine.metahandlers.strings import StringSizeBetween, WeightedStringHandler
-from geneticengine.metahandlers.vars import VarRange
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.random.sources import NativeRandomSource
+from geneticengine.representations.tree.treebased import random_node
+from geneticengine.grammar.metahandlers.floats import FloatRange
+from geneticengine.grammar.metahandlers.ints import IntervalRange
+from geneticengine.grammar.metahandlers.ints import IntRange
+from geneticengine.grammar.metahandlers.lists import ListSizeBetween
+from geneticengine.grammar.metahandlers.strings import StringSizeBetween, WeightedStringHandler
+from geneticengine.grammar.metahandlers.vars import VarRange
 
 
 class Root(ABC):
@@ -88,7 +88,7 @@ class WeightedStringHandlerM(Root):
 
 class TestMetaHandler:
     def test_int(self):
-        r = RandomSource(seed=1)
+        r = NativeRandomSource(seed=1)
         g = extract_grammar([IntRangeM], Root)
         n = random_node(r, g, 3, Root)
         assert isinstance(n, IntRangeM)
@@ -96,7 +96,7 @@ class TestMetaHandler:
         assert isinstance(n, Root)
 
     def test_float(self):
-        r = RandomSource(seed=1)
+        r = NativeRandomSource(seed=1)
         g = extract_grammar([FloatRangeM], Root)
         n = random_node(r, g, 3, Root)
         assert isinstance(n, FloatRangeM)
@@ -104,7 +104,7 @@ class TestMetaHandler:
         assert isinstance(n, Root)
 
     def test_var(self):
-        r = RandomSource(seed=1)
+        r = NativeRandomSource(seed=1)
         g = extract_grammar([VarRangeM], Root)
         n = random_node(r, g, 3, Root)
         assert isinstance(n, VarRangeM)
@@ -112,7 +112,7 @@ class TestMetaHandler:
         assert isinstance(n, Root)
 
     def test_list(self):
-        r = RandomSource(seed=1)
+        r = NativeRandomSource(seed=1)
         g = extract_grammar([ListRangeM], Root)
         n = random_node(r, g, 4, Root)
         assert isinstance(n, ListRangeM)
@@ -120,7 +120,7 @@ class TestMetaHandler:
         assert isinstance(n, Root)
 
     def test_string(self):
-        r = RandomSource(seed=1)
+        r = NativeRandomSource(seed=1)
         g = extract_grammar([StringM], Root)
         n = random_node(r, g, 3, Root)
         assert isinstance(n.x, str)
@@ -142,7 +142,7 @@ class TestMetaHandler:
             assert all(x in string_options for x in n.x)
 
     def test_weightedstrings(self):
-        r = RandomSource(seed=1)
+        r = NativeRandomSource(seed=1)
         g = extract_grammar([WeightedStringHandlerM], Root)
         n = random_node(r, g, 3, Root)
         assert isinstance(n, WeightedStringHandlerM)
@@ -150,7 +150,7 @@ class TestMetaHandler:
         assert isinstance(n, Root)
 
     def test_intervalrange(self):
-        r = RandomSource(seed=1)
+        r = NativeRandomSource(seed=1)
         g = extract_grammar([IntervalRangeM], Root)
 
         n = random_node(r, g, 4, Root)

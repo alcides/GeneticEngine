@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import pandas as pd
 
-from geneticengine.off_the_shelf.classifiers import GeneticProgrammingClassifier
-from geneticengine.off_the_shelf.classifiers import HillClimbingClassifier
-from geneticengine.off_the_shelf.regressors import GeneticProgrammingRegressor
-from geneticengine.off_the_shelf.regressors import HillClimbingRegressor
+from geml.classifiers import GeneticProgrammingClassifier
+from geml.classifiers import HillClimbingClassifier
+from geml.regressors import GeneticProgrammingRegressor
+from geml.regressors import HillClimbingRegressor
 
 # Examples of how to use the off_the_shelf classifiers and regressors.
 # ===================================

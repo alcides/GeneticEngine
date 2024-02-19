@@ -2,29 +2,18 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from utils import get_data
-from utils import import_embedded
+from examples.progsys.utils import get_data
+from examples.progsys.utils import import_embedded
 
-from geneticengine.algorithms.gp.simplegp import SimpleGP
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
-    DynamicStructuredGrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.grammatical_evolution.ge import (
-    GrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.grammatical_evolution.structured_ge import (
-    StructuredGrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.grammars.coding.numbers import Literal
-from geneticengine.grammars.coding.numbers import Mul
-from geneticengine.grammars.coding.numbers import Number
-from geneticengine.grammars.coding.numbers import Plus
-from geneticengine.grammars.coding.numbers import SafeDiv
-from geneticengine.grammars.coding.numbers import Var
-from geneticengine.metahandlers.vars import VarRange
+from geml.simplegp import SimpleGP
+from geneticengine.grammar.grammar import extract_grammar
+from geml.grammars.coding.numbers import Literal
+from geml.grammars.coding.numbers import Mul
+from geml.grammars.coding.numbers import Number
+from geml.grammars.coding.numbers import Plus
+from geml.grammars.coding.numbers import SafeDiv
+from geml.grammars.coding.numbers import Var
+from geneticengine.grammar.metahandlers.vars import VarRange
 
 # ===================================
 # This is a simple example on how to use GeneticEngine to solve a GP problem.
@@ -59,33 +48,20 @@ def preprocess():
     return extract_grammar([Plus, Mul, SafeDiv, Literal, Var], Number)
 
 
-def evolve(g, seed, mode, representation=""):
-    if representation == "ge":
-        representation = GrammaticalEvolutionRepresentation
-    elif representation == "sge":
-        representation = StructuredGrammaticalEvolutionRepresentation
-    elif representation == "dsge":
-        representation = DynamicStructuredGrammaticalEvolutionRepresentation
-    else:
-        representation = TreeBasedRepresentation
-
-    prob = SingleObjectiveProblem(
+def evolve(g, seed, mode, representation="treebased"):
+    alg = SimpleGP(
+        grammar=g,
+        representation=representation,
         minimize=True,
         fitness_function=fitness_function,
-    )
-    alg = SimpleGP(
-        g,
-        representation=representation,
-        problem=prob,
-        number_of_generations=50,
+        max_evaluations=10000,
         seed=seed,
         max_depth=10,
         population_size=50,
-        probability_crossover=0.9,
-        timer_stop_criteria=mode,
+        crossover_probability=0.9,
     )
-    ind = alg.evolve()
-    return ind.get_phenotype(), ind.get_fitness(prob), g
+    ind = alg.search()
+    return ind.get_phenotype(), ind.get_fitness(alg.get_problem()), g
 
 
 if __name__ == "__main__":

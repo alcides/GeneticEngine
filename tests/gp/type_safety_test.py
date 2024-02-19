@@ -3,19 +3,17 @@ from __future__ import annotations
 from abc import ABC
 from dataclasses import dataclass
 
-from geneticengine.algorithms.callbacks.callback import Callback
-from geneticengine.algorithms.callbacks.callback import DebugCallback
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp import GeneticProgramming
 from geneticengine.algorithms.gp.operators.combinators import SequenceStep
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
 from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
 from geneticengine.algorithms.gp.operators.selection import TournamentSelection
-from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.tree.operators import FullInitializer
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.evaluation.budget import EvaluationBudget
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.problems import SingleObjectiveProblem
+from geneticengine.random.sources import NativeRandomSource
+from geneticengine.representations.tree.operators import FullInitializer
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 
 
 class Root(ABC):
@@ -38,41 +36,32 @@ class UnderTest(Root):
     b: Root
 
 
-class TestCallback(Callback):
-    def process_iteration(
-        self,
-        generation: int,
-        population,
-        time: float,
-        gp: GP,
-    ) -> None:
-        for ind in population:
-            x = ind.genotype
-            assert isinstance(x, UnderTest)
-            assert isinstance(x.a, Leaf)
+def fitness_function(x):
+    assert isinstance(x, UnderTest)
+    assert isinstance(x.a, Leaf)
+    return x.gengy_nodes
 
 
 class TestGrammar:
     def test_safety(self):
         g = extract_grammar([Leaf, OtherLeaf], UnderTest)
-        gp = GP(
-            representation=TreeBasedRepresentation(g, 10),
-            random_source=RandomSource(seed=123),
+        gp = GeneticProgramming(
             problem=SingleObjectiveProblem(
                 fitness_function=lambda x: x.gengy_nodes,
                 minimize=True,
             ),
+            budget=EvaluationBudget(100),
+            representation=TreeBasedRepresentation(g, 10),
+            random=NativeRandomSource(seed=123),
             population_size=20,
-            stopping_criterium=GenerationStoppingCriterium(10),
-            initializer=FullInitializer(),
+            population_initializer=FullInitializer(),
             step=SequenceStep(
                 TournamentSelection(10),
                 GenericCrossoverStep(1),
                 GenericMutationStep(1),
             ),
-            callbacks=[DebugCallback(), TestCallback()],
         )
-        ind = gp.evolve()
+        ind = gp.search()
         tree = ind.get_phenotype()
         assert isinstance(tree, UnderTest)
         assert isinstance(tree.a, Leaf)

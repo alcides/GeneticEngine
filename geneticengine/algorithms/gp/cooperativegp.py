@@ -1,16 +1,16 @@
 from dataclasses import dataclass
 from typing import Callable, Optional, TypeVar
 
-from geneticengine.algorithms.gp.gp import GP
+from geneticengine.algorithms.gp.gp import GeneticProgramming
 from geneticengine.algorithms.gp.operators.initializers import StandardInitializer
 
-from geneticengine.core.grammar import Grammar
+from geneticengine.grammar.grammar import Grammar
 
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.random.sources import RandomSource, Source
-from geneticengine.core.representations.api import Representation
-from geneticengine.core.representations.tree.operators import InjectInitialPopulationWrapper
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.problems import SingleObjectiveProblem
+from geneticengine.random.sources import NativeRandomSource, RandomSource
+from geneticengine.representations.api import Representation
+from geneticengine.representations.tree.operators import InjectInitialPopulationWrapper
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 
 a = TypeVar("a")
 b = TypeVar("b")
@@ -37,7 +37,7 @@ class CooperativeGP:
         population1_size: int = 100,
         population2_size: int = 200,
         coevolutions: int = 1000,
-        random_source: Optional[Source] = None,
+        random: Optional[RandomSource] = None,
         kwargs1: Optional[dict] = None,
         kwargs2: Optional[dict] = None,
     ):
@@ -52,7 +52,7 @@ class CooperativeGP:
             population1_size (int): Population size of species1
             population2_size (int): Population size of species2
             coevolutions (int): How many iterations of a pair of evolutions
-            random_source (Source): The random number generator
+            random (Source): The random number generator
             kwargs1 (dict): The extra arguments for the GP object of species1
             kwargs2 (dict): The extra arguments for the GP object of species2
         """
@@ -67,16 +67,16 @@ class CooperativeGP:
         self.representation2 = representation2 or TreeBasedRepresentation(grammar=self.g2, max_depth=10)
         self.kwargs1 = kwargs1 or {}
         self.kwargs2 = kwargs2 or {}
-        self.random_source = random_source or RandomSource()
+        self.random = random or NativeRandomSource()
 
-    def evolve(self) -> tuple[a, b]:
+    def search(self) -> tuple[a, b]:
         @dataclass
         class Bests:
             b1: a
             b2: b
 
-        b1: a = self.representation1.create_individual(self.random_source)  # type: ignore
-        b2: b = self.representation2.create_individual(self.random_source)  # type: ignore
+        b1: a = self.representation1.create_genotype(self.random)  # type: ignore
+        b2: b = self.representation2.create_genotype(self.random)  # type: ignore
         self.bests = Bests(b1, b2)
 
         f = self.ff["ff"]
@@ -91,41 +91,37 @@ class CooperativeGP:
         p1 = SingleObjectiveProblem(fitness_function=f1, minimize=True)
         p2 = SingleObjectiveProblem(fitness_function=f2, minimize=False)
 
-        pop1 = init.initialize(p1, self.representation1, self.random_source, self.population1_size)
-        pop2 = init.initialize(p2, self.representation2, self.random_source, self.population1_size)
+        pop1 = init.initialize(p1, self.representation1, self.random, self.population1_size)
+        pop2 = init.initialize(p2, self.representation2, self.random, self.population1_size)
 
         for _ in range(self.coevolutions):
             # We create new problems to avoid results from previous iterations being cached.
             p1 = SingleObjectiveProblem(fitness_function=f1, minimize=True)
             p2 = SingleObjectiveProblem(fitness_function=f2, minimize=False)
 
-            gp1 = GP(
+            gp1 = GeneticProgramming(
                 problem=p1,
                 representation=self.representation1,
-                random_source=self.random_source,
+                random=self.random,
                 population_size=self.population1_size,
-                initializer=InjectInitialPopulationWrapper(
+                population_initializer=InjectInitialPopulationWrapper(
                     [e.get_phenotype() for e in pop1],
                     init,
                 ),  # TODO: we might want to keep individuals, and not only the phenotypes.
                 **self.kwargs1,
             )
-            ind = gp1.evolve()
+            ind = gp1.search()
             self.bests.b1 = ind.get_phenotype()
-            pop1 = gp1.final_population
-            print("DATASET:", ind.get_fitness(p1))
 
-            gp2 = GP(
+            gp2 = GeneticProgramming(
                 problem=p2,
                 representation=self.representation2,
-                random_source=self.random_source,
+                random=self.random,
                 population_size=self.population2_size,
-                initializer=InjectInitialPopulationWrapper([e.get_phenotype() for e in pop2], init),
+                population_initializer=InjectInitialPopulationWrapper([e.get_phenotype() for e in pop2], init),
                 **self.kwargs2,
             )
-            ind = gp2.evolve()
+            ind = gp2.search()
             self.bests.b2 = ind.get_phenotype()
-            pop2 = gp2.final_population
-            print("____________ Explanation:", ind.get_fitness(p2), ind.get_phenotype())
 
         return (self.bests.b1, self.bests.b2)

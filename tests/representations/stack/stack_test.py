@@ -4,10 +4,10 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
 
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.stackgggp import StackBasedGGGPRepresentation
-from geneticengine.metahandlers.lists import ListSizeBetween
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.random.sources import NativeRandomSource
+from geneticengine.representations.stackgggp import StackBasedGGGPRepresentation
+from geneticengine.grammar.metahandlers.lists import ListSizeBetween
 
 
 class Root(ABC):
@@ -36,16 +36,16 @@ class Middle(Root):
 
 class TestStackBased:
     def test_stack_generation(self):
-        r = RandomSource(seed=1)
+        r = NativeRandomSource(seed=1)
         g = extract_grammar([Concrete, Middle, MiddleList], Root, False)
 
         max_depth = 10
 
         repr = StackBasedGGGPRepresentation(g, max_depth)
-        genotype = repr.create_individual(r, max_depth)
-        
+        genotype = repr.create_genotype(r)
+
         for i in range(10):
-            genotype = repr.get_mutation().mutate(genotype, None, None, repr, r, 0, i)
+            genotype = repr.mutate(r, genotype)
 
         phenotype = repr.genotype_to_phenotype(genotype)
         assert phenotype is not None

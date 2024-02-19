@@ -1,21 +1,39 @@
 # Stopping Criteria
 
-Genetic Engine suports different criteria to finish the evolution: limiting the number of generations, or limiting the execution time.
+Search algorithms can be defined with different budgets (subclasses of `geneticengine.evaluation.budget.SearchBudget`)
 
-## Generation Limit
+## Time Budget
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.algorithms.gp.operators.stop.GenerationStoppingCriterium
+.. autoapiclass:: geneticengine.evaluation.budget.TimeBudget
 ```
 
-## Time Limit
+## Evaluation Budget
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.algorithms.gp.operators.stop.TimeStoppingCriterium
+.. autoapiclass:: geneticengine.evaluation.budget.EvaluationBudget
 ```
 
-## Evaluation Limit
+## Target Fitness
+
+For single-objective:
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.algorithms.gp.operators.stop.EvaluationLimitCriterium
+.. autoapiclass:: geneticengine.evaluation.budget.TargetFitness
+```
+
+For multi-objective:
+
+```{eval-rst}
+.. autoapiclass:: geneticengine.evaluation.budget.TargetMultiFitness
+```
+
+## Budget Combinators
+
+## AnyOf
+
+Terminates when either of the two criteria is true.
+
+```{eval-rst}
+.. autoapiclass:: geneticengine.evaluation.budget.AnyOf
 ```

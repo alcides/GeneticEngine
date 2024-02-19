@@ -5,15 +5,14 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Annotated
 
-from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
-from geneticengine.algorithms.gp.simplegp import SimpleGP
+from geml.simplegp import SimpleGP
 from geneticengine.algorithms.hill_climbing import HC
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.grammar import Grammar
-from geneticengine.core.problems import Problem
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.metahandlers.lists import ListSizeBetween
+from geneticengine.evaluation.budget import EvaluationBudget
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.grammar.grammar import Grammar
+from geneticengine.problems import SingleObjectiveProblem
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.grammar.metahandlers.lists import ListSizeBetween
 
 # ===================================
 # This is a simple example on how to use GeneticEngine to solve a GP problem.
@@ -173,41 +172,34 @@ def fitness_function(i) -> float:
 
 
 class SantaFeBenchmark:
-    def get_problem(self) -> Problem:
-        return SingleObjectiveProblem(
-            minimize=False,
-            fitness_function=fitness_function,
-        )
-
     def get_grammar(self) -> Grammar:
         return extract_grammar([ActionBlock, Action, IfFood, Move, Right, Left], ActionMain)
 
     def main(self, **args):
         g = self.get_grammar()
-        problem = self.get_problem()
         alg = SimpleGP(
-            g,
-            problem=problem,
-            probability_crossover=1,
-            probability_mutation=0.5,
-            number_of_generations=20,
+            grammar=g,
+            minimize=False,
+            fitness_function=fitness_function,
+            crossover_probability=1,
+            mutation_probability=0.5,
+            max_evaluations=10000,
             max_depth=10,
-            max_init_depth=6,
             population_size=50,
             selection_method=("tournament", 2),
-            n_elites=5,
+            elitism=5,
             **args,
         )
-        ind = alg.evolve()
+        ind = alg.search()
         print("\n======\nGP\n======\n")
         print(f"{ind.get_fitness(alg.problem)} - {ind}")
 
         alg_hc = HC(
-            representation=TreeBasedRepresentation(g, 10),
             problem=SingleObjectiveProblem(fitness_function),
-            stopping_criterium=GenerationStoppingCriterium(50),
+            representation=TreeBasedRepresentation(g, 10),
+            budget=EvaluationBudget(1000),
         )
-        ind = alg_hc.evolve()
+        ind = alg_hc.search()
         print("\n======\nHC\n======\n")
         print(f"{ind.get_fitness(alg_hc.problem)} - {ind}")
 

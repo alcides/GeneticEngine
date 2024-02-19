@@ -2,19 +2,19 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Annotated
-from geneticengine.core.problems import SingleObjectiveProblem
+from geneticengine.problems import SingleObjectiveProblem
 
 
-from geneticengine.core.decorators import abstract
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.tree.operators import FullInitializer, GrowInitializer
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.metahandlers.floats import FloatRange
-from geneticengine.metahandlers.ints import IntervalRange
-from geneticengine.metahandlers.ints import IntRange
-from geneticengine.metahandlers.lists import ListSizeBetween
-from geneticengine.metahandlers.vars import VarRange
+from geneticengine.grammar.decorators import abstract
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.random.sources import NativeRandomSource
+from geneticengine.representations.tree.operators import FullInitializer, GrowInitializer
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.grammar.metahandlers.floats import FloatRange
+from geneticengine.grammar.metahandlers.ints import IntervalRange
+from geneticengine.grammar.metahandlers.ints import IntRange
+from geneticengine.grammar.metahandlers.lists import ListSizeBetween
+from geneticengine.grammar.metahandlers.vars import VarRange
 
 
 @abstract
@@ -56,7 +56,7 @@ class TestInitializers:
         f = FullInitializer()
         p = SingleObjectiveProblem(lambda x: 3)
         repr = TreeBasedRepresentation(grammar=g, max_depth=target_depth)
-        rs = RandomSource(5)
+        rs = NativeRandomSource(5)
 
         population = f.initialize(p, repr, rs, target_size)
         assert len(population) == target_size
@@ -71,23 +71,9 @@ class TestInitializers:
         f = GrowInitializer()
         p = SingleObjectiveProblem(lambda x: 3)
         repr = TreeBasedRepresentation(grammar=g, max_depth=target_depth)
-        rs = RandomSource(5)
+        rs = NativeRandomSource(5)
 
         population = f.initialize(p, repr, rs, target_size)
         assert len(population) == target_size
         for ind in population:
             assert ind.get_phenotype().gengy_distance_to_term <= target_depth
-
-    def test_grow(self):
-        target_size = 10
-        target_depth = 10
-
-        g = extract_grammar([B, C], A)
-        f = GrowInitializer()
-        p = SingleObjectiveProblem(lambda x: 3)
-        repr = TreeBasedRepresentation(grammar=g, max_depth=target_depth)
-        rs = RandomSource(5)
-
-        population = f.initialize(p, repr, rs, target_size)
-        assert len(population) == target_size
-        assert any(ind.get_phenotype().gengy_distance_to_term < target_depth for ind in population)

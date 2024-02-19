@@ -4,15 +4,15 @@ from typing import Annotated
 
 import numpy as np
 
-from geneticengine.algorithms.gp.simplegp import SimpleGP
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.grammars.sgp import Literal
-from geneticengine.grammars.sgp import Mul
-from geneticengine.grammars.sgp import Number
-from geneticengine.grammars.sgp import Plus
-from geneticengine.grammars.sgp import simplify
-from geneticengine.grammars.sgp import Var
-from geneticengine.metahandlers.vars import VarRange
+from geml.simplegp import SimpleGP
+from geneticengine.grammar.grammar import extract_grammar
+from geml.grammars.sgp import Literal
+from geml.grammars.sgp import Mul
+from geml.grammars.sgp import Number
+from geml.grammars.sgp import Plus
+from geml.grammars.sgp import simplify
+from geml.grammars.sgp import Var
+from geneticengine.grammar.metahandlers.vars import VarRange
 
 SEED = 100
 
@@ -51,13 +51,13 @@ g = extract_grammar([Mul, Plus, Var, Literal], Number)
 
 gp = SimpleGP(
     grammar=g,
-    evaluation_function=fitness,
+    fitness_function=fitness,
     minimize=True,
-    number_of_generations=10,
-    save_to_csv="scratch.csv",
+    max_evaluations=10 * 100,
+    csv_output="scratch.csv",
+    csv_extra_fields={"test_data": lambda p: str(fitness_test(p))},
     seed=SEED,
-    test_data=fitness_test,
 )
 
-ind = gp.evolve()
+ind = gp.search()
 print(simplify(ind.get_phenotype()))

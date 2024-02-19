@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.structure import GeneticStep
-from geneticengine.core.problems import Problem
-from geneticengine.core.random.sources import Source
-from geneticengine.core.representations.api import Representation
-from geneticengine.core.evaluators import Evaluator
+from geneticengine.problems import Problem
+from geneticengine.random.sources import RandomSource
+from geneticengine.representations.api import Representation
+from geneticengine.evaluation import Evaluator
 
 
 class NoveltyStep(GeneticStep):
@@ -16,15 +16,15 @@ class NoveltyStep(GeneticStep):
         problem: Problem,
         evaluator: Evaluator,
         representation: Representation,
-        random_source: Source,
+        random: RandomSource,
         population: list[Individual],
         target_size: int,
         generation: int,
     ) -> list[Individual]:
         return [
             Individual(
-                representation.create_individual(random_source, depth=None),
-                representation.genotype_to_phenotype,
+                representation.create_genotype(random),
+                representation,
             )
             for _ in range(target_size)
         ]

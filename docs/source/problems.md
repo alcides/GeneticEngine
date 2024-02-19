@@ -6,18 +6,18 @@ Genetic Engine suports both Single and Multi-Objective problems.
 ## The Problem Interface
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.core.problems.Problem
+.. autoapiclass:: geneticengine.problems.Problem
 ```
 
 ## Single-Objective Problem
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.core.problems.SingleObjectiveProblem
+.. autoapiclass:: geneticengine.problems.SingleObjectiveProblem
 ```
 
 
 ## Multi-Objective Problem
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.core.problems.MultiObjectiveProblem
+.. autoapiclass:: geneticengine.problems.MultiObjectiveProblem
 ```

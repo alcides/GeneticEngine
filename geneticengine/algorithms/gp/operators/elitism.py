@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.structure import GeneticStep
-from geneticengine.core.fitness_helpers import sort_population
-from geneticengine.core.problems import Problem
-from geneticengine.core.random.sources import Source
-from geneticengine.core.representations.api import Representation
-from geneticengine.core.evaluators import Evaluator
+from geneticengine.problems.helpers import sort_population
+from geneticengine.problems import Problem
+from geneticengine.random.sources import RandomSource
+from geneticengine.representations.api import Representation
+from geneticengine.evaluation import Evaluator
 
 
 class ElitismStep(GeneticStep):
@@ -17,11 +17,11 @@ class ElitismStep(GeneticStep):
         problem: Problem,
         evaluator: Evaluator,
         representation: Representation,
-        random_source: Source,
+        random: RandomSource,
         population: list[Individual],
         target_size: int,
         generation: int,
     ) -> list[Individual]:
-        evaluator.eval(problem, population)
+        evaluator.evaluate(problem, population)
         new_population = sort_population(population, problem)
         return new_population[:target_size]

@@ -3,20 +3,20 @@ from __future__ import annotations
 from random import random
 from typing import Annotated
 
-from geneticengine.algorithms.gp.gp import GP
-from geneticengine.algorithms.gp.operators.stop import TimeStoppingCriterium
+from geneticengine.algorithms.gp.gp import GeneticProgramming
 from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.algorithms.random_search import RandomSearch
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.grammars.basic_math import SafeDiv
-from geneticengine.grammars.sgp import Literal
-from geneticengine.grammars.sgp import Mul
-from geneticengine.grammars.sgp import Number
-from geneticengine.grammars.sgp import Plus
-from geneticengine.grammars.sgp import Var
-from geneticengine.metahandlers.vars import VarRange
+from geneticengine.evaluation.budget import TimeBudget
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.problems import SingleObjectiveProblem
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
+from geml.grammars.basic_math import SafeDiv
+from geml.grammars.sgp import Literal
+from geml.grammars.sgp import Mul
+from geml.grammars.sgp import Number
+from geml.grammars.sgp import Plus
+from geml.grammars.sgp import Var
+from geneticengine.grammar.metahandlers.vars import VarRange
 
 # ===================================
 # This is a simple example on how to use GeneticEngine to solve a GP problem.
@@ -49,33 +49,21 @@ problem = SingleObjectiveProblem(
     minimize=True,
     fitness_function=fit,
 )
-stopping_criterium = TimeStoppingCriterium(3)
+budget = TimeBudget(3)
 
 
-alg_gp = GP(
-    representation=representation,
-    problem=problem,
-    stopping_criterium=stopping_criterium,
-)
-ind = alg_gp.evolve()
+alg_gp = GeneticProgramming(problem=problem, budget=budget, representation=representation)
+ind = alg_gp.search()
 print("\n======\nGP\n======\n")
 print(f"{ind.get_fitness(problem)} - {ind}")
 
 
-alg_hc = HC(
-    representation=representation,
-    problem=problem,
-    stopping_criterium=stopping_criterium,
-)
-ind = alg_hc.evolve()
+alg_hc = HC(problem=problem, budget=budget, representation=representation)
+ind = alg_hc.search()
 print("\n======\nHC\n======\n")
 print(f"{ind.get_fitness(problem)} - {ind}")
 
-alg_rs = RandomSearch(
-    representation=representation,
-    problem=problem,
-    stopping_criterium=stopping_criterium,
-)
-ind = alg_rs.evolve()
+alg_rs = RandomSearch(problem=problem, budget=budget, representation=representation)
+ind = alg_rs.search()
 print("\n======\nRS\n======\n")
 print(f"{ind.get_fitness(problem)} - {ind}")

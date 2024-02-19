@@ -8,12 +8,10 @@ from typing import Any
 import numpy as np
 from sklearn.metrics import mean_squared_error
 
-from geneticengine.algorithms.gp.simplegp import SimpleGP
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.grammar import Grammar
-from geneticengine.core.problems import Problem
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.metahandlers.ints import IntRange
+from geml.simplegp import SimpleGP
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.grammar.grammar import Grammar
+from geneticengine.grammar.metahandlers.ints import IntRange
 
 # ===================================
 # This is an example on how to use GeneticEngine to solve a GP problem.
@@ -3123,12 +3121,6 @@ def fitness_function_alternative(n: Scalar):
 
 
 class VectorialGPBenchmark:
-    def get_problem(self) -> Problem:
-        return SingleObjectiveProblem(
-            minimize=True,
-            fitness_function=fitness_function,
-        )
-
     def get_grammar(self) -> Grammar:
         """See fitness/vectorialgp.py for docs.
 
@@ -3167,22 +3159,22 @@ class VectorialGPBenchmark:
 
     def main(self, **args):
         g = self.get_grammar()
-        prob = self.get_problem()
         alg = SimpleGP(
-            g,
-            problem=prob,
-            probability_crossover=0.75,
-            probability_mutation=0.01,
-            number_of_generations=30,
+            grammar=g,
+            minimize=True,
+            fitness_function=fitness_function,
+            crossover_probability=0.75,
+            mutation_probability=0.01,
+            max_evaluations=10000,
             max_depth=10,
             population_size=50,
             selection_method=("tournament", 2),
-            n_elites=5,
+            elitism=5,
             **args,
         )
-        best = alg.evolve()
+        best = alg.search()
         print(
-            f"Fitness of {best.get_fitness(prob)} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+            f"Fitness of {best.get_fitness(alg.get_problem())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
         )
 
 

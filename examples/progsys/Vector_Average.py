@@ -2,40 +2,30 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from utils import get_data
-from utils import import_embedded
+from examples.progsys.utils import get_data
+from examples.progsys.utils import import_embedded
 
-import geneticengine.grammars.coding.lists as lists
-import geneticengine.grammars.coding.numbers as numbers
-from geneticengine.algorithms.gp.simplegp import SimpleGP
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge import (
-    DynamicStructuredGrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.grammatical_evolution.ge import (
-    GrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.grammatical_evolution.structured_ge import (
-    StructuredGrammaticalEvolutionRepresentation,
-)
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.grammars.coding.classes import Number
-from geneticengine.grammars.coding.classes import Statement
-from geneticengine.grammars.coding.classes import XAssign
-from geneticengine.grammars.coding.conditions import Equals
-from geneticengine.grammars.coding.conditions import GreaterOrEqualThan
-from geneticengine.grammars.coding.conditions import GreaterThan
-from geneticengine.grammars.coding.conditions import Is
-from geneticengine.grammars.coding.conditions import IsNot
-from geneticengine.grammars.coding.conditions import LessOrEqualThan
-from geneticengine.grammars.coding.conditions import LessThan
-from geneticengine.grammars.coding.conditions import NotEquals
-from geneticengine.grammars.coding.control_flow import IfThen
-from geneticengine.grammars.coding.control_flow import IfThenElse
-from geneticengine.grammars.coding.logical_ops import And
-from geneticengine.grammars.coding.logical_ops import Or
-from geneticengine.metahandlers.vars import VarRange
+import geml.grammars.coding.lists as lists
+import geml.grammars.coding.numbers as numbers
+from geml.simplegp import SimpleGP
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.problems import SingleObjectiveProblem
+from geml.grammars.coding.classes import Number
+from geml.grammars.coding.classes import Statement
+from geml.grammars.coding.classes import XAssign
+from geml.grammars.coding.conditions import Equals
+from geml.grammars.coding.conditions import GreaterOrEqualThan
+from geml.grammars.coding.conditions import GreaterThan
+from geml.grammars.coding.conditions import Is
+from geml.grammars.coding.conditions import IsNot
+from geml.grammars.coding.conditions import LessOrEqualThan
+from geml.grammars.coding.conditions import LessThan
+from geml.grammars.coding.conditions import NotEquals
+from geml.grammars.coding.control_flow import IfThen
+from geml.grammars.coding.control_flow import IfThenElse
+from geml.grammars.coding.logical_ops import And
+from geml.grammars.coding.logical_ops import Or
+from geneticengine.grammar.metahandlers.vars import VarRange
 
 
 # ===================================
@@ -107,30 +97,21 @@ def fitness_function(n: Statement):
     return fitness
 
 
-def evolve(g, seed, mode, representation=""):
-    if representation == "ge":
-        representation = GrammaticalEvolutionRepresentation
-    elif representation == "sge":
-        representation = StructuredGrammaticalEvolutionRepresentation
-    elif representation == "dsge":
-        representation = DynamicStructuredGrammaticalEvolutionRepresentation
-    else:
-        representation = TreeBasedRepresentation
+def evolve(g, seed, mode, representation="treebased"):
     alg = SimpleGP(
-        g,
+        grammar=g,
         representation=representation,
         problem=SingleObjectiveProblem(
             minimize=True,
             fitness_function=fitness_function,
         ),
-        number_of_generations=5,
+        max_evaluations=10000,
         seed=seed,
         max_depth=10,
         population_size=50,
-        probability_crossover=0.9,
-        timer_stop_criteria=mode,
+        crossover_probability=0.9,
     )
-    ind = alg.evolve()
+    ind = alg.search()
     return ind.get_phenotype(), ind.fitness, g
 
 

@@ -39,13 +39,13 @@ And then you can the program using:
 ```python
 grammar = extract_grammar([Literal, Plus], MyExpr)
 alg = SimpleGP(
-    grammar,
-    fitness_function,
+    grammar=grammar,
+    fitness_function=fitness_function,
     minimize=True,
     population_size=200,
-    number_of_generations=200,
+    max_evaluations=10000,
 )
-(b, bf) = alg.evolve()
+(b, bf) = alg.search()
 print(bf, b)
 ```
 

@@ -2,11 +2,10 @@ from __future__ import annotations
 
 from abc import ABC
 
-from geneticengine.algorithms.gp.simplegp import SimpleGP
-from geneticengine.core.decorators import weight
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
+from geml.simplegp import SimpleGP
+from geneticengine.grammar.decorators import weight
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.solutions.tree import TreeNode
 
 # ===================================
 # This is an example of how to create Probabilistic grammars.
@@ -41,26 +40,15 @@ if __name__ == "__main__":
     g = extract_grammar([A, B, C], R)
 
     alg = SimpleGP(
-        g,
-        representation=TreeBasedRepresentation,
-        problem=SingleObjectiveProblem(
-            fitness_function=fitness_function,
-            minimize=False,
-        ),
+        grammar=g,
+        representation="treebased",
+        fitness_function=fitness_function,
+        minimize=False,
         max_depth=10,
         population_size=1000,
-        number_of_generations=10,
-        minimize=False,
+        max_evaluations=10 * 1000,
     )
-    ind = alg.evolve()
+    ind = alg.search()
 
-    def count(xs):
-        d = {}
-        for x in xs:
-            if x not in d:
-                d[x] = 1
-            else:
-                d[x] += 1
-        return d
-
-    print(count([x.genotype.__class__ for x in alg.final_population]))
+    x: TreeNode = ind.get_phenotype()
+    print(x)

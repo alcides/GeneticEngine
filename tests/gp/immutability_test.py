@@ -3,24 +3,24 @@ from abc import ABC
 
 from dataclasses import dataclass
 from typing import Annotated
-from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
 from geneticengine.algorithms.gp.operators.selection import TournamentSelection
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.representations.grammatical_evolution.ge import GrammaticalEvolutionRepresentation
+from geneticengine.problems import SingleObjectiveProblem
+from geneticengine.representations.grammatical_evolution.ge import GrammaticalEvolutionRepresentation
 
 import pytest
 
-from geneticengine.core.decorators import abstract
-from geneticengine.core.evaluators import SequentialEvaluator
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.metahandlers.floats import FloatRange
-from geneticengine.metahandlers.ints import IntervalRange
-from geneticengine.metahandlers.ints import IntRange
-from geneticengine.metahandlers.lists import ListSizeBetween
-from geneticengine.metahandlers.vars import VarRange
+from geneticengine.grammar.decorators import abstract
+from geneticengine.evaluation.sequential import SequentialEvaluator
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.random.sources import NativeRandomSource
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.grammar.metahandlers.floats import FloatRange
+from geneticengine.grammar.metahandlers.ints import IntervalRange
+from geneticengine.grammar.metahandlers.ints import IntRange
+from geneticengine.grammar.metahandlers.lists import ListSizeBetween
+from geneticengine.grammar.metahandlers.vars import VarRange
 from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
 from geneticengine.algorithms.gp.gp import default_generic_programming_step
 
@@ -79,8 +79,8 @@ class TestImmutability:
     def test_hash(self):
         g = extract_grammar([A, B], A)
         rep = TreeBasedRepresentation(g, max_depth=10)
-        r = RandomSource(3)
-        ind = rep.create_individual(r, 10)
+        r = NativeRandomSource(3)
+        ind = rep.create_genotype(r, depth=10)
         assert isinstance(hash(ind), int)
 
     @pytest.mark.parametrize(
@@ -101,14 +101,13 @@ class TestImmutability:
     )
     def test_immutability(self, test_step, g):
         rep = GrammaticalEvolutionRepresentation(g, max_depth=10)
-        r = RandomSource(3)
+        r = NativeRandomSource(3)
         problem = SingleObjectiveProblem(fitness_function=lambda x: 1)
 
         population_size = 1000
 
         initial_population = [
-            Individual(genotype=rep.create_individual(r, 10), genotype_to_phenotype=rep.genotype_to_phenotype)
-            for _ in range(population_size)
+            Individual(genotype=rep.create_genotype(r, depth=10), representation=rep) for _ in range(population_size)
         ]
 
         def encode_population(pop: list[Individual]) -> list[str]:
@@ -121,7 +120,7 @@ class TestImmutability:
                 problem=problem,
                 evaluator=SequentialEvaluator(),
                 representation=rep,
-                random_source=r,
+                random=r,
                 population=initial_population,
                 target_size=population_size,
                 generation=i,

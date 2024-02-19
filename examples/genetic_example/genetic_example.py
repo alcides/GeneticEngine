@@ -8,11 +8,10 @@ import numpy as np
 import pandas as pd
 from sklearn import metrics
 
-from geneticengine.algorithms.gp.simplegp import SimpleGP
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.metahandlers.ints import IntRange
-from geneticengine.metahandlers.vars import VarRange
+from geml.simplegp import SimpleGP
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.grammar.metahandlers.ints import IntRange
+from geneticengine.grammar.metahandlers.vars import VarRange
 
 dataset2 = pd.read_csv("dataset_secundario.csv", sep=";")
 
@@ -94,15 +93,15 @@ def main():
     g = extract_grammar([Variable, And, LessThan, TotalCount], DecisionNode)
 
     alg = SimpleGP(
-        g,
-        fitness_function,
-        TreeBasedRepresentation,
+        grammar=g,
+        fitness_function=fitness_function,
+        representation="treebased",
         minimize=False,
         seed=122,
         population_size=10,
-        number_of_generations=5,
+        max_evaluations=10000,
     )
-    ind = alg.evolve()
+    ind = alg.search()
     print(ind)
 
 

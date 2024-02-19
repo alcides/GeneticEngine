@@ -1,12 +1,12 @@
 from __future__ import annotations
 from copy import deepcopy
 
-from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.structure import GeneticStep
-from geneticengine.core.problems import Problem
-from geneticengine.core.random.sources import Source
-from geneticengine.core.representations.api import Representation
-from geneticengine.core.evaluators import Evaluator
+from geneticengine.problems import Problem
+from geneticengine.random.sources import RandomSource
+from geneticengine.representations.api import Representation
+from geneticengine.evaluation import Evaluator
 
 
 class SequenceStep(GeneticStep):
@@ -21,7 +21,7 @@ class SequenceStep(GeneticStep):
         problem: Problem,
         evaluator: Evaluator,
         representation: Representation,
-        random_source: Source,
+        random: RandomSource,
         population: list[Individual],
         target_size: int,
         generation: int,
@@ -31,7 +31,7 @@ class SequenceStep(GeneticStep):
                 problem,
                 evaluator,
                 representation,
-                random_source,
+                random,
                 population,
                 target_size,
                 generation,
@@ -84,7 +84,7 @@ class ParallelStep(GeneticStep):
         problem: Problem,
         evaluator: Evaluator,
         representation: Representation,
-        random_source: Source,
+        random: RandomSource,
         population: list[Individual],
         target_size: int,
         generation: int,
@@ -98,7 +98,7 @@ class ParallelStep(GeneticStep):
                     problem,
                     evaluator,
                     representation,
-                    random_source,
+                    random,
                     deepcopy(population),
                     end - start,
                     generation,
@@ -137,7 +137,7 @@ class ExclusiveParallelStep(ParallelStep):
         problem: Problem,
         evaluator: Evaluator,
         representation: Representation,
-        random_source: Source,
+        random: RandomSource,
         population: list[Individual],
         target_size: int,
         generation: int,
@@ -148,20 +148,19 @@ class ExclusiveParallelStep(ParallelStep):
         )
         ranges = list(zip(indices, indices[1:]))
         assert len(ranges) == len(self.steps)
+        ranges[-1] = (ranges[-1][0], target_size)  # Fix the last position
 
-        retlist = self.concat(
-            [
-                step.iterate(
-                    problem,
-                    evaluator,
-                    representation,
-                    random_source,
-                    population[start:end],
-                    end - start,
-                    generation,
-                )
-                for ((start, end), step) in zip(ranges, self.steps)
-            ],
-        )
-        assert len(retlist) == target_size
+        retlist = []
+        for (start, end), step in zip(ranges, self.steps):
+            tmplist = step.iterate(
+                problem,
+                evaluator,
+                representation,
+                random,
+                population[start:end],
+                end - start,
+                generation,
+            )
+            retlist.extend(tmplist)
+        assert len(retlist) == target_size, f"{retlist} does not have size {target_size}"
         return retlist

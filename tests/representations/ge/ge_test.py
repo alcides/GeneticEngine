@@ -2,12 +2,12 @@ from __future__ import annotations
 from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
-from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.solutions.individual import Individual
 
-from geneticengine.core.grammar import Grammar, extract_grammar
-from geneticengine.core.random.sources import RandomSource, Source
-from geneticengine.core.representations.grammatical_evolution.ge import GrammaticalEvolutionRepresentation
-from geneticengine.metahandlers.base import MetaHandlerGenerator
+from geneticengine.grammar.grammar import Grammar, extract_grammar
+from geneticengine.random.sources import NativeRandomSource, RandomSource
+from geneticengine.representations.grammatical_evolution.ge import GrammaticalEvolutionRepresentation
+from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator
 
 
 class RandomDNA(MetaHandlerGenerator):
@@ -19,7 +19,7 @@ class RandomDNA(MetaHandlerGenerator):
 
     def generate(
         self,
-        r: Source,
+        r: RandomSource,
         g: Grammar,
         rec,
         new_symbol,
@@ -41,9 +41,9 @@ class Leaf(Root):
 
 
 def test_metahandler_gen():
-    r = RandomSource(seed=1)
+    r = NativeRandomSource(seed=1)
     g = extract_grammar([Leaf], Root)
     rep = GrammaticalEvolutionRepresentation(g, max_depth=2)
-    ind = Individual(genotype=rep.create_individual(r=r, g=g), genotype_to_phenotype=rep.genotype_to_phenotype)
+    ind = Individual(genotype=rep.create_genotype(random=r), representation=rep)
 
     assert ind.get_phenotype()

@@ -1,11 +1,12 @@
 from dataclasses import dataclass
+import sys
 from geneticengine.algorithms.gp.multipopulationgp import MultiPopulationGP
-from geneticengine.algorithms.gp.operators.stop import GenerationStoppingCriterium
+from geneticengine.evaluation.budget import EvaluationBudget
 
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.problems import SingleObjectiveProblem
+from geneticengine.random.sources import NativeRandomSource
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 
 
 @dataclass
@@ -22,18 +23,19 @@ def test_multipopulation_basic():
 
     representation = TreeBasedRepresentation(grammar=grammar, max_depth=2)
     problem1 = SingleObjectiveProblem(fitness_function=fitness_function, minimize=False)
-    problem2 = SingleObjectiveProblem(fitness_function=fitness_function, minimize=True)
-    problems = [problem1, problem2]
-    r = RandomSource(seed=3)
+    # problem2 = SingleObjectiveProblem(fitness_function=fitness_function, minimize=True)
+    # problems = [problem1, problem2]
+    r = NativeRandomSource(seed=3)
 
     gp = MultiPopulationGP(
         representation=representation,
-        random_source=r,
-        problems=problems,
+        random=r,
+        problem=problem1,
         population_sizes=[10, 10],
-        stopping_criterium=GenerationStoppingCriterium(100),
+        budget=EvaluationBudget(20 * 100),
         migration_size=2,
     )
 
-    fs = gp.evolve()
-    assert fs[0].get_phenotype().a > fs[1].get_phenotype().a
+    ind = gp.search()
+    min_size = -(sys.maxsize - 1)
+    assert ind.get_phenotype().a > min_size

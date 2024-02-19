@@ -7,19 +7,20 @@ from typing import Annotated
 import pytest
 
 from geneticengine.algorithms.gp.gp import default_generic_programming_step
-from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.representations.api import Representation
+from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.operators.combinators import SequenceStep
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
 from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
 from geneticengine.algorithms.gp.operators.selection import TournamentSelection
 from geneticengine.algorithms.gp.structure import GeneticStep
-from geneticengine.core.evaluators import Evaluator, SequentialEvaluator
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.problems import Fitness, Problem, SingleObjectiveProblem
-from geneticengine.core.random.sources import RandomSource, Source
-from geneticengine.core.representations.api import Representation
-from geneticengine.core.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.metahandlers.lists import ListSizeBetween
+from geneticengine.evaluation import Evaluator
+from geneticengine.evaluation.sequential import SequentialEvaluator
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.problems import Fitness, Problem, SingleObjectiveProblem
+from geneticengine.random.sources import NativeRandomSource, RandomSource
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.grammar.metahandlers.lists import ListSizeBetween
 
 
 class Alt(ABC):
@@ -43,7 +44,7 @@ class CacheFitness(GeneticStep):
         problem: Problem,
         evaluator: Evaluator,
         representation: Representation,
-        random_source: Source,
+        random: RandomSource,
         population: list[Individual],
         target_size: int,
         generation: int,
@@ -66,7 +67,7 @@ class TestPreCache:
     def test_immutability(self, test_step):
         g = extract_grammar([Sub], Base)
         rep = TreeBasedRepresentation(g, max_depth=10)
-        r = RandomSource(3)
+        r = NativeRandomSource(3)
 
         def fitness_function(x):
             assert False
@@ -75,8 +76,7 @@ class TestPreCache:
         population_size = 1000
 
         initial_population = [
-            Individual(genotype=rep.create_individual(r, 10), genotype_to_phenotype=rep.genotype_to_phenotype)
-            for _ in range(population_size)
+            Individual(genotype=rep.create_genotype(r), representation=rep) for _ in range(population_size)
         ]
 
         def encode_population(pop: list[Individual]) -> list[str]:
@@ -91,7 +91,7 @@ class TestPreCache:
                 problem=problem,
                 evaluator=SequentialEvaluator(),
                 representation=rep,
-                random_source=r,
+                random=r,
                 population=initial_population,
                 target_size=population_size,
                 generation=i,

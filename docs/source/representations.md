@@ -11,36 +11,51 @@ The representation can be chosen by the user. There are many discussions on whic
 ## Tree-based
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.core.representations.tree.treebased.TreeBasedRepresentation
+.. autoapiclass:: geneticengine.representations.tree.treebased.TreeBasedRepresentation
 ```
 
 ## Grammatical Evolution
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.core.representations.grammatical_evolution.ge.GrammaticalEvolutionRepresentation
+.. autoapiclass:: geneticengine.representations.grammatical_evolution.ge.GrammaticalEvolutionRepresentation
 ```
 
 ## Structured Grammatical Evolution
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.core.representations.grammatical_evolution.structured_ge.StructuredGrammaticalEvolutionRepresentation
+.. autoapiclass:: geneticengine.representations.grammatical_evolution.structured_ge.StructuredGrammaticalEvolutionRepresentation
 ```
 
 ## Dynamic Structured Grammatical Evolution
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.core.representations.grammatical_evolution.dynamic_structured_ge.DynamicStructuredGrammaticalEvolutionRepresentation
+.. autoapiclass:: geneticengine.representations.grammatical_evolution.dynamic_structured_ge.DynamicStructuredGrammaticalEvolutionRepresentation
 ```
 
 ## Stack-based Grammatical Evolution
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.core.representations.stackgggp.StackBasedGGGPRepresentation
+.. autoapiclass:: geneticengine.representations.stackgggp.StackBasedGGGPRepresentation
 ```
 
-## Probabilistic Grammatical Evolution (PGE)
+## Custom Representations
 
-Genetic Engine supports PGE. By some, PGE is recognized as an individual-representation method, even though the PGE concept can be applied to any of the above-mentioned individual-representation methods. As such, we have included an explanation in the [grammars section](grammars.md).
+To create a custom representation, you just need to subclass the following abstract class:
+
+```{eval-rst}
+.. autoapiclass:: geneticengine.representations.api.Representation
+```
+
+To support Genetic Programming, you also need to implement:
+
+```{eval-rst}
+.. autoapiclass:: geneticengine.representations.api.RepresentationWithMutation
+```
+
+```{eval-rst}
+.. autoapiclass:: geneticengine.representations.api.RepresentationWithCrossover
+```
+
 
 ##### References
 

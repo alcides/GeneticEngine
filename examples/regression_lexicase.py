@@ -6,24 +6,22 @@ from typing import Annotated
 import numpy as np
 import pandas as pd
 
-from geneticengine.algorithms.gp.simplegp import SimpleGP
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.grammar import Grammar
-from geneticengine.core.problems import MultiObjectiveProblem
-from geneticengine.core.problems import Problem
-from geneticengine.grammars.basic_math import Exp
-from geneticengine.grammars.basic_math import SafeDiv
-from geneticengine.grammars.basic_math import SafeLog
-from geneticengine.grammars.basic_math import SafeSqrt
-from geneticengine.grammars.basic_math import Sin
-from geneticengine.grammars.basic_math import Tanh
-from geneticengine.grammars.sgp import Minus
-from geneticengine.grammars.sgp import Mul
-from geneticengine.grammars.sgp import Number
-from geneticengine.grammars.sgp import Plus
-from geneticengine.grammars.sgp import Var
-from geneticengine.metahandlers.ints import IntRange
-from geneticengine.metahandlers.vars import VarRange
+from geml.simplegp import SimpleGP
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.grammar.grammar import Grammar
+from geml.grammars.basic_math import Exp
+from geml.grammars.basic_math import SafeDiv
+from geml.grammars.basic_math import SafeLog
+from geml.grammars.basic_math import SafeSqrt
+from geml.grammars.basic_math import Sin
+from geml.grammars.basic_math import Tanh
+from geml.grammars.sgp import Minus
+from geml.grammars.sgp import Mul
+from geml.grammars.sgp import Number
+from geml.grammars.sgp import Plus
+from geml.grammars.sgp import Var
+from geneticengine.grammar.metahandlers.ints import IntRange
+from geneticengine.grammar.metahandlers.vars import VarRange
 
 # ===================================
 # This is a simple example of normal regression using normal GP,
@@ -109,13 +107,6 @@ def lexicase_parameters():
 
 
 class LexicaseRegressionBenchmark:
-    def get_problem(self) -> Problem:
-        fitness_function_lexicase, minimizelist = lexicase_parameters()
-        return MultiObjectiveProblem(
-            minimize=minimizelist,
-            fitness_function=fitness_function_lexicase,
-        )
-
     def get_grammar(self) -> Grammar:
         """<e>  ::=  <e>+<e>|
 
@@ -143,17 +134,20 @@ class LexicaseRegressionBenchmark:
 
     def main(self, **args):
         g = self.get_grammar()
-        prob = self.get_problem()
+
+        fitness_function_lexicase, minimizelist = lexicase_parameters()
+
         alg = SimpleGP(
-            g,
-            problem=prob,
-            number_of_generations=10,
+            grammar=g,
+            minimize=minimizelist,
+            fitness_function=fitness_function_lexicase,
+            max_evaluations=10000,
             selection_method=("lexicase", 0.01),
             **args,
         )
-        best = alg.evolve()
+        best = alg.search()
         print(
-            f"Fitness of {best.get_fitness(prob)} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+            f"Fitness of {best.get_fitness(alg.get_problem())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
         )
 
 

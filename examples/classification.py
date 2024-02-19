@@ -8,24 +8,24 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-from geneticengine.algorithms.gp.simplegp import SimpleGP
-from geneticengine.core.decorators import get_gengy
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.grammar import Grammar
-from geneticengine.core.problems import Problem
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.core.random.sources import RandomSource
-from geneticengine.core.representations.tree.initializations import grow_method
-from geneticengine.core.representations.tree.treebased import random_individual
-from geneticengine.core.representations.tree.utils import get_nodes_depth_specific
-from geneticengine.grammars.basic_math import SafeDiv
-from geneticengine.grammars.sgp import Mul
-from geneticengine.grammars.sgp import Number
-from geneticengine.grammars.sgp import Plus
-from geneticengine.grammars.sgp import Var
-from geneticengine.metahandlers.floats import FloatList
-from geneticengine.metahandlers.vars import VarRange
-from geneticengine.metrics import f1_score
+from geml.simplegp import SimpleGP
+from geneticengine.grammar.decorators import get_gengy
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.grammar.grammar import Grammar
+from geneticengine.problems import Problem
+from geneticengine.problems import SingleObjectiveProblem
+from geneticengine.random.sources import NativeRandomSource
+from geneticengine.representations.tree.initializations import grow_method
+from geneticengine.representations.tree.treebased import random_individual
+from geneticengine.representations.tree.utils import get_nodes_depth_specific
+from geml.grammars.basic_math import SafeDiv
+from geml.grammars.sgp import Mul
+from geml.grammars.sgp import Number
+from geml.grammars.sgp import Plus
+from geml.grammars.sgp import Var
+from geneticengine.grammar.metahandlers.floats import FloatList
+from geneticengine.grammar.metahandlers.vars import VarRange
+from geml.metrics import f1_score
 
 # An example of classification using Probabilistic GE (https://arxiv.org/pdf/2103.08389.pdf).
 # The main differences with the normal classification example are the addition of weights/probabilities to the
@@ -132,28 +132,28 @@ class ClassificationBenchmark:
         g = self.get_grammar()
 
         def find_depth_specific_nodes(r, g, depth):
-            ind = random_individual(r,g,depth,method=grow_method)
-            return get_nodes_depth_specific(ind,g)
-        r = RandomSource(123)
+            ind = random_individual(r, g, depth, method=grow_method)
+            return get_nodes_depth_specific(ind, g)
+
+        r = NativeRandomSource(123)
         print(g.get_branching_average_proxy(r, find_depth_specific_nodes, 100, 17))
 
-        prob = self.get_problem()
         alg = SimpleGP(
-            g,
-            problem=prob,
-            probability_crossover=1,
-            probability_mutation=0.5,
-            number_of_generations=20,
+            grammar=g,
+            minimize=True,
+            fitness_function=fitness_function,
+            crossover_probability=1,
+            mutation_probability=0.5,
+            max_evaluations=10000,
             max_depth=10,
-            max_init_depth=6,
             population_size=50,
             selection_method=("tournament", 2),
-            n_elites=5,
+            elitism=5,
             **args,
         )
-        best = alg.evolve()
+        best = alg.search()
         print(
-            f"Fitness of {best.get_fitness(prob)} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+            f"Fitness of {best.get_fitness(alg.get_problem())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
         )
 
 

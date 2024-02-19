@@ -7,21 +7,19 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-from geneticengine.algorithms.gp.simplegp import SimpleGP
-from geneticengine.core.decorators import abstract
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.grammar import Grammar
-from geneticengine.core.problems import MultiObjectiveProblem
-from geneticengine.core.problems import Problem
-from geneticengine.grammars.basic_math import SafeDiv
-from geneticengine.grammars.basic_math import SafeLog
-from geneticengine.grammars.basic_math import SafeSqrt
-from geneticengine.grammars.sgp import Mul
-from geneticengine.grammars.sgp import Number
-from geneticengine.grammars.sgp import Plus
-from geneticengine.grammars.sgp import Var
-from geneticengine.metahandlers.floats import FloatList
-from geneticengine.metahandlers.vars import VarRange
+from geml.simplegp import SimpleGP
+from geneticengine.grammar.decorators import abstract
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.grammar.grammar import Grammar
+from geml.grammars.basic_math import SafeDiv
+from geml.grammars.basic_math import SafeLog
+from geml.grammars.basic_math import SafeSqrt
+from geml.grammars.sgp import Mul
+from geml.grammars.sgp import Number
+from geml.grammars.sgp import Plus
+from geml.grammars.sgp import Var
+from geneticengine.grammar.metahandlers.floats import FloatList
+from geneticengine.grammar.metahandlers.vars import VarRange
 
 # ===================================
 # This is an example of normal classification using normal GP,
@@ -174,19 +172,6 @@ def fitness_function_lexicase(n: Number):
 
 
 class ClassificationLexicaseBenchmark:
-    def get_problem(self) -> Problem:
-        minimizelist = False
-
-        def single_criteria_test(n: Number) -> float:
-            fitnesses = fitness_function_lexicase(n)
-            return sum(-fit if minimizelist else fit for fit in fitnesses)
-
-        return MultiObjectiveProblem(
-            minimize=minimizelist,
-            fitness_function=fitness_function_lexicase,
-            best_individual_criteria_function=single_criteria_test,
-        )
-
     def get_grammar(self) -> Grammar:
         return extract_grammar(
             [Plus, Mul, SafeDiv, Literal2, Var, SafeSqrt, SafeLog],
@@ -195,22 +180,29 @@ class ClassificationLexicaseBenchmark:
 
     def main(self, **args):
         g = self.get_grammar()
-        prob = self.get_problem()
+
+        minimizelist = False
+
+        def single_criteria_test(n: Number) -> float:
+            fitnesses = fitness_function_lexicase(n)
+            return sum(-fit if minimizelist else fit for fit in fitnesses)
+
         alg = SimpleGP(
-            g,
-            problem=prob,
-            probability_crossover=0.75,
-            probability_mutation=0.01,
-            number_of_generations=50,
+            grammar=g,
+            minimize=[],
+            fitness_function=fitness_function_lexicase,
+            crossover_probability=0.75,
+            mutation_probability=0.01,
+            max_evaluations=10000,
             max_depth=15,
             population_size=50,
             selection_method=("lexicase",),
-            n_elites=5,
+            elitism=5,
             **args,
         )
-        best = alg.evolve()
+        best = alg.search()
         print(
-            f"Fitness of {best.get_fitness(prob)} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+            f"Fitness of {best.get_fitness(alg.get_problem())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
         )
 
 

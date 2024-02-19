@@ -1,17 +1,12 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Annotated
-from geneticengine.algorithms.callbacks.callback import ProgressCallback
 
 from geneticengine.algorithms.gp.cooperativegp import CooperativeGP
-from geneticengine.algorithms.gp.operators.stop import (
-    AnyOfStoppingCriterium,
-    EvaluationLimitCriterium,
-    SingleFitnessTargetStoppingCriterium,
-)
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.metahandlers.lists import ListSizeBetween
-from geneticengine.metahandlers.strings import StringSizeBetween
+from geneticengine.evaluation.budget import AnyOf, EvaluationBudget, TargetFitness
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.grammar.metahandlers.lists import ListSizeBetween
+from geneticengine.grammar.metahandlers.strings import StringSizeBetween
 
 from scipy.stats import entropy
 
@@ -123,21 +118,13 @@ alg = CooperativeGP(
     population2_size=500,
     coevolutions=10,
     kwargs1={
-        "stopping_criterium": AnyOfStoppingCriterium(
-            SingleFitnessTargetStoppingCriterium(target_fitness=55),
-            EvaluationLimitCriterium(max_evaluations=10000),
-        ),
-        "callbacks": [ProgressCallback()],
+        "budget": AnyOf(TargetFitness(55), EvaluationBudget(10000)),
     },
     kwargs2={
-        "stopping_criterium": AnyOfStoppingCriterium(
-            SingleFitnessTargetStoppingCriterium(target_fitness=100),
-            EvaluationLimitCriterium(max_evaluations=10000),
-        ),
-        "callbacks": [ProgressCallback()],
+        "budget": AnyOf(TargetFitness(100), EvaluationBudget(10000)),
     },
 )
-x: tuple[Dataset, Explanation] = alg.evolve()
+x: tuple[Dataset, Explanation] = alg.search()
 best_dataset, best_explanation = x
 print("Best dataset:", best_dataset)
 print("Best explanation:", best_explanation)

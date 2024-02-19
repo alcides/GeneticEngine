@@ -7,7 +7,7 @@ We have intended for metahandlers to be easily implemented by the user. Suggesti
 Metahandlers should follow the `MetaHandlerGenerator` protocol. More specifically, it must have a generator method, which specifies how a node with the metahandler type should be generated. Consult our predefined metahandlers for inspiration.
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.metahandlers.base.MetaHandlerGenerator
+.. autoapiclass:: geneticengine.grammar.metahandlers.base.MetaHandlerGenerator
 ```
 
 #### Adding type specific mutations and crossover

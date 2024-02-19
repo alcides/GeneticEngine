@@ -4,13 +4,13 @@ from typing import Annotated
 
 import numpy as np
 
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.metahandlers.floats import FloatRange
-from geneticengine.metahandlers.ints import IntervalRange
-from geneticengine.metahandlers.ints import IntRange
-from geneticengine.metahandlers.lists import ListSizeBetween
-from geneticengine.metahandlers.strings import WeightedStringHandler
-from geneticengine.metahandlers.vars import VarRange
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.grammar.metahandlers.floats import FloatRange
+from geneticengine.grammar.metahandlers.ints import IntervalRange
+from geneticengine.grammar.metahandlers.ints import IntRange
+from geneticengine.grammar.metahandlers.lists import ListSizeBetween
+from geneticengine.grammar.metahandlers.strings import WeightedStringHandler
+from geneticengine.grammar.metahandlers.vars import VarRange
 
 
 class Root(ABC):

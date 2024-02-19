@@ -7,22 +7,22 @@ from typing import Annotated
 import numpy as np
 import pandas as pd
 
-from geneticengine.algorithms.gp.simplegp import SimpleGP
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.grammar import Grammar
-from geneticengine.core.problems import Problem
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.grammars.basic_math import SafeDiv
-from geneticengine.grammars.basic_math import SafeLog
-from geneticengine.grammars.basic_math import SafeSqrt
-from geneticengine.grammars.sgp import Literal
-from geneticengine.grammars.sgp import Minus
-from geneticengine.grammars.sgp import Mul
-from geneticengine.grammars.sgp import Number
-from geneticengine.grammars.sgp import Plus
-from geneticengine.grammars.sgp import Var
-from geneticengine.metahandlers.vars import VarRange
-from geneticengine.metrics import mse
+from geml.simplegp import SimpleGP
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.grammar.grammar import Grammar
+from geneticengine.problems import Problem
+from geneticengine.problems import SingleObjectiveProblem
+from geml.grammars.basic_math import SafeDiv
+from geml.grammars.basic_math import SafeLog
+from geml.grammars.basic_math import SafeSqrt
+from geml.grammars.sgp import Literal
+from geml.grammars.sgp import Minus
+from geml.grammars.sgp import Mul
+from geml.grammars.sgp import Number
+from geml.grammars.sgp import Plus
+from geml.grammars.sgp import Var
+from geneticengine.grammar.metahandlers.vars import VarRange
+from geml.metrics import mse
 
 DATASET_NAME = "Vladislavleva4"
 DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.txt"
@@ -105,22 +105,23 @@ class ExponentiationBenchmark:
 
     def main(self, **args):
         g = self.get_grammar()
-        prob = self.get_problem()
+
         alg = SimpleGP(
-            g,
-            problem=prob,
-            probability_crossover=0.75,
-            probability_mutation=0.01,
-            number_of_generations=50,
+            grammar=g,
+            minimize=True,
+            fitness_function=fitness_function,
+            crossover_probability=0.75,
+            mutation_probability=0.01,
+            max_evaluations=10000,
             max_depth=8,
             population_size=50,
             selection_method=("tournament", 2),
-            n_elites=5,
+            elitism=5,
             **args,
         )
-        best = alg.evolve()
+        best = alg.search()
         print(
-            f"Fitness of {best.get_fitness(prob)} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+            f"Fitness of {best.get_fitness(alg.get_problem())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
         )
 
 

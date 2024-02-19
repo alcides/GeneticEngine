@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from geneticengine.algorithms.gp.individual import Individual
+from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.structure import PopulationInitializer
-from geneticengine.core.problems import Problem
-from geneticengine.core.random.sources import Source
-from geneticengine.core.representations.api import Representation
+from geneticengine.problems import Problem
+from geneticengine.random.sources import RandomSource
+from geneticengine.representations.api import Representation
 
 
 class HalfAndHalfInitializer(PopulationInitializer):
@@ -18,15 +18,15 @@ class HalfAndHalfInitializer(PopulationInitializer):
         self,
         problem: Problem,
         representation: Representation,
-        random_source: Source,
+        random: RandomSource,
         target_size: int,
         **kwargs,
     ) -> list[Individual]:
         mid = target_size // 2
-        return self.initializer1(problem, representation, random_source, mid) + self.initializer2(
+        return self.initializer1(problem, representation, random, mid) + self.initializer2(
             problem,
             representation,
-            random_source,
+            random,
             target_size - mid,
         )
 
@@ -39,18 +39,17 @@ class StandardInitializer(PopulationInitializer):
         self,
         problem: Problem,
         representation: Representation,
-        random_source: Source,
+        random: RandomSource,
         target_size: int,
         **kwargs,
     ) -> list[Individual]:
         return [
             Individual(
-                representation.create_individual(
-                    random_source,
-                    representation.max_depth,
+                representation.create_genotype(
+                    random,
                     **kwargs,
                 ),
-                genotype_to_phenotype=representation.genotype_to_phenotype,
+                representation=representation,
             )
             for _ in range(target_size)
         ]

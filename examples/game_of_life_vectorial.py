@@ -9,23 +9,23 @@ from typing import Callable
 import numpy as np
 from sklearn.metrics import f1_score
 
-from geneticengine.algorithms.gp.simplegp import SimpleGP
-from geneticengine.core.decorators import abstract
-from geneticengine.core.grammar import extract_grammar
-from geneticengine.core.grammar import Grammar
-from geneticengine.core.problems import Problem
-from geneticengine.core.problems import SingleObjectiveProblem
-from geneticengine.grammars.coding.classes import Condition
-from geneticengine.grammars.coding.classes import Expr
-from geneticengine.grammars.coding.classes import Number
-from geneticengine.grammars.coding.conditions import Equals
-from geneticengine.grammars.coding.conditions import GreaterThan
-from geneticengine.grammars.coding.conditions import LessThan
-from geneticengine.grammars.coding.logical_ops import And
-from geneticengine.grammars.coding.logical_ops import Not
-from geneticengine.grammars.coding.logical_ops import Or
-from geneticengine.grammars.coding.numbers import Literal
-from geneticengine.metahandlers.ints import IntRange
+from geml.simplegp import SimpleGP
+from geneticengine.grammar.decorators import abstract
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.grammar.grammar import Grammar
+from geneticengine.problems import Problem
+from geneticengine.problems import SingleObjectiveProblem
+from geml.grammars.coding.classes import Condition
+from geml.grammars.coding.classes import Expr
+from geml.grammars.coding.classes import Number
+from geml.grammars.coding.conditions import Equals
+from geml.grammars.coding.conditions import GreaterThan
+from geml.grammars.coding.conditions import LessThan
+from geml.grammars.coding.logical_ops import And
+from geml.grammars.coding.logical_ops import Not
+from geml.grammars.coding.logical_ops import Or
+from geml.grammars.coding.numbers import Literal
+from geneticengine.grammar.metahandlers.ints import IntRange
 
 # ===================================
 # This is an example on how to use GeneticEngine to solve a GP problem.
@@ -335,22 +335,23 @@ class GameOfLifeVectorialBenchmark:
 
     def main(self, **args):
         g = self.get_grammar()
-        prob = self.get_problem()
+
         alg = SimpleGP(
-            g,
-            problem=prob,
-            number_of_generations=50,
+            grammar=g,
+            minimize=True,
+            fitness_function=fitness_function,
+            max_evaluations=10000,
             population_size=50,
             max_depth=10,
             # favor_less_complex_trees=True,
-            # probability_crossover=0.75,
-            # probability_mutation=0.01,
+            # crossover_probability=0.75,
+            # mutation_probability=0.01,
             # selection_method=("tournament", 2),
             **args,
         )
-        best = alg.evolve()
+        best = alg.search()
         print(
-            f"Fitness of {best.get_fitness(prob)} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+            f"Fitness of {best.get_fitness(alg.get_problem())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
         )
 
         _clf = evaluate(best.get_phenotype())
