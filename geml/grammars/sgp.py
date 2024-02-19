@@ -9,10 +9,10 @@ from geneticengine.grammar.metahandlers.vars import VarRange
 
 
 class Number(ABC):
-    """Standard Number object."""
+    """Abstract Number."""
 
     def evaluate(self, **kwargs):
-        return 0.0
+        ...
 
 
 @dataclass
