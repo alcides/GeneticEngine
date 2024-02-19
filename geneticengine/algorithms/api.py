@@ -42,10 +42,6 @@ class SynthesisAlgorithm(ABC):
         """Whether the synthesis should stop, or not."""
         return self.budget.is_done(self.tracker)
 
-    # def get_best_solution(self) -> Individual:
-    #     """Returns the best solution found during the search."""
-    #     return self.tracker.get_best_individual()
-
     def get_problem(self) -> Problem:
         return self.problem
 
