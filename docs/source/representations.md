@@ -38,9 +38,24 @@ The representation can be chosen by the user. There are many discussions on whic
 .. autoapiclass:: geneticengine.representations.stackgggp.StackBasedGGGPRepresentation
 ```
 
-## Probabilistic Grammatical Evolution (PGE)
+## Custom Representations
 
-Genetic Engine supports PGE. By some, PGE is recognized as an individual-representation method, even though the PGE concept can be applied to any of the above-mentioned individual-representation methods. As such, we have included an explanation in the [grammars section](grammars.md).
+To create a custom representation, you just need to subclass the following abstract class:
+
+```{eval-rst}
+.. autoapiclass:: geneticengine.representations.api.Representation
+```
+
+To support Genetic Programming, you also need to implement:
+
+```{eval-rst}
+.. autoapiclass:: geneticengine.representations.api.RepresentationWithMutation
+```
+
+```{eval-rst}
+.. autoapiclass:: geneticengine.representations.api.RepresentationWithCrossover
+```
+
 
 ##### References
 
