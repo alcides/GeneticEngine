@@ -9,7 +9,7 @@ Genetic Programming is supported via two interfaces. `SimpleGP` allows you defin
 It is easier to use, if you are looking for a standard GP implementation.
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.algorithms.gp.simplegp.SimpleGP
+.. autoapiclass:: geml.simplegp.SimpleGP
 ```
 
 However, if you are looking to implement your own algorithm, or variation of GP, the `GP` class is the most suitable.
@@ -32,10 +32,10 @@ Note that the `step` parameter allows the user to build their own evolutionary a
 .. autoapiclass:: geneticengine.algorithms.random_mutations.RandomMutations
 ```
 
-## Random Search
+## 1+1 Evolutionary Algorithm
 
 ```{eval-rst}
-.. autoapiclass:: geneticengine.algorithms.random_search.RandomSearch
+.. autoapiclass:: geneticengine.algorithms.one_plus_one.OnePlusOne
 ```
 
 ## MultiPopulation Genetic Programming
