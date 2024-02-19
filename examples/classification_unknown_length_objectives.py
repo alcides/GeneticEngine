@@ -11,8 +11,6 @@ from geml.simplegp import SimpleGP
 from geneticengine.grammar.decorators import abstract
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
-from geneticengine.problems import MultiObjectiveProblem
-from geneticengine.problems import Problem
 from geml.grammars.basic_math import SafeDiv
 from geml.grammars.basic_math import SafeLog
 from geml.grammars.basic_math import SafeSqrt
@@ -174,19 +172,6 @@ def fitness_function_lexicase(n: Number):
 
 
 class ClassificationLexicaseBenchmark:
-    def get_problem(self) -> Problem:
-        minimizelist = False
-
-        def single_criteria_test(n: Number) -> float:
-            fitnesses = fitness_function_lexicase(n)
-            return sum(-fit if minimizelist else fit for fit in fitnesses)
-
-        return MultiObjectiveProblem(
-            minimize=minimizelist,
-            fitness_function=fitness_function_lexicase,
-            best_individual_criteria_function=single_criteria_test,
-        )
-
     def get_grammar(self) -> Grammar:
         return extract_grammar(
             [Plus, Mul, SafeDiv, Literal2, Var, SafeSqrt, SafeLog],
@@ -195,22 +180,29 @@ class ClassificationLexicaseBenchmark:
 
     def main(self, **args):
         g = self.get_grammar()
-        prob = self.get_problem()
+
+        minimizelist = False
+
+        def single_criteria_test(n: Number) -> float:
+            fitnesses = fitness_function_lexicase(n)
+            return sum(-fit if minimizelist else fit for fit in fitnesses)
+
         alg = SimpleGP(
-            g,
-            problem=prob,
+            grammar=g,
+            minimize=[],
+            fitness_function=fitness_function_lexicase,
             crossover_probability=0.75,
             mutation_probability=0.01,
-            number_of_generations=50,
+            max_evaluations=10000,
             max_depth=15,
             population_size=50,
             selection_method=("lexicase",),
-            n_elites=5,
+            elitism=5,
             **args,
         )
         best = alg.search()
         print(
-            f"Fitness of {best.get_fitness(prob)} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+            f"Fitness of {best.get_fitness(alg.get_problem())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
         )
 
 

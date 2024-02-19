@@ -72,7 +72,7 @@ def main(seed=123):
     )
     best = alg.search()
     print(
-        f"Fitness of {best.get_fitness(prob)} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+        f"Fitness of {best.get_fitness(alg.get_problem())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
     )
 
 

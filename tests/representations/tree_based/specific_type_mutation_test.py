@@ -54,7 +54,7 @@ gp_parameters = {
     "max_depth": 10,
     "population_size": 2,
     "tournament_size": 2,
-    "n_elites": 1,
+    "elitism": 1,
 }
 
 
@@ -69,7 +69,7 @@ def algorithm_steps():
                 GenericMutationStep(gp_parameters["mutation_probability"]),
             ),
         ],
-        weights=[gp_parameters["n_elites"], 100 - gp_parameters["n_elites"]],
+        weights=[gp_parameters["elitism"], 100 - gp_parameters["elitism"]],
     )
 
 

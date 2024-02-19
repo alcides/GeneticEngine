@@ -138,23 +138,22 @@ class ClassificationBenchmark:
         r = NativeRandomSource(123)
         print(g.get_branching_average_proxy(r, find_depth_specific_nodes, 100, 17))
 
-        prob = self.get_problem()
         alg = SimpleGP(
-            g,
-            problem=prob,
+            grammar=g,
+            minimize=True,
+            fitness_function=fitness_function,
             crossover_probability=1,
             mutation_probability=0.5,
-            number_of_generations=20,
+            max_evaluations=10000,
             max_depth=10,
-            max_init_depth=6,
             population_size=50,
             selection_method=("tournament", 2),
-            n_elites=5,
+            elitism=5,
             **args,
         )
         best = alg.search()
         print(
-            f"Fitness of {best.get_fitness(prob)} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+            f"Fitness of {best.get_fitness(alg.get_problem())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
         )
 
 

@@ -10,7 +10,6 @@ from sklearn import metrics
 
 from geml.simplegp import SimpleGP
 from geneticengine.grammar.grammar import extract_grammar
-from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammar.metahandlers.ints import IntRange
 from geneticengine.grammar.metahandlers.vars import VarRange
 
@@ -94,13 +93,13 @@ def main():
     g = extract_grammar([Variable, And, LessThan, TotalCount], DecisionNode)
 
     alg = SimpleGP(
-        g,
-        fitness_function,
-        TreeBasedRepresentation,
+        grammar=g,
+        fitness_function=fitness_function,
+        representation="treebased",
         minimize=False,
         seed=122,
         population_size=10,
-        number_of_generations=5,
+        max_evaluations=10000,
     )
     ind = alg.search()
     print(ind)

@@ -83,13 +83,9 @@ if __name__ == "__main__":
     r = NativeRandomSource()
     g = extract_grammar([One, Zero, BinaryList], BinaryList)
     repr = BinaryListTreeBasedRepresentation(grammar=g, max_depth=4)
-    prob = SingleObjectiveProblem(
-        fitness_function=fitness,
-        minimize=False,
-    )
 
     gp = GeneticProgramming(
-        problem=prob,
+        problem=SingleObjectiveProblem(fitness_function=fitness, minimize=False),
         budget=AnyOf(TargetFitness(1), TimeBudget(3)),
         representation=repr,
         random=r,

@@ -140,7 +140,7 @@ This fitness function will give all individuals the same fitness (0), turning th
 Now we can run Genetic Engine, parameterized with this grammar and this fitness function:
 
 ```python
-alg = SimpleGP(g, fitness_function, TreeBasedRepresentation, minimize=True, population_size=10, number_of_generations=5)
+alg = SimpleGP(grammar=g, fitness_function, TreeBasedRepresentation, minimize=True, population_size=10, number_of_generations=5)
 (b, bf) = alg.search()
 print(bf, b)
 ```
@@ -209,7 +209,7 @@ alg = SimpleGP(
     minimize=True,
     seed=0,
     population_size=200,
-    number_of_generations=200,
+    max_evaluations=10000,
 )
 (b, bf) = alg.search()
 print(bf, b)

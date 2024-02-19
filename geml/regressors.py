@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from math import isinf
-from typing import Annotated
+from typing import Annotated, Any
 
 import numpy as np
 import pandas as pd
@@ -39,9 +39,9 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
         nodes (List[Number]): The list of nodes to be used in the grammar. You can design your own, or use the ones in geneticengine.grammars.[sgp,literals,basic_math]. The default uses [ Plus, Mul, ExpLiteral, Var, SafeDiv, SafeLog, SafeSqrt ] + exp_literals.
         representation (Representation): The individual representation used by the GP program. The default is TreeBasedRepresentation. Currently Genetic Engine also supports Grammatical Evolution: geneticengine.representations.grammatical_evolution.GrammaticalEvolutionRepresentation. You can also deisgn your own.
         seed (int): The seed for the RandomSource (default = 123).
-        population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (n_elites + n_novelties + 1) must hold.
-        n_elites (int): Number of elites, i.e. the number of best individuals that are preserved every generation (default = 5).
-        n_novelties (int): Number of novelties, i.e. the number of newly generated individuals added to the population each generation. (default = 10).
+        population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (elitism + novelty + 1) must hold.
+        elitism (int): Number of elites, i.e. the number of best individuals that are preserved every generation (default = 5).
+        novelty (int): Number of novelties, i.e. the number of newly generated individuals added to the population each generation. (default = 10).
         number_of_generations (int): Number of generations (default = 100).
         max_depth (int): The maximum depth a tree can have (default = 15).
         favor_less_complex_trees (bool): If set to True, this gives a tiny penalty to deeper trees to favor simpler trees (default = False).
@@ -55,23 +55,24 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
     def __init__(
         self,
         nodes: list[type[Number]] | None = None,
-        representation: type[Representation] = TreeBasedRepresentation,
+        representation_name: str = "treebased",
         population_size: int = 200,
-        n_elites: int = 5,
-        n_novelties: int = 10,
-        number_of_generations: int = 100,
+        elitism: int = 5,  # Shouldn't this be a percentage of population size?
+        novelty: int = 10,
         max_depth: int = 15,
-        favor_less_complex_trees: bool = True,
-        hill_climbing: bool = False,
         seed: int = 123,
         metric: str = "mse",
+        # Budget:
+        time_budget: int = 30,
+        number_of_generations: int = 100,
         # -----
         # As given in A Field Guide to GP, p.17, by Poli and Mcphee
         mutation_probability: float = 0.01,
         crossover_probability: float = 0.9,
+        selection_method=("tournament", 5),
+        initial_population: list[Any] | None = None,
         # -----
-        timer_stop_criteria: bool = False,
-        timer_limit: int = 60,
+        parallel: bool = False,
     ):
         if nodes is None:
             nodes = [
@@ -84,27 +85,33 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
                 SafeSqrt,
                 *exp_literals,
             ]
-        assert population_size > (n_elites + n_novelties + 1)
+        assert population_size > (elitism + novelty + 1)
         assert Var in nodes
 
-        self.nodes = nodes
-        self.representation_class = representation
-        self.evolved_ind = None
-        self.nodes = nodes
-        self.random = NativeRandomSource(seed)
+        assert population_size > (elitism + novelty + 1)
+        assert Var in nodes
+
+        self.representation_name = representation_name
         self.seed = seed
-        self.population_size = population_size
+        self.random = NativeRandomSource(self.seed)
+
+        self.nodes = nodes
         self.max_depth = max_depth
-        self.favor_less_complex_trees = favor_less_complex_trees
-        self.n_elites = n_elites
-        self.n_novelties = n_novelties
-        self.hill_climbing = hill_climbing
-        self.number_of_generations = number_of_generations
+
+        self.metric_name = metric
+
+        self.initial_population = initial_population
+        self.population_size = population_size
+        self.elitism = elitism
+        self.novelty = novelty
+        self.selection_method = selection_method
+
         self.mutation_probability = mutation_probability
         self.crossover_probability = crossover_probability
-        self.timer_stop_criteria = timer_stop_criteria
-        self.timer_limit = timer_limit
-        self.metric = metric
+        self.parallel_evaluation = parallel
+
+        self.evaluations_budget = number_of_generations * population_size
+        self.time_budget = time_budget
 
     def fit(self, X, y):
         """Fits the regressor with data X and target y."""
@@ -130,7 +137,7 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
         self.feature_names = feature_names
         self.feature_indices = feature_indices
 
-        if self.metric == "r2":
+        if self.metric_name == "r2":
             metric = r2
             minimise = False
         else:
@@ -153,25 +160,23 @@ class GeneticProgrammingRegressor(BaseEstimator, TransformerMixin):
             return fitness
 
         model = SimpleGP(
+            fitness_function=fitness_function,
             grammar=self.grammar,
-            problem=SingleObjectiveProblem(
-                minimize=minimise,
-                fitness_function=fitness_function,
-            ),
-            representation=self.representation_class,
-            population_size=self.population_size,
-            n_elites=self.n_elites,
-            n_novelties=self.n_novelties,
-            number_of_generations=self.number_of_generations,
+            minimize=minimise,
+            representation=self.representation_name,
             max_depth=self.max_depth,
-            favor_less_complex_trees=self.favor_less_complex_trees,
+            target_fitness=0,
+            max_time=self.time_budget,
+            max_evaluations=self.evaluations_budget,
+            parallel_evaluation=self.parallel_evaluation,
+            seed=self.seed,
+            population_size=self.population_size,
+            elitism=self.elitism,
+            novelty=self.novelty,
+            initial_population=self.initial_population,
             mutation_probability=self.mutation_probability,
             crossover_probability=self.crossover_probability,
-            hill_climbing=self.hill_climbing,
-            seed=self.seed,
-            timer_stop_criteria=self.timer_stop_criteria,
-            timer_limit=self.timer_limit,
-            verbose=0,
+            selection_method=self.selection_method,
         )
 
         ind = model.search()
@@ -213,7 +218,7 @@ class HillClimbingRegressor(BaseEstimator, TransformerMixin):
         nodes (List[Number]): The list of nodes to be used in the grammar. You can design your own, or use the ones in geneticengine.grammars.[sgp,literals,basic_math]. The default uses [ Plus, Mul, ExpLiteral, Var, SafeDiv, SafeLog, SafeSqrt ] + exp_literals.
         representation (Representation): The individual representation used by the GP program. The default is TreeBasedRepresentation. Currently Genetic Engine also supports Grammatical Evolution: geneticengine.representations.grammatical_evolution.GrammaticalEvolutionRepresentation. You can also deisgn your own.
         seed (int): The seed for the RandomSource (default = 123).
-        population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (n_elites + n_novelties + 1) must hold.
+        population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (elitism + novelty + 1) must hold.
         number_of_generations (int): Number of generations (default = 100).
         max_depth (int): The maximum depth a tree can have (default = 15).
     """

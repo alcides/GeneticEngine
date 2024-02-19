@@ -2,15 +2,18 @@ from abc import ABC, abstractmethod
 from typing import Optional
 from geneticengine.evaluation.budget import SearchBudget
 
-from geneticengine.evaluation.tracker import SingleObjectiveProgressTracker
+from geneticengine.evaluation.tracker import (
+    MultiObjectiveProgressTracker,
+    ProgressTracker,
+    SingleObjectiveProgressTracker,
+)
 from geneticengine.evaluation.sequential import SequentialEvaluator
-from geneticengine.problems import Problem
+from geneticengine.problems import Problem, SingleObjectiveProblem
 from geneticengine.representations.api import Representation
-from geneticengine.solutions.individual import Individual
 
 
 class SynthesisAlgorithm(ABC):
-    tracker: SingleObjectiveProgressTracker
+    tracker: ProgressTracker
     problem: Problem
     budget: SearchBudget
     representation: Representation
@@ -20,14 +23,18 @@ class SynthesisAlgorithm(ABC):
         problem: Problem,
         budget: SearchBudget,
         representation: Representation,
-        tracker: Optional[SingleObjectiveProgressTracker] = None,
+        tracker: Optional[ProgressTracker] = None,
     ):
         self.problem = problem
         self.budget = budget
         self.representation = representation
 
         if tracker is None:
-            self.tracker = SingleObjectiveProgressTracker(problem, SequentialEvaluator())
+            if isinstance(problem, SingleObjectiveProblem):
+                self.tracker = SingleObjectiveProgressTracker(problem, SequentialEvaluator())
+            else:
+                self.tracker = MultiObjectiveProgressTracker(problem, SequentialEvaluator())
+
         else:
             self.tracker = tracker
 
@@ -35,9 +42,12 @@ class SynthesisAlgorithm(ABC):
         """Whether the synthesis should stop, or not."""
         return self.budget.is_done(self.tracker)
 
-    def get_best_solution(self) -> Individual:
-        """Returns the best solution found during the search."""
-        return self.tracker.get_best_individual()
+    # def get_best_solution(self) -> Individual:
+    #     """Returns the best solution found during the search."""
+    #     return self.tracker.get_best_individual()
+
+    def get_problem(self) -> Problem:
+        return self.problem
 
     @abstractmethod
     def search(self):

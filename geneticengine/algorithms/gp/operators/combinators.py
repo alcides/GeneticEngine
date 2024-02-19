@@ -148,20 +148,19 @@ class ExclusiveParallelStep(ParallelStep):
         )
         ranges = list(zip(indices, indices[1:]))
         assert len(ranges) == len(self.steps)
+        ranges[-1] = (ranges[-1][0], target_size)  # Fix the last position
 
-        retlist = self.concat(
-            [
-                step.iterate(
-                    problem,
-                    evaluator,
-                    representation,
-                    random,
-                    population[start:end],
-                    end - start,
-                    generation,
-                )
-                for ((start, end), step) in zip(ranges, self.steps)
-            ],
-        )
-        assert len(retlist) == target_size
+        retlist = []
+        for (start, end), step in zip(ranges, self.steps):
+            tmplist = step.iterate(
+                problem,
+                evaluator,
+                representation,
+                random,
+                population[start:end],
+                end - start,
+                generation,
+            )
+            retlist.extend(tmplist)
+        assert len(retlist) == target_size, f"{retlist} does not have size {target_size}"
         return retlist

@@ -3,7 +3,7 @@ from __future__ import annotations
 from geneticengine.algorithms.api import SynthesisAlgorithm
 
 from geneticengine.evaluation.budget import SearchBudget
-from geneticengine.evaluation.tracker import SingleObjectiveProgressTracker
+from geneticengine.evaluation.tracker import ProgressTracker
 from geneticengine.problems import Problem
 from geneticengine.random.sources import NativeRandomSource
 from geneticengine.random.sources import RandomSource
@@ -21,7 +21,7 @@ class HeuristicSearch(SynthesisAlgorithm):
         budget: SearchBudget,
         representation: Representation,
         random: RandomSource = None,
-        recorder: SingleObjectiveProgressTracker | None = None,
+        recorder: ProgressTracker | None = None,
     ):
         super().__init__(problem, budget, representation, recorder)
         if random is None:

@@ -20,6 +20,20 @@ class ProgressTracker(ABC):
         self.evaluator = evaluator if evaluator is not None else SequentialEvaluator()
         self.recorders = recorders if recorders is not None else []
 
+    def get_problem(self) -> Problem:
+        return self.problem
+
+    def get_number_evaluations(self) -> int:
+        """The cumulative number of evaluations performed."""
+        return self.evaluator.number_of_evaluations()
+
+    def get_elapsed_time(self) -> float:
+        """The elapsed time since the start in seconds."""
+        return (time_ns() - self.start_time) / 1_000_000  # seconds
+
+    def evaluate(self, individuals: list[Individual]):
+        ...
+
 
 class SingleObjectiveProgressTracker(ProgressTracker):
 
@@ -54,13 +68,39 @@ class SingleObjectiveProgressTracker(ProgressTracker):
     def get_best_individual(self) -> Individual:
         return self.best_individual
 
-    def get_elapsed_time(self) -> float:
-        """The elapsed time since the start in seconds."""
-        return (time_ns() - self.start_time) / 1_000_000  # seconds
 
-    def get_number_evaluations(self) -> int:
-        """The cumulative number of evaluations performed."""
-        return self.evaluator.number_of_evaluations()
+class MultiObjectiveProgressTracker(ProgressTracker):
 
-    def get_problem(self) -> Problem:
-        return self.problem
+    pareto_front: list[Individual]
+
+    def __init__(
+        self,
+        problem: Problem,
+        evaluator: Evaluator = None,
+        recorders: list[SearchRecorder] = None,
+    ):
+        super().__init__(problem, evaluator, recorders=recorders)
+
+        self.pareto_front = []
+
+    def is_dominated(self, current: Individual, others: list[Individual]):
+        return all(
+            [self.problem.is_better(x.get_fitness(self.problem), current.get_fitness(self.problem)) for x in others],
+        )
+
+    def evaluate(self, individuals: list[Individual]):
+        problem = self.problem
+        self.evaluator.evaluate(problem, individuals)
+        for ind in individuals:
+            not_dominated = len(self.pareto_front) == 0 or not self.is_dominated(ind, self.pareto_front)
+            if not_dominated:
+                new_pareto_front = [ind]
+                for old in self.pareto_front:
+                    if not self.is_dominated(old, new_pareto_front):
+                        new_pareto_front.append(old)
+                self.pareto_front = new_pareto_front
+            for recorder in self.recorders:
+                recorder.register(tracker=self, individual=ind, problem=problem, is_best=not_dominated)
+
+    def get_best_individuals(self) -> list[Individual]:
+        return self.pareto_front

@@ -5,6 +5,7 @@ from abc import ABC
 from geml.simplegp import SimpleGP
 from geneticengine.grammar.decorators import weight
 from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.solutions.tree import TreeNode
 
 # ===================================
 # This is an example of how to create Probabilistic grammars.
@@ -49,13 +50,5 @@ if __name__ == "__main__":
     )
     ind = alg.search()
 
-    def count(xs):
-        d = {}
-        for x in xs:
-            if x not in d:
-                d[x] = 1
-            else:
-                d[x] += 1
-        return d
-
-    print(count(ind.genotype.__class__))
+    x: TreeNode = ind.get_phenotype()
+    print(x)

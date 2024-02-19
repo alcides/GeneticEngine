@@ -10,7 +10,6 @@ from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.evaluation.budget import EvaluationBudget
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
-from geneticengine.problems import Problem
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammar.metahandlers.lists import ListSizeBetween
@@ -173,29 +172,22 @@ def fitness_function(i) -> float:
 
 
 class SantaFeBenchmark:
-    def get_problem(self) -> Problem:
-        return SingleObjectiveProblem(
-            minimize=False,
-            fitness_function=fitness_function,
-        )
-
     def get_grammar(self) -> Grammar:
         return extract_grammar([ActionBlock, Action, IfFood, Move, Right, Left], ActionMain)
 
     def main(self, **args):
         g = self.get_grammar()
-        problem = self.get_problem()
         alg = SimpleGP(
-            g,
-            problem=problem,
+            grammar=g,
+            minimize=False,
+            fitness_function=fitness_function,
             crossover_probability=1,
             mutation_probability=0.5,
-            number_of_generations=20,
+            max_evaluations=10000,
             max_depth=10,
-            max_init_depth=6,
             population_size=50,
             selection_method=("tournament", 2),
-            n_elites=5,
+            elitism=5,
             **args,
         )
         ind = alg.search()

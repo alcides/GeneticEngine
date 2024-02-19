@@ -3,7 +3,11 @@ from geneticengine.algorithms.heuristics import HeuristicSearch
 
 
 from geneticengine.evaluation.budget import SearchBudget
-from geneticengine.evaluation.tracker import SingleObjectiveProgressTracker
+from geneticengine.evaluation.tracker import (
+    MultiObjectiveProgressTracker,
+    ProgressTracker,
+    SingleObjectiveProgressTracker,
+)
 from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.operators.combinators import ParallelStep, SequenceStep
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
@@ -46,7 +50,7 @@ class GeneticProgramming(HeuristicSearch):
         budget (SearchBudget): how long to search for
         representation (Representation): The individual representation used by the GP program.
         random (RandomSource): A RNG instance
-        recorder (SingleObjectiveProgressTracker): How to record the results of evaluations
+        recorder (ProgressTracker): How to record the results of evaluations
         population_size (int): The population size (default = 200).
         population_initializer (PopulationInitializer): The method to generate new individuals.
         step (GeneticStep): The main structure of evolution.
@@ -58,7 +62,7 @@ class GeneticProgramming(HeuristicSearch):
         budget: SearchBudget,
         representation: Representation,
         random: RandomSource = None,
-        tracker: SingleObjectiveProgressTracker | None = None,
+        tracker: ProgressTracker | None = None,
         population_size: int = 100,
         population_initializer: PopulationInitializer = None,
         step: GeneticStep | None = None,
@@ -93,5 +97,10 @@ class GeneticProgramming(HeuristicSearch):
                 generation,
             )
             self.tracker.evaluate(population)
-
-        return self.tracker.get_best_individual()
+        if isinstance(self.tracker, SingleObjectiveProgressTracker):
+            return self.tracker.get_best_individual()
+        elif isinstance(self.tracker, MultiObjectiveProgressTracker):
+            # TODO: Think about this API
+            return self.tracker.get_best_individuals()[0]
+        else:
+            return None

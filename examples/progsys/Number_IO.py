@@ -7,17 +7,6 @@ from examples.progsys.utils import import_embedded
 
 from geml.simplegp import SimpleGP
 from geneticengine.grammar.grammar import extract_grammar
-from geneticengine.problems import SingleObjectiveProblem
-from geneticengine.representations.grammatical_evolution.dynamic_structured_ge import (
-    DynamicStructuredGrammaticalEvolutionRepresentation,
-)
-from geneticengine.representations.grammatical_evolution.ge import (
-    GrammaticalEvolutionRepresentation,
-)
-from geneticengine.representations.grammatical_evolution.structured_ge import (
-    StructuredGrammaticalEvolutionRepresentation,
-)
-from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geml.grammars.coding.numbers import Literal
 from geml.grammars.coding.numbers import Mul
 from geml.grammars.coding.numbers import Number
@@ -59,33 +48,20 @@ def preprocess():
     return extract_grammar([Plus, Mul, SafeDiv, Literal, Var], Number)
 
 
-def evolve(g, seed, mode, representation=""):
-    if representation == "ge":
-        representation = GrammaticalEvolutionRepresentation
-    elif representation == "sge":
-        representation = StructuredGrammaticalEvolutionRepresentation
-    elif representation == "dsge":
-        representation = DynamicStructuredGrammaticalEvolutionRepresentation
-    else:
-        representation = TreeBasedRepresentation
-
-    prob = SingleObjectiveProblem(
+def evolve(g, seed, mode, representation="treebased"):
+    alg = SimpleGP(
+        grammar=g,
+        representation=representation,
         minimize=True,
         fitness_function=fitness_function,
-    )
-    alg = SimpleGP(
-        g,
-        representation=representation,
-        problem=prob,
-        number_of_generations=50,
+        max_evaluations=10000,
         seed=seed,
         max_depth=10,
         population_size=50,
         crossover_probability=0.9,
-        timer_stop_criteria=mode,
     )
     ind = alg.search()
-    return ind.get_phenotype(), ind.get_fitness(prob), g
+    return ind.get_phenotype(), ind.get_fitness(alg.get_problem()), g
 
 
 if __name__ == "__main__":

@@ -18,7 +18,7 @@ from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.evaluation.budget import AnyOf, EvaluationBudget, TargetFitness, TimeBudget
 from geneticengine.evaluation.parallel import ParallelEvaluator
 from geneticengine.evaluation.recorder import CSVSearchRecorder, SearchRecorder
-from geneticengine.evaluation.tracker import SingleObjectiveProgressTracker
+from geneticengine.evaluation.tracker import MultiObjectiveProgressTracker, SingleObjectiveProgressTracker
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.evaluation.sequential import SequentialEvaluator
 from geneticengine.problems import MultiObjectiveProblem
@@ -156,7 +156,11 @@ class SimpleGP:
         return representation_class(grammar=grammar, max_depth=max_depth)
 
     def build_budget(self, target_fitness, max_time, max_evaluations):
-        return AnyOf(TargetFitness(target_fitness), AnyOf(TimeBudget(max_time), EvaluationBudget(max_evaluations)))
+        base = AnyOf(TimeBudget(max_time), EvaluationBudget(max_evaluations))
+        if target_fitness is None:
+            return base
+        else:
+            return AnyOf(TargetFitness(target_fitness), base)
 
     def process_population_initializer(self, initial_population: list[Any] | None = None):
         if initial_population:
@@ -226,7 +230,7 @@ class SimpleGP:
         if problem.number_of_objectives() == 1:
             return SingleObjectiveProgressTracker(problem=problem, evaluator=ev, recorders=recorders)
         else:
-            raise NotImplementedError("MultiObjectiveTracker not implemented yet.")
+            return MultiObjectiveProgressTracker(problem=problem, evaluator=ev, recorders=recorders)
 
     def get_problem(self):
         return self.problem

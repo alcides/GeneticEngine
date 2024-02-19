@@ -11,8 +11,6 @@ from sklearn.model_selection import train_test_split
 from geml.simplegp import SimpleGP
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
-from geneticengine.problems import MultiObjectiveProblem
-from geneticengine.problems import Problem
 from geml.grammars.basic_math import Exp
 from geml.grammars.basic_math import SafeDiv
 from geml.grammars.basic_math import SafeLog
@@ -126,13 +124,6 @@ def fitness_function_lexicase(n: Number):
 
 
 class MultiTargetLexicaseBenchmark:
-    def get_problem(self) -> Problem:
-        minimizelist = [True for _ in range(X.shape[1])]
-        return MultiObjectiveProblem(
-            minimize=minimizelist,
-            fitness_function=fitness_function_lexicase,
-        )
-
     def get_grammar(self) -> Grammar:
         return extract_grammar(
             [
@@ -153,22 +144,24 @@ class MultiTargetLexicaseBenchmark:
 
     def main(self, **args):
         g = self.get_grammar()
-        prob = self.get_problem()
+        minimizelist = [True for _ in range(X.shape[1])]
+
         alg = SimpleGP(
-            g,
-            problem=prob,
+            grammar=g,
+            minimize=minimizelist,
+            fitness_function=fitness_function_lexicase,
             crossover_probability=0.75,
             mutation_probability=0.01,
-            number_of_generations=50,
+            max_evaluations=10000,
             max_depth=15,
             population_size=50,
             selection_method=("lexicase",),
-            n_elites=0,
+            elitism=0,
             **args,
         )
         best = alg.search()
         print(
-            f"Fitness of {best.get_fitness(prob)} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+            f"Fitness of {best.get_fitness(alg.get_problem())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
         )
 
 

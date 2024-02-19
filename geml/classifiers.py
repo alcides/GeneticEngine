@@ -38,9 +38,9 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
         nodes (List[Number]): The list of nodes to be used in the grammar. You can design your own, or use the ones in geneticengine.grammars.[sgp,literals,basic_math]. The default uses [ Plus, Mul, ExpLiteral, Var, SafeDiv, SafeLog, SafeSqrt ] + exp_literals.
         representation (Representation): The individual representation used by the GP program. The default is TreeBasedRepresentation. Currently Genetic Engine also supports Grammatical Evolution: geneticengine.representations.grammatical_evolution.GrammaticalEvolutionRepresentation. You can also deisgn your own.
         seed (int): The seed for the RandomSource (default = 123).
-        population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (n_elites + n_novelties + 1) must hold.
-        n_elites (int): Number of elites, i.e. the number of best individuals that are preserved every generation (default = 5).
-        n_novelties (int): Number of novelties, i.e. the number of newly generated individuals added to the population each generation. (default = 10).
+        population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (elitism + novelty + 1) must hold.
+        elitism (int): Number of elites, i.e. the number of best individuals that are preserved every generation (default = 5).
+        novelty (int): Number of novelties, i.e. the number of newly generated individuals added to the population each generation. (default = 10).
         number_of_generations (int): Number of generations (default = 100).
         max_depth (int): The maximum depth a tree can have (default = 15).
         favor_less_complex_trees (bool): If set to True, this gives a tiny penalty to deeper trees to favor simpler trees (default = False).
@@ -160,7 +160,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
             minimize=False,
             representation=self.representation_name,
             max_depth=self.max_depth,
-            target_fitness=0,
+            target_fitness=None,
             max_time=self.time_budget,
             max_evaluations=self.evaluations_budget,
             parallel_evaluation=self.parallel_evaluation,
@@ -216,7 +216,7 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
         nodes (List[Number]): The list of nodes to be used in the grammar. You can design your own, or use the ones in geneticengine.grammars.[sgp,literals,basic_math]. The default uses [ Plus, Mul, ExpLiteral, Var, SafeDiv, SafeLog, SafeSqrt ] + exp_literals.
         representation (Representation): The individual representation used by the GP program. The default is TreeBasedRepresentation. Currently Genetic Engine also supports Grammatical Evolution: geneticengine.representations.grammatical_evolution.GrammaticalEvolutionRepresentation. You can also deisgn your own.
         seed (int): The seed for the RandomSource (default = 123).
-        population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (n_elites + n_novelties + 1) must hold.
+        population_size (int): The population size (default = 200). Apart from the first generation, each generation the population is made up of the elites, novelties, and transformed individuals from the previous generation. Note that population_size > (elitism + novelty + 1) must hold.
         number_of_generations (int): Number of generations (default = 100).
         max_depth (int): The maximum depth a tree can have (default = 15).
     """

@@ -105,22 +105,23 @@ class ExponentiationBenchmark:
 
     def main(self, **args):
         g = self.get_grammar()
-        prob = self.get_problem()
+
         alg = SimpleGP(
-            g,
-            problem=prob,
+            grammar=g,
+            minimize=True,
+            fitness_function=fitness_function,
             crossover_probability=0.75,
             mutation_probability=0.01,
-            number_of_generations=50,
+            max_evaluations=10000,
             max_depth=8,
             population_size=50,
             selection_method=("tournament", 2),
-            n_elites=5,
+            elitism=5,
             **args,
         )
         best = alg.search()
         print(
-            f"Fitness of {best.get_fitness(prob)} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+            f"Fitness of {best.get_fitness(alg.get_problem())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
         )
 
 

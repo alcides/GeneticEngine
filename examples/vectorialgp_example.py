@@ -11,8 +11,6 @@ from sklearn.metrics import mean_squared_error
 from geml.simplegp import SimpleGP
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
-from geneticengine.problems import Problem
-from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.grammar.metahandlers.ints import IntRange
 
 # ===================================
@@ -3123,12 +3121,6 @@ def fitness_function_alternative(n: Scalar):
 
 
 class VectorialGPBenchmark:
-    def get_problem(self) -> Problem:
-        return SingleObjectiveProblem(
-            minimize=True,
-            fitness_function=fitness_function,
-        )
-
     def get_grammar(self) -> Grammar:
         """See fitness/vectorialgp.py for docs.
 
@@ -3167,22 +3159,22 @@ class VectorialGPBenchmark:
 
     def main(self, **args):
         g = self.get_grammar()
-        prob = self.get_problem()
         alg = SimpleGP(
-            g,
-            problem=prob,
+            grammar=g,
+            minimize=True,
+            fitness_function=fitness_function,
             crossover_probability=0.75,
             mutation_probability=0.01,
-            number_of_generations=30,
+            max_evaluations=10000,
             max_depth=10,
             population_size=50,
             selection_method=("tournament", 2),
-            n_elites=5,
+            elitism=5,
             **args,
         )
         best = alg.search()
         print(
-            f"Fitness of {best.get_fitness(prob)} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+            f"Fitness of {best.get_fitness(alg.get_problem())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
         )
 
 

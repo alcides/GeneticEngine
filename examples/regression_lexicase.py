@@ -9,8 +9,6 @@ import pandas as pd
 from geml.simplegp import SimpleGP
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
-from geneticengine.problems import MultiObjectiveProblem
-from geneticengine.problems import Problem
 from geml.grammars.basic_math import Exp
 from geml.grammars.basic_math import SafeDiv
 from geml.grammars.basic_math import SafeLog
@@ -109,13 +107,6 @@ def lexicase_parameters():
 
 
 class LexicaseRegressionBenchmark:
-    def get_problem(self) -> Problem:
-        fitness_function_lexicase, minimizelist = lexicase_parameters()
-        return MultiObjectiveProblem(
-            minimize=minimizelist,
-            fitness_function=fitness_function_lexicase,
-        )
-
     def get_grammar(self) -> Grammar:
         """<e>  ::=  <e>+<e>|
 
@@ -143,17 +134,20 @@ class LexicaseRegressionBenchmark:
 
     def main(self, **args):
         g = self.get_grammar()
-        prob = self.get_problem()
+
+        fitness_function_lexicase, minimizelist = lexicase_parameters()
+
         alg = SimpleGP(
-            g,
-            problem=prob,
-            number_of_generations=10,
+            grammar=g,
+            minimize=minimizelist,
+            fitness_function=fitness_function_lexicase,
+            max_evaluations=10000,
             selection_method=("lexicase", 0.01),
             **args,
         )
         best = alg.search()
         print(
-            f"Fitness of {best.get_fitness(prob)} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+            f"Fitness of {best.get_fitness(alg.get_problem())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
         )
 
 

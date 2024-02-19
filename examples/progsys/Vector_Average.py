@@ -10,16 +10,6 @@ import geml.grammars.coding.numbers as numbers
 from geml.simplegp import SimpleGP
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
-from geneticengine.representations.grammatical_evolution.dynamic_structured_ge import (
-    DynamicStructuredGrammaticalEvolutionRepresentation,
-)
-from geneticengine.representations.grammatical_evolution.ge import (
-    GrammaticalEvolutionRepresentation,
-)
-from geneticengine.representations.grammatical_evolution.structured_ge import (
-    StructuredGrammaticalEvolutionRepresentation,
-)
-from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geml.grammars.coding.classes import Number
 from geml.grammars.coding.classes import Statement
 from geml.grammars.coding.classes import XAssign
@@ -107,28 +97,19 @@ def fitness_function(n: Statement):
     return fitness
 
 
-def evolve(g, seed, mode, representation=""):
-    if representation == "ge":
-        representation = GrammaticalEvolutionRepresentation
-    elif representation == "sge":
-        representation = StructuredGrammaticalEvolutionRepresentation
-    elif representation == "dsge":
-        representation = DynamicStructuredGrammaticalEvolutionRepresentation
-    else:
-        representation = TreeBasedRepresentation
+def evolve(g, seed, mode, representation="treebased"):
     alg = SimpleGP(
-        g,
+        grammar=g,
         representation=representation,
         problem=SingleObjectiveProblem(
             minimize=True,
             fitness_function=fitness_function,
         ),
-        number_of_generations=5,
+        max_evaluations=10000,
         seed=seed,
         max_depth=10,
         population_size=50,
         crossover_probability=0.9,
-        timer_stop_criteria=mode,
     )
     ind = alg.search()
     return ind.get_phenotype(), ind.fitness, g

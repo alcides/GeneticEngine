@@ -335,11 +335,12 @@ class GameOfLifeVectorialBenchmark:
 
     def main(self, **args):
         g = self.get_grammar()
-        prob = self.get_problem()
+
         alg = SimpleGP(
-            g,
-            problem=prob,
-            number_of_generations=50,
+            grammar=g,
+            minimize=True,
+            fitness_function=fitness_function,
+            max_evaluations=10000,
             population_size=50,
             max_depth=10,
             # favor_less_complex_trees=True,
@@ -350,7 +351,7 @@ class GameOfLifeVectorialBenchmark:
         )
         best = alg.search()
         print(
-            f"Fitness of {best.get_fitness(prob)} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+            f"Fitness of {best.get_fitness(alg.get_problem())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
         )
 
         _clf = evaluate(best.get_phenotype())

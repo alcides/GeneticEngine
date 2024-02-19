@@ -12,8 +12,6 @@ from geml.simplegp import SimpleGP
 from geneticengine.grammar.decorators import get_gengy
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
-from geneticengine.problems import Problem
-from geneticengine.problems import SingleObjectiveProblem
 from geml.grammars.basic_math import SafeDiv
 from geml.grammars.sgp import Mul
 from geml.grammars.sgp import Number
@@ -115,9 +113,6 @@ def fitness_test_function(n: Number):
 
 
 class ClassificationProbabilisticGEBenchmark:
-    def get_problem(self) -> Problem:
-        return SingleObjectiveProblem(minimize=False, fitness_function=fitness_function)
-
     def get_grammar(self) -> Grammar:
         return extract_grammar(
             prods,
@@ -126,24 +121,24 @@ class ClassificationProbabilisticGEBenchmark:
 
     def main(self, **args):
         g = self.get_grammar()
-        prob = self.get_problem()
+
         alg = SimpleGP(
-            g,
-            problem=prob,
+            grammar=g,
+            minimize=[False for _ in self.feature_names],
+            fitness_function=fitness_function,
             crossover_probability=1,
             # TODO: evolve_grammar=PGECallback(),
             mutation_probability=0.5,
-            number_of_generations=20,
+            max_evaluations=10000,
             max_depth=10,
-            max_init_depth=6,
             population_size=50,
             selection_method=("tournament", 2),
-            n_elites=5,
+            elitism=5,
             **args,
         )
         best = alg.search()
         print(
-            f"Fitness of {best.get_fitness(prob)} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+            f"Fitness of {best.get_fitness(alg.get_problem())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
         )
 
 

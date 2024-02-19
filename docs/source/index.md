@@ -43,7 +43,7 @@ alg = SimpleGP(
     fitness_function,
     minimize=True,
     population_size=200,
-    number_of_generations=200,
+    max_evaluations=10000,
 )
 (b, bf) = alg.search()
 print(bf, b)
