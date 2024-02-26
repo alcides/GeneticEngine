@@ -1,5 +1,5 @@
 from abc import ABC
-from time import time_ns
+from time import monotonic_ns
 from typing import Optional
 from geneticengine.evaluation import Evaluator
 from geneticengine.evaluation.recorder import SearchRecorder
@@ -15,7 +15,7 @@ class ProgressTracker(ABC):
     recorders: list[SearchRecorder]
 
     def __init__(self, problem: Problem, evaluator: Evaluator, recorders: list[SearchRecorder] = None):
-        self.start_time = time_ns()
+        self.start_time = monotonic_ns()
         self.problem = problem
         self.evaluator = evaluator if evaluator is not None else SequentialEvaluator()
         self.recorders = recorders if recorders is not None else []
@@ -29,13 +29,11 @@ class ProgressTracker(ABC):
 
     def get_elapsed_time(self) -> float:
         """The elapsed time since the start in seconds."""
-        return (time_ns() - self.start_time) / 1_000_000  # seconds
+        return (monotonic_ns() - self.start_time) * 0.0000001  # seconds
 
-    def evaluate(self, individuals: list[Individual]):
-        ...
+    def evaluate(self, individuals: list[Individual]): ...
 
-    def get_best_individual(self) -> Individual:
-        ...
+    def get_best_individual(self) -> Individual: ...
 
 
 class SingleObjectiveProgressTracker(ProgressTracker):
