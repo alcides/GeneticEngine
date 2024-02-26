@@ -29,7 +29,7 @@ class ProgressTracker(ABC):
 
     def get_elapsed_time(self) -> float:
         """The elapsed time since the start in seconds."""
-        return (monotonic_ns() - self.start_time) * 0.0000001  # seconds
+        return (monotonic_ns() - self.start_time) * 0.000000001  # seconds
 
     def evaluate(self, individuals: list[Individual]): ...
 
