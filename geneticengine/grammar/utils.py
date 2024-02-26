@@ -40,6 +40,11 @@ def is_generic_list(ty: type[Any]):
     return hasattr(ty, "__origin__") and ty.__origin__ is list
 
 
+def is_generic_tuple(ty: type[Any]):
+    """Returns whether a type is tuple[X, Y, ...] for any X, Y, ...."""
+    return hasattr(ty, "__origin__") and ty.__origin__ is tuple
+
+
 def is_generic(ty: type[Any]):
     """Returns whether a type is x[T] for any T."""
     return hasattr(ty, "__origin__")

@@ -11,12 +11,10 @@ T = TypeVar("T")
 
 class RandomSource(abc.ABC):
     @abc.abstractmethod
-    def randint(self, min: int, max: int, prod: str = "") -> int:
-        ...
+    def randint(self, min: int, max: int, prod: str = "") -> int: ...
 
     @abc.abstractmethod
-    def random_float(self, min: float, max: float, prod: str = "") -> float:
-        ...
+    def random_float(self, min: float, max: float, prod: str = "") -> float: ...
 
     def choice(self, choices: list[T], prod: str = "") -> T:
         assert choices
@@ -63,7 +61,7 @@ class RandomSource(abc.ABC):
         self,
         mean: float,
         sigma: float,
-        prod: str,
+        prod: str = "",
     ) -> float:
         # Box-Muller transform https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
         # I also found this approach https://rh8liuqy.github.io/Box_Muller_Algorithm.html using numpy library instead of math library
