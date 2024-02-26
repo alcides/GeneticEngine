@@ -1,6 +1,6 @@
 from abc import ABC
 import csv
-from time import time_ns
+from time import monotonic_ns
 from typing import Any, Callable
 from geneticengine.problems import Problem
 from geneticengine.solutions import Individual
@@ -9,8 +9,7 @@ FieldMapper = Callable[[Any, Individual, Problem], Any]
 
 
 class SearchRecorder(ABC):
-    def register(self, tracker: Any, individual: Individual, problem: Problem, is_best=True):
-        ...
+    def register(self, tracker: Any, individual: Individual, problem: Problem, is_best=True): ...
 
 
 class CSVSearchRecorder(SearchRecorder):
@@ -29,7 +28,7 @@ class CSVSearchRecorder(SearchRecorder):
             self.fields = fields
         else:
             self.fields = {
-                "Execution Time": lambda t, i, _: time_ns() - t.start_time,
+                "Execution Time": lambda t, i, _: (monotonic_ns() - t.start_time) * 0.000000001,
                 "Phenotype": lambda t, i, _: i.get_phenotype(),
             }
             for comp in range(problem.number_of_objectives()):
