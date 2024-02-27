@@ -81,14 +81,10 @@ class LexicaseSelection(GeneticStep):
         winners = []
         minimize: list[bool]
 
-        if n_cases == 1 and isinstance(problem.minimize, bool):
-            n_cases = len(candidates[0].get_fitness(problem).fitness_components)
-            minimize = [problem.minimize for _ in range(n_cases)]
-        else:
-            assert isinstance(problem.minimize, list)
-            minimize = problem.minimize
-
-        assert n_cases == len(candidates[0].get_fitness(problem).fitness_components)
+        assert isinstance(problem.minimize, list)
+        minimize = problem.minimize
+        assert isinstance(minimize, list)
+        n_cases = len(candidates[0].get_fitness(problem).fitness_components)
 
         for _ in range(target_size):
             candidates_to_check = candidates.copy()
