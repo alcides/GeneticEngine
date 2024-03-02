@@ -10,7 +10,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -41,7 +41,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Check install
       run: |
-        pip install -e .
+        uv pip install -e .
     - name: Test with pytest
       run: |
         pytest --cov --benchmark-skip
