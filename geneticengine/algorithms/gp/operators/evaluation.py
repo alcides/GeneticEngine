@@ -21,5 +21,6 @@ class EvaluateStep(GeneticStep):
         generation: int,
     ) -> list[Individual]:
         evaluator.evaluate(problem, population)
+        # TODO: We do not need to sort here.
         new_population = sort_population(population, problem)
         return new_population

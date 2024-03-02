@@ -52,8 +52,7 @@ class SingleObjectiveProgressTracker(ProgressTracker):
 
     def evaluate(self, individuals: list[Individual]):
         problem = self.problem
-        self.evaluator.evaluate(problem, individuals)
-        for ind in individuals:
+        for ind in self.evaluator.evaluate_async(problem, individuals):
             is_best = False
             if self.best_individual is None:
                 self.best_individual = ind
@@ -91,8 +90,7 @@ class MultiObjectiveProgressTracker(ProgressTracker):
 
     def evaluate(self, individuals: list[Individual]):
         problem = self.problem
-        self.evaluator.evaluate(problem, individuals)
-        for ind in individuals:
+        for ind in self.evaluator.evaluate_async(problem, individuals):
             not_dominated = len(self.pareto_front) == 0 or not self.is_dominated(ind, self.pareto_front)
             if not_dominated:
                 new_pareto_front = [ind]
