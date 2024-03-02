@@ -16,7 +16,7 @@ def save_abc(pickler, obj):
 class ParallelEvaluator(Evaluator):
     """Evaluates individuals in parallel, each time they are needed."""
 
-    def evaluate(self, problem: Problem, indivs: list[Individual[Any, Any]]):
+    def evaluate_async(self, problem: Problem, indivs: list[Individual[Any, Any]]):
         def mapper(ind: Individual) -> Fitness:
             return self.eval_single(problem, ind)
 
@@ -25,3 +25,4 @@ class ParallelEvaluator(Evaluator):
             for i, f in zip(indivs, fitnesses):
                 i.set_fitness(problem, f)
                 self.register_evaluation()
+                yield i

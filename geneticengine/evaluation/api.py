@@ -11,8 +11,11 @@ class Evaluator(ABC):
         self.count = 0
 
     @abstractmethod
+    def evaluate_async(self, problem: Problem, indivs: list[Individual[Any, Any]]): ...
+
     def evaluate(self, problem: Problem, indivs: list[Individual[Any, Any]]):
-        ...
+        for _ in self.evaluate_async(problem, indivs):
+            pass
 
     def register_evaluation(self):
         self.count += 1

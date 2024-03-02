@@ -8,9 +8,10 @@ from geneticengine.evaluation.api import Evaluator
 class SequentialEvaluator(Evaluator):
     """Default evaluator for individuals, executes sequentially."""
 
-    def evaluate(self, problem: Problem, indivs: list[Individual[Any, Any]]):
+    def evaluate_async(self, problem: Problem, indivs: list[Individual[Any, Any]]):
         for individual in indivs:
             if not individual.has_fitness(problem):
                 f = self.eval_single(problem, individual)
-                self.count += 1
+                self.register_evaluation()
                 individual.set_fitness(problem, f)
+                yield individual
