@@ -53,7 +53,6 @@ run_example examples/binary.py
 run_example examples/exponentiation.py
 run_example examples/game_of_life_vectorial.py
 run_example examples/multi_target_lexicase.py
-run_example examples/multipopulation.py
 run_example examples/pcfg_example.py
 run_example examples/recurrence.py
 run_example examples/synthetic_grammar_example.py
