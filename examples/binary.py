@@ -1,7 +1,9 @@
 from abc import ABC
 import copy
 from dataclasses import dataclass
-from typing import Annotated
+from typing import Annotated, Any
+
+from geneticengine.grammar import Grammar
 from geneticengine.evaluation.budget import AnyOf, TargetFitness, TimeBudget
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource, RandomSource
@@ -13,6 +15,7 @@ from geneticengine.representations.tree.treebased import (
     random_node,
 )
 from geneticengine.algorithms.gp.gp import GeneticProgramming
+from geneticengine.representations.tree.utils import relabel_nodes_of_trees
 from geneticengine.solutions.tree import TreeNode
 
 
@@ -45,6 +48,17 @@ def fitness(i: BinaryList):
     return str(i).count("1") / SIZE
 
 
+def ensure_tree_node(x: Any, grammar: Grammar) -> TreeNode:
+    x.gengy_labeled = True
+    x.gengy_distance_to_term = 1
+    x.gengy_nodes = 4
+    x.gengy_weighted_nodes = 5
+    x.gengy_types_this_way = {}
+    x.gengy_init_values = (1,)
+    relabel_nodes_of_trees(x, g)
+    return x
+
+
 class BinaryListTreeBasedRepresentation(TreeBasedRepresentation):
     def __init__(self, grammar, max_depth):
         super().__init__(grammar, max_depth)
@@ -72,8 +86,8 @@ class BinaryListTreeBasedRepresentation(TreeBasedRepresentation):
         q1 = copy.deepcopy(parent2.byte[:p])
         p2 = copy.deepcopy(parent2.byte[: len(parent2.byte) - p])
         q2 = copy.deepcopy(parent1.byte[: len(parent1.byte) - p])
-        b1 = BinaryList(byte=p1 + p2)
-        b2 = BinaryList(byte=q1 + q2)
+        b1 = ensure_tree_node(BinaryList(byte=p1 + p2), self.grammar)
+        b2 = ensure_tree_node(BinaryList(byte=q1 + q2), self.grammar)
         assert isinstance(b1, TreeNode)
         assert isinstance(b2, TreeNode)
         return (b1, b2)

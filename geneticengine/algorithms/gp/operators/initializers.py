@@ -45,7 +45,7 @@ class StandardInitializer(PopulationInitializer):
         target_size: int,
         **kwargs,
     ) -> Iterator[Individual]:
-        for _ in range(target_size):
+        for i in range(target_size):
             yield Individual(
                 representation.create_genotype(
                     random,

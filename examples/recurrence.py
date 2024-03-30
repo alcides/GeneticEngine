@@ -32,8 +32,7 @@ for i in range(N):
 
 class Node(abc.ABC):
     @abc.abstractmethod
-    def evaluate(self, input: list[int]):
-        ...
+    def evaluate(self, input: list[int]): ...
 
 
 @dataclass
@@ -130,8 +129,8 @@ if __name__ == "__main__":
         novelty=10,
     )
     best: Any = gp.search()
-    print(best.get_phenotype().gengy_nodes)
-    print(best.get_phenotype().gengy_distance_to_term)
+    print("Number of nodes:", best.get_phenotype().gengy_nodes)
+    print("Distance to Terminal:", best.get_phenotype().gengy_distance_to_term)
     fitness = best.get_fitness(gp.get_problem())
     print(
         f"Fitness of {fitness} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
