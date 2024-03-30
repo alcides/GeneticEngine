@@ -12,5 +12,5 @@ sphinx
 sphinx-autoapi
 sphinx-rtd-theme
 sphinxcontrib-fulltoc
-threadpoolctl==3.3.0
+threadpoolctl==3.4.0
 z3-solver
