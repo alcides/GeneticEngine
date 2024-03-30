@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Iterator
 
 from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.structure import GeneticStep
@@ -18,11 +19,11 @@ class ElitismStep(GeneticStep):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: list[Individual],
+        population: Iterator[Individual],
         target_size: int,
         generation: int,
-    ) -> list[Individual]:
+    ) -> Iterator[Individual]:
         evaluator.evaluate(problem, population)
         # TODO: We do not need to sort here.
-        new_population = sort_population(population, problem)
-        return new_population[:target_size]
+        new_population = sort_population(list(population), problem)
+        yield from new_population[:target_size]

@@ -1,4 +1,5 @@
 from __future__ import annotations
+from geneticengine.algorithms.gp.population import Population
 from geneticengine.algorithms.heuristics import HeuristicSearch
 
 
@@ -78,25 +79,35 @@ class GeneticProgramming(HeuristicSearch):
         assert isinstance(self.representation, RepresentationWithMutation)
         assert isinstance(self.representation, RepresentationWithCrossover)
         generation = 0
-        population = self.population_initializer.initialize(
-            self.problem,
-            self.representation,
-            self.random,
-            self.population_size,
-        )
-        self.tracker.evaluate(population)
-        while not self.is_done():
-            generation += 1
-            population = self.step.iterate(
+
+        population = Population(
+            self.population_initializer.initialize(
                 self.problem,
-                self.tracker.evaluator,
                 self.representation,
                 self.random,
-                population,
                 self.population_size,
-                generation,
+            ),
+            self.tracker,
+        )
+        population.set_generation(generation)
+
+        while not self.is_done():
+            generation += 1
+
+            population = Population(
+                self.step.iterate(
+                    self.problem,
+                    self.tracker.evaluator,
+                    self.representation,
+                    self.random,
+                    population,
+                    self.population_size,
+                    generation,
+                ),
+                self.tracker,
             )
-            self.tracker.evaluate(population)
+            population.set_generation(generation)
+
         if isinstance(self.tracker, SingleObjectiveProgressTracker):
             return self.tracker.get_best_individual()
         elif isinstance(self.tracker, MultiObjectiveProgressTracker):

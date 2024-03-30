@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Iterator
 
 from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.structure import GeneticStep
@@ -25,23 +25,20 @@ class GenericMutationStep(GeneticStep):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: list[Individual],
+        population: Iterator[Individual],
         target_size: int,
         generation: int,
-    ) -> list[Individual]:
+    ) -> Iterator[Individual]:
         assert isinstance(representation, RepresentationWithMutation)
-        ret = []
-        for index, ind in enumerate(population[:target_size]):
-            assert isinstance(ind, Individual)
-            v = random.random_float(0, 1)
-            if v <= self.probability:
-                mutated = representation.mutate(random, ind.genotype)
-                nind = self.wrap(representation, mutated)
-                ret.append(nind)
-            else:
-                ret.append(ind)
-
-        return ret
+        for index, ind in enumerate(population):
+            if index < target_size:
+                v = random.random_float(0, 1)
+                if v <= self.probability:
+                    mutated = representation.mutate(random, ind.genotype)
+                    nind = self.wrap(representation, mutated)
+                    yield nind
+                else:
+                    yield ind
 
     def wrap(self, representation: Representation, genotype: Any) -> Individual:
         return Individual(

@@ -1,10 +1,12 @@
 from abc import ABC
 from time import monotonic_ns
-from typing import Optional
+from typing import Iterable, Optional
 from geneticengine.evaluation import Evaluator
 from geneticengine.evaluation.recorder import SearchRecorder
 from geneticengine.evaluation.sequential import SequentialEvaluator
 from geneticengine.problems import Problem
+
+
 from geneticengine.solutions import Individual
 
 
@@ -31,7 +33,10 @@ class ProgressTracker(ABC):
         """The elapsed time since the start in seconds."""
         return (monotonic_ns() - self.start_time) * 0.000000001  # seconds
 
-    def evaluate(self, individuals: list[Individual]): ...
+    def evaluate(self, individuals: Iterable[Individual]): ...
+
+    def evaluate_single(self, individual: Individual):
+        self.evaluate([individual])
 
     def get_best_individual(self) -> Individual: ...
 
@@ -50,20 +55,23 @@ class SingleObjectiveProgressTracker(ProgressTracker):
 
         self.best_individual = None
 
-    def evaluate(self, individuals: list[Individual]):
+    def post_process(self, individual: Individual):
         problem = self.problem
-        for ind in self.evaluator.evaluate_async(problem, individuals):
+        is_best = False
+        if self.best_individual is None:
+            self.best_individual = individual
+            is_best = True
+        elif problem.is_better(individual.get_fitness(problem), self.best_individual.get_fitness(problem)):
+            self.best_individual = individual
+            is_best = True
+        else:
             is_best = False
-            if self.best_individual is None:
-                self.best_individual = ind
-                is_best = True
-            elif problem.is_better(ind.get_fitness(problem), self.best_individual.get_fitness(problem)):
-                self.best_individual = ind
-                is_best = True
-            else:
-                is_best = False
-            for recorder in self.recorders:
-                recorder.register(tracker=self, individual=ind, problem=problem, is_best=is_best)
+        for recorder in self.recorders:
+            recorder.register(tracker=self, individual=individual, problem=problem, is_best=is_best)
+
+    def evaluate(self, individuals: Iterable[Individual]):
+        for ind in self.evaluator.evaluate_async(self.problem, individuals):
+            self.post_process(ind)
 
     def get_best_individual(self) -> Individual:
         return self.best_individual
@@ -88,7 +96,7 @@ class MultiObjectiveProgressTracker(ProgressTracker):
             [self.problem.is_better(x.get_fitness(self.problem), current.get_fitness(self.problem)) for x in others],
         )
 
-    def evaluate(self, individuals: list[Individual]):
+    def evaluate(self, individuals: Iterable[Individual]):
         problem = self.problem
         for ind in self.evaluator.evaluate_async(problem, individuals):
             not_dominated = len(self.pareto_front) == 0 or not self.is_dominated(ind, self.pareto_front)

@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Iterator
 
 from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.structure import GeneticStep
@@ -17,14 +18,12 @@ class NoveltyStep(GeneticStep):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: list[Individual],
+        population: Iterator[Individual],
         target_size: int,
         generation: int,
-    ) -> list[Individual]:
-        return [
-            Individual(
+    ) -> Iterator[Individual]:
+        for _ in range(target_size):
+            yield Individual(
                 representation.create_genotype(random),
                 representation,
             )
-            for _ in range(target_size)
-        ]

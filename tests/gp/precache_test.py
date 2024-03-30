@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC
 from dataclasses import dataclass
-from typing import Annotated
+from typing import Annotated, Iterator
 
 import pytest
 
@@ -45,10 +45,10 @@ class CacheFitness(GeneticStep):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: list[Individual],
+        population: Iterator[Individual],
         target_size: int,
         generation: int,
-    ) -> list[Individual]:
+    ) -> Iterator[Individual]:
         for ind in population:
             ind.set_fitness(problem, Fitness(-1.0, []))
         return population

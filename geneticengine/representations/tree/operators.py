@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Iterator
 
 from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.structure import PopulationInitializer
@@ -22,17 +23,15 @@ class FullInitializer(PopulationInitializer):
         random: RandomSource,
         target_size: int,
         **kwargs,
-    ) -> list[Individual]:
+    ) -> Iterator[Individual]:
         assert isinstance(representation, TreeBasedRepresentation)
-        return [
-            Individual(
+        for _ in range(target_size):
+            yield Individual(
                 representation.create_genotype(
                     random,
                 ),
                 representation=representation,
             )
-            for _ in range(target_size)
-        ]
 
 
 class GrowInitializer(PopulationInitializer):
@@ -46,17 +45,15 @@ class GrowInitializer(PopulationInitializer):
         random: RandomSource,
         target_size: int,
         **kwargs,
-    ) -> list[Individual]:
+    ) -> Iterator[Individual]:
         assert isinstance(representation, TreeBasedRepresentation)
-        return [
-            Individual(
+        for _ in range(target_size):
+            yield Individual(
                 representation.create_genotype(
                     random,
                 ),
                 representation=representation,
             )
-            for _ in range(target_size)
-        ]
 
 
 class PositionIndependentGrowInitializer(PopulationInitializer):
@@ -70,17 +67,15 @@ class PositionIndependentGrowInitializer(PopulationInitializer):
         random: RandomSource,
         target_size: int,
         **kwargs,
-    ) -> list[Individual]:
+    ) -> Iterator[Individual]:
         assert isinstance(representation, TreeBasedRepresentation)
-        return [
-            Individual(
+        for _ in range(target_size):
+            yield Individual(
                 representation.create_genotype(
                     random,
                 ),
                 representation=representation,
             )
-            for _ in range(target_size)
-        ]
 
 
 class RampedInitializer(PopulationInitializer):
@@ -93,17 +88,15 @@ class RampedInitializer(PopulationInitializer):
         representation: Representation,
         random: RandomSource,
         target_size: int,
-    ) -> list[Individual]:
+    ) -> Iterator[Individual]:
         assert isinstance(representation, TreeBasedRepresentation)
-        return [
-            Individual(
+        for _ in range(target_size):
+            yield Individual(
                 representation.create_genotype(
                     random,
                 ),
                 representation=representation,
             )
-            for _ in range(target_size)
-        ]
 
 
 class RampedHalfAndHalfInitializer(PopulationInitializer):
@@ -120,17 +113,16 @@ class RampedHalfAndHalfInitializer(PopulationInitializer):
         representation: Representation,
         random: RandomSource,
         target_size: int,
-    ) -> list[Individual]:
+    ) -> Iterator[Individual]:
         assert isinstance(representation, TreeBasedRepresentation)
-        return [
-            Individual(
+        for _ in range(target_size):
+            # TODO: This is not RH&H
+            yield Individual(
                 representation.create_genotype(
                     random,
                 ),
                 representation=representation,
             )
-            for _ in range(target_size)
-        ]
 
 
 class InjectInitialPopulationWrapper(PopulationInitializer):
@@ -147,7 +139,7 @@ class InjectInitialPopulationWrapper(PopulationInitializer):
         representation: Representation,
         random: RandomSource,
         target_size: int,
-    ) -> list[Individual]:
+    ) -> Iterator[Individual]:
         assert isinstance(representation, TreeBasedRepresentation)
 
         def ensure_ind(x):
@@ -156,14 +148,8 @@ class InjectInitialPopulationWrapper(PopulationInitializer):
             else:
                 return Individual(x, representation=representation)
 
-        programs = [ensure_ind(p1) for p1 in self.programs]
+        for i, p in enumerate(self.programs[:target_size]):
+            yield ensure_ind(p)
 
-        if target_size > len(programs):
-            return programs[:target_size]
-        else:
-            return programs + self.backup_initializer.initialize(
-                problem,
-                representation,
-                random,
-                target_size - len(programs),
-            )
+        if i < target_size - 1:
+            yield from self.backup_initializer.initialize(problem, representation, random, target_size - i)

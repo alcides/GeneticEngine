@@ -58,7 +58,7 @@ class TestInitializers:
         repr = TreeBasedRepresentation(grammar=g, max_depth=target_depth)
         rs = NativeRandomSource(5)
 
-        population = f.initialize(p, repr, rs, target_size)
+        population = list(f.initialize(p, repr, rs, target_size))
         assert len(population) == target_size
         for ind in population:
             assert ind.get_phenotype().gengy_distance_to_term == target_depth
@@ -73,7 +73,7 @@ class TestInitializers:
         repr = TreeBasedRepresentation(grammar=g, max_depth=target_depth)
         rs = NativeRandomSource(5)
 
-        population = f.initialize(p, repr, rs, target_size)
+        population = list(f.initialize(p, repr, rs, target_size))
         assert len(population) == target_size
         for ind in population:
             assert ind.get_phenotype().gengy_distance_to_term <= target_depth
