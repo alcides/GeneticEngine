@@ -65,3 +65,4 @@ class TestGrammar:
         tree = ind.get_phenotype()
         assert isinstance(tree, UnderTest)
         assert isinstance(tree.a, Leaf)
+        assert "generation" in ind.metadata
