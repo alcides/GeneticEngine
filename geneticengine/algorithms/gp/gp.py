@@ -1,8 +1,9 @@
 from __future__ import annotations
+
+import logging
+
 from geneticengine.algorithms.gp.population import Population
 from geneticengine.algorithms.heuristics import HeuristicSearch
-
-
 from geneticengine.evaluation.budget import SearchBudget
 from geneticengine.evaluation.tracker import (
     MultiObjectiveProgressTracker,
@@ -24,6 +25,9 @@ from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
 from geneticengine.representations.api import RepresentationWithCrossover, RepresentationWithMutation, Representation
+
+
+logger = logging.getLogger(__name__)
 
 
 def default_generic_programming_step():
@@ -79,7 +83,7 @@ class GeneticProgramming(HeuristicSearch):
         assert isinstance(self.representation, RepresentationWithMutation)
         assert isinstance(self.representation, RepresentationWithCrossover)
         generation = 0
-
+        logger.info("Generating initial population")
         population = Population(
             self.population_initializer.initialize(
                 self.problem,
@@ -93,7 +97,7 @@ class GeneticProgramming(HeuristicSearch):
 
         while not self.is_done():
             generation += 1
-
+            logger.info(f"Generating population at generation {generation}")
             population = Population(
                 self.step.iterate(
                     self.problem,

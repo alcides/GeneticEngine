@@ -57,3 +57,4 @@ run_example examples/pcfg_example.py
 run_example examples/recurrence.py
 run_example examples/synthetic_grammar_example.py
 run_example examples/tutorial_example.py
+run_example examples/logging_example.py

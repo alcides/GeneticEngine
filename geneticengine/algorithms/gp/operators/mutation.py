@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from typing import Any, Iterator
 
 from geneticengine.solutions.individual import Individual
@@ -8,6 +9,8 @@ from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
 from geneticengine.representations.api import RepresentationWithMutation, Representation
 from geneticengine.evaluation import Evaluator
+
+logger = logging.getLogger(__name__)
 
 
 class GenericMutationStep(GeneticStep):
@@ -34,6 +37,7 @@ class GenericMutationStep(GeneticStep):
             if index < target_size:
                 v = random.random_float(0, 1)
                 if v <= self.probability:
+                    logger.info(f"Mutating {ind.genotype}")
                     mutated = representation.mutate(random, ind.genotype)
                     nind = self.wrap(representation, mutated)
                     yield nind

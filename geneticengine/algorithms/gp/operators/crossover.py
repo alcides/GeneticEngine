@@ -1,4 +1,5 @@
 from __future__ import annotations
+import logging
 from typing import Iterator
 
 from geneticengine.solutions.individual import Individual
@@ -7,6 +8,8 @@ from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
 from geneticengine.representations.api import RepresentationWithCrossover, Representation
 from geneticengine.evaluation import Evaluator
+
+logger = logging.getLogger(__name__)
 
 
 class GenericCrossoverStep(GeneticStep):
@@ -55,6 +58,7 @@ class GenericCrossoverStep(GeneticStep):
         representation: Representation,
     ):
         assert isinstance(representation, RepresentationWithCrossover)
+        logger.info(f"Crossing-over {individual1.genotype} with {individual2.genotype}")
         (g1, g2) = representation.crossover(
             random,
             individual1.genotype,
