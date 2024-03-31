@@ -4,15 +4,14 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
 
-from geneticengine.grammar.metahandlers.ints import IntRange
+from geneticengine.grammar.metahandlers.floats import FloatRange
 from geneticengine.grammar.metahandlers.vars import VarRange
 
 
 class Number(ABC):
     """Abstract Number."""
 
-    def evaluate(self, **kwargs):
-        ...
+    def evaluate(self, **kwargs): ...
 
 
 @dataclass
@@ -92,7 +91,7 @@ class Literal(Number):
         val
     """
 
-    val: Annotated[int, IntRange(0, 9)]
+    val: Annotated[float, FloatRange(0, 9)]
 
     def evaluate(self, **kwargs):
         return self.val

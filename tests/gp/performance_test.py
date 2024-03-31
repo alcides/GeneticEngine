@@ -74,11 +74,9 @@ def test_bench_initialization_class(benchmark, representation, initializer):
     target_size = 100
 
     def population_initialization():
-
         repr = representation(grammar=grammar, max_depth=target_depth)
-
         population = initializer().initialize(p, repr, r, target_size)
-        return len(population)
+        return len(list(population))
 
     n = benchmark(population_initialization)
     assert n > 0
@@ -108,11 +106,8 @@ def test_bench_mutation(benchmark, representation):
         p = SingleObjectiveProblem(lambda x: 3)
         population = GenericPopulationInitializer().initialize(p, repr, r, target_size)
         for _ in range(100):
-            population = gs.iterate(p, SequentialEvaluator(), repr, r, population, len(population), 0)
-            for p in population:
-                p.get_phenotype()
-
-        return len(population)
+            population = list(gs.iterate(p, SequentialEvaluator(), repr, r, population, target_size, 0))
+        return len(list(population))
 
     n = benchmark(mutation)
     assert n > 0
@@ -142,11 +137,8 @@ def test_bench_crossover(benchmark, representation):
         p = SingleObjectiveProblem(lambda x: 3)
         population = GenericPopulationInitializer().initialize(p, repr, r, target_size)
         for _ in range(100):
-            population = gs.iterate(p, SequentialEvaluator(), repr, r, population, len(population), 0)
-            for p in population:
-                p.get_phenotype()
-
-        return len(population)
+            population = gs.iterate(p, SequentialEvaluator(), repr, r, population, target_size, 0)
+        return len(list(population))
 
     n = benchmark(mutation)
     assert n > 0

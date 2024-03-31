@@ -1,3 +1,4 @@
+from typing import Iterator
 from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.problems import Problem
@@ -14,13 +15,11 @@ class GenericPopulationInitializer(PopulationInitializer):
         representation: Representation,
         random: RandomSource,
         target_size: int,
-    ) -> list[Individual]:
-        return [
-            Individual(
+    ) -> Iterator[Individual]:
+        for i in range(target_size):
+            yield Individual(
                 representation.create_genotype(
                     random=random,
                 ),
                 representation=representation,
             )
-            for i in range(target_size)
-        ]

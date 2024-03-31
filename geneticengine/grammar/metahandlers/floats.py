@@ -17,7 +17,10 @@ class FloatRange(MetaHandlerGenerator):
         Float.__annotations__["value"] = Annotated[float, FloatRange(c,d)].
     """
 
-    def __init__(self, min, max):
+    min: float
+    max: float
+
+    def __init__(self, min: float, max: float):
         self.min = min
         self.max = max
 

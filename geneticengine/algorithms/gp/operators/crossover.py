@@ -1,4 +1,6 @@
 from __future__ import annotations
+import logging
+from typing import Iterator
 
 from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.structure import GeneticStep
@@ -6,6 +8,8 @@ from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
 from geneticengine.representations.api import RepresentationWithCrossover, Representation
 from geneticengine.evaluation import Evaluator
+
+logger = logging.getLogger(__name__)
 
 
 class GenericCrossoverStep(GeneticStep):
@@ -24,15 +28,15 @@ class GenericCrossoverStep(GeneticStep):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: list[Individual],
+        population: Iterator[Individual],
         target_size: int,
         generation: int,
-    ) -> list[Individual]:
+    ) -> Iterator[Individual]:
         assert isinstance(representation, RepresentationWithCrossover)
-        retlist: list[Individual] = []
+        npopulation = list(population)
         for i in range(target_size // 2):
-            j = i % len(population)
-            ind1, ind2 = population[j], population[j + 1]  # todo: select individuals using a selection method
+            j = i % len(npopulation)
+            ind1, ind2 = npopulation[j], npopulation[j + 1]  # todo: select individuals using a selection method
             assert isinstance(ind1, Individual)
             assert isinstance(ind2, Individual)
             v = random.random_float(0, 1)
@@ -40,13 +44,11 @@ class GenericCrossoverStep(GeneticStep):
                 (n1, n2) = self.crossover(random, ind1, ind2, representation=representation)
             else:
                 (n1, n2) = (ind1, ind2)
-            retlist.append(n1)
-            retlist.append(n2)
+            yield n1
+            yield n2
 
-        if len(retlist) < target_size:
-            retlist.append(population[0])
-        assert len(retlist) == target_size
-        return retlist
+        if (target_size // 2) * 2 < target_size:
+            yield npopulation[0]
 
     def crossover(
         self,
@@ -56,6 +58,7 @@ class GenericCrossoverStep(GeneticStep):
         representation: Representation,
     ):
         assert isinstance(representation, RepresentationWithCrossover)
+        logger.info(f"Crossing-over {individual1.genotype} with {individual2.genotype}")
         (g1, g2) = representation.crossover(
             random,
             individual1.genotype,

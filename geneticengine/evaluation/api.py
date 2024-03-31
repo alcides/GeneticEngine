@@ -1,9 +1,12 @@
 from abc import ABC, abstractmethod
-from typing import Any
+import logging
+from typing import Any, Iterable
 
 
 from geneticengine.solutions.individual import Individual
 from geneticengine.problems import Fitness, Problem
+
+logger = logging.getLogger(__name__)
 
 
 class Evaluator(ABC):
@@ -11,9 +14,9 @@ class Evaluator(ABC):
         self.count = 0
 
     @abstractmethod
-    def evaluate_async(self, problem: Problem, indivs: list[Individual[Any, Any]]): ...
+    def evaluate_async(self, problem: Problem, indivs: Iterable[Individual[Any, Any]]): ...
 
-    def evaluate(self, problem: Problem, indivs: list[Individual[Any, Any]]):
+    def evaluate(self, problem: Problem, indivs: Iterable[Individual[Any, Any]]):
         for _ in self.evaluate_async(problem, indivs):
             pass
 
@@ -26,4 +29,5 @@ class Evaluator(ABC):
     def eval_single(self, problem: Problem, individual: Individual) -> Fitness:
         phenotype = individual.get_phenotype()
         r = problem.evaluate(phenotype=phenotype)
+        logger.info(f"Evaluating {phenotype}: {r}")
         return r

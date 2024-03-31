@@ -1,7 +1,9 @@
 from __future__ import annotations
+
+import logging
+
+from geneticengine.algorithms.gp.population import Population
 from geneticengine.algorithms.heuristics import HeuristicSearch
-
-
 from geneticengine.evaluation.budget import SearchBudget
 from geneticengine.evaluation.tracker import (
     MultiObjectiveProgressTracker,
@@ -23,6 +25,9 @@ from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
 from geneticengine.representations.api import RepresentationWithCrossover, RepresentationWithMutation, Representation
+
+
+logger = logging.getLogger(__name__)
 
 
 def default_generic_programming_step():
@@ -78,25 +83,35 @@ class GeneticProgramming(HeuristicSearch):
         assert isinstance(self.representation, RepresentationWithMutation)
         assert isinstance(self.representation, RepresentationWithCrossover)
         generation = 0
-        population = self.population_initializer.initialize(
-            self.problem,
-            self.representation,
-            self.random,
-            self.population_size,
-        )
-        self.tracker.evaluate(population)
-        while not self.is_done():
-            generation += 1
-            population = self.step.iterate(
+        logger.info("Generating initial population")
+        population = Population(
+            self.population_initializer.initialize(
                 self.problem,
-                self.tracker.evaluator,
                 self.representation,
                 self.random,
-                population,
                 self.population_size,
-                generation,
+            ),
+            self.tracker,
+        )
+        population.set_generation(generation)
+
+        while not self.is_done():
+            generation += 1
+            logger.info(f"Generating population at generation {generation}")
+            population = Population(
+                self.step.iterate(
+                    self.problem,
+                    self.tracker.evaluator,
+                    self.representation,
+                    self.random,
+                    population,
+                    self.population_size,
+                    generation,
+                ),
+                self.tracker,
             )
-            self.tracker.evaluate(population)
+            population.set_generation(generation)
+
         if isinstance(self.tracker, SingleObjectiveProgressTracker):
             return self.tracker.get_best_individual()
         elif isinstance(self.tracker, MultiObjectiveProgressTracker):

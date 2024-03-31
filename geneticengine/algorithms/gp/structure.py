@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import abc
+from typing import Iterator
 from geneticengine.representations.api import Representation
 
 from geneticengine.solutions.individual import Individual
@@ -17,8 +18,7 @@ class PopulationInitializer(abc.ABC):
         representation: Representation,
         random: RandomSource,
         target_size: int,
-    ) -> list[Individual]:
-        ...
+    ) -> Iterator[Individual]: ...
 
 
 class GeneticStep(abc.ABC):
@@ -29,11 +29,10 @@ class GeneticStep(abc.ABC):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: list[Individual],
+        population: Iterator[Individual],
         target_size: int,
         generation: int,
-    ) -> list[Individual]:
-        ...
+    ) -> Iterator[Individual]: ...
 
     def __str__(self):
         return f"{self.__class__.__name__}"

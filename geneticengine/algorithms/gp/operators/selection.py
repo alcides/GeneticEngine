@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Iterator
 
 import numpy as np
 
@@ -31,24 +32,21 @@ class TournamentSelection(GeneticStep):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: list[Individual],
+        population: Iterator[Individual],
         target_size: int,
         generation: int,
-    ) -> list[Individual]:
-        winners: list[Individual] = []
-        candidates = population.copy()
+    ) -> Iterator[Individual]:
+        candidates = list(population)
         evaluator.evaluate(problem, candidates)
         for _ in range(target_size):
-            candidates = [random.choice(population) for _ in range(self.tournament_size)]
+            candidates = [random.choice(candidates) for _ in range(self.tournament_size)]
             winner = max(candidates, key=Individual.key_function(problem))
-            winners.append(winner)
+            yield winner
 
-            if self.with_replacement:
+            if not self.with_replacement:
                 candidates.remove(winner)
                 if not candidates:
-                    candidates = population.copy()
-        assert len(winners) == target_size
-        return winners
+                    candidates = list(population)
 
 
 class LexicaseSelection(GeneticStep):
@@ -69,16 +67,15 @@ class LexicaseSelection(GeneticStep):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: list[Individual],
+        population: Iterator[Individual],
         target_size: int,
         generation: int,
-    ) -> list[Individual]:
+    ) -> Iterator[Individual]:
         assert isinstance(problem, MultiObjectiveProblem)
-        candidates = population.copy()
+        candidates = list(population)
         evaluator.evaluate(problem, candidates)
         n_cases = problem.number_of_objectives()
         cases = random.shuffle(list(range(n_cases)))
-        winners = []
         minimize: list[bool]
 
         assert isinstance(problem.minimize, list)
@@ -123,6 +120,5 @@ class LexicaseSelection(GeneticStep):
 
             winner = random.choice(candidates_to_check) if len(candidates_to_check) > 1 else candidates_to_check[0]
             assert isinstance(winner.get_fitness(problem).fitness_components, list)
-            winners.append(winner)
+            yield winner
             candidates.remove(winner)
-        return winners

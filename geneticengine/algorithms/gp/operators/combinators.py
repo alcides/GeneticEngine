@@ -1,5 +1,5 @@
 from __future__ import annotations
-from copy import deepcopy
+from typing import Iterator
 
 from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.structure import GeneticStep
@@ -22,23 +22,22 @@ class SequenceStep(GeneticStep):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: list[Individual],
+        population: Iterator[Individual],
         target_size: int,
         generation: int,
-    ) -> list[Individual]:
+    ) -> Iterator[Individual]:
+        npopulation = population
         for step in self.steps:
-            population = step.iterate(
+            npopulation = step.iterate(
                 problem,
                 evaluator,
                 representation,
                 random,
-                population,
+                npopulation,
                 target_size,
                 generation,
             )
-            assert isinstance(population, list)
-            assert len(population) == target_size
-        return population
+        yield from npopulation
 
     def __str__(self):
         return ";".join([f"({x})" for x in self.steps])
@@ -85,30 +84,25 @@ class ParallelStep(GeneticStep):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: list[Individual],
+        population: Iterator[Individual],
         target_size: int,
         generation: int,
-    ) -> list[Individual]:
-        ranges = self.compute_ranges(population, target_size)
+    ) -> Iterator[Individual]:
+        npopulation: list[Individual] = [i for i in population]
+        ranges = self.compute_ranges(npopulation, target_size)
         assert len(ranges) == len(self.steps)
 
-        retlist = self.concat(
-            [
-                step.iterate(
+        for (start, end), step in zip(ranges, self.steps):
+            if end - start > 0:
+                yield from step.iterate(
                     problem,
                     evaluator,
                     representation,
                     random,
-                    deepcopy(population),
+                    population,
                     end - start,
                     generation,
                 )
-                for ((start, end), step) in zip(ranges, self.steps)
-                if end - start > 0
-            ],
-        )
-        assert len(retlist) == target_size
-        return retlist
 
     def concat(self, ls):
         rl = []
@@ -138,29 +132,26 @@ class ExclusiveParallelStep(ParallelStep):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: list[Individual],
+        population: Iterator[Individual],
         target_size: int,
         generation: int,
-    ) -> list[Individual]:
+    ) -> Iterator[Individual]:
+        npopulation: list[Individual] = list(population)
         total = sum(self.weights)
         indices = [0] + self.cumsum(
-            [int(round(w * len(population) / total, 0)) for w in self.weights],
+            [int(round(w * len(npopulation) / total, 0)) for w in self.weights],
         )
         ranges = list(zip(indices, indices[1:]))
         assert len(ranges) == len(self.steps)
         ranges[-1] = (ranges[-1][0], target_size)  # Fix the last position
 
-        retlist = []
         for (start, end), step in zip(ranges, self.steps):
-            tmplist = step.iterate(
+            yield from step.iterate(
                 problem,
                 evaluator,
                 representation,
                 random,
-                population[start:end],
+                iter(npopulation[start:end]),
                 end - start,
                 generation,
             )
-            retlist.extend(tmplist)
-        assert len(retlist) == target_size, f"{retlist} does not have size {target_size}"
-        return retlist
