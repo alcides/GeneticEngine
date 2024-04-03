@@ -5,7 +5,6 @@ from dill import register
 from geneticengine.solutions.individual import Individual
 from geneticengine.problems import Fitness, Problem
 from geneticengine.evaluation.api import Evaluator
-from pathos.multiprocessing import ProcessingPool as Pool  # pyright: ignore
 
 
 @register(ABCMeta)
@@ -21,6 +20,8 @@ class ParallelEvaluator(Evaluator):
 
         def mapper(ind: Individual) -> Fitness:
             return self.eval_single(problem, ind)
+
+        from pathos.multiprocessing import ProcessingPool as Pool  # pyright: ignore
 
         with Pool(len(indivs)) as pool:
             fitnesses = pool.map(mapper, indivs)
