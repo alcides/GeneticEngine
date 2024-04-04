@@ -24,8 +24,6 @@ class TestTreeBased:
     def test_mutation_empty_list(self):
         r = NativeRandomSource(seed=1)
         g = extract_grammar([Root, B], Root)
-        print(g)
-        print(g.get_grammar_properties_summary())
         tbr = TreeBasedRepresentation(g, max_depth=3)
         t = random_node(r, g, max_depth=3)
         # t = tbr.instantiate(r)

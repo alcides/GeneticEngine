@@ -32,9 +32,7 @@ class TestFitnessHelpers:
         ]
 
         problem = SingleObjectiveProblem(fitness_function=lambda x: x.a, minimize=False)
-        print("before", evaluator)
         evaluator.evaluate(problem, population)
-        print("after")
         x = best_individual(population, problem)
         assert x.get_phenotype().a == 2
 
