@@ -29,5 +29,5 @@ class Evaluator(ABC):
     def eval_single(self, problem: Problem, individual: Individual) -> Fitness:
         phenotype = individual.get_phenotype()
         r = problem.evaluate(phenotype=phenotype)
-        logger.info(f"Evaluating {phenotype}: {r}")
+        logger.info(f"Evaluating #{id(phenotype)}: {r}")
         return r
