@@ -9,7 +9,7 @@ pytest==8.1.1
 pytest-benchmark==4.0.0
 scikit-learn==1.2.2
 seaborn==0.13.2
-sphinx==6.2.1
+sphinx==7.2.6
 sphinx-autoapi==2.1.1
 sphinx-rtd-theme==2.0.0
 sphinxcontrib-fulltoc==1.2.0
