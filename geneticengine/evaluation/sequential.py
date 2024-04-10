@@ -14,4 +14,4 @@ class SequentialEvaluator(Evaluator):
                 f = self.eval_single(problem, individual)
                 self.register_evaluation()
                 individual.set_fitness(problem, f)
-                yield individual
+            yield individual
