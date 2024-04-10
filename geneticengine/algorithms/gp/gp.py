@@ -83,7 +83,7 @@ class GeneticProgramming(HeuristicSearch):
         assert isinstance(self.representation, RepresentationWithMutation)
         assert isinstance(self.representation, RepresentationWithCrossover)
         generation = 0
-        logger.info("Generating initial population")
+        logger.debug("Generating initial population")
         population = Population(
             self.population_initializer.initialize(
                 self.problem,
@@ -97,7 +97,7 @@ class GeneticProgramming(HeuristicSearch):
 
         while not self.is_done():
             generation += 1
-            logger.info(f"Generating population at generation {generation}")
+            logger.debug(f"Generating population at generation {generation}")
             population = Population(
                 self.step.iterate(
                     self.problem,

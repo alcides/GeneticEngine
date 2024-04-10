@@ -58,7 +58,7 @@ class GenericCrossoverStep(GeneticStep):
         representation: Representation,
     ):
         assert isinstance(representation, RepresentationWithCrossover)
-        logger.info(f"Crossing-over {individual1.genotype} with {individual2.genotype}")
+        logger.debug(f"Crossing-over {id(individual1)} with {id(individual2)}")
         (g1, g2) = representation.crossover(
             random,
             individual1.genotype,

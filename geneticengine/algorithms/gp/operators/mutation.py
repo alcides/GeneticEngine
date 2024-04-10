@@ -37,7 +37,7 @@ class GenericMutationStep(GeneticStep):
             if index < target_size:
                 v = random.random_float(0, 1)
                 if v <= self.probability:
-                    logger.info(f"Mutating {ind.genotype}")
+                    logger.debug(f"Mutating {id(ind)}")
                     mutated = representation.mutate(random, ind.genotype)
                     nind = self.wrap(representation, mutated)
                     yield nind
