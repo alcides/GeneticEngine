@@ -92,8 +92,8 @@ class GeneticProgramming(HeuristicSearch):
                 self.population_size,
             ),
             self.tracker,
+            generation=generation,
         )
-        population.set_generation(generation)
 
         while not self.is_done():
             generation += 1
@@ -109,8 +109,8 @@ class GeneticProgramming(HeuristicSearch):
                     generation,
                 ),
                 self.tracker,
+                generation,
             )
-            population.set_generation(generation)
 
         if isinstance(self.tracker, SingleObjectiveProgressTracker):
             return self.tracker.get_best_individual()
