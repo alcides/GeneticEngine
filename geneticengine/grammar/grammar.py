@@ -140,16 +140,18 @@ class Grammar:
         terminal = False
         if not is_abstract(ty):
             terminal = True
-            for arg, argt in get_arguments(ty):
+            for _, argt in get_arguments(ty):
                 terminal = False
                 if isinstance(argt, type) or isinstance(argt, ABCMeta):
                     self.register_type(argt)
                 if is_annotated(argt):
                     gen = get_generic_parameter(argt)
-                    if is_generic_list(gen):
-                        self.register_type(get_generic_parameter(gen))
-                    else:
-                        self.register_type(gen)
+                else:
+                    gen = argt
+                if is_generic_list(gen):
+                    self.register_type(get_generic_parameter(gen))
+                else:
+                    self.register_type(gen)
 
         for st in self.considered_subtypes:
             if issubclass(st, ty):
@@ -194,7 +196,13 @@ class Grammar:
         """All symbols in the current grammar, including terminals."""
         keys = {k for k in self.alternatives.keys()}
         sequence = {v for vv in self.alternatives.values() for v in vv}
-        return (keys, sequence, sequence.union(keys).union(self.all_nodes))
+        # extra = []
+        # for k in sequence:
+        #     for _, argt in get_arguments(k):
+        #         if is_generic(argt):
+        #             extra.extend(get_generic_parameters(argt))
+
+        return (keys, sequence, sequence.union(keys).union(self.all_nodes))  # .union(extra)
 
     def get_distance_to_terminal(self, ty: type) -> int:
         """Returns the current distance to terminal of a given type."""

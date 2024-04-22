@@ -61,7 +61,7 @@ class ListRangeM(Root):
 
 @dataclass
 class ListWrapper(Root):
-    a: list[int]
+    a: list[VarRangeM]
 
 
 class TestRepresentation:
