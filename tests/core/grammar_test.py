@@ -37,6 +37,11 @@ class Useless(Root):
         pass  # a does not have a type
 
 
+@dataclass
+class BasicList(Root):
+    a: list[int]
+
+
 def contains_type(t, ty: type):
     if isinstance(t, ty):
         return True
@@ -83,3 +88,6 @@ class TestGrammar:
     def test_invalid_node(self):
         with pytest.raises(Exception):
             extract_grammar([Leaf, Rec, Useless], Root)
+
+    def test_basic_list(self):
+        extract_grammar([Leaf, Rec, BasicList], Root)

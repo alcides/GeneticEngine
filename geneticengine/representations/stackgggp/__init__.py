@@ -118,6 +118,13 @@ def create_tree_using_stacks(g: Grammar, r: ListWrapper, max_depth: int = 10):
                         {"_": str(argt)},
                     )
                     return ret
+                elif is_generic_list(argt):
+                    length = r.randint(0, 10)
+                    ty = get_generic_parameter(argt)
+                    list_prototype = []
+                    for _ in range(length):
+                        list_prototype.append(stacks[ty].pop())
+                    return list_prototype
                 else:
                     assert False, f"Type {argt} not supported in StackBasedGGGP"
 

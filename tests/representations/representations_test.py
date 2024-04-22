@@ -59,6 +59,11 @@ class ListRangeM(Root):
     x: Annotated[list[int], ListSizeBetween[3, 4]]
 
 
+@dataclass
+class ListWrapper(Root):
+    a: list[int]
+
+
 class TestRepresentation:
     @pytest.mark.parametrize(
         "representation_class",
@@ -71,7 +76,7 @@ class TestRepresentation:
     )
     def test_rep(self, representation_class) -> None:
         r = NativeRandomSource(seed=1)
-        g: Grammar = extract_grammar([IntRangeM, ListRangeM, FloatRangeM, Branch, Concrete], Root)
+        g: Grammar = extract_grammar([IntRangeM, ListRangeM, FloatRangeM, Branch, Concrete, ListWrapper], Root)
         max_depth = 3
 
         repr = representation_class(g, max_depth)
