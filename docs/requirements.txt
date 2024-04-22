@@ -1,0 +1,6 @@
+myst_parser
+sphinx
+sphinx-autoapi
+sphinx-rtd-theme
+sphinxcontrib-fulltoc
+sphinxcontrib-spelling
