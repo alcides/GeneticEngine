@@ -2,7 +2,7 @@ lark==1.1.9
 loguru==0.7.2
 numpy==1.26.4
 palettable==3.3.3
-pandas==1.5.3
+pandas==2.2.2
 pathos==0.3.2
 polyleven==0.8
 pytest==8.1.1
