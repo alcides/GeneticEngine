@@ -16,7 +16,7 @@ from geneticengine.grammar.metahandlers.ints import IntRange
 @dataclass
 class Dependent(MetaHandlerGenerator):
     name: str
-    callable: Callable[[Any], MetaHandlerGenerator]
+    callable: Callable[[Any], type]
 
     def generate(
         self,
@@ -26,8 +26,8 @@ class Dependent(MetaHandlerGenerator):
         rec: Any,
         dependent_values: dict[str, Any],
     ):
-        mh: MetaHandlerGenerator = self.callable(dependent_values[self.name])
-        return mh.generate(random, grammar, base_type, rec, dependent_values)
+        t: type = self.callable(dependent_values[self.name])
+        return rec(random, grammar, t, dependent_values)
 
     def __hash__(self):
         return hash(self.__class__) + hash(self.name) + hash(id(self.callable))
