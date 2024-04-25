@@ -27,7 +27,7 @@ class Dependent(MetaHandlerGenerator):
         dependent_values: dict[str, Any],
     ):
         t: type = self.callable(dependent_values[self.name])
-        return rec(random, grammar, t, dependent_values)
+        return rec(random, grammar, Annotated[base_type, t], dependent_values)
 
     def __hash__(self):
         return hash(self.__class__) + hash(self.name) + hash(id(self.callable))

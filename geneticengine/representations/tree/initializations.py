@@ -69,6 +69,7 @@ def create_node(
         base_type = get_generic_parameter(starting_symbol)
         return metahandler.generate(random, grammar, base_type, create_node, dependent_values)
     else:
+        print(starting_symbol, repr(starting_symbol), is_metahandler(starting_symbol))
         if starting_symbol not in grammar.all_nodes:
             raise GeneticEngineError(
                 f"Symbol {starting_symbol} not in grammar rules.",
