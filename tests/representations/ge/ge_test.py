@@ -1,7 +1,7 @@
 from __future__ import annotations
 from abc import ABC
 from dataclasses import dataclass
-from typing import Annotated
+from typing import Annotated, Any
 from geneticengine.solutions.individual import Individual
 
 from geneticengine.grammar.grammar import Grammar, extract_grammar
@@ -19,16 +19,14 @@ class RandomDNA(MetaHandlerGenerator):
 
     def generate(
         self,
-        r: RandomSource,
-        g: Grammar,
-        rec,
-        new_symbol,
-        depth: int,
-        base_type,
-        context: dict[str, str],
+        random: RandomSource,
+        grammar: Grammar,
+        base_type: type,
+        rec: Any,
+        dependent_values: dict[str, Any],
     ):
-        sequence = "".join(r.choice(self.nucleotides) for _ in range(self.size))
-        rec(sequence)
+        sequence = "".join(random.choice(self.nucleotides) for _ in range(self.size))
+        return sequence
 
 
 class Root(ABC):

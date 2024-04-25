@@ -1,10 +1,10 @@
 from __future__ import annotations
 import copy
 import string
+from typing import Any
 
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.random.sources import RandomSource
-from geneticengine.representations.tree.initializations import pi_grow_method
 from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator
 
 
@@ -25,17 +25,15 @@ class StringSizeBetween(MetaHandlerGenerator):
 
     def generate(
         self,
-        r: RandomSource,
-        g: Grammar,
-        rec,
-        new_symbol,
-        depth: int,
-        base_type,
-        ctx: dict[str, str],
+        random: RandomSource,
+        grammar: Grammar,
+        base_type: type,
+        rec: Any,
+        dependent_values: dict[str, Any],
     ):
-        size = r.randint(self.min, self.max, "str")
-        s = "".join(r.choice(self.options) for _ in range(size))
-        rec(s)
+        size = random.randint(self.min, self.max, "str")
+        s = "".join(random.choice(self.options) for _ in range(size))
+        return s
 
     def mutate(
         self,
@@ -45,7 +43,6 @@ class StringSizeBetween(MetaHandlerGenerator):
         depth: int,
         base_type,
         current_node,
-        method=pi_grow_method,
     ):
         mutation_method = r.randint(0, 2, "str")
         current_str = copy.copy(current_node)
@@ -115,18 +112,16 @@ class WeightedStringHandler(MetaHandlerGenerator):
 
     def generate(
         self,
-        r: RandomSource,
-        g: Grammar,
-        rec,
-        newsymbol,
-        depth: int,
-        base_type,
-        context: dict[str, str],
+        random: RandomSource,
+        grammar: Grammar,
+        base_type: type,
+        rec: Any,
+        dependent_values: dict[str, Any],
     ):
         out = ""
         for row in self.probability_matrix:
-            out += r.choice_weighted(self.alphabet, row, str(base_type))
-        rec(out)
+            out += random.choice_weighted(self.alphabet, row, str(base_type))
+        return out
 
     def __repr__(self):
         return f"str[aphabet={self.alphabet}, size={self.probability_matrix.shape[0]}"

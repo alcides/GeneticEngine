@@ -1,0 +1,62 @@
+from dataclasses import dataclass
+from typing import Annotated, Any, Callable
+
+from geneticengine.algorithms.gp.gp import GeneticProgramming
+from geneticengine.evaluation.budget import EvaluationBudget
+
+from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.grammar.grammar import Grammar
+from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator
+from geneticengine.problems import SingleObjectiveProblem
+from geneticengine.random.sources import NativeRandomSource, RandomSource
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.grammar.metahandlers.ints import IntRange
+
+
+@dataclass
+class Dependent(MetaHandlerGenerator):
+    name: str
+    callable: Callable[[Any], MetaHandlerGenerator]
+
+    def generate(
+        self,
+        random: RandomSource,
+        grammar: Grammar,
+        base_type: type,
+        rec: Any,
+        dependent_values: dict[str, Any],
+    ):
+        mh: MetaHandlerGenerator = self.callable(dependent_values[self.name])
+        return mh.generate(random, grammar, base_type, rec, dependent_values)
+
+    def __hash__(self):
+        return hash(self.__class__) + hash(self.name) + hash(id(self.callable))
+
+
+@dataclass
+class SimplePair:
+    a: int
+    b: Annotated[int, Dependent("a", lambda a: IntRange(a, 1000))]
+
+
+def test_dependent_types():
+    r = NativeRandomSource(seed=1)
+    g: Grammar = extract_grammar([SimplePair], SimplePair)
+    max_depth = 3
+
+    repr = TreeBasedRepresentation(g, max_depth)
+
+    def fitness_function(x: SimplePair) -> float:
+        return 0.5
+
+    for _ in range(100):
+        gp = GeneticProgramming(
+            representation=repr,
+            problem=SingleObjectiveProblem(fitness_function=fitness_function),
+            random=r,
+            budget=EvaluationBudget(10),
+        )
+        ind = gp.search()
+        p = ind.get_phenotype()
+        print(p)
+        assert p.a < p.b

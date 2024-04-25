@@ -11,10 +11,6 @@ from geneticengine.representations.api import (
     RepresentationWithMutation,
     Representation,
 )
-from geneticengine.representations.tree.initializations import (
-    InitializationMethodType,
-)
-from geneticengine.representations.tree.initializations import pi_grow_method
 from geneticengine.representations.tree.treebased import random_node
 from geneticengine.solutions.tree import TreeNode
 from geneticengine.grammar.utils import get_arguments
@@ -68,19 +64,15 @@ class StructuredGrammaticalEvolutionRepresentation(
         grammar: Grammar,
         max_depth: int,  # TODO: parameterize
         gene_length: int = 256,
-        initialization_mode: InitializationMethodType = pi_grow_method,
     ):
         """
         Args:
             grammar (Grammar): The grammar to use in the mapping
             max_depth (int): the maximum depth when performing the mapping
-            initialization_mode (InitializationMethodType): method to create individuals in the mapping
-                (e.g., pi_grow, full, grow)
         """
         self.grammar = grammar
         self.max_depth = max_depth
         self.gene_length = gene_length
-        self.initialization_mode = initialization_mode
 
     def create_genotype(self, random: RandomSource, **kwargs) -> Genotype:
         nodes = [str(node) for node in self.grammar.all_nodes]
@@ -104,7 +96,7 @@ class StructuredGrammaticalEvolutionRepresentation(
 
     def genotype_to_phenotype(self, genotype: Genotype) -> TreeNode:
         rand: RandomSource = StructuredListWrapper(genotype.dna)
-        return random_node(rand, self.grammar, self.max_depth, self.grammar.starting_symbol, self.initialization_mode)
+        return random_node(rand, self.grammar, self.max_depth, self.grammar.starting_symbol)
 
     def mutate(self, random: RandomSource, internal: Genotype, **kwargs) -> Genotype:
         rkey = random.choice(list(internal.dna.keys()))

@@ -10,15 +10,10 @@ from geneticengine.representations.api import (
     RepresentationWithMutation,
     Representation,
 )
-from geneticengine.representations.tree.initializations import (
-    InitializationMethodType,
-    grow_method,
-    pi_grow_method,
-)
-from geneticengine.representations.tree.initializations import mk_save_init
+from geneticengine.representations.tree.initializations import apply_constructor, create_node
 from geneticengine.representations.tree.utils import relabel_nodes
 from geneticengine.representations.tree.utils import relabel_nodes_of_trees
-from geneticengine.solutions.tree import TreeNode
+from geneticengine.solutions.tree import GengyList, TreeNode
 from geneticengine.grammar.utils import get_arguments
 from geneticengine.grammar.utils import get_generic_parameter
 from geneticengine.grammar.utils import has_annotated_crossover
@@ -34,17 +29,15 @@ def random_node(
     g: Grammar,
     max_depth: int,
     starting_symbol: type[Any] | None = None,
-    method: InitializationMethodType = grow_method,
 ):
     starting_symbol = starting_symbol if starting_symbol else g.starting_symbol
-    return method(r, g, max_depth, starting_symbol)
+    return create_node(r, g, starting_symbol)
 
 
 def random_individual(
     r: RandomSource,
     g: Grammar,
     max_depth: int = 5,
-    method: InitializationMethodType = grow_method,
 ) -> TreeNode:
     try:
         assert max_depth >= g.get_min_tree_depth()
@@ -58,7 +51,7 @@ def random_individual(
             f"""Cannot use complete grammar for individual creation. Max depth ({max_depth})
             is smaller than grammar's minimal tree depth ({g.get_min_tree_depth()}).""",
         )
-    ind = random_node(r, g, max_depth, g.starting_symbol, method)
+    ind = random_node(r, g, max_depth, g.starting_symbol)
     assert isinstance(ind, TreeNode)
     return ind
 
@@ -71,7 +64,7 @@ def mutate_inner(
     ty: type,
     force_mutate: bool,
     depth_aware_mut: bool,
-) -> TreeNode:
+) -> Any:
     counter = i.gengy_weighted_nodes if depth_aware_mut else i.gengy_nodes
     if counter > 0:
         c = r.randint(0, counter - 1)
@@ -91,8 +84,7 @@ def mutate_inner(
                     get_generic_parameter(arg_to_be_mutated),
                     current_node=args[index],
                 )
-                mk = mk_save_init(type(i), lambda x: x)(*args)
-                return mk
+                return apply_constructor(type(i), args)
 
             replacement = None
             for _ in range(5):
@@ -127,8 +119,10 @@ def mutate_inner(
                         break
                     else:
                         c -= count
-            mk = mk_save_init(i, lambda x: x)(*args)
-            return mk
+            if isinstance(i, GengyList):
+                return GengyList(i.typ, args)
+            else:
+                return apply_constructor(type(i), args)
     else:
         rn = None
         for _ in range(5):
@@ -150,7 +144,7 @@ def mutate_specific_type_inner(
     specific_type: type,
     n: int,
     depth_aware_mut: bool,
-) -> TreeNode:
+) -> Any:
     if n == 1 and type(i) == specific_type:
         return mutate_inner(
             r,
@@ -182,7 +176,10 @@ def mutate_specific_type_inner(
                     )
                 else:
                     n -= n_options
-        return mk_save_init(i, lambda x: x)(*args)
+        if isinstance(i, GengyList):
+            return GengyList(i.typ, args)
+        else:
+            return apply_constructor(type(i), args)
 
 
 def mutate_specific_type(
@@ -311,14 +308,14 @@ def crossover_inner(
                                 current_node=args[index],
                             )
                         )
-                        return mk_save_init(type(i), lambda x: x)(*args)
+                        return apply_constructor(type(i), args)
 
             options = list(find_in_tree(g, ty, o, max_depth))
             if options:
                 replacement = r.choice(options)
             if replacement is None:
                 for _ in range(5):
-                    replacement = random_node(r, g, max_depth, ty)
+                    replacement = create_node(r, g, ty)
                     if replacement != i:
                         break
 
@@ -347,7 +344,10 @@ def crossover_inner(
                         break
                     else:
                         c -= count
-            return mk_save_init(i, lambda x: x)(*args)
+            if isinstance(i, GengyList):
+                return GengyList(i.typ, args)
+            else:
+                return apply_constructor(type(i), args)
     else:
         return i
 
@@ -362,7 +362,7 @@ def crossover_specific_type_inner(
     specific_type: type,
     n: int,
     depth_aware_co: bool,
-) -> TreeNode:
+) -> Any:
     if n == 1 and type(i) == specific_type:
         return crossover_inner(
             r,
@@ -395,7 +395,10 @@ def crossover_specific_type_inner(
                 )
             else:
                 n -= n_options
-        return mk_save_init(i, lambda x: x)(*args)
+        if isinstance(i, GengyList):
+            return GengyList(i.typ, args)
+        else:
+            return apply_constructor(type(i), args)
 
 
 def crossover_specific_type(
@@ -523,15 +526,13 @@ class TreeBasedRepresentation(
         self,
         grammar: Grammar,
         max_depth: int,
-        initialization_method: InitializationMethodType = pi_grow_method,
     ):
         self.grammar = grammar
         self.max_depth = max_depth
-        self.initialization_method = initialization_method
 
     def create_genotype(self, random: RandomSource, **kwargs) -> TreeNode:
         actual_depth = kwargs.get("depth", self.max_depth)
-        return random_individual(random, self.grammar, max_depth=actual_depth, method=self.initialization_method)
+        return random_individual(random, self.grammar, max_depth=actual_depth)
 
     def genotype_to_phenotype(self, genotype: TreeNode) -> TreeNode:
         return genotype

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.random.sources import RandomSource
@@ -26,15 +26,13 @@ class FloatRange(MetaHandlerGenerator):
 
     def generate(
         self,
-        r: RandomSource,
-        g: Grammar,
-        rec,
-        new_symbol,
-        depth: int,
-        base_type,
-        context: dict[str, str],
+        random: RandomSource,
+        grammar: Grammar,
+        base_type: type,
+        rec: Any,
+        dependent_values: dict[str, Any],
     ):
-        rec(r.random_float(self.min, self.max, str(base_type)))
+        return random.random_float(self.min, self.max)
 
     def __class_getitem__(self, args):
         return FloatRange(*args)
@@ -56,15 +54,13 @@ class FloatList(MetaHandlerGenerator):
 
     def generate(
         self,
-        r: RandomSource,
-        g: Grammar,
-        rec,
-        new_symbol,
-        depth: int,
-        base_type,
-        context: dict[str, str],
+        random: RandomSource,
+        grammar: Grammar,
+        base_type: type,
+        rec: Any,
+        dependent_values: dict[str, Any],
     ):
-        rec(r.choice(self.elements, str(base_type)))
+        return random.choice(self.elements)
 
     def __class_getitem__(self, args):
         return FloatList(*args)

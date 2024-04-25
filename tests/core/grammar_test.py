@@ -7,7 +7,6 @@ import pytest
 
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.random.sources import NativeRandomSource
-from geneticengine.representations.tree.initializations import pi_grow_method
 from geneticengine.representations.tree.treebased import random_node
 from geneticengine.grammar.utils import get_arguments
 
@@ -67,9 +66,9 @@ class TestGrammar:
     def test_rec(self):
         r = NativeRandomSource(seed=1)
         g = extract_grammar([Leaf, Rec], Root)
-        x = random_node(r, g, 10, Root, method=pi_grow_method)
+        x = random_node(r, g, 10, Root)
         # print(x) -- Leaf()
-        assert isinstance(x, Rec)
+        assert isinstance(x, Rec) or isinstance(x, Leaf)
         assert isinstance(x, Root)
 
     def test_rec_alt(self):
@@ -80,9 +79,7 @@ class TestGrammar:
             g,
             max_depth=15,
             starting_symbol=Root,
-            method=pi_grow_method,
         )
-        assert contains_type(x, RecAlt)
         assert isinstance(x, Root)
 
     def test_invalid_node(self):

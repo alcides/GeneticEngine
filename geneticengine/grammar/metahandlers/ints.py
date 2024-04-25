@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.random.sources import RandomSource
@@ -23,15 +23,13 @@ class IntRange(MetaHandlerGenerator):
 
     def generate(
         self,
-        r: RandomSource,
-        g: Grammar,
-        rec,
-        new_symbol,
-        depth: int,
-        base_type,
-        context: dict[str, str],
+        random: RandomSource,
+        grammar: Grammar,
+        base_type: type,
+        rec: Any,
+        dependent_values: dict[str, Any],
     ):
-        rec(r.randint(self.min, self.max, str(base_type)))
+        return random.randint(self.min, self.max)
 
     def __class_getitem__(self, args):
         return IntRange(*args)
@@ -54,15 +52,13 @@ class IntList(MetaHandlerGenerator):
 
     def generate(
         self,
-        r: RandomSource,
-        g: Grammar,
-        rec,
-        new_symbol,
-        depth: int,
-        base_type,
-        context: dict[str, str],
+        random: RandomSource,
+        grammar: Grammar,
+        base_type: type,
+        rec: Any,
+        dependent_values: dict[str, Any],
     ):
-        rec(r.choice(self.elements, str(base_type)))
+        return random.choice(self.elements, str(base_type))
 
     def __class_getitem__(self, args):
         return IntList(*args)
@@ -103,15 +99,13 @@ class IntervalRange(MetaHandlerGenerator):
 
     def generate(
         self,
-        r: RandomSource,
-        g: Grammar,
-        rec,
-        new_symbol,
-        depth: int,
-        base_type,
-        context: dict[str, str],
+        random: RandomSource,
+        grammar: Grammar,
+        base_type: type,
+        rec: Any,
+        dependent_values: dict[str, Any],
     ):
 
-        range_length = r.randint(self.minimum_length, self.maximum_length)
-        start_position = r.randint(0, self.maximum_top_limit - range_length)
-        rec((start_position, start_position + range_length))
+        range_length = random.randint(self.minimum_length, self.maximum_length)
+        start_position = random.randint(0, self.maximum_top_limit - range_length)
+        return (start_position, start_position + range_length)

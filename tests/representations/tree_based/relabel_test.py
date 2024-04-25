@@ -6,7 +6,6 @@ from typing import Annotated
 from geneticengine.grammar.decorators import abstract
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.random.sources import NativeRandomSource
-from geneticengine.representations.tree.initializations import grow_method
 from geneticengine.representations.tree.treebased import random_individual
 from geneticengine.representations.tree.utils import get_nodes_depth_specific, relabel_nodes_of_trees
 from geneticengine.grammar.metahandlers.lists import ListSizeBetween
@@ -47,7 +46,7 @@ class TestNodesDepthSpecific:
         g3 = extract_grammar([Concrete, Middle], Middle)
 
         def find_depth_specific_nodes(r, g, depth):
-            ind = random_individual(r, g, depth, method=grow_method)
+            ind = random_individual(r, g, depth)
             return get_nodes_depth_specific(ind, g)
 
         branching_average1 = g1.get_branching_average_proxy(r, find_depth_specific_nodes, 100, 17)

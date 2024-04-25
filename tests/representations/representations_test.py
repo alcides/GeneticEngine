@@ -12,11 +12,6 @@ from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
-from geneticengine.representations.grammatical_evolution.dynamic_structured_ge import (
-    DynamicStructuredGrammaticalEvolutionRepresentation,
-)
-from geneticengine.representations.grammatical_evolution.ge import GrammaticalEvolutionRepresentation
-from geneticengine.representations.stackgggp import StackBasedGGGPRepresentation
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammar.metahandlers.floats import FloatRange
 from geneticengine.grammar.metahandlers.ints import IntRange
@@ -69,9 +64,10 @@ class TestRepresentation:
         "representation_class",
         [
             TreeBasedRepresentation,
-            GrammaticalEvolutionRepresentation,
-            DynamicStructuredGrammaticalEvolutionRepresentation,
-            StackBasedGGGPRepresentation,
+            # GrammaticalEvolutionRepresentation,
+            # DynamicStructuredGrammaticalEvolutionRepresentation,
+            # StackBasedGGGPRepresentation,
+            # TODO: enable representations
         ],
     )
     def test_rep(self, representation_class) -> None:

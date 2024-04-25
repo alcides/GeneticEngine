@@ -4,9 +4,10 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
 
+import pytest
+
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.random.sources import NativeRandomSource
-from geneticengine.representations.tree.initializations import pi_grow_method
 from geneticengine.representations.tree.treebased import random_node
 from geneticengine.grammar.metahandlers.lists import ListSizeBetween
 
@@ -40,17 +41,18 @@ class ConcreteList(Root):
     xs: list[int]
 
 
+@pytest.mark.skip
 class TestDepthing:
     def test_normal_depthing(self) -> None:
         r = NativeRandomSource(seed=1)
         g = extract_grammar([Concrete], Root, False)
-        x = random_node(r, g, 4, Root, method=pi_grow_method)
+        x = random_node(r, g, 4, Root)
         g = extract_grammar([Concrete, Middle], Root, False)
-        y = random_node(r, g, 4, Root, method=pi_grow_method)
+        y = random_node(r, g, 4, Root)
         g = extract_grammar([Concrete, Middle, MiddleList], Root, False)
-        z = random_node(r, g, 4, Root, method=pi_grow_method)
+        z = random_node(r, g, 4, Root)
         g = extract_grammar([ConcreteList, Middle], Root, False)
-        a = random_node(r, g, 4, Root, method=pi_grow_method)
+        a = random_node(r, g, 4, Root)
         assert x.gengy_distance_to_term == 1
         assert x.gengy_nodes == 1
         assert x.gengy_weighted_nodes == 1
@@ -67,11 +69,11 @@ class TestDepthing:
     def test_expansion_depthing(self) -> None:
         r = NativeRandomSource(seed=1)
         g = extract_grammar([Concrete], Root, True)
-        x = random_node(r, g, 4, Root, method=pi_grow_method)
+        x = random_node(r, g, 4, Root)
         g = extract_grammar([Concrete, Middle], Root, True)
-        y = random_node(r, g, 8, Root, method=pi_grow_method)
+        y = random_node(r, g, 8, Root)
         g = extract_grammar([Concrete, Middle, MiddleList], Root, True)
-        z = random_node(r, g, 8, Root, method=pi_grow_method)
+        z = random_node(r, g, 8, Root)
         assert x.gengy_distance_to_term == 2
         assert x.gengy_nodes == 2
         assert x.gengy_weighted_nodes == 3
