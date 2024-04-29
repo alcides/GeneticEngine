@@ -17,10 +17,21 @@ from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator, is_met
 
 
 @dataclass
-class SynthesisContext:
+class GlobalSynthesisContext:
+    random: RandomSource
+    grammar: Grammar
+    decider: SynthesisDecider
+
+
+@dataclass
+class LocalSynthesisContext:
     depth: int
     nodes: int
     expansions: int
+
+
+class TreeNodeWithContext(TreeNode):
+    synthesis_context: LocalSynthesisContext
 
 
 T = TypeVar("T")
@@ -33,7 +44,8 @@ class SynthesisDecider(ABC):
     def random_bool(self) -> bool: ...
     def random_tuple(self, types) -> tuple: ...
     def random_list(self, type) -> list[Any]: ...
-    def choose_alternatives(self, alternatives: list[T], ctx: SynthesisContext) -> T: ...
+    def choose_production_alternatives(self, alternatives: list[T], ctx: LocalSynthesisContext) -> T: ...
+    def choose_options(self, alternatives: list[T], ctx: LocalSynthesisContext) -> T: ...
 
 
 class BasicSynthesisDecider(SynthesisDecider):
@@ -60,18 +72,25 @@ class BasicSynthesisDecider(SynthesisDecider):
     def random_bool(self) -> bool:
         return self.random.random_bool()
 
-    def choose_alternatives(self, alternatives: list[T], ctx: SynthesisContext) -> T:
+    def choose_production_alternatives(self, alternatives: list[T], ctx: LocalSynthesisContext) -> T:
         assert len(alternatives) > 0, "No alternatives presented"
         alternatives = [x for x in alternatives if self.grammar.distanceToTerminal[x] <= (self.max_depth - ctx.depth)]
-        v = self.random.choice(alternatives)
-        sys.stdout.write(f"choice, {len(alternatives)}, {ctx.depth}, {ctx.nodes}, {v}\n")
-        return v
+        return self.random.choice(alternatives)
+
+    def choose_options(self, alternatives: list[T], ctx: LocalSynthesisContext) -> T:
+        assert len(alternatives) > 0, "No alternatives presented"
+        return self.random.choice(alternatives)
 
 
-def wrap_result(v, grammar):
-    relabel_nodes_of_trees(v, grammar)
+def wrap_result(
+    v: Any,
+    global_context: GlobalSynthesisContext,
+    context: LocalSynthesisContext,
+) -> TreeNode:
     if not is_builtin_class_instance(v):
-        assert isinstance(v, TreeNode)
+        relabel_nodes_of_trees(v, global_context.grammar)
+        assert isinstance(v, TreeNodeWithContext)
+        v.synthesis_context = context
     return v
 
 
@@ -91,19 +110,15 @@ def number_of_nodes(v: TreeNode):
 
 
 def create_node(
-    random: RandomSource,
-    grammar: Grammar,
-    starting_symbol: type[Any] = int,
-    decider: SynthesisDecider = None,
+    global_context: GlobalSynthesisContext,
+    starting_symbol: type[Any],
+    context: LocalSynthesisContext,
     dependent_values: dict[str, Any] = None,
-    context: SynthesisContext = None,
 ) -> Any:
-    if decider is None:
-        decider = BasicSynthesisDecider(random, grammar)  # TODO: remove this
     if dependent_values is None:
         dependent_values = {}
-    if context is None:
-        assert False
+
+    decider = global_context.decider
 
     if starting_symbol is int:
         return decider.random_int()
@@ -114,56 +129,58 @@ def create_node(
     elif is_generic_list(starting_symbol):
         inner_type = get_generic_parameter(starting_symbol)
         length = decider.random_int(0, 10)
-        nctx = SynthesisContext(context.depth + 1, context.nodes + 1, context.expansions + 1)
+        nctx = LocalSynthesisContext(context.depth + 1, context.nodes + 1, context.expansions + 1)
         nli = []
         for _ in range(length):
-            nv = create_node(random, grammar, inner_type, decider, context=nctx)
+            nv = create_node(global_context, inner_type, nctx)
             nctx.nodes += number_of_nodes(nv)
             nli.append(nv)
         v: GengyList = GengyList(starting_symbol, nli)
-        return wrap_result(v, grammar)
+        return wrap_result(v, global_context, context)
     elif is_metahandler(starting_symbol):
         metahandler: MetaHandlerGenerator = starting_symbol.__metadata__[0]
         base_type = get_generic_parameter(starting_symbol)
 
         def recurse(typ: type):
-            return create_node(
-                random=random,
-                grammar=grammar,
+            v = create_node(
+                global_context,
                 starting_symbol=typ,
-                decider=decider,
                 dependent_values=dependent_values,
-                context=context,
+                context=LocalSynthesisContext(context.depth, context.nodes, context.expansions + 1),
             )
+            return v
 
-        v = metahandler.generate(random, grammar, base_type, recurse, dependent_values)
-        return wrap_result(v, grammar)
+        v = metahandler.generate(global_context.random, global_context.grammar, base_type, recurse, dependent_values)
+        return wrap_result(v, global_context, context)
     else:
-        if starting_symbol not in grammar.all_nodes:
+        if starting_symbol not in global_context.grammar.all_nodes:
             raise GeneticEngineError(
                 f"Symbol {starting_symbol} not in grammar rules.",
             )
-        elif starting_symbol in grammar.alternatives:
+        elif starting_symbol in global_context.grammar.alternatives:
             # Expand abstract type (Non-Terminal)
-            compatible_productions = grammar.alternatives[starting_symbol]
-            rule = decider.choose_alternatives(compatible_productions, context)
+            compatible_productions = global_context.grammar.alternatives[starting_symbol]
+            rule = decider.choose_production_alternatives(compatible_productions, context)
             v = create_node(
-                random,
-                grammar,
+                global_context,
                 rule,
-                decider,
-                context=SynthesisContext(context.depth, context.nodes, context.expansions + 1),
+                context=LocalSynthesisContext(context.depth, context.nodes, context.expansions + 1),
             )
-            return wrap_result(v, grammar)
+            return wrap_result(v, global_context, context)
         else:
             # Normal concrete type (Production)
             args = []
             dependent_values = {}
-            nctx = SynthesisContext(context.depth + 1, context.nodes + 1, context.expansions + 1)
+            nctx = LocalSynthesisContext(context.depth + 1, context.nodes + 1, context.expansions + 1)
             for argn, argt in get_arguments(starting_symbol):
-                arg = create_node(random, grammar, argt, decider, dependent_values, nctx)
+                arg = create_node(
+                    global_context,
+                    argt,
+                    nctx,
+                    dependent_values,
+                )
                 dependent_values[argn] = arg
                 args.append(arg)
                 nctx.nodes += number_of_nodes(arg)
             v = apply_constructor(starting_symbol, args)
-            return wrap_result(v, grammar)
+            return wrap_result(v, global_context, context)

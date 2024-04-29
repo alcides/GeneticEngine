@@ -12,18 +12,18 @@ from geneticengine.representations.api import (
 )
 from geneticengine.representations.tree.initializations import (
     BasicSynthesisDecider,
-    SynthesisContext,
+    GlobalSynthesisContext,
+    LocalSynthesisContext,
+    TreeNodeWithContext,
     apply_constructor,
     create_node,
+    wrap_result,
 )
-from geneticengine.representations.tree.utils import relabel_nodes
 from geneticengine.representations.tree.utils import relabel_nodes_of_trees
 from geneticengine.solutions.tree import GengyList, TreeNode
 from geneticengine.grammar.utils import get_arguments
 from geneticengine.grammar.utils import get_generic_parameter
-from geneticengine.grammar.utils import has_annotated_crossover
 from geneticengine.grammar.utils import has_annotated_mutation
-from geneticengine.grammar.utils import is_abstract
 from geneticengine.exceptions import GeneticEngineError
 
 T = TypeVar("T")
@@ -37,11 +37,13 @@ def random_node(
 ):
     starting_symbol = starting_symbol if starting_symbol else grammar.starting_symbol
     return create_node(
-        random,
-        grammar,
+        GlobalSynthesisContext(
+            random=random,
+            grammar=grammar,
+            decider=BasicSynthesisDecider(random, grammar, max_depth=max_depth),
+        ),  # TODO
         starting_symbol,
-        decider=BasicSynthesisDecider(random, grammar, max_depth=max_depth),
-        context=SynthesisContext(depth=0, nodes=0, expansions=0),
+        context=LocalSynthesisContext(depth=0, nodes=0, expansions=0),
     )
 
 
@@ -67,169 +69,49 @@ def random_individual(
     return ind
 
 
-def mutate_inner(
-    r: RandomSource,
-    g: Grammar,
-    i: TreeNode,
-    max_depth: int,
-    ty: type,
-    force_mutate: bool,
-    depth_aware_mut: bool,
-) -> Any:
-    counter = i.gengy_weighted_nodes if depth_aware_mut else i.gengy_nodes
-    if counter > 0:
-        c = r.randint(0, counter - 1)
-        if c == 0 or (c <= i.gengy_distance_to_term and depth_aware_mut) or force_mutate:
-            # If Metahandler mutation exists, the mutation process is different
-            if any(has_annotated_mutation(arg[1]) for arg in get_arguments(i)):
-                options = [(kdx, arg[1]) for kdx, arg in enumerate(get_arguments(i)) if has_annotated_mutation(arg[1])]
-                index = r.randint(0, len(options) - 1)
-                (index, arg_to_be_mutated) = options[index]
-
-                args = list(i.gengy_init_values)
-                args[index] = arg_to_be_mutated.__metadata__[0].mutate(  # type: ignore
-                    r,
-                    g,
-                    random_node,
-                    max_depth - 1,
-                    get_generic_parameter(arg_to_be_mutated),
-                    current_node=args[index],
-                )
-                return apply_constructor(type(i), args)
-
-            replacement = None
-            for _ in range(5):
-                try:
-                    replacement = random_node(r, g, max_depth, ty)
-                    if replacement != i:
-                        break
-                except GeneticEngineError:
-                    pass
-            return replacement if replacement else i
-        else:
-            if is_abstract(ty) and g.expansion_depthing:
-                max_depth -= g.abstract_dist_to_t[ty][type(i)]
-            max_depth -= 1
-            args = list(i.gengy_init_values)
-            c -= i.gengy_distance_to_term if depth_aware_mut else 1
-            for idx, (_, field_type) in enumerate(get_arguments(i)):
-                child = args[idx]
-                if hasattr(child, "gengy_nodes"):
-                    count = child.gengy_weighted_nodes if depth_aware_mut else child.gengy_nodes
-                    if c <= count:
-                        mi = mutate_inner(
-                            r,
-                            g,
-                            child,
-                            max_depth,
-                            field_type,
-                            force_mutate,
-                            depth_aware_mut,
-                        )
-                        args[idx] = mi
-                        break
-                    else:
-                        c -= count
-            if isinstance(i, GengyList):
-                return GengyList(i.typ, args)
-            else:
-                return apply_constructor(type(i), args)
-    else:
-        rn = None
-        for _ in range(5):
-            try:
-                rn = random_node(r, g, max_depth, ty)
-                if rn != i:
-                    break
-            except GeneticEngineError:
-                pass
-        return rn if rn else i
+def select_option(options: list[TreeNode], c: int) -> int:
+    """Given a list of options and the selected node, it mutates the node in
+    the right spot."""
+    seen = 0
+    for i, o in enumerate(options):
+        if c < seen + o.gengy_weighted_nodes:
+            return i
+    assert False
 
 
-def mutate_specific_type_inner(
-    r: RandomSource,
-    g: Grammar,
-    i: TreeNode,
-    max_depth: int,
-    ty: type,
-    specific_type: type,
-    n: int,
-    depth_aware_mut: bool,
-) -> Any:
-    if n == 1 and type(i) == specific_type:
-        return mutate_inner(
-            r,
-            g,
-            i,
-            max_depth,
-            ty,
-            force_mutate=True,
-            depth_aware_mut=depth_aware_mut,
+def mutate(global_context: GlobalSynthesisContext, i: TreeNode, ty: type) -> TreeNode:
+    """Generates all nodes that can be mutable in a program."""
+    assert isinstance(i, TreeNodeWithContext)
+    node_to_mutate = global_context.decider.random_int(0, i.gengy_weighted_nodes + 1)
+    if node_to_mutate == 0:
+        # First, we start by deciding whether we should mutate the current node, or one of its children.
+        return create_node(global_context, ty, i.synthesis_context)
+    elif has_annotated_mutation(ty):
+        # Secondly, if there is a custom mutation to apply, do it.
+        return ty.__metadata__[0].mutate(  # type: ignore
+            global_context.random,
+            global_context.grammar,
+            random_node,
+            get_generic_parameter(ty),
+            current_node=i,
         )
     else:
+        # Otherwise, select a random field and change it.
         args = list(i.gengy_init_values)
-        for idx, (_, field_type) in enumerate(get_arguments(i)):
-            child = args[idx]
-            if hasattr(child, "gengy_nodes"):
-                n_options = len(
-                    list(find_in_tree_exact(g, specific_type, child, max_depth)),
-                )
-                if n_options <= n:
-                    args[idx] = mutate_specific_type_inner(
-                        r,
-                        g,
-                        child,
-                        max_depth,
-                        ty,
-                        specific_type,
-                        n,
-                        depth_aware_mut,
-                    )
-                else:
-                    n -= n_options
+        if not args:
+            return i
+        argtypes = get_arguments(type(i))
+        assert len(args) == len(argtypes)
+
+        index = select_option(args, node_to_mutate)
+        args[index] = mutate(global_context, args[index], argtypes[index][1])
+        v: Any
         if isinstance(i, GengyList):
-            return GengyList(i.typ, args)
+            v = GengyList(i.typ, args)
         else:
-            return apply_constructor(type(i), args)
-
-
-def mutate_specific_type(
-    r: RandomSource,
-    g: Grammar,
-    i: TreeNode,
-    max_depth: int,
-    target_type: type,
-    specific_type: type,
-    depth_aware_mut: bool,
-) -> TreeNode:
-    ch = r.randint(0, 2)
-    n_options = len(list(find_in_tree_exact(g, specific_type, i, max_depth)))
-    if ch == 0 or n_options == 0:
-        new_tree = mutate_inner(
-            r,
-            g,
-            i,
-            max_depth,
-            target_type,
-            force_mutate=False,
-            depth_aware_mut=depth_aware_mut,
-        )
-        relabeled_new_tree = relabel_nodes_of_trees(new_tree, g)
-        return relabeled_new_tree
-    else:
-        n = r.randint(1, n_options)
-        new_tree = mutate_specific_type_inner(
-            r,
-            g,
-            i,
-            max_depth,
-            target_type,
-            specific_type,
-            n,
-            depth_aware_mut,
-        )
-        relabeled_new_tree = relabel_nodes_of_trees(new_tree, g)
-        return relabeled_new_tree
+            v = apply_constructor(type(i), args)
+        assert isinstance(v, ty)
+        return wrap_result(v, global_context, i.synthesis_context)
 
 
 def tree_mutate(
@@ -240,227 +122,58 @@ def tree_mutate(
     target_type: type,
     depth_aware_mut: bool = False,
 ) -> Any:
-    new_tree = mutate_inner(r, g, i, max_depth, target_type, False, depth_aware_mut)
+    global_context: GlobalSynthesisContext = GlobalSynthesisContext(r, g, BasicSynthesisDecider(r, g, max_depth))
+
+    new_tree = mutate(global_context, i, target_type)
     relabeled_new_tree = relabel_nodes_of_trees(new_tree, g)
     return relabeled_new_tree
 
 
-def find_in_tree(g: Grammar, ty: type, o: TreeNode, max_depth: int):
-    is_abs = is_abstract(ty)
-    if hasattr(o, "gengy_types_this_way"):
-        for t in o.gengy_types_this_way:
-
-            def is_valid(node):
-                _, depth, _, _ = relabel_nodes(node, g)
-
-                if is_abs and g.expansion_depthing:
-                    depth += g.abstract_dist_to_t[ty][t]
-
-                return depth <= max_depth
-
-            if ty in t.__bases__:
-                vals = o.gengy_types_this_way[t]
-                if vals:
-                    yield from filter(is_valid, vals)
-
-
-def find_in_tree_exact(g: Grammar, ty: type, o: TreeNode, max_depth: int):
+def find_in_tree(ty: type, o: TreeNode):
     if hasattr(o, "gengy_types_this_way") and ty in o.gengy_types_this_way:
         vals = o.gengy_types_this_way[ty]
-        if vals:
-
-            def is_valid(node):
-                _, depth, _, _ = relabel_nodes(node, g)
-                return depth <= max_depth
-
-            yield from filter(is_valid, vals)
+        return vals
 
 
-def crossover_inner(
-    r: RandomSource,
-    g: Grammar,
-    i: TreeNode,
-    o: TreeNode,
-    max_depth: int,
-    ty: type,
-    force_crossover: bool,
-    depth_aware_co: bool,
-) -> Any:
-    counter = i.gengy_weighted_nodes if depth_aware_co else i.gengy_nodes
-    if counter > 0:
-        c = r.randint(0, counter - 1)
-        if c == 0 or (c <= i.gengy_distance_to_term and depth_aware_co) or force_crossover:
-            replacement = None
-            args_with_specific_crossover = [has_annotated_crossover(arg[1]) for arg in get_arguments(i)]
-            if any(args_with_specific_crossover):
-                crossover_possibilities = len(args_with_specific_crossover)
-                crossover_choice = r.randint(
-                    0,
-                    crossover_possibilities - 1,
-                )
-                options = list(find_in_tree_exact(g, type(i), o, max_depth))
-                if not options:
-                    pass  # Replace whole node
-                else:
-                    (index, arg_to_be_crossovered) = [(kdx, arg) for kdx, arg in enumerate(get_arguments(i))][
-                        crossover_choice
-                    ]
-                    args = list(i.gengy_init_values)
-                    if has_annotated_crossover(arg_to_be_crossovered[1]):
-                        args[index] = (
-                            arg_to_be_crossovered[1]
-                            .__metadata__[0]  # type: ignore
-                            .crossover(
-                                r,
-                                g,
-                                options,
-                                arg_to_be_crossovered[0],
-                                ty,
-                                current_node=args[index],
-                            )
-                        )
-                        return apply_constructor(type(i), args)
+def crossover(global_context: GlobalSynthesisContext, i: TreeNode, ty: type, other: TreeNode) -> TreeNode:
+    """Generates all nodes that can be mutable in a program."""
+    assert isinstance(i, TreeNodeWithContext)
 
-            options = list(find_in_tree(g, ty, o, max_depth))
-            if options:
-                replacement = r.choice(options)
-            if replacement is None:
-                for _ in range(5):
-                    replacement = create_node(
-                        random=r,
-                        grammar=g,
-                        starting_symbol=ty,
-                        decider=BasicSynthesisDecider(r, g, 10),
-                        dependent_values={},
-                        context=SynthesisContext(0, 0, 0),
-                    )
-                    # TODO dependent: we should store this info in each node, for mutation purposes.
-                    if replacement != i:
-                        break
-
-            return replacement
+    node_to_mutate = global_context.decider.random_int(0, i.gengy_weighted_nodes + 1)
+    if node_to_mutate == 0:
+        # First, we start by deciding whether we should mutate the current node, or one of its children.
+        options = find_in_tree(ty, other)
+        if not options:
+            return create_node(global_context, ty, i.synthesis_context)
         else:
-            if is_abstract(ty) and g.expansion_depthing:
-                max_depth -= g.abstract_dist_to_t[ty][type(i)]
-            max_depth -= 1
-            args = list(i.gengy_init_values)
-            c -= i.gengy_distance_to_term if depth_aware_co else 1
-            for idx, (field, field_type) in enumerate(get_arguments(i)):
-                child = args[idx]
-                if hasattr(child, "gengy_nodes"):
-                    count = child.gengy_weighted_nodes if depth_aware_co else child.gengy_nodes
-                    if c <= count:
-                        args[idx] = crossover_inner(
-                            r,
-                            g,
-                            child,
-                            o,
-                            max_depth,
-                            field_type,
-                            force_crossover=False,
-                            depth_aware_co=depth_aware_co,
-                        )
-                        break
-                    else:
-                        c -= count
-            if isinstance(i, GengyList):
-                return GengyList(i.typ, args)
-            else:
-                return apply_constructor(type(i), args)
-    else:
-        return i
-
-
-def crossover_specific_type_inner(
-    r: RandomSource,
-    g: Grammar,
-    i: TreeNode,
-    o: TreeNode,
-    max_depth: int,
-    ty: type,
-    specific_type: type,
-    n: int,
-    depth_aware_co: bool,
-) -> Any:
-    if n == 1 and type(i) == specific_type:
-        return crossover_inner(
-            r,
-            g,
-            i,
-            o,
-            max_depth,
-            ty,
-            force_crossover=True,
-            depth_aware_co=depth_aware_co,
+            return global_context.decider.choose_options(options, i.synthesis_context)
+    elif has_annotated_mutation(ty):
+        # Secondly, if there is a custom mutation to apply, do it.
+        return ty.__metadata__[0].crossover(  # type: ignore
+            global_context.random,
+            global_context.grammar,
+            random_node,
+            get_generic_parameter(ty),
+            current_node=i,
+            other_node=other,
         )
     else:
+        # Otherwise, select a random field and change it.
         args = list(i.gengy_init_values)
-        for idx, (_, field_type) in enumerate(get_arguments(i)):
-            child = args[idx]
-            n_options = len(
-                list(find_in_tree_exact(g, specific_type, child, max_depth)),
-            )
-            if n_options <= n:
-                args[idx] = crossover_specific_type_inner(
-                    r,
-                    g,
-                    child,
-                    o,
-                    max_depth,
-                    ty,
-                    specific_type,
-                    n,
-                    depth_aware_co=depth_aware_co,
-                )
-            else:
-                n -= n_options
+        if not args:
+            return i
+        argtypes = get_arguments(type(i))
+        assert len(args) == len(argtypes)
+
+        index = select_option(args, node_to_mutate)
+        args[index] = mutate(global_context, args[index], argtypes[index][1])
+        v: Any
         if isinstance(i, GengyList):
-            return GengyList(i.typ, args)
+            v = GengyList(i.typ, args)
         else:
-            return apply_constructor(type(i), args)
-
-
-def crossover_specific_type(
-    r: RandomSource,
-    g: Grammar,
-    i: TreeNode,
-    o: TreeNode,
-    max_depth: int,
-    target_type: type,
-    specific_type: type,
-    depth_aware_co: bool,
-) -> TreeNode:
-    ch = r.randint(0, 1)
-    n_options_i = len(list(find_in_tree_exact(g, specific_type, i, max_depth)))
-    n_options_o = len(list(find_in_tree_exact(g, specific_type, o, max_depth)))
-    if ch == 0 or n_options_i == 0 or n_options_o == 0:
-        new_tree = crossover_inner(
-            r,
-            g,
-            i,
-            o,
-            max_depth,
-            target_type,
-            force_crossover=False,
-            depth_aware_co=depth_aware_co,
-        )
-        relabeled_new_tree = relabel_nodes_of_trees(new_tree, g)
-        return relabeled_new_tree
-    else:
-        n = r.randint(1, n_options_i)
-        new_tree = crossover_specific_type_inner(
-            r,
-            g,
-            i,
-            o,
-            max_depth,
-            target_type,
-            specific_type,
-            n,
-            depth_aware_co=depth_aware_co,
-        )
-        relabeled_new_tree = relabel_nodes_of_trees(new_tree, g)
-        return relabeled_new_tree
+            v = apply_constructor(type(i), args)
+        assert isinstance(i, TreeNodeWithContext)
+        return wrap_result(v, global_context, i.synthesis_context)
 
 
 def tree_crossover(
@@ -480,54 +193,8 @@ def tree_crossover(
     The first tree returned has [p1] as the base, and the second tree
     has [p2] as a base.
     """
-    if specific_type:
-        new_tree1 = crossover_specific_type(
-            r,
-            g,
-            p1,
-            p2,
-            max_depth,
-            g.starting_symbol,
-            specific_type,
-            depth_aware_co=depth_aware_co,
-        )
-    else:
-        new_tree1 = crossover_inner(
-            r,
-            g,
-            p1,
-            p2,
-            max_depth,
-            g.starting_symbol,
-            force_crossover=False,
-            depth_aware_co=depth_aware_co,
-        )
-    relabeled_new_tree1 = relabel_nodes_of_trees(new_tree1, g)
-
-    if specific_type:
-        new_tree2 = crossover_specific_type(
-            r,
-            g,
-            p2,
-            p1,
-            max_depth,
-            g.starting_symbol,
-            specific_type,
-            depth_aware_co=depth_aware_co,
-        )
-    else:
-        new_tree2 = crossover_inner(
-            r,
-            g,
-            p2,
-            p1,
-            max_depth,
-            g.starting_symbol,
-            force_crossover=False,
-            depth_aware_co=depth_aware_co,
-        )
-    relabeled_new_tree2 = relabel_nodes_of_trees(new_tree2, g)
-    return relabeled_new_tree1, relabeled_new_tree2
+    global_context: GlobalSynthesisContext = GlobalSynthesisContext(r, g, BasicSynthesisDecider(r, g, max_depth))
+    return crossover(global_context, p1, g.starting_symbol, p2), crossover(global_context, p2, g.starting_symbol, p1)
 
 
 class TreeBasedRepresentation(
