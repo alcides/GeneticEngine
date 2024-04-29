@@ -67,7 +67,6 @@ class TestGrammar:
         r = NativeRandomSource(seed=1)
         g = extract_grammar([Leaf, Rec], Root)
         x = random_node(r, g, 10, Root)
-        # print(x) -- Leaf()
         assert isinstance(x, Rec) or isinstance(x, Leaf)
         assert isinstance(x, Root)
 

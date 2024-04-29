@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, TypeVar
+from typing import Any, Callable, TypeVar
 
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.random.sources import RandomSource
@@ -29,10 +29,10 @@ class VarRange(MetaHandlerGenerator):
         random: RandomSource,
         grammar: Grammar,
         base_type: type,
-        rec: Any,
+        rec: Callable[[type[T]], T],
         dependent_values: dict[str, Any],
     ):
-        return random.choice(self.options, str(base_type))
+        return random.choice(self.options)
 
     def __repr__(self):
         return str(self.options)

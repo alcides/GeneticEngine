@@ -47,7 +47,7 @@ class StructuredListWrapper(RandomSource):
         max: float,
         prod: str = INFRASTRUCTURE_KEY,
     ) -> float:
-        k = self.randint(1, sys.maxsize, prod)
+        k = self.randint(1, sys.maxsize)
         return 1 * (max - min) / k + min
 
 

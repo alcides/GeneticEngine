@@ -1,9 +1,12 @@
 from __future__ import annotations
 
-from typing import Any, Protocol
+from typing import Any, Callable, Protocol, TypeVar
 
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.random.sources import RandomSource
+
+
+T = TypeVar("T")
 
 
 class MetaHandlerGenerator(Protocol):
@@ -17,7 +20,7 @@ class MetaHandlerGenerator(Protocol):
         random: RandomSource,
         grammar: Grammar,
         base_type: type,
-        rec: Any,
+        rec: Callable[[type[T]], T],
         dependent_values: dict[str, Any],
     ):
         """Generates an instance of type base_type, according to some

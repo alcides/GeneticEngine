@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, TypeVar
+from typing import Any, Callable, TypeVar
 
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.random.sources import RandomSource
@@ -8,6 +8,8 @@ from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator
 
 min = TypeVar("min", covariant=True)
 max = TypeVar("max", covariant=True)
+
+T = TypeVar("T")
 
 
 class IntRange(MetaHandlerGenerator):
@@ -26,7 +28,7 @@ class IntRange(MetaHandlerGenerator):
         random: RandomSource,
         grammar: Grammar,
         base_type: type,
-        rec: Any,
+        rec: Callable[[type[T]], T],
         dependent_values: dict[str, Any],
     ):
         return random.randint(self.min, self.max)
@@ -55,10 +57,10 @@ class IntList(MetaHandlerGenerator):
         random: RandomSource,
         grammar: Grammar,
         base_type: type,
-        rec: Any,
+        rec: Callable[[type[T]], T],
         dependent_values: dict[str, Any],
     ):
-        return random.choice(self.elements, str(base_type))
+        return random.choice(self.elements)
 
     def __class_getitem__(self, args):
         return IntList(*args)
@@ -102,7 +104,7 @@ class IntervalRange(MetaHandlerGenerator):
         random: RandomSource,
         grammar: Grammar,
         base_type: type,
-        rec: Any,
+        rec: Callable[[type[T]], T],
         dependent_values: dict[str, Any],
     ):
 

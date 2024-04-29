@@ -214,7 +214,8 @@ class DynamicStructuredListWrapper(RandomSource):
             self.ind.dna[prod] = list()
             self.indexes[prod] = 1
 
-    def randint(self, min: int, max: int, prod: str = "") -> int:
+    def randint(self, min: int, max: int) -> int:
+        prod = "X"
         self.register_index(prod)
         if self.indexes[prod] >= len(
             self.ind.dna[prod],
@@ -231,8 +232,8 @@ class DynamicStructuredListWrapper(RandomSource):
         v = self.ind.dna[prod][self.indexes[prod] - 1]
         return v % (max - min + 1) + min
 
-    def random_float(self, min: float, max: float, prod: str = "") -> float:
-        k = self.randint(1, sys.maxsize, prod)
+    def random_float(self, min: float, max: float) -> float:
+        k = self.randint(1, sys.maxsize)
         return 1 * (max - min) / k + min
 
 

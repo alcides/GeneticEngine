@@ -1,12 +1,15 @@
 from __future__ import annotations
 import copy
-from typing import Any
+from typing import Any, Callable, TypeVar
 
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.grammar.utils import get_generic_parameter, is_generic_list
 from geneticengine.random.sources import RandomSource
 from geneticengine.solutions.tree import GengyList
 from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator
+
+
+T = TypeVar("T")
 
 
 class ListSizeBetween(MetaHandlerGenerator):
@@ -28,17 +31,15 @@ class ListSizeBetween(MetaHandlerGenerator):
         random: RandomSource,
         grammar: Grammar,
         base_type: type,
-        rec: Any,
+        rec: Callable[[type[T]], T],
         dependent_values: dict[str, Any],
     ):
         assert is_generic_list(base_type)
         inner_type = get_generic_parameter(base_type)
-        size = random.randint(self.min, self.max, str(inner_type))
+        size = random.randint(self.min, self.max)
         li = []
         for i in range(size):
-            nv = rec(random, grammar, inner_type)
-            print(nv)
-
+            nv = rec(inner_type)
             li.append(nv)
         return GengyList(inner_type, li)
 
@@ -124,10 +125,11 @@ class ListSizeBetweenWithoutListOperations(MetaHandlerGenerator):
     ):
         assert is_generic_list(base_type)
         inner_type = get_generic_parameter(base_type)
-        size = random.randint(self.min, self.max, str(inner_type))
+        size = random.randint(self.min, self.max)
         li = []
         for i in range(size):
-            li.append(rec(random, grammar, inner_type))
+            nv = rec(inner_type)
+            li.append(nv)
         return GengyList(inner_type, li)
 
     def __class_getitem__(self, args):

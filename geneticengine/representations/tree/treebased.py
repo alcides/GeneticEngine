@@ -10,7 +10,12 @@ from geneticengine.representations.api import (
     RepresentationWithMutation,
     Representation,
 )
-from geneticengine.representations.tree.initializations import apply_constructor, create_node
+from geneticengine.representations.tree.initializations import (
+    BasicSynthesisDecider,
+    SynthesisContext,
+    apply_constructor,
+    create_node,
+)
 from geneticengine.representations.tree.utils import relabel_nodes
 from geneticengine.representations.tree.utils import relabel_nodes_of_trees
 from geneticengine.solutions.tree import GengyList, TreeNode
@@ -25,13 +30,19 @@ T = TypeVar("T")
 
 
 def random_node(
-    r: RandomSource,
-    g: Grammar,
+    random: RandomSource,
+    grammar: Grammar,
     max_depth: int,
     starting_symbol: type[Any] | None = None,
 ):
-    starting_symbol = starting_symbol if starting_symbol else g.starting_symbol
-    return create_node(r, g, starting_symbol)
+    starting_symbol = starting_symbol if starting_symbol else grammar.starting_symbol
+    return create_node(
+        random,
+        grammar,
+        starting_symbol,
+        decider=BasicSynthesisDecider(random, grammar, max_depth=max_depth),
+        context=SynthesisContext(depth=0, nodes=0, expansions=0),
+    )
 
 
 def random_individual(
@@ -315,7 +326,15 @@ def crossover_inner(
                 replacement = r.choice(options)
             if replacement is None:
                 for _ in range(5):
-                    replacement = create_node(r, g, ty)
+                    replacement = create_node(
+                        random=r,
+                        grammar=g,
+                        starting_symbol=ty,
+                        decider=BasicSynthesisDecider(r, g, 10),
+                        dependent_values={},
+                        context=SynthesisContext(0, 0, 0),
+                    )
+                    # TODO dependent: we should store this info in each node, for mutation purposes.
                     if replacement != i:
                         break
 

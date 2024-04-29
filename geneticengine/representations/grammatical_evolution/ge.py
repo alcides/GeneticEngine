@@ -24,13 +24,13 @@ class ListWrapper(RandomSource):
     dna: list[int]
     index: int = 0
 
-    def randint(self, min: int, max: int, prod: str = "") -> int:
+    def randint(self, min: int, max: int) -> int:
         self.index = (self.index + 1) % len(self.dna)
         v = self.dna[self.index]
         return v % (max - min + 1) + min
 
-    def random_float(self, min: float, max: float, prod: str = "") -> float:
-        k = self.randint(1, sys.maxsize, prod)
+    def random_float(self, min: float, max: float) -> float:
+        k = self.randint(1, sys.maxsize)
         return 1 * (max - min) / k + min
 
 

@@ -27,7 +27,7 @@ class Dependent(MetaHandlerGenerator):
         dependent_values: dict[str, Any],
     ):
         t: type = self.callable(dependent_values[self.name])
-        return rec(random, grammar, Annotated[base_type, t], dependent_values)
+        return rec(Annotated[base_type, t])
 
     def __hash__(self):
         return hash(self.__class__) + hash(self.name) + hash(id(self.callable))
@@ -35,13 +35,13 @@ class Dependent(MetaHandlerGenerator):
 
 @dataclass
 class SimplePair:
-    a: int
+    a: Annotated[int, IntRange(0, 100)]
     b: Annotated[int, Dependent("a", lambda a: IntRange(a, 1000))]
 
 
 def test_dependent_types():
     r = NativeRandomSource(seed=1)
-    g: Grammar = extract_grammar([SimplePair], SimplePair)
+    g = extract_grammar([SimplePair], SimplePair)
     max_depth = 3
 
     repr = TreeBasedRepresentation(g, max_depth)
@@ -58,5 +58,4 @@ def test_dependent_types():
         )
         ind = gp.search()
         p = ind.get_phenotype()
-        print(p)
         assert p.a < p.b
