@@ -13,5 +13,5 @@ sphinx==7.2.6
 sphinx-autoapi==3.0.0
 sphinx-rtd-theme==2.0.0
 sphinxcontrib-fulltoc==1.2.0
-threadpoolctl==3.4.0
+threadpoolctl==3.5.0
 z3-solver==4.13.0.0
