@@ -14,7 +14,6 @@ from geneticengine.representations.tree.initializations import (
     BasicSynthesisDecider,
     GlobalSynthesisContext,
     LocalSynthesisContext,
-    TreeNodeWithContext,
     apply_constructor,
     create_node,
     wrap_result,
@@ -81,7 +80,7 @@ def select_option(options: list[TreeNode], c: int) -> int:
 
 def mutate(global_context: GlobalSynthesisContext, i: TreeNode, ty: type) -> TreeNode:
     """Generates all nodes that can be mutable in a program."""
-    assert isinstance(i, TreeNodeWithContext)
+    assert hasattr(i, "synthesis_context")
     node_to_mutate = global_context.decider.random_int(0, i.gengy_weighted_nodes + 1)
     if node_to_mutate == 0:
         # First, we start by deciding whether we should mutate the current node, or one of its children.
@@ -137,8 +136,7 @@ def find_in_tree(ty: type, o: TreeNode):
 
 def crossover(global_context: GlobalSynthesisContext, i: TreeNode, ty: type, other: TreeNode) -> TreeNode:
     """Generates all nodes that can be mutable in a program."""
-    assert isinstance(i, TreeNodeWithContext)
-
+    assert hasattr(i, "synthesis_context")
     node_to_mutate = global_context.decider.random_int(0, i.gengy_weighted_nodes + 1)
     if node_to_mutate == 0:
         # First, we start by deciding whether we should mutate the current node, or one of its children.
@@ -172,7 +170,6 @@ def crossover(global_context: GlobalSynthesisContext, i: TreeNode, ty: type, oth
             v = GengyList(i.typ, args)
         else:
             v = apply_constructor(type(i), args)
-        assert isinstance(i, TreeNodeWithContext)
         return wrap_result(v, global_context, i.synthesis_context)
 
 
