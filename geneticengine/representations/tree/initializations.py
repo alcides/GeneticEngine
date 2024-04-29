@@ -55,6 +55,7 @@ class BasicSynthesisDecider(SynthesisDecider):
         self.max_depth = 10
 
     def random_int(self, min_int=-sys.maxsize, max_int=sys.maxsize) -> int:
+        return self.random.randint(min_int, max_int)
         val = self.random.normalvariate(0, max_int / 100)
         val = round(val)
         return max(min(val, max_int), min_int)

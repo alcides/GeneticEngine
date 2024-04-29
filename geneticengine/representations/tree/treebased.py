@@ -4,6 +4,7 @@ from typing import Any
 from typing import TypeVar
 
 from geneticengine.grammar.grammar import Grammar
+from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator
 from geneticengine.random.sources import RandomSource
 from geneticengine.representations.api import (
     RepresentationWithCrossover,
@@ -68,26 +69,38 @@ def random_individual(
     return ind
 
 
+def get_weighted_nodes(e: Any) -> int:
+    if hasattr(e, "gengy_weighted_nodes"):
+        return e.gengy_weighted_nodes
+    return 1
+
+
 def select_option(options: list[TreeNode], c: int) -> int:
     """Given a list of options and the selected node, it mutates the node in
     the right spot."""
     seen = 0
     for i, o in enumerate(options):
-        if c < seen + o.gengy_weighted_nodes:
+        seen += get_weighted_nodes(o)
+        if c <= seen:
             return i
-    assert False
+    return len(options) - 1
 
 
 def mutate(global_context: GlobalSynthesisContext, i: TreeNode, ty: type) -> TreeNode:
     """Generates all nodes that can be mutable in a program."""
-    assert hasattr(i, "synthesis_context")
+    if not hasattr(i, "synthesis_context"):
+        # Native Types
+        return create_node(global_context, ty, LocalSynthesisContext(0, 0, 0))
     node_to_mutate = global_context.decider.random_int(0, i.gengy_weighted_nodes + 1)
     if node_to_mutate == 0:
         # First, we start by deciding whether we should mutate the current node, or one of its children.
         return create_node(global_context, ty, i.synthesis_context)
     elif has_annotated_mutation(ty):
         # Secondly, if there is a custom mutation to apply, do it.
-        return ty.__metadata__[0].mutate(  # type: ignore
+        assert hasattr(ty, "__metadata__")
+        mh: MetaHandlerGenerator = ty.__metadata__[0]
+
+        return mh.mutate(  # type: ignore
             global_context.random,
             global_context.grammar,
             random_node,

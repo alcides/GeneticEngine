@@ -48,23 +48,24 @@ class ListSizeBetween(MetaHandlerGenerator):
         r: RandomSource,
         g: Grammar,
         random_node,
-        depth: int,
         base_type,
         current_node,
     ):
         mutation_method = r.randint(0, 2)
+        depth = current_node.synthesis_context.depth
+        element_type = base_type.__args__[0]
         current_node = copy.copy(current_node)
         if (mutation_method == 0) and (len(current_node) > self.min):  # del
             element_to_be_deleted = r.randint(0, len(current_node) - 1)
             current_node.remove(current_node[element_to_be_deleted])
             return current_node
         elif (mutation_method == 1) and (len(current_node) < self.max):  # add
-            new_element = random_node(r, g, depth, base_type.__args__[0])
+            new_element = random_node(r, g, depth, element_type)
             current_node.append(new_element)
             return current_node
         elif len(current_node) > 0:  # replace
             element_to_be_replaced = r.randint(0, len(current_node) - 1)
-            new_element = random_node(r, g, depth, base_type.__args__[0])
+            new_element = random_node(r, g, depth, element_type)
             current_node[element_to_be_replaced] = new_element
             return current_node
         else:

@@ -36,7 +36,7 @@ class Dependent(MetaHandlerGenerator):
 @dataclass
 class SimplePair:
     a: Annotated[int, IntRange(0, 100)]
-    b: Annotated[int, Dependent("a", lambda a: IntRange(a, 1000))]
+    b: Annotated[int, Dependent("a", lambda a: IntRange(a, 102))]
 
 
 def test_dependent_types():
@@ -47,15 +47,30 @@ def test_dependent_types():
     repr = TreeBasedRepresentation(g, max_depth)
 
     def fitness_function(x: SimplePair) -> float:
-        return 0.5
+        return x.b - x.a
 
     for _ in range(100):
         gp = GeneticProgramming(
             representation=repr,
-            problem=SingleObjectiveProblem(fitness_function=fitness_function),
+            problem=SingleObjectiveProblem(fitness_function=fitness_function, minimize=True),
             random=r,
-            budget=EvaluationBudget(10),
+            budget=EvaluationBudget(1000),
         )
         ind = gp.search()
         p = ind.get_phenotype()
-        assert p.a < p.b
+        assert p.a <= p.b
+
+
+def test_dependent_types_mutation():
+    r = NativeRandomSource(seed=1)
+    g = extract_grammar([SimplePair], SimplePair)
+    max_depth = 3
+
+    repr = TreeBasedRepresentation(g, max_depth)
+
+    el = repr.create_genotype(r)
+    for _ in range(1000):
+        p = repr.mutate(r, el)
+        print(p)
+        assert p.a <= p.b
+    assert False
