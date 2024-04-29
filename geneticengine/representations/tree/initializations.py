@@ -90,7 +90,6 @@ def wrap_result(
     if not is_builtin_class_instance(v):
         relabel_nodes_of_trees(v, global_context.grammar)
         v.synthesis_context = context
-        assert isinstance(v, TreeNodeWithContext)
     return v
 
 
