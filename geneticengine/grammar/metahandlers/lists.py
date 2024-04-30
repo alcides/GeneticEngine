@@ -1,12 +1,15 @@
 from __future__ import annotations
 import copy
+from typing import Any, Callable, TypeVar
 
 from geneticengine.grammar.grammar import Grammar
+from geneticengine.grammar.utils import get_generic_parameter, is_generic_list
 from geneticengine.random.sources import RandomSource
-from geneticengine.representations.tree.initializations import pi_grow_method
 from geneticengine.solutions.tree import GengyList
-from geneticengine.grammar.utils import build_finalizers
 from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator
+
+
+T = TypeVar("T")
 
 
 class ListSizeBetween(MetaHandlerGenerator):
@@ -25,47 +28,44 @@ class ListSizeBetween(MetaHandlerGenerator):
 
     def generate(
         self,
-        r: RandomSource,
-        g: Grammar,
-        rec,
-        new_symbol,
-        depth: int,
-        base_type,
-        ctx: dict[str, str],
+        random: RandomSource,
+        grammar: Grammar,
+        base_type: type,
+        rec: Callable[[type[T]], T],
+        dependent_values: dict[str, Any],
     ):
-        base_type = base_type.__args__[0]
-        size = r.randint(self.min, self.max, str(base_type))
-        fins = build_finalizers(lambda *x: rec(GengyList(base_type, x)), size)
-        ident = ctx["_"]
-        for i, fin in enumerate(fins):
-            nctx = ctx.copy()
-            nident = ident + "_" + str(i)
-            nctx["_"] = nident
-            new_symbol(base_type, fin, depth, nident, nctx)
+        assert is_generic_list(base_type)
+        inner_type = get_generic_parameter(base_type)
+        size = random.randint(self.min, self.max)
+        li = []
+        for i in range(size):
+            nv = rec(inner_type)
+            li.append(nv)
+        return GengyList(inner_type, li)
 
     def mutate(
         self,
         r: RandomSource,
         g: Grammar,
         random_node,
-        depth: int,
         base_type,
         current_node,
-        method=pi_grow_method,
     ):
         mutation_method = r.randint(0, 2)
+        depth = current_node.synthesis_context.depth
+        element_type = base_type.__args__[0]
         current_node = copy.copy(current_node)
         if (mutation_method == 0) and (len(current_node) > self.min):  # del
             element_to_be_deleted = r.randint(0, len(current_node) - 1)
             current_node.remove(current_node[element_to_be_deleted])
             return current_node
         elif (mutation_method == 1) and (len(current_node) < self.max):  # add
-            new_element = random_node(r, g, depth, base_type.__args__[0], method=method)
+            new_element = random_node(r, g, depth, element_type)
             current_node.append(new_element)
             return current_node
         elif len(current_node) > 0:  # replace
             element_to_be_replaced = r.randint(0, len(current_node) - 1)
-            new_element = random_node(r, g, depth, base_type.__args__[0], method=method)
+            new_element = random_node(r, g, depth, element_type)
             current_node[element_to_be_replaced] = new_element
             return current_node
         else:
@@ -118,23 +118,20 @@ class ListSizeBetweenWithoutListOperations(MetaHandlerGenerator):
 
     def generate(
         self,
-        r: RandomSource,
-        g: Grammar,
-        rec,
-        new_symbol,
-        depth: int,
-        base_type,
-        ctx: dict[str, str],
+        random: RandomSource,
+        grammar: Grammar,
+        base_type: type,
+        rec: Any,
+        dependent_values: dict[str, Any],
     ):
-        base_type = base_type.__args__[0]
-        size = r.randint(self.min, self.max, str(base_type))
-        fins = build_finalizers(lambda *x: rec(GengyList(base_type, x)), size)
-        ident = ctx["_"]
-        for i, fin in enumerate(fins):
-            nctx = ctx.copy()
-            nident = ident + "_" + str(i)
-            nctx["_"] = nident
-            new_symbol(base_type, fin, depth, nident, nctx)
+        assert is_generic_list(base_type)
+        inner_type = get_generic_parameter(base_type)
+        size = random.randint(self.min, self.max)
+        li = []
+        for i in range(size):
+            nv = rec(inner_type)
+            li.append(nv)
+        return GengyList(inner_type, li)
 
     def __class_getitem__(self, args):
         return ListSizeBetweenWithoutListOperations(*args)

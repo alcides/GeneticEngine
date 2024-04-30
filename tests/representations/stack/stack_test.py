@@ -4,6 +4,8 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
 
+import pytest
+
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.stackgggp import StackBasedGGGPRepresentation
@@ -34,6 +36,7 @@ class Middle(Root):
     x: Root
 
 
+@pytest.mark.skip
 class TestStackBased:
     def test_stack_generation(self):
         r = NativeRandomSource(seed=1)

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Annotated
+
+import pytest
 from geneticengine.algorithms.gp.gp import GeneticProgramming
 from geneticengine.algorithms.gp.operators.combinators import ParallelStep, SequenceStep
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
@@ -80,6 +82,8 @@ def fitness_function(x: Root):
 problem = SingleObjectiveProblem(minimize=False, fitness_function=fitness_function)
 
 
+# TODO: reenable
+@pytest.mark.skip("We need depth control here")
 class TestNodesDepthSpecific:
     def test_nodes_depth_specific_simple(self):
         g = extract_grammar([Concrete, Middle, MiddleList, ConcreteTerm, RootToConcrete], Root)

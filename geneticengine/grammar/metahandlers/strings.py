@@ -1,11 +1,13 @@
 from __future__ import annotations
 import copy
 import string
+from typing import Any, Callable, TypeVar
 
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.random.sources import RandomSource
-from geneticengine.representations.tree.initializations import pi_grow_method
 from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator
+
+T = TypeVar("T")
 
 
 class StringSizeBetween(MetaHandlerGenerator):
@@ -25,17 +27,15 @@ class StringSizeBetween(MetaHandlerGenerator):
 
     def generate(
         self,
-        r: RandomSource,
-        g: Grammar,
-        rec,
-        new_symbol,
-        depth: int,
-        base_type,
-        ctx: dict[str, str],
+        random: RandomSource,
+        grammar: Grammar,
+        base_type: type,
+        rec: Callable[[type[T]], T],
+        dependent_values: dict[str, Any],
     ):
-        size = r.randint(self.min, self.max, "str")
-        s = "".join(r.choice(self.options) for _ in range(size))
-        rec(s)
+        size = random.randint(self.min, self.max)
+        s = "".join(random.choice(self.options) for _ in range(size))
+        return s
 
     def mutate(
         self,
@@ -45,9 +45,8 @@ class StringSizeBetween(MetaHandlerGenerator):
         depth: int,
         base_type,
         current_node,
-        method=pi_grow_method,
     ):
-        mutation_method = r.randint(0, 2, "str")
+        mutation_method = r.randint(0, 2)
         current_str = copy.copy(current_node)
         if (mutation_method == 0) and (len(current_node) > self.min):  # del
             element_to_be_deleted = r.randint(0, len(current_node) - 1)
@@ -79,7 +78,7 @@ class StringSizeBetween(MetaHandlerGenerator):
         #  4 from the first str    |          2 from the first str
         #  bound = [0,2]           |          bound = [1,4]
 
-        size = r.randint(self.min, self.max, "str")
+        size = r.randint(self.min, self.max)
         midpoint = r.randint(1, size - 1)
         other = r.choice([getattr(x, arg) for x in options])
         return current_node[:midpoint] + other[midpoint:]
@@ -115,18 +114,16 @@ class WeightedStringHandler(MetaHandlerGenerator):
 
     def generate(
         self,
-        r: RandomSource,
-        g: Grammar,
-        rec,
-        newsymbol,
-        depth: int,
-        base_type,
-        context: dict[str, str],
+        random: RandomSource,
+        grammar: Grammar,
+        base_type: type,
+        rec: Callable[[type[T]], T],
+        dependent_values: dict[str, Any],
     ):
         out = ""
         for row in self.probability_matrix:
-            out += r.choice_weighted(self.alphabet, row, str(base_type))
-        rec(out)
+            out += random.choice_weighted(self.alphabet, row, str(base_type))
+        return out
 
     def __repr__(self):
         return f"str[aphabet={self.alphabet}, size={self.probability_matrix.shape[0]}"

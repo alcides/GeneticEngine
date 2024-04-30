@@ -15,7 +15,6 @@ from geneticengine.grammar.grammar import Grammar
 from geneticengine.problems import Problem
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
-from geneticengine.representations.tree.initializations import grow_method
 from geneticengine.representations.tree.treebased import random_individual
 from geneticengine.representations.tree.utils import get_nodes_depth_specific
 from geml.grammars.basic_math import SafeDiv
@@ -132,7 +131,7 @@ class ClassificationBenchmark:
         g = self.get_grammar()
 
         def find_depth_specific_nodes(r, g, depth):
-            ind = random_individual(r, g, depth, method=grow_method)
+            ind = random_individual(r, g, depth)
             return get_nodes_depth_specific(ind, g)
 
         r = NativeRandomSource(123)

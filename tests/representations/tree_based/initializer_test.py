@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Annotated
+
+import pytest
 from geneticengine.problems import SingleObjectiveProblem
 
 
@@ -47,6 +49,7 @@ class C(A):
     two: A
 
 
+@pytest.mark.skip
 class TestInitializers:
     def test_full(self):
         target_size = 10

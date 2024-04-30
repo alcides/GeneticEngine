@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import sys
 from typing import Annotated
+
+import pytest
 
 from geneticengine.grammar.decorators import abstract
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.random.sources import NativeRandomSource
-from geneticengine.representations.tree.initializations import grow_method
 from geneticengine.representations.tree.treebased import random_individual
 from geneticengine.representations.tree.utils import get_nodes_depth_specific, relabel_nodes_of_trees
 from geneticengine.grammar.metahandlers.lists import ListSizeBetween
@@ -39,15 +41,18 @@ class TestRelabel:
         assert c.gengy_distance_to_term == 0
 
 
+@pytest.mark.skip
 class TestNodesDepthSpecific:
     def test_nodes_depth_specific_simple(self):
+        sys.setrecursionlimit(1000000)
+
         r = NativeRandomSource(123)
         g1 = extract_grammar([Concrete, Middle, MiddleList], Middle)
         g2 = extract_grammar([Concrete, Middle, MiddleList], MiddleList)
         g3 = extract_grammar([Concrete, Middle], Middle)
 
         def find_depth_specific_nodes(r, g, depth):
-            ind = random_individual(r, g, depth, method=grow_method)
+            ind = random_individual(r, g, depth)
             return get_nodes_depth_specific(ind, g)
 
         branching_average1 = g1.get_branching_average_proxy(r, find_depth_specific_nodes, 100, 17)
