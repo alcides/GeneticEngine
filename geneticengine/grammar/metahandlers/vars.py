@@ -4,7 +4,7 @@ from typing import Any, Callable, TypeVar
 
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.random.sources import RandomSource
-from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator
+from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator, SynthesisException
 
 T = TypeVar("T")
 
@@ -19,7 +19,7 @@ class VarRange(MetaHandlerGenerator):
 
     def __init__(self, options: list[T]):
         if not options:
-            raise Exception(
+            raise SynthesisException(
                 f"The VarRange metahandler requires a non-empty set of options. Options found: {options}",
             )
         self.options = options

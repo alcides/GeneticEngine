@@ -10,6 +10,10 @@ from geneticengine.random.sources import RandomSource
 T = TypeVar("T")
 
 
+class SynthesisException(Exception):
+    pass
+
+
 class MetaHandlerGenerator(ABC):
     """MetaHandlers are type refinements.
 

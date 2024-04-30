@@ -156,7 +156,7 @@ def mutate(
             v = GengyList(i.typ, nargs)
         else:
             v = apply_constructor(type(i), nargs)
-        assert isinstance(v, ty)
+
         return wrap_result(v, global_context, i.synthesis_context)
 
 

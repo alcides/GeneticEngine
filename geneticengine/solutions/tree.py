@@ -39,3 +39,7 @@ class GengyList(list, Generic[T]):
 
     def __hash__(self):
         return sum(hash(o) for o in self)
+
+    def __add__(self, value):
+        v = super().__add__(value)
+        return GengyList(self.typ, v)

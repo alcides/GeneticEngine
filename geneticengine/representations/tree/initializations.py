@@ -14,7 +14,7 @@ from geneticengine.grammar.utils import get_arguments, is_builtin_class_instance
 from geneticengine.grammar.utils import get_generic_parameter
 from geneticengine.grammar.utils import is_generic_list
 from geneticengine.exceptions import GeneticEngineError
-from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator, is_metahandler
+from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator, SynthesisException, is_metahandler
 
 
 @dataclass
@@ -119,6 +119,7 @@ def create_node(
     starting_symbol: type[Any],
     context: LocalSynthesisContext,
     dependent_values: dict[str, Any] = None,
+    initial_values: dict[str, Any] = None,
 ) -> Any:
     if dependent_values is None:
         dependent_values = {}
@@ -146,12 +147,13 @@ def create_node(
         metahandler: MetaHandlerGenerator = starting_symbol.__metadata__[0]
         base_type = get_generic_parameter(starting_symbol)
 
-        def recurse(typ: type):
+        def recurse(typ: type, **kwargs):
             v = create_node(
                 global_context,
                 starting_symbol=typ,
                 dependent_values=dependent_values,
                 context=LocalSynthesisContext(context.depth, context.nodes, context.expansions + 1),
+                **kwargs,
             )
             return v
 
@@ -165,25 +167,38 @@ def create_node(
         elif starting_symbol in global_context.grammar.alternatives:
             # Expand abstract type (Non-Terminal)
             compatible_productions = global_context.grammar.alternatives[starting_symbol]
-            rule = decider.choose_production_alternatives(compatible_productions, context)
-            v = create_node(
-                global_context,
-                rule,
-                context=LocalSynthesisContext(context.depth, context.nodes, context.expansions + 1),
-            )
-            return wrap_result(v, global_context, context)
+            while compatible_productions:
+                rule = decider.choose_production_alternatives(compatible_productions, context)
+                try:
+                    v = create_node(
+                        global_context,
+                        rule,
+                        context=LocalSynthesisContext(context.depth, context.nodes, context.expansions + 1),
+                        initial_values=initial_values,
+                    )
+                    return wrap_result(v, global_context, context)
+                except SynthesisException:
+                    compatible_productions.remove(rule)
+            raise SynthesisException(f"Could not find any suitable alternative for {starting_symbol}")
         else:
             # Normal concrete type (Production)
             args = []
             dependent_values = {}
             nctx = LocalSynthesisContext(context.depth + 1, context.nodes + 1, context.expansions + 1)
             for argn, argt in get_arguments(starting_symbol):
-                arg = create_node(
-                    global_context,
-                    argt,
-                    nctx,
-                    dependent_values,
-                )
+                if initial_values and argn in initial_values:
+                    arg = initial_values.get(argn)
+                    if isinstance(arg, list):
+                        list_type = argt
+                        inner_type = get_generic_parameter(list_type)
+                        arg = GengyList(inner_type, arg)
+                else:
+                    arg = create_node(
+                        global_context,
+                        argt,
+                        nctx,
+                        dependent_values,
+                    )
                 dependent_values[argn] = arg
                 args.append(arg)
                 nctx.nodes += number_of_nodes(arg)

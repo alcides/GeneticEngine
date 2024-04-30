@@ -20,7 +20,8 @@ class Dependent(MetaHandlerGenerator):
         rec: Any,
         dependent_values: dict[str, Any],
     ):
-        t: Any = self.callable(dependent_values[self.name])
+        values = [dependent_values[name] for name in self.get_dependencies()]
+        t: Any = self.callable(*values)
         v = rec(Annotated[base_type, t])
         return v
 
