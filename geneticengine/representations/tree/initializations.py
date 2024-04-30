@@ -1,6 +1,7 @@
 from __future__ import annotations
 from abc import ABC
 from dataclasses import dataclass
+from math import log10
 import sys
 from typing import Any, Type, TypeVar
 
@@ -55,10 +56,14 @@ class BasicSynthesisDecider(SynthesisDecider):
         self.max_depth = 10
 
     def random_int(self, min_int=-sys.maxsize, max_int=sys.maxsize) -> int:
+        width = max_int - min_int
+        if width > 1000:
+            n = self.random.randint(0, 10)
+            e = self.random.randint(0, round(log10(width)))
+            extra = (n ^ e) % width
+            v = min_int + extra
+            return v
         return self.random.randint(min_int, max_int)
-        val = self.random.normalvariate(0, max_int / 100)
-        val = round(val)
-        return max(min(val, max_int), min_int)
 
     def random_float(self) -> float:
         max_float = sys.float_info.max

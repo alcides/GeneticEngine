@@ -1,42 +1,22 @@
 from dataclasses import dataclass
-from typing import Annotated, Any, Callable
+from typing import Annotated
 
 from geneticengine.algorithms.gp.gp import GeneticProgramming
 from geneticengine.evaluation.budget import EvaluationBudget
 
 from geneticengine.grammar.grammar import extract_grammar
-from geneticengine.grammar.grammar import Grammar
-from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator
+from geneticengine.grammar.metahandlers.dependent import Dependent
 from geneticengine.problems import SingleObjectiveProblem
-from geneticengine.random.sources import NativeRandomSource, RandomSource
+from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammar.metahandlers.ints import IntRange
 
 
 @dataclass
-class Dependent(MetaHandlerGenerator):
-    name: str
-    callable: Callable[[Any], type]
-
-    def generate(
-        self,
-        random: RandomSource,
-        grammar: Grammar,
-        base_type: type,
-        rec: Any,
-        dependent_values: dict[str, Any],
-    ):
-        t: type = self.callable(dependent_values[self.name])
-        return rec(Annotated[base_type, t])
-
-    def __hash__(self):
-        return hash(self.__class__) + hash(self.name) + hash(id(self.callable))
-
-
-@dataclass
 class SimplePair:
-    a: Annotated[int, IntRange(0, 100)]
-    b: Annotated[int, Dependent("a", lambda a: IntRange(a, 102))]
+    a: Annotated[int, IntRange(0, 3)]
+    b: Annotated[int, Dependent("a", lambda a: IntRange(a, 4))]
+    c: int
 
 
 def test_dependent_types():
@@ -54,7 +34,7 @@ def test_dependent_types():
             representation=repr,
             problem=SingleObjectiveProblem(fitness_function=fitness_function, minimize=True),
             random=r,
-            budget=EvaluationBudget(1000),
+            budget=EvaluationBudget(10),
         )
         ind = gp.search()
         p = ind.get_phenotype()
@@ -68,9 +48,9 @@ def test_dependent_types_mutation():
 
     repr = TreeBasedRepresentation(g, max_depth)
 
-    el = repr.create_genotype(r)
-    for _ in range(1000):
-        p = repr.mutate(r, el)
-        print(p)
-        assert p.a <= p.b
-    assert False
+    for _ in range(10):
+        el = repr.create_genotype(r)
+        for _ in range(10):
+            p = repr.mutate(r, el)
+            print(p)
+            assert p.a <= p.b

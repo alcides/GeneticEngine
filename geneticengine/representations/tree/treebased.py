@@ -4,7 +4,7 @@ from typing import Any
 from typing import TypeVar
 
 from geneticengine.grammar.grammar import Grammar
-from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator
+from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator, is_metahandler
 from geneticengine.random.sources import RandomSource
 from geneticengine.representations.api import (
     RepresentationWithCrossover,
@@ -17,6 +17,7 @@ from geneticengine.representations.tree.initializations import (
     LocalSynthesisContext,
     apply_constructor,
     create_node,
+    number_of_nodes,
     wrap_result,
 )
 from geneticengine.representations.tree.utils import relabel_nodes_of_trees
@@ -75,53 +76,86 @@ def get_weighted_nodes(e: Any) -> int:
     return 1
 
 
-def select_option(options: list[TreeNode], c: int) -> int:
-    """Given a list of options and the selected node, it mutates the node in
-    the right spot."""
-    seen = 0
-    for i, o in enumerate(options):
-        seen += get_weighted_nodes(o)
-        if c <= seen:
-            return i
-    return len(options) - 1
+def find_in_tree(ty: type, o: TreeNode):
+    if hasattr(o, "gengy_types_this_way") and ty in o.gengy_types_this_way:
+        vals = o.gengy_types_this_way[ty]
+        return vals
 
 
-def mutate(global_context: GlobalSynthesisContext, i: TreeNode, ty: type) -> TreeNode:
+def mutate(
+    global_context: GlobalSynthesisContext,
+    i: TreeNode,
+    ty: type,
+    dependent_values: dict[str, Any] = None,
+    source_material: list[TreeNode] = None,
+) -> TreeNode:
     """Generates all nodes that can be mutable in a program."""
     if not hasattr(i, "synthesis_context"):
-        # Native Types
-        return create_node(global_context, ty, LocalSynthesisContext(0, 0, 0))
-    node_to_mutate = global_context.decider.random_int(0, i.gengy_weighted_nodes + 1)
-    if node_to_mutate == 0:
-        # First, we start by deciding whether we should mutate the current node, or one of its children.
-        return create_node(global_context, ty, i.synthesis_context)
-    elif has_annotated_mutation(ty):
-        # Secondly, if there is a custom mutation to apply, do it.
-        assert hasattr(ty, "__metadata__")
-        mh: MetaHandlerGenerator = ty.__metadata__[0]
+        node_to_mutate = 0
+    else:
+        node_to_mutate = global_context.decider.random_int(0, i.gengy_weighted_nodes + 1)
 
-        return mh.mutate(  # type: ignore
-            global_context.random,
-            global_context.grammar,
-            random_node,
-            get_generic_parameter(ty),
-            current_node=i,
-        )
+    # First, we start by deciding whether we should mutate the current node, or one of its children.
+    if node_to_mutate == 0 or not hasattr(i, "synthesis_context"):
+        if has_annotated_mutation(ty):
+            # Secondly, if there is a custom mutation to apply, do it.
+            assert hasattr(ty, "__metadata__")
+            mh: MetaHandlerGenerator = ty.__metadata__[0]
+
+            return mh.mutate(  # type: ignore
+                global_context.random,
+                global_context.grammar,
+                random_node,
+                get_generic_parameter(ty),
+                current_node=i,
+            )
+        elif not hasattr(i, "synthesis_context"):
+            return create_node(global_context, ty, LocalSynthesisContext(0, 0, 0), dependent_values)
+        else:
+            options = []
+            if source_material and source_material[0] is not None:
+                options = find_in_tree(ty, source_material[0])  # TODO: add support for multiple material
+            if not options:
+                return create_node(global_context, ty, i.synthesis_context, dependent_values)
+            else:
+                return global_context.decider.choose_options(options, i.synthesis_context)
     else:
         # Otherwise, select a random field and change it.
-        args = list(i.gengy_init_values)
-        if not args:
-            return i
-        argtypes = get_arguments(type(i))
-        assert len(args) == len(argtypes)
 
-        index = select_option(args, node_to_mutate)
-        args[index] = mutate(global_context, args[index], argtypes[index][1])
+        nargs = []
+        dependent_values = {}
+        ctx = i.synthesis_context
+        nctx = LocalSynthesisContext(ctx.depth + 1, ctx.nodes + 1, ctx.expansions + 1)
+
+        seen = 0
+        mutated: list[str] = []
+
+        for arg, (parn, part) in zip(i.gengy_init_values, get_arguments(type(i))):
+
+            should_mutate = False
+            if seen < node_to_mutate <= seen + get_weighted_nodes(arg):
+                should_mutate = True
+            elif is_metahandler(part):
+                mh: MetaHandlerGenerator = part.__metadata__[0]  # type: ignore
+                dependencies = mh.get_dependencies()
+                for m in mutated:
+                    if m in dependencies:
+                        should_mutate = True
+
+            if should_mutate:
+                mutated.append(parn)
+                narg = mutate(global_context, arg, part, dependent_values=dependent_values)
+            else:
+                narg = arg
+            seen += get_weighted_nodes(arg)
+            nargs.append(narg)
+            dependent_values[parn] = narg
+            nctx.nodes += number_of_nodes(arg)
         v: Any
         if isinstance(i, GengyList):
-            v = GengyList(i.typ, args)
+            v = GengyList(i.typ, nargs)
         else:
-            v = apply_constructor(type(i), args)
+            v = apply_constructor(type(i), nargs)
         assert isinstance(v, ty)
         return wrap_result(v, global_context, i.synthesis_context)
 
@@ -136,54 +170,9 @@ def tree_mutate(
 ) -> Any:
     global_context: GlobalSynthesisContext = GlobalSynthesisContext(r, g, BasicSynthesisDecider(r, g, max_depth))
 
-    new_tree = mutate(global_context, i, target_type)
+    new_tree = mutate(global_context, i, target_type, dependent_values={})
     relabeled_new_tree = relabel_nodes_of_trees(new_tree, g)
     return relabeled_new_tree
-
-
-def find_in_tree(ty: type, o: TreeNode):
-    if hasattr(o, "gengy_types_this_way") and ty in o.gengy_types_this_way:
-        vals = o.gengy_types_this_way[ty]
-        return vals
-
-
-def crossover(global_context: GlobalSynthesisContext, i: TreeNode, ty: type, other: TreeNode) -> TreeNode:
-    """Generates all nodes that can be mutable in a program."""
-    assert hasattr(i, "synthesis_context")
-    node_to_mutate = global_context.decider.random_int(0, i.gengy_weighted_nodes + 1)
-    if node_to_mutate == 0:
-        # First, we start by deciding whether we should mutate the current node, or one of its children.
-        options = find_in_tree(ty, other)
-        if not options:
-            return create_node(global_context, ty, i.synthesis_context)
-        else:
-            return global_context.decider.choose_options(options, i.synthesis_context)
-    elif has_annotated_mutation(ty):
-        # Secondly, if there is a custom mutation to apply, do it.
-        return ty.__metadata__[0].crossover(  # type: ignore
-            global_context.random,
-            global_context.grammar,
-            random_node,
-            get_generic_parameter(ty),
-            current_node=i,
-            other_node=other,
-        )
-    else:
-        # Otherwise, select a random field and change it.
-        args = list(i.gengy_init_values)
-        if not args:
-            return i
-        argtypes = get_arguments(type(i))
-        assert len(args) == len(argtypes)
-
-        index = select_option(args, node_to_mutate)
-        args[index] = mutate(global_context, args[index], argtypes[index][1])
-        v: Any
-        if isinstance(i, GengyList):
-            v = GengyList(i.typ, args)
-        else:
-            v = apply_constructor(type(i), args)
-        return wrap_result(v, global_context, i.synthesis_context)
 
 
 def tree_crossover(
@@ -204,7 +193,12 @@ def tree_crossover(
     has [p2] as a base.
     """
     global_context: GlobalSynthesisContext = GlobalSynthesisContext(r, g, BasicSynthesisDecider(r, g, max_depth))
-    return crossover(global_context, p1, g.starting_symbol, p2), crossover(global_context, p2, g.starting_symbol, p1)
+    return mutate(global_context, p1, g.starting_symbol, source_material=[p2]), mutate(
+        global_context,
+        p2,
+        g.starting_symbol,
+        source_material=[p1],
+    )
 
 
 class TreeBasedRepresentation(

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, Callable, Protocol, TypeVar
+from abc import ABC
+from typing import Any, Callable, TypeVar
 
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.random.sources import RandomSource
@@ -9,7 +10,7 @@ from geneticengine.random.sources import RandomSource
 T = TypeVar("T")
 
 
-class MetaHandlerGenerator(Protocol):
+class MetaHandlerGenerator(ABC):
     """MetaHandlers are type refinements.
 
     They override the generation procedure of the base type.
@@ -36,6 +37,9 @@ class MetaHandlerGenerator(Protocol):
         :param Dict[str, Type] dependent_values: The names and values of all previous fields in the parent object
         """
         ...
+
+    def get_dependencies(self):
+        return []
 
 
 def is_metahandler(ty: type) -> bool:
