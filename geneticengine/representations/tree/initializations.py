@@ -277,8 +277,7 @@ def expand_node(
         receiver(valb)
         return
     elif is_union(starting_symbol):
-        args = get_generic_parameters(starting_symbol)
-        option = r.choice(args)
+        option = r.choice(get_generic_parameters(starting_symbol))
         new_symbol(option, receiver, depth, id, ctx)
         return
     elif is_generic_list(starting_symbol):
@@ -344,7 +343,7 @@ def expand_node(
                 rule = r.choice(valid_productions, str(starting_symbol))
             new_symbol(rule, receiver, depth - extra_depth, id, ctx)
         else:  # Normal production
-            args = get_arguments(starting_symbol)
+            args: list[tuple[str, type]] = get_arguments(starting_symbol)
             ctx = ctx.copy()
             li: list[Any] = []
             for argn, _ in args:
