@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC
 from dataclasses import dataclass
-from typing import Annotated
+from typing import Annotated, Union
 
 import numpy as np
 
@@ -24,6 +24,11 @@ class Root(ABC):
 @dataclass
 class IntRangeM(Root):
     x: Annotated[int, IntRange[9, 10]]
+
+
+@dataclass
+class UnionIntRangeM(Root):
+    x: Union[Annotated[int, IntRange[0, 10]], Annotated[int, IntRange[20, 30]]]
 
 
 @dataclass
@@ -158,3 +163,13 @@ class TestMetaHandler:
         assert isinstance(n, IntervalRangeM)
         assert 5 < n.x[1] - n.x[0] < 10 and n.x[1] < 100
         assert isinstance(n, Root)
+
+    def test_union_int(self):
+        r = NativeRandomSource(seed=1)
+        g = extract_grammar([UnionIntRangeM], Root)
+        for _ in range(100):
+            n = random_node(r, g, 3, Root)
+            assert isinstance(n, UnionIntRangeM)
+            assert (0 <= n.x <= 10) or (20 <= n.x <= 30)
+            assert isinstance(n, Root)
+

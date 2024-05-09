@@ -8,7 +8,7 @@ from geneticengine.grammar.grammar import Grammar
 from geneticengine.random.sources import RandomSource
 from geneticengine.solutions.tree import GengyList
 from geneticengine.representations.tree.utils import relabel_nodes_of_trees
-from geneticengine.grammar.utils import build_finalizers
+from geneticengine.grammar.utils import build_finalizers, is_union, get_generic_parameters
 from geneticengine.grammar.utils import get_arguments
 from geneticengine.grammar.utils import get_generic_parameter
 from geneticengine.grammar.utils import is_abstract
@@ -276,6 +276,10 @@ def expand_node(
         valb = r.random_bool(str(starting_symbol))
         receiver(valb)
         return
+    elif is_union(starting_symbol):
+        option = r.choice(get_generic_parameters(starting_symbol))
+        new_symbol(option, receiver, depth, id, ctx)
+        return
     elif is_generic_list(starting_symbol):
         ctx = ctx.copy()
         ctx["_"] = id
@@ -339,7 +343,7 @@ def expand_node(
                 rule = r.choice(valid_productions, str(starting_symbol))
             new_symbol(rule, receiver, depth - extra_depth, id, ctx)
         else:  # Normal production
-            args = get_arguments(starting_symbol)
+            args: list[tuple[str, type]] = get_arguments(starting_symbol)
             ctx = ctx.copy()
             li: list[Any] = []
             for argn, _ in args:

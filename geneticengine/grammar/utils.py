@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import inspect
 from abc import ABC
-from typing import Any
+from typing import Any, get_origin, Union
 from typing import Callable
 from typing import get_type_hints
 from typing import Protocol
@@ -43,6 +43,11 @@ def is_generic_list(ty: type[Any]):
 def is_generic(ty: type[Any]):
     """Returns whether a type is x[T] for any T."""
     return hasattr(ty, "__origin__")
+
+
+def is_union(ty: type[Any]):
+    """Returns whether a type is List[T] for any T."""
+    return get_origin(ty) is Union
 
 
 def get_generic_parameters(ty: type[Any]) -> list[type]:
@@ -93,6 +98,8 @@ def get_arguments(n) -> list[tuple[str, type]]:
 
 def is_abstract(t: type) -> bool:
     """Returns whether a class is a Protocol or AbstractBaseClass."""
+    if is_union(t):
+        return False
     return t.mro()[1] in [ABC, Protocol] or get_gengy(t).get("abstract", False)
 
 
