@@ -10,7 +10,7 @@ from typing import Generic
 from typing import NamedTuple
 
 from geneticengine.grammar.decorators import get_gengy
-from geneticengine.grammar.utils import all_init_arguments_typed
+from geneticengine.grammar.utils import all_init_arguments_typed, is_union
 from geneticengine.grammar.utils import get_arguments
 from geneticengine.grammar.utils import get_generic_parameter
 from geneticengine.grammar.utils import get_generic_parameters
@@ -240,12 +240,20 @@ class Grammar:
 
         reachability: dict[type, set[type]] = defaultdict(lambda: set())
 
+        def explode_generics(tys: list[type]):
+            for ty in tys:
+                if is_union(ty):
+                    yield from explode_generics(get_generic_parameters(ty))
+                elif is_generic_list(ty) or is_annotated(ty):
+                    yield get_generic_parameters(ty)
+                else:
+                    yield ty
+
         def process_reachability(src: type, dsts: list[type]):
-            src = strip_annotations(src)
+            src = strip_annotations(src) #TODO remove strip annotations???
             ch = False
             src_reach = reachability[src]
-            for prod in dsts:
-                prod = strip_annotations(prod)
+            for prod in explode_generics(dsts):
                 reach = reachability[prod]
                 oldlen = len(reach)
                 reach.add(src)
@@ -289,7 +297,6 @@ class Grammar:
                         args = get_arguments(sym)
                         assert args
                         val = max(1 + self.get_distance_to_terminal(argt) for (_, argt) in args)
-
                         changed |= process_reachability(
                             sym,
                             [argt for (_, argt) in args],
