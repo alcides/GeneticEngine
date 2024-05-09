@@ -245,12 +245,12 @@ class Grammar:
                 if is_union(ty):
                     yield from explode_generics(get_generic_parameters(ty))
                 elif is_generic_list(ty) or is_annotated(ty):
-                    yield get_generic_parameters(ty)
+                    yield from explode_generics([get_generic_parameter(ty)])
                 else:
                     yield ty
 
         def process_reachability(src: type, dsts: list[type]):
-            src = strip_annotations(src) #TODO remove strip annotations???
+            src = strip_annotations(src)  # TODO remove strip annotations???
             ch = False
             src_reach = reachability[src]
             for prod in explode_generics(dsts):
