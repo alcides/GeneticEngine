@@ -32,7 +32,7 @@ jobs:
         if [ -f requirements-dev.txt ]; then uv pip install --system -r requirements-dev.txt; fi
     - name: Check install
       run: |
-        uv pip install -e .
+        uv pip install --system -e .
     - name: Run Examples Bash
       run: |
         bash run_examples.sh
