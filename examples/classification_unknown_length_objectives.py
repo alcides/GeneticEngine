@@ -181,12 +181,6 @@ class ClassificationLexicaseBenchmark:
     def main(self, **args):
         g = self.get_grammar()
 
-        minimizelist = False
-
-        def single_criteria_test(n: Number) -> float:
-            fitnesses = fitness_function_lexicase(n)
-            return sum(-fit if minimizelist else fit for fit in fitnesses)
-
         alg = SimpleGP(
             grammar=g,
             minimize=[],
