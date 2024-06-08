@@ -1,9 +1,14 @@
 from __future__ import annotations
+from abc import ABC
+from dataclasses import dataclass
+from functools import reduce
+import sys
 
 from typing import Any
 from typing import TypeVar
 
 from geneticengine.grammar.grammar import Grammar
+from geneticengine.grammar.metahandlers.base import is_metahandler
 from geneticengine.random.sources import RandomSource
 from geneticengine.representations.api import (
     RepresentationWithCrossover,
@@ -18,8 +23,14 @@ from geneticengine.representations.tree.initializations import (
 from geneticengine.representations.tree.initializations import mk_save_init
 from geneticengine.representations.tree.utils import relabel_nodes
 from geneticengine.representations.tree.utils import relabel_nodes_of_trees
-from geneticengine.solutions.tree import TreeNode
-from geneticengine.grammar.utils import get_arguments
+from geneticengine.solutions.tree import GengyList, TreeNode
+from geneticengine.grammar.utils import (
+    get_arguments,
+    get_generic_parameters,
+    is_builtin_class_instance,
+    is_generic_list,
+    is_generic_tuple,
+)
 from geneticengine.grammar.utils import get_generic_parameter
 from geneticengine.grammar.utils import has_annotated_crossover
 from geneticengine.grammar.utils import has_annotated_mutation
@@ -27,6 +38,129 @@ from geneticengine.grammar.utils import is_abstract
 from geneticengine.exceptions import GeneticEngineError
 
 T = TypeVar("T")
+
+
+@dataclass
+class SynthesisContext:
+    depth: int
+    nodes: int
+    expansions: int
+
+
+class SynthesisDecider(ABC):
+    def random_int(self) -> int: ...
+    def random_float(self) -> float: ...
+    def random_str(self) -> str: ...
+    def random_bool(self) -> bool: ...
+    def random_tuple(self, types) -> tuple: ...
+    def random_list(self, type) -> list[Any]: ...
+    def choose_alternatives(self, alternatives: list[T]) -> T: ...
+
+
+class BasicSynthesisDecider(SynthesisDecider):
+    def __init__(self, random: RandomSource, grammar: Grammar):
+        self.random = random
+        self.grammar = grammar
+
+    def random_int(self) -> int:
+        max_int = sys.maxsize
+        min_int = -sys.maxsize
+        val = self.random.normalvariate(0, max_int / 100)
+        val = round(val)
+        return max(min(val, max_int), min_int)
+
+    def random_float(self) -> float:
+        max_float = sys.float_info.max
+        min_float = -sys.float_info.max
+        valf = self.random.normalvariate(0, 1)
+        return max(min(valf, max_float), min_float)
+
+    def random_str(self) -> str:
+        length = int(abs(round(self.random.normalvariate(0, 10), 0)))
+        return str(chr(self.random.randint(32, 128)) for _ in range(length))
+
+    def random_bool(self) -> bool:
+        return self.random.random_bool()
+
+    def random_tuple(self, types) -> tuple:
+        els = (random_tree(random=self.random, grammar=self.grammar, starting_symbol=t, decider=self) for t in types)
+        return reduce(lambda x, y: x + y, els)
+
+    def random_list(self, type) -> list[Any]:
+        length = int(abs(round(self.random.normalvariate(0, 10), 0)))
+        return [
+            random_tree(random=self.random, grammar=self.grammar, starting_symbol=type, decider=self)
+            for _ in range(length)
+        ]
+
+    def choose_alternatives(self, alternatives: list[T]) -> T:
+        assert len(alternatives) > 0, "No alternatives presented"
+        return alternatives[0]  # TODO
+
+
+def relabel(f):
+    """Decorator that relabels nodes when they are generated."""
+
+    def g(*args, **kwargs):
+        n = f(*args, **kwargs)
+        grammar = kwargs["grammar"]
+        starting_symbol = kwargs["starting_symbol"]
+
+        if isinstance(n, list):
+            n = GengyList(starting_symbol, n)
+        relabel_nodes_of_trees(n, grammar)
+        if not is_builtin_class_instance(n):
+            assert isinstance(n, TreeNode)
+        return n
+
+    return g
+
+
+def initialize_object(constructor: Any, args: dict[str, Any]):
+    """Calls the constructor, but also saves meta-data."""
+    o = constructor(**args)
+    o.gengy_init_values = list(args.values())
+    return o
+
+
+@relabel
+def random_tree(random: RandomSource, grammar: Grammar, starting_symbol: type[Any], decider: SynthesisDecider):
+    """Generates a Random Tree."""
+
+    if starting_symbol is int:
+        return decider.random_int()
+    elif starting_symbol is float:
+        return decider.random_float()
+    elif starting_symbol is bool:
+        return decider.random_bool()
+    elif starting_symbol is str:
+        return decider.random_str()
+    elif is_generic_tuple(starting_symbol):
+        return decider.random_tuple(get_generic_parameters(starting_symbol))
+    elif is_generic_list(starting_symbol):
+        return decider.random_list(get_generic_parameter(starting_symbol))
+    elif is_metahandler(starting_symbol):
+        metahandler = starting_symbol.__metadata__[0]
+        base_type = get_generic_parameter(starting_symbol)
+        # TODO
+        return random_tree(random=random, grammar=grammar, starting_symbol=base_type, decider=decider)
+    else:
+
+        if starting_symbol not in grammar.all_nodes:
+            raise GeneticEngineError(
+                f"Symbol {starting_symbol} not in grammar rules.",
+            )
+        elif starting_symbol in grammar.alternatives:  # Alternatives
+            compatible_productions = grammar.alternatives[starting_symbol]
+            production = decider.choose_alternatives(compatible_productions)
+            return random_tree(random=random, grammar=grammar, starting_symbol=production, decider=decider)
+        else:
+            args_to_create = {}
+            for argn, argt in get_arguments(starting_symbol):
+                args_to_create[argn] = random_tree(
+                    random=random, grammar=grammar, starting_symbol=argt, decider=decider,
+                )
+            return initialize_object(starting_symbol, args_to_create)
 
 
 def random_node(
@@ -530,8 +664,12 @@ class TreeBasedRepresentation(
         self.initialization_method = initialization_method
 
     def create_genotype(self, random: RandomSource, **kwargs) -> TreeNode:
-        actual_depth = kwargs.get("depth", self.max_depth)
-        return random_individual(random, self.grammar, max_depth=actual_depth, method=self.initialization_method)
+        return random_tree(
+            random=random,
+            grammar=self.grammar,
+            starting_symbol=self.grammar.starting_symbol,
+            decider=BasicSynthesisDecider(random, self.grammar),
+        )
 
     def genotype_to_phenotype(self, genotype: TreeNode) -> TreeNode:
         return genotype
