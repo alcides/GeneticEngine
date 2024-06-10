@@ -98,6 +98,7 @@ class MultiObjectiveProblem(Problem):
 
     minimize: list[bool] | bool
     ff: dict[str, Any]
+    n_objectives: int
 
     def __init__(
         self,
@@ -107,6 +108,7 @@ class MultiObjectiveProblem(Problem):
         aggregate_fitness: Callable[[list[float]], float] | None = None,
     ):
         self.minimize = minimize
+        self.n_objectives = len(self.minimize) if isinstance(self.minimize, list) else 1
 
         def default_single_objective_merge(d: Any) -> float:
             if isinstance(self.minimize, list):
@@ -125,6 +127,7 @@ class MultiObjectiveProblem(Problem):
     def evaluate(self, phenotype: P) -> Fitness:
         lst: list[float] = self.ff["ff"](phenotype)
         multiple = [float(x) for x in lst]
+        self.n_objectives = len(multiple)
         if self.ff["aggregate_fitness"] is None:
             single = self.ff["best_individual"](phenotype)
         else:
@@ -132,7 +135,11 @@ class MultiObjectiveProblem(Problem):
         return Fitness(single, multiple)
 
     def number_of_objectives(self) -> int:
-        return len(self.minimize) if isinstance(self.minimize, list) else 1
+        """ This is updated after each execution.
+
+        The reason for this approach is that individuals are always evaluated before looking up the number of objectives. 
+        """
+        return self.n_objectives
 
 
 def wrap_depth_minimization(p: SingleObjectiveProblem) -> SingleObjectiveProblem:

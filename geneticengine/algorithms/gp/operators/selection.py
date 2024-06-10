@@ -79,7 +79,7 @@ class LexicaseSelection(GeneticStep):
         minimize: list[bool]
 
         assert isinstance(problem.minimize, list)
-        minimize = problem.minimize
+        minimize = problem.minimize or [ False for _ in range(problem.number_of_objectives()) ]
         assert isinstance(minimize, list)
         n_cases = len(candidates[0].get_fitness(problem).fitness_components)
 
