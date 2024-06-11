@@ -78,11 +78,17 @@ class LexicaseSelection(GeneticStep):
         cases = random.shuffle(list(range(n_cases)))
         minimize: list[bool]
 
-        assert isinstance(problem.minimize, list)
-        minimize = problem.minimize or [ False for _ in range(problem.number_of_objectives()) ]
-        assert isinstance(minimize, list)
-        n_cases = len(candidates[0].get_fitness(problem).fitness_components)
+        if n_cases == 1 and isinstance(problem.minimize, bool):
+            n_cases = len(candidates[0].get_fitness(problem).fitness_components)
+            minimize = [problem.minimize for _ in range(n_cases)]
+        else:
+            assert isinstance(problem.minimize, list)
+            minimize = problem.minimize or [
+                False for _ in range(problem.number_of_objectives())
+            ]
 
+        assert isinstance(minimize, list)
+        
         for _ in range(target_size):
             candidates_to_check = candidates.copy()
 
