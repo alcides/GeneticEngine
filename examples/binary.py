@@ -67,7 +67,7 @@ class BinaryListTreeBasedRepresentation(TreeBasedRepresentation):
         assert isinstance(internal, BinaryList)
 
         random_pos = random.randint(0, SIZE - 1)
-        next_val = random_node(r=random, g=g, max_depth=1, starting_symbol=Bit)
+        next_val = random_node(random=r, grammar=g, max_depth=1, starting_symbol=Bit)
         c = copy.deepcopy(internal)
         c.byte[random_pos] = next_val
         return c
