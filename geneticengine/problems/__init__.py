@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import abc
-from typing import Callable, NamedTuple
+from typing import Callable, NamedTuple, Optional
 from typing import TypeVar, Any
 
 
@@ -98,7 +98,7 @@ class MultiObjectiveProblem(Problem):
 
     minimize: list[bool] | bool
     ff: dict[str, Any]
-    n_objectives: int
+    n_objectives: Optional[int]
 
     def __init__(
         self,
@@ -108,7 +108,10 @@ class MultiObjectiveProblem(Problem):
         aggregate_fitness: Callable[[list[float]], float] | None = None,
     ):
         self.minimize = minimize
-        self.n_objectives = len(self.minimize) if isinstance(self.minimize, list) else 1
+        self.n_objectives = len(self.minimize) if isinstance(self.minimize, list) else None
+        self.initialized = not isinstance(self.minimize, bool) and self.n_objectives is not None
+
+
 
         def default_single_objective_merge(d: Any) -> float:
             if isinstance(self.minimize, list):
@@ -127,7 +130,16 @@ class MultiObjectiveProblem(Problem):
     def evaluate(self, phenotype: P) -> Fitness:
         lst: list[float] = self.ff["ff"](phenotype)
         multiple = [float(x) for x in lst]
-        self.n_objectives = len(multiple)
+        if not self.initialized:
+            """
+            Both minimize and n_objectives are lazy, to support an unknown number of objectives.
+
+            The first time an individual is evaluated, we initialize the minimize and n_objectives array if needed.
+            """
+            if isinstance(self.minimize, bool):
+                self.minimize = [ bool(self.minimize) for _ in multiple ]
+            self.n_objectives = len(multiple)
+            self.initialized = True
         if self.ff["aggregate_fitness"] is None:
             single = self.ff["best_individual"](phenotype)
         else:
@@ -139,6 +151,8 @@ class MultiObjectiveProblem(Problem):
 
         The reason for this approach is that individuals are always evaluated before looking up the number of objectives. 
         """
+        if self.n_objectives is None:
+            assert False, "An individual should be evaluated before the number of objectives is read."
         return self.n_objectives
 
 

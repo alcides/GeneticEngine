@@ -76,18 +76,8 @@ class LexicaseSelection(GeneticStep):
         evaluator.evaluate(problem, candidates)
         n_cases = problem.number_of_objectives()
         cases = random.shuffle(list(range(n_cases)))
-        minimize: list[bool]
 
-        if n_cases == 1 and isinstance(problem.minimize, bool):
-            n_cases = len(candidates[0].get_fitness(problem).fitness_components)
-            minimize = [problem.minimize for _ in range(n_cases)]
-        else:
-            assert isinstance(problem.minimize, list)
-            minimize = problem.minimize or [
-                False for _ in range(problem.number_of_objectives())
-            ]
-
-        assert isinstance(minimize, list)
+        assert isinstance(problem.minimize, list)
         
         for _ in range(target_size):
             candidates_to_check = candidates.copy()
@@ -96,7 +86,7 @@ class LexicaseSelection(GeneticStep):
                 new_candidates: list[Individual] = list()
                 c = cases.pop(0)
 
-                choose_best = min if minimize[c] else max
+                choose_best = min if problem.minimize[c] else max
 
                 best_fitness = choose_best([x.get_fitness(problem).fitness_components[c] for x in candidates_to_check])
                 checking_value = best_fitness
@@ -111,11 +101,11 @@ class LexicaseSelection(GeneticStep):
                         [get_fitness_value(x, c) for x in candidates_to_check if not np.isnan(get_fitness_value(x, c))],
                     )
                     mad = np.median(np.absolute(fitness_values - np.median(fitness_values)))
-                    checking_value = best_fitness + mad if minimize[c] else best_fitness - mad
+                    checking_value = best_fitness + mad if problem.minimize[c] else best_fitness - mad
 
                 for checking_candidate in candidates_to_check:
                     fitness: Fitness = checking_candidate.get_fitness(problem)
-                    if minimize[c]:
+                    if problem.minimize[c]:
                         add_candidate = fitness.fitness_components[c] <= checking_value
                     else:
                         add_candidate = fitness.fitness_components[c] >= checking_value
