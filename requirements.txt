@@ -5,7 +5,7 @@ palettable==3.3.3
 pandas==2.2.2
 pathos==0.3.2
 polyleven==0.8
-pytest==8.2.1
+pytest==8.2.2
 pytest-benchmark==4.0.0
 scikit-learn==1.4.2
 seaborn==0.13.2
