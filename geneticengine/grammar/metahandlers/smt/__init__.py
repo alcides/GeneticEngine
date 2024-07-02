@@ -41,7 +41,7 @@ class SMT(MetaHandlerGenerator):
         #     {},
         # )
 
-        if base_type == int or base_type == bool or base_type == float:
+        if base_type is int or base_type is bool or base_type is float:
             # we need the result, add receiver
             # smt.SMTResolver.add_clause(
             #     [],
