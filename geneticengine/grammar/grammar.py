@@ -289,7 +289,7 @@ class Grammar:
                         changed |= process_reachability(sym, prods)
                 else:
                     if is_terminal(sym, self.non_terminals):
-                        if (sym == int or sym == float or sym == str) and not self.expansion_depthing:
+                        if (sym is int or sym is float or sym is str) and not self.expansion_depthing:
                             val = 0
                         else:
                             val = 1
