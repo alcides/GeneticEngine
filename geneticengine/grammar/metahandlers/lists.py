@@ -1,5 +1,6 @@
 from __future__ import annotations
 import copy
+from enum import Enum
 from typing import Any, Callable, TypeVar
 
 from geneticengine.grammar.grammar import Grammar
@@ -11,6 +12,12 @@ from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator
 
 T = TypeVar("T")
 
+
+class VariationType(Enum):
+    REPLACEMENT = 1
+    INSERTION = 2
+    DELETION = 3
+    
 
 class ListSizeBetween(MetaHandlerGenerator):
     """ListSizeBetween(a,b) restricts lists to be of length between a and b and
@@ -41,35 +48,47 @@ class ListSizeBetween(MetaHandlerGenerator):
         for i in range(size):
             nv = rec(inner_type)
             li.append(nv)
+        assert len(li) == size
+        assert self.min <= len(li) <= self.max
+        print("Hello", li)
         return GengyList(inner_type, li)
 
     def mutate(
         self,
-        r: RandomSource,
+        random: RandomSource,
         g: Grammar,
         random_node,
         base_type,
         current_node,
     ):
-        mutation_method = r.randint(0, 2)
-        depth = current_node.synthesis_context.depth
-        element_type = base_type.__args__[0]
-        current_node = copy.copy(current_node)
-        if (mutation_method == 0) and (len(current_node) > self.min):  # del
-            element_to_be_deleted = r.randint(0, len(current_node) - 1)
-            current_node.remove(current_node[element_to_be_deleted])
-            return current_node
-        elif (mutation_method == 1) and (len(current_node) < self.max):  # add
-            new_element = random_node(r, g, depth, element_type)
-            current_node.append(new_element)
-            return current_node
-        elif len(current_node) > 0:  # replace
-            element_to_be_replaced = r.randint(0, len(current_node) - 1)
-            new_element = random_node(r, g, depth, element_type)
-            current_node[element_to_be_replaced] = new_element
-            return current_node
-        else:
-            return current_node
+        options : list[VariationType] = []
+           
+        if len(current_node) > 0:
+            options.append(VariationType.REPLACEMENT)
+        if len(current_node) < self.max:
+            options.append(VariationType.INSERTION)
+        if len(current_node) > self.min:
+            options.append(VariationType.DELETION)
+        if options:
+            # Prepare information
+            depth = current_node.synthesis_context.depth
+            element_type = base_type.__args__[0]
+            current_node : list = copy.copy(current_node)
+            
+            # Apply mutations
+            match random.choice(options):
+                case VariationType.REPLACEMENT:
+                    element_to_be_replaced = random.randint(0, len(current_node) - 1)
+                    new_element = random_node(random, g, depth, element_type)
+                    current_node[element_to_be_replaced] = new_element
+                case VariationType.INSERTION:
+                    new_element = random_node(random=random, grammar=g, max_depth=depth, starting_symbol=element_type)
+                    current_node.append(new_element)
+                case VariationType.DELETION:
+                    pos = random.randint(0, len(current_node) - 1)
+                    current_node.pop(pos)
+        assert self.min <= len(current_node) <= self.max
+        return GengyList(element_type, current_node)
 
     def crossover(
         self,
@@ -81,6 +100,7 @@ class ListSizeBetween(MetaHandlerGenerator):
         current_node,
     ):
         if not options or (len(current_node) < 2):
+            assert self.min <= len(current_node) <= self.max
             return current_node
         n_elements_replaced = r.randint(1, len(current_node) - 1)
         big_enough_options = [getattr(o, arg) for o in options if len(getattr(o, arg)) >= n_elements_replaced]
@@ -95,6 +115,7 @@ class ListSizeBetween(MetaHandlerGenerator):
         # first using one tree as the current node,
         # and then the second tree as current node.
         new_node = copy.deepcopy(option[0:n_elements_replaced]) + current_node[n_elements_replaced:]
+        assert self.min <= len(new_node) <= self.max
         return GengyList(list_type, new_node)
 
     def __class_getitem__(cls, args):

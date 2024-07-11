@@ -71,11 +71,8 @@ class NumberList:
         return [n.evaluate(**kwargs) for n in self.lst]
 
     def __str__(self) -> str:
-        s = "["
-        for i in range(len(self.lst)):
-            s += str(self.lst[i])
-            s += "," if i < len(self.lst) - 1 else "]"
-        return s
+        elms = ",".join(map(str, self.lst))
+        return f"[{elms}]"
 
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
@@ -108,6 +105,11 @@ def fitness_function_lexicase(n: Number):
             # y_pred this wil be a list of 3 functions
             y_pred = n.evaluate(**variables)
 
+            if type(y_pred) in [np.float64, int, float]:
+                """If n does not use variables, the output will be scalar."""
+                y_pred = np.full(len(y), y_pred)
+
+            print(type(n.lst), y_pred, "<...")
             # mse is used in PonyGE, as the error metric is not None!
             fitness = mse(y_pred[index], y[cases.index(c)])
             if isinf(fitness) or np.isnan(fitness):
