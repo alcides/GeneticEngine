@@ -25,7 +25,6 @@ class RandomSource(abc.ABC):
         self,
         choices: list[T],
         weights: list[float],
-        prod: str = "",
     ) -> T:
         acc_weights: list[int] = [int(x * 100000) for x in accumulate(weights)]
         total = acc_weights[-1]
