@@ -37,7 +37,7 @@ class FloatRange(MetaHandlerGenerator):
     ):
         return random.random_float(self.min, self.max)
 
-    def __class_getitem__(self, args):
+    def __class_getitem__(cls, args):
         return FloatRange(*args)
 
     def __repr__(self):
@@ -65,7 +65,7 @@ class FloatList(MetaHandlerGenerator):
     ):
         return random.choice(self.elements)
 
-    def __class_getitem__(self, args):
+    def __class_getitem__(cls, args):
         return FloatList(*args)
 
     def __repr__(self):

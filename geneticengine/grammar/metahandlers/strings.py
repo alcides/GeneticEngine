@@ -83,7 +83,7 @@ class StringSizeBetween(MetaHandlerGenerator):
         other = r.choice([getattr(x, arg) for x in options])
         return current_node[:midpoint] + other[midpoint:]
 
-    def __class_getitem__(self, args):
+    def __class_getitem__(cls, args):
         return StringSizeBetween(*args)
 
     def __repr__(self):

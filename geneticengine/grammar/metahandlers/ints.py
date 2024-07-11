@@ -33,7 +33,7 @@ class IntRange(MetaHandlerGenerator):
     ):
         return random.randint(self.min, self.max)
 
-    def __class_getitem__(self, args):
+    def __class_getitem__(cls, args):
         return IntRange(*args)
 
     def __repr__(self):
@@ -62,7 +62,7 @@ class IntList(MetaHandlerGenerator):
     ):
         return random.choice(self.elements)
 
-    def __class_getitem__(self, args):
+    def __class_getitem__(cls, args):
         return IntList(*args)
 
     def __repr__(self):
@@ -96,7 +96,7 @@ class IntervalRange(MetaHandlerGenerator):
         self.maximum_length = maximum_length
         self.maximum_top_limit = maximum_top_limit
 
-    def __class_getitem__(self, args):
+    def __class_getitem__(cls, args):
         return IntervalRange(*args)
 
     def generate(

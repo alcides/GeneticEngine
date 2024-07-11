@@ -97,7 +97,7 @@ class ListSizeBetween(MetaHandlerGenerator):
         new_node = copy.deepcopy(option[0:n_elements_replaced]) + current_node[n_elements_replaced:]
         return GengyList(list_type, new_node)
 
-    def __class_getitem__(self, args):
+    def __class_getitem__(cls, args):
         return ListSizeBetween(*args)
 
     def __repr__(self):
@@ -133,7 +133,7 @@ class ListSizeBetweenWithoutListOperations(MetaHandlerGenerator):
             li.append(nv)
         return GengyList(inner_type, li)
 
-    def __class_getitem__(self, args):
+    def __class_getitem__(cls, args):
         return ListSizeBetweenWithoutListOperations(*args)
 
     def __repr__(self):
