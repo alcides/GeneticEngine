@@ -9,9 +9,5 @@ pytest==8.3.2
 pytest-benchmark==4.0.0
 scikit-learn==1.5.1
 seaborn==0.13.2
-sphinx==7.3.7
-sphinx-autoapi==3.1.2
-sphinx-rtd-theme==2.0.0
-sphinxcontrib-fulltoc==1.2.0
 threadpoolctl==3.5.0
 z3-solver==4.13.0.0
