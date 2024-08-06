@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import abc
-from typing import Callable, NamedTuple, Optional
+from typing import Callable, Generic, NamedTuple, Optional
 from typing import TypeVar, Any
 
 
@@ -16,7 +16,7 @@ class Fitness(NamedTuple):
 P = TypeVar("P")
 
 
-class Problem(abc.ABC):
+class Problem(abc.ABC, Generic[P]):
     """An Abstract class that SingleObjectiveProblem and MultiObjectiveProblem
     extends to.
 
@@ -32,8 +32,7 @@ class Problem(abc.ABC):
     epsilon: float
 
     @abc.abstractmethod
-    def evaluate(self, phenotype: P) -> Fitness:
-        ...
+    def evaluate(self, phenotype: P) -> Fitness: ...
 
     def key_function(self, a: Fitness) -> float:
         """Returns the (maximizing) fitness of the individual as a single
@@ -45,11 +44,10 @@ class Problem(abc.ABC):
         return a.maximizing_aggregate > b.maximizing_aggregate
 
     @abc.abstractmethod
-    def number_of_objectives(self) -> int:
-        ...
+    def number_of_objectives(self) -> int: ...
 
 
-class SingleObjectiveProblem(Problem):
+class SingleObjectiveProblem(Problem[P]):
     """SingleObjectiveProblem is a class that extends the Problem class.
 
     Args:
@@ -79,7 +77,7 @@ class SingleObjectiveProblem(Problem):
         return 1
 
 
-class MultiObjectiveProblem(Problem):
+class MultiObjectiveProblem(Problem[P]):
     """MultiObjectiveProblem is a class that extends the Problem class.
 
     Args:
@@ -111,8 +109,6 @@ class MultiObjectiveProblem(Problem):
         self.n_objectives = len(self.minimize) if isinstance(self.minimize, list) else None
         self.initialized = not isinstance(self.minimize, bool) and self.n_objectives is not None
 
-
-
         def default_single_objective_merge(d: Any) -> float:
             if isinstance(self.minimize, list):
                 return sum(m and -fit or +fit for (fit, m) in zip(fitness_function(d), self.minimize))
@@ -137,7 +133,7 @@ class MultiObjectiveProblem(Problem):
             The first time an individual is evaluated, we initialize the minimize and n_objectives array if needed.
             """
             if isinstance(self.minimize, bool):
-                self.minimize = [ bool(self.minimize) for _ in multiple ]
+                self.minimize = [bool(self.minimize) for _ in multiple]
             self.n_objectives = len(multiple)
             self.initialized = True
         if self.ff["aggregate_fitness"] is None:
@@ -147,9 +143,9 @@ class MultiObjectiveProblem(Problem):
         return Fitness(single, multiple)
 
     def number_of_objectives(self) -> int:
-        """ This is updated after each execution.
+        """This is updated after each execution.
 
-        The reason for this approach is that individuals are always evaluated before looking up the number of objectives. 
+        The reason for this approach is that individuals are always evaluated before looking up the number of objectives.
         """
         if self.n_objectives is None:
             assert False, "An individual should be evaluated before the number of objectives is read."
