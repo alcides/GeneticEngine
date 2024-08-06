@@ -7,7 +7,7 @@ pathos==0.3.2
 polyleven==0.8
 pytest==8.2.2
 pytest-benchmark==4.0.0
-scikit-learn==1.5.0
+scikit-learn==1.5.1
 seaborn==0.13.2
 sphinx==7.3.7
 sphinx-autoapi==3.1.2
