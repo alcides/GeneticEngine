@@ -100,7 +100,7 @@ def random_individual(
             r.randint(0, sys.maxsize) for _ in range(1000)
         ]  # Necessary to source from when a production rule runs out of genes.
         current_genotype = Genotype(dna)
-    assert type(current_genotype) == Genotype
+    assert isinstance(current_genotype, Genotype)
 
     if starting_symbol in [int, float, str, bool]:
         val = r.randint(0, sys.maxsize)

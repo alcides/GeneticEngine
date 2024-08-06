@@ -151,7 +151,7 @@ def mutate_specific_type_inner(
     n: int,
     depth_aware_mut: bool,
 ) -> TreeNode:
-    if n == 1 and type(i) == specific_type:
+    if n == 1 and isinstance(i, specific_type):
         return mutate_inner(
             r,
             g,
@@ -363,7 +363,7 @@ def crossover_specific_type_inner(
     n: int,
     depth_aware_co: bool,
 ) -> TreeNode:
-    if n == 1 and type(i) == specific_type:
+    if n == 1 and isinstance(i, specific_type):
         return crossover_inner(
             r,
             g,
