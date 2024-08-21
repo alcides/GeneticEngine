@@ -31,7 +31,7 @@ class StringSizeBetween(MetaHandlerGenerator):
         new_symbol,
         depth: int,
         base_type,
-        ctx: dict[str, str],
+        context: dict[str, str],
     ):
         size = r.randint(self.min, self.max, "str")
         s = "".join(r.choice(self.options) for _ in range(size))
@@ -84,7 +84,7 @@ class StringSizeBetween(MetaHandlerGenerator):
         other = r.choice([getattr(x, arg) for x in options])
         return current_node[:midpoint] + other[midpoint:]
 
-    def __class_getitem__(self, args):
+    def __class_getitem__(cls, args):
         return StringSizeBetween(*args)
 
     def __repr__(self):
@@ -118,7 +118,7 @@ class WeightedStringHandler(MetaHandlerGenerator):
         r: RandomSource,
         g: Grammar,
         rec,
-        newsymbol,
+        new_symbol,
         depth: int,
         base_type,
         context: dict[str, str],
@@ -131,5 +131,5 @@ class WeightedStringHandler(MetaHandlerGenerator):
     def __repr__(self):
         return f"str[aphabet={self.alphabet}, size={self.probability_matrix.shape[0]}"
 
-    def __class_getitem__(self, args):
+    def __class_getitem__(cls, args):
         return WeightedStringHandler(*args)

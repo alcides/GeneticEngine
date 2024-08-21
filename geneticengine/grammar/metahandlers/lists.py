@@ -31,14 +31,14 @@ class ListSizeBetween(MetaHandlerGenerator):
         new_symbol,
         depth: int,
         base_type,
-        ctx: dict[str, str],
+        context: dict[str, str],
     ):
         base_type = base_type.__args__[0]
         size = r.randint(self.min, self.max, str(base_type))
         fins = build_finalizers(lambda *x: rec(GengyList(base_type, x)), size)
-        ident = ctx["_"]
+        ident = context["_"]
         for i, fin in enumerate(fins):
-            nctx = ctx.copy()
+            nctx = context.copy()
             nident = ident + "_" + str(i)
             nctx["_"] = nident
             new_symbol(base_type, fin, depth, nident, nctx)
@@ -97,7 +97,7 @@ class ListSizeBetween(MetaHandlerGenerator):
         new_node = copy.deepcopy(option[0:n_elements_replaced]) + current_node[n_elements_replaced:]
         return GengyList(list_type, new_node)
 
-    def __class_getitem__(self, args):
+    def __class_getitem__(cls, args):
         return ListSizeBetween(*args)
 
     def __repr__(self):
@@ -124,19 +124,19 @@ class ListSizeBetweenWithoutListOperations(MetaHandlerGenerator):
         new_symbol,
         depth: int,
         base_type,
-        ctx: dict[str, str],
+        context: dict[str, str],
     ):
         base_type = base_type.__args__[0]
         size = r.randint(self.min, self.max, str(base_type))
         fins = build_finalizers(lambda *x: rec(GengyList(base_type, x)), size)
-        ident = ctx["_"]
+        ident = context["_"]
         for i, fin in enumerate(fins):
-            nctx = ctx.copy()
+            nctx = context.copy()
             nident = ident + "_" + str(i)
             nctx["_"] = nident
             new_symbol(base_type, fin, depth, nident, nctx)
 
-    def __class_getitem__(self, args):
+    def __class_getitem__(cls, args):
         return ListSizeBetweenWithoutListOperations(*args)
 
     def __repr__(self):

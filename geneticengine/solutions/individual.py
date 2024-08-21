@@ -23,7 +23,7 @@ class Individual(Generic[G, P]):
     fitness_store: weakref.WeakKeyDictionary[Problem, Fitness]
     metadata: dict[str, Any]
 
-    def __init__(self, genotype: G, representation: Representation[G, P], metadata: dict[str, Any] = None):
+    def __init__(self, genotype: G, representation: Representation[G, P], metadata: dict[str, Any] | None = None):
         self.genotype = genotype
         self.representation = representation
         self.fitness_store: weakref.WeakKeyDictionary[Problem, Fitness] = weakref.WeakKeyDictionary()
