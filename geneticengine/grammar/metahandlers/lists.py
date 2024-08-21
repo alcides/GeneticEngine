@@ -17,7 +17,7 @@ class VariationType(Enum):
     REPLACEMENT = 1
     INSERTION = 2
     DELETION = 3
-    
+
 
 class ListSizeBetween(MetaHandlerGenerator):
     """ListSizeBetween(a,b) restricts lists to be of length between a and b and
@@ -62,7 +62,7 @@ class ListSizeBetween(MetaHandlerGenerator):
         current_node,
     ):
         options : list[VariationType] = []
-           
+
         if len(current_node) > 0:
             options.append(VariationType.REPLACEMENT)
         if len(current_node) < self.max:
@@ -73,22 +73,24 @@ class ListSizeBetween(MetaHandlerGenerator):
             # Prepare information
             depth = current_node.synthesis_context.depth
             element_type = base_type.__args__[0]
-            current_node : list = copy.copy(current_node)
-            
+            current_node_cpy : list = copy.copy(current_node)
+
             # Apply mutations
             match random.choice(options):
                 case VariationType.REPLACEMENT:
                     element_to_be_replaced = random.randint(0, len(current_node) - 1)
                     new_element = random_node(random, g, depth, element_type)
-                    current_node[element_to_be_replaced] = new_element
+                    current_node_cpy[element_to_be_replaced] = new_element
                 case VariationType.INSERTION:
                     new_element = random_node(random=random, grammar=g, max_depth=depth, starting_symbol=element_type)
-                    current_node.append(new_element)
+                    current_node_cpy.append(new_element)
                 case VariationType.DELETION:
-                    pos = random.randint(0, len(current_node) - 1)
-                    current_node.pop(pos)
-        assert self.min <= len(current_node) <= self.max
-        return GengyList(element_type, current_node)
+                    pos = random.randint(0, len(current_node_cpy) - 1)
+                    current_node_cpy.pop(pos)
+            assert self.min <= len(current_node_cpy) <= self.max
+            return GengyList(element_type, current_node_cpy)
+        else:
+            assert False
 
     def crossover(
         self,

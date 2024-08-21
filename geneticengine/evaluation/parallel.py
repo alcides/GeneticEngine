@@ -1,6 +1,6 @@
 from abc import ABCMeta
 from pickle import _Pickler as StockPickler
-from typing import Any, Iterable  # attr-defined: ignore
+from typing import Any, Generator, Iterable  # attr-defined: ignore
 from dill import register
 from geneticengine.solutions.individual import Individual
 from geneticengine.problems import Fitness, Problem
@@ -9,13 +9,13 @@ from geneticengine.evaluation.api import Evaluator
 
 @register(ABCMeta)
 def save_abc(pickler, obj):
-    StockPickler.save_type(pickler, obj)
+    StockPickler.save_type(pickler, obj) # pyright: ignore
 
 
 class ParallelEvaluator(Evaluator):
     """Evaluates individuals in parallel, each time they are needed."""
 
-    def evaluate_async(self, problem: Problem, individuals: Iterable[Individual[Any, Any]]):
+    def evaluate_async(self, problem: Problem, individuals: Iterable[Individual[Any, Any]]) -> Generator[Individual, Any, Any]:
         indivs = list(individuals)
 
         def mapper(ind: Individual) -> Fitness:

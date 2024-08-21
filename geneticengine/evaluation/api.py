@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 import logging
-from typing import Any, Iterable
+from typing import Any, Generator, Iterable
 
 
 from geneticengine.solutions.individual import Individual
@@ -14,10 +14,10 @@ class Evaluator(ABC):
         self.count = 0
 
     @abstractmethod
-    def evaluate_async(self, problem: Problem, indivs: Iterable[Individual[Any, Any]]): ...
+    def evaluate_async(self, problem: Problem, individuals: Iterable[Individual[Any, Any]]) -> Generator[Individual, Any, Any]: ...
 
-    def evaluate(self, problem: Problem, indivs: Iterable[Individual[Any, Any]]):
-        for _ in self.evaluate_async(problem, indivs):
+    def evaluate(self, problem: Problem, individuals: Iterable[Individual[Any, Any]]):
+        for _ in self.evaluate_async(problem, individuals):
             pass
 
     def register_evaluation(self):
