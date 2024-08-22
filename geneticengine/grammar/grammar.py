@@ -250,7 +250,6 @@ class Grammar:
                     yield ty
 
         def process_reachability(src: type, dsts: list[type]):
-            src = strip_annotations(src)  # TODO remove strip annotations???
             ch = False
             src_reach = reachability[src]
             for prod in explode_generics(dsts):
