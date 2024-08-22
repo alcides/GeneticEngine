@@ -50,10 +50,7 @@ class ListSizeBetween(MetaHandlerGenerator):
             li.append(nv)
         assert len(li) == size
         assert self.min <= len(li) <= self.max
-        gl : GengyList[Any] = GengyList(inner_type, li)
-        # TODO: we need synthesis context here!
-        gl.gengy_synthesis_context = dependent_values # type: ignore
-        return gl
+        return GengyList(inner_type, li)
 
     def mutate(
         self,
@@ -63,7 +60,7 @@ class ListSizeBetween(MetaHandlerGenerator):
         base_type,
         current_node,
     ):
-        options : list[VariationType] = []
+        options: list[VariationType] = []
         assert isinstance(current_node, GengyList)
         if len(current_node) > 0:
             options.append(VariationType.REPLACEMENT)
@@ -77,7 +74,7 @@ class ListSizeBetween(MetaHandlerGenerator):
             depth = current_node.gengy_synthesis_context.depth
             element_type = base_type.__args__[0]
             assert isinstance(current_node, GengyList)
-            current_node_cpy : list = copy.copy(list(current_node.gengy_init_values))
+            current_node_cpy: list = copy.copy(list(current_node.gengy_init_values))
 
             # Apply mutations
             match random.choice(options):

@@ -8,7 +8,7 @@ from typing import Any, Type, TypeVar
 
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.random.sources import RandomSource
-from geneticengine.solutions.tree import GengyList, TreeNode
+from geneticengine.solutions.tree import GengyList, LocalSynthesisContext, TreeNode
 from geneticengine.representations.tree.utils import relabel_nodes_of_trees
 from geneticengine.grammar.utils import get_arguments, is_builtin_class_instance
 from geneticengine.grammar.utils import is_union, get_generic_parameters
@@ -23,18 +23,6 @@ class GlobalSynthesisContext:
     random: RandomSource
     grammar: Grammar
     decider: SynthesisDecider
-
-
-@dataclass
-class LocalSynthesisContext:
-    depth: int
-    nodes: int
-    expansions: int
-    dependent_values: dict[str, Any]
-
-
-class TreeNodeWithContext(TreeNode):
-    synthesis_context: LocalSynthesisContext
 
 
 T = TypeVar("T")
@@ -82,7 +70,9 @@ class BasicSynthesisDecider(SynthesisDecider):
 
     def choose_production_alternatives(self, alternatives: list[type], ctx: LocalSynthesisContext) -> type:
         assert len(alternatives) > 0, "No alternatives presented"
-        alternatives = [x for x in alternatives if self.grammar.get_distance_to_terminal(x) <= (self.max_depth - ctx.depth)]
+        alternatives = [
+            x for x in alternatives if self.grammar.get_distance_to_terminal(x) <= (self.max_depth - ctx.depth)
+        ]
         return self.random.choice(alternatives)
 
     def choose_options(self, alternatives: list[T], ctx: LocalSynthesisContext) -> T:
@@ -97,7 +87,7 @@ def wrap_result(
 ) -> TreeNode:
     if not is_builtin_class_instance(v):
         relabel_nodes_of_trees(v, global_context.grammar)
-        v.gengy_synthesis_context = context # TODO: move inside relabel
+        v.gengy_synthesis_context = context  # TODO: move inside relabel
     return v
 
 
@@ -123,8 +113,8 @@ def create_node(
     dependent_values: dict[str, Any] | None = None,
     initial_values: dict[str, TreeNode] | None = None,
 ) -> Any:
-    dependent_vals : dict[str, Any] = dependent_values if dependent_values is not None else {}
-    initial_vals : dict[str, TreeNode] = initial_values if initial_values is not None else {}
+    dependent_vals: dict[str, Any] = dependent_values if dependent_values is not None else {}
+    initial_vals: dict[str, TreeNode] = initial_values if initial_values is not None else {}
 
     decider = global_context.decider
 
@@ -162,7 +152,7 @@ def create_node(
         v = metahandler.generate(global_context.random, global_context.grammar, base_type, recurse, dependent_vals)
         return wrap_result(v, global_context, context)
     elif is_union(starting_symbol):
-        t : type = decider.choose_production_alternatives(get_generic_parameters(starting_symbol), context)
+        t: type = decider.choose_production_alternatives(get_generic_parameters(starting_symbol), context)
         v = create_node(global_context, t, context, dependent_values, initial_values)
         return wrap_result(v, global_context, context)
     else:
@@ -179,7 +169,9 @@ def create_node(
                     v = create_node(
                         global_context,
                         rule,
-                        context=LocalSynthesisContext(context.depth, context.nodes, context.expansions + 1, dependent_vals),
+                        context=LocalSynthesisContext(
+                            context.depth, context.nodes, context.expansions + 1, dependent_vals,
+                        ),
                         initial_values=initial_vals,
                     )
                     return wrap_result(v, global_context, context)
@@ -192,13 +184,13 @@ def create_node(
             dependent_values = {}
             nctx = LocalSynthesisContext(context.depth + 1, context.nodes + 1, context.expansions + 1, dependent_vals)
             for argn, argt in get_arguments(starting_symbol):
-                arg : TreeNode
+                arg: TreeNode
                 if argn in initial_vals:
-                    arg = initial_vals.get(argn) # pyright: ignore
+                    arg = initial_vals.get(argn)  # pyright: ignore
                     if isinstance(arg, list):
                         list_type = argt
                         inner_type = get_generic_parameter(list_type)
-                        arg = GengyList(inner_type, arg) # type: ignore
+                        arg = GengyList(inner_type, arg)  # type: ignore
                 else:
                     arg = create_node(
                         global_context,

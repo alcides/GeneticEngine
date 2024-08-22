@@ -1,10 +1,19 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Any, Generic, TypeVar
 from typing import Protocol
 from typing import runtime_checkable
 
 from geneticengine.grammar.utils import get_arguments
+
+
+@dataclass
+class LocalSynthesisContext:
+    depth: int
+    nodes: int
+    expansions: int
+    dependent_values: dict[str, Any]
 
 
 @runtime_checkable
@@ -15,7 +24,7 @@ class TreeNode(Protocol):
     gengy_weighted_nodes: int
     gengy_types_this_way: dict[type, list[Any]]
     gengy_init_values: tuple[Any]
-    gengy_synthesis_context: Any # TODO: LocalSynthesisContext
+    gengy_synthesis_context: LocalSynthesisContext
 
 
 class PrettyPrintable:
@@ -41,7 +50,7 @@ class GengyList(list, Generic[T]):
         assert isinstance(self, TreeNode)
         return n
 
-    def __hash__(self): # pyright: ignore
+    def __hash__(self):  # pyright: ignore
         return sum(hash(o) for o in self)
 
     def __add__(self, value) -> GengyList[T]:
