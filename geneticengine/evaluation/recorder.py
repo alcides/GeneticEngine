@@ -9,7 +9,7 @@ FieldMapper = Callable[[Any, Individual, Problem], Any]
 
 
 class SearchRecorder(ABC):
-    def register(self, tracker: Any, individual: Individual, problem: Problem, is_best=True): ...
+    def register(self, tracker: Any, individual: Individual, problem: Problem, is_best: bool): ...
 
 
 class CSVSearchRecorder(SearchRecorder):
@@ -17,8 +17,8 @@ class CSVSearchRecorder(SearchRecorder):
         self,
         csv_path: str,
         problem: Problem,
-        fields: dict[str, FieldMapper] = None,
-        extra_fields: dict[str, FieldMapper] = None,
+        fields: dict[str, FieldMapper] | None = None,
+        extra_fields: dict[str, FieldMapper] | None = None,
         only_record_best_individuals: bool = True,
     ):
         assert csv_path is not None
