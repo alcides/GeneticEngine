@@ -50,12 +50,13 @@ def relabel_nodes(
             int(g.expansion_depthing),
         )
     else:
-        if isinstance(i, list):
+        if hasattr(i, "gengy_init_values"):
+            children = [(typ[1], i.gengy_init_values[idx]) for idx, typ in enumerate(get_arguments(i))]
+        elif isinstance(i, list):
             children = [(type(obj), obj) for obj in i]
         else:
-            if not hasattr(i, "gengy_init_values"):
-                breakpoint()
-            children = [(typ[1], i.gengy_init_values[idx]) for idx, typ in enumerate(get_arguments(i))]
+            assert False
+
         for t, c in children:
             nodes, dist, thisway, weighted_nodes = relabel_nodes(
                 c,

@@ -29,6 +29,7 @@ class LocalSynthesisContext:
     depth: int
     nodes: int
     expansions: int
+    dependent_values: dict[str, Any]
 
 
 class TreeNodeWithContext(TreeNode):
@@ -95,7 +96,7 @@ def wrap_result(
 ) -> TreeNode:
     if not is_builtin_class_instance(v):
         relabel_nodes_of_trees(v, global_context.grammar)
-        v.synthesis_context = context
+        v.gengy_synthesis_context = context # TODO: move inside relabel
     return v
 
 
@@ -118,11 +119,11 @@ def create_node(
     global_context: GlobalSynthesisContext,
     starting_symbol: type[Any],
     context: LocalSynthesisContext,
-    dependent_values: dict[str, Any] = None,
-    initial_values: dict[str, Any] = None,
+    dependent_values: dict[str, Any] | None = None,
+    initial_values: dict[str, TreeNode] | None = None,
 ) -> Any:
-    if dependent_values is None:
-        dependent_values = {}
+    dependent_vals : dict[str, Any] = dependent_values if dependent_values is not None else {}
+    initial_vals : dict[str, TreeNode] = initial_values if initial_values is not None else {}
 
     decider = global_context.decider
 
@@ -135,7 +136,7 @@ def create_node(
     elif is_generic_list(starting_symbol):
         inner_type = get_generic_parameter(starting_symbol)
         length = decider.random_int(0, 10)
-        nctx = LocalSynthesisContext(context.depth + 1, context.nodes + 1, context.expansions + 1)
+        nctx = LocalSynthesisContext(context.depth + 1, context.nodes + 1, context.expansions + 1, dependent_vals)
         nli = []
         for _ in range(length):
             nv = create_node(global_context, inner_type, nctx)
@@ -152,12 +153,12 @@ def create_node(
                 global_context,
                 starting_symbol=typ,
                 dependent_values=dependent_values,
-                context=LocalSynthesisContext(context.depth, context.nodes, context.expansions + 1),
+                context=LocalSynthesisContext(context.depth, context.nodes, context.expansions + 1, dependent_vals),
                 **kwargs,
             )
             return v
 
-        v = metahandler.generate(global_context.random, global_context.grammar, base_type, recurse, dependent_values)
+        v = metahandler.generate(global_context.random, global_context.grammar, base_type, recurse, dependent_vals)
         return wrap_result(v, global_context, context)
     else:
         if starting_symbol not in global_context.grammar.all_nodes:
@@ -173,8 +174,8 @@ def create_node(
                     v = create_node(
                         global_context,
                         rule,
-                        context=LocalSynthesisContext(context.depth, context.nodes, context.expansions + 1),
-                        initial_values=initial_values,
+                        context=LocalSynthesisContext(context.depth, context.nodes, context.expansions + 1, dependent_vals),
+                        initial_values=initial_vals,
                     )
                     return wrap_result(v, global_context, context)
                 except SynthesisException:
@@ -184,14 +185,15 @@ def create_node(
             # Normal concrete type (Production)
             args = []
             dependent_values = {}
-            nctx = LocalSynthesisContext(context.depth + 1, context.nodes + 1, context.expansions + 1)
+            nctx = LocalSynthesisContext(context.depth + 1, context.nodes + 1, context.expansions + 1, dependent_vals)
             for argn, argt in get_arguments(starting_symbol):
-                if initial_values and argn in initial_values:
-                    arg = initial_values.get(argn)
+                arg : TreeNode
+                if argn in initial_vals:
+                    arg = initial_vals.get(argn) # pyright: ignore
                     if isinstance(arg, list):
                         list_type = argt
                         inner_type = get_generic_parameter(list_type)
-                        arg = GengyList(inner_type, arg)
+                        arg = GengyList(inner_type, arg) # type: ignore
                 else:
                     arg = create_node(
                         global_context,

@@ -50,8 +50,10 @@ class ListSizeBetween(MetaHandlerGenerator):
             li.append(nv)
         assert len(li) == size
         assert self.min <= len(li) <= self.max
-        print("Hello", li)
-        return GengyList(inner_type, li)
+        gl : GengyList[Any] = GengyList(inner_type, li)
+        # TODO: we need synthesis context here!
+        gl.gengy_synthesis_context = dependent_values # type: ignore
+        return gl
 
     def mutate(
         self,
@@ -62,7 +64,7 @@ class ListSizeBetween(MetaHandlerGenerator):
         current_node,
     ):
         options : list[VariationType] = []
-
+        assert isinstance(current_node, GengyList)
         if len(current_node) > 0:
             options.append(VariationType.REPLACEMENT)
         if len(current_node) < self.max:
@@ -71,14 +73,14 @@ class ListSizeBetween(MetaHandlerGenerator):
             options.append(VariationType.DELETION)
         if options:
             # Prepare information
-            depth = current_node.synthesis_context.depth
+            depth = current_node.gengy_synthesis_context.depth
             element_type = base_type.__args__[0]
-            current_node_cpy : list = copy.copy(current_node)
+            current_node_cpy : list = copy.copy(current_node.gengy_init_values)
 
             # Apply mutations
             match random.choice(options):
                 case VariationType.REPLACEMENT:
-                    element_to_be_replaced = random.randint(0, len(current_node) - 1)
+                    element_to_be_replaced = random.randint(0, len(current_node_cpy) - 1)
                     new_element = random_node(random, g, depth, element_type)
                     current_node_cpy[element_to_be_replaced] = new_element
                 case VariationType.INSERTION:
@@ -88,7 +90,7 @@ class ListSizeBetween(MetaHandlerGenerator):
                     pos = random.randint(0, len(current_node_cpy) - 1)
                     current_node_cpy.pop(pos)
             assert self.min <= len(current_node_cpy) <= self.max
-            return GengyList(element_type, current_node_cpy)
+            return current_node.new_like(current_node_cpy)
         else:
             assert False
 
@@ -118,7 +120,7 @@ class ListSizeBetween(MetaHandlerGenerator):
         # and then the second tree as current node.
         new_node = copy.deepcopy(option[0:n_elements_replaced]) + current_node[n_elements_replaced:]
         assert self.min <= len(new_node) <= self.max
-        return GengyList(list_type, new_node)
+        return current_node.new_like(new_node)
 
     def __class_getitem__(cls, args):
         return ListSizeBetween(*args)
