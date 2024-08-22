@@ -196,13 +196,7 @@ class Grammar:
         """All symbols in the current grammar, including terminals."""
         keys = {k for k in self.alternatives.keys()}
         sequence = {v for vv in self.alternatives.values() for v in vv}
-        # extra = []
-        # for k in sequence:
-        #     for _, argt in get_arguments(k):
-        #         if is_generic(argt):
-        #             extra.extend(get_generic_parameters(argt))
-
-        return (keys, sequence, sequence.union(keys).union(self.all_nodes))  # .union(extra)
+        return (keys, sequence, sequence.union(keys).union(self.all_nodes))
 
     def get_distance_to_terminal(self, ty: type) -> int:
         """Returns the current distance to terminal of a given type."""
