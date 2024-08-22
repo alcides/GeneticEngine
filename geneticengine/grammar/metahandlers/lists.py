@@ -6,7 +6,7 @@ from typing import Any, Callable, TypeVar
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.grammar.utils import get_generic_parameter, is_generic_list
 from geneticengine.random.sources import RandomSource
-from geneticengine.solutions.tree import GengyList
+from geneticengine.solutions.tree import GengyList, TreeNode
 from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator
 
 
@@ -73,9 +73,11 @@ class ListSizeBetween(MetaHandlerGenerator):
             options.append(VariationType.DELETION)
         if options:
             # Prepare information
+            assert isinstance(current_node, TreeNode)
             depth = current_node.gengy_synthesis_context.depth
             element_type = base_type.__args__[0]
-            current_node_cpy : list = copy.copy(current_node.gengy_init_values)
+            assert isinstance(current_node, GengyList)
+            current_node_cpy : list = copy.copy(list(current_node.gengy_init_values))
 
             # Apply mutations
             match random.choice(options):
