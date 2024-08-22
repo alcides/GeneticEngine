@@ -9,7 +9,8 @@ from geneticengine.representations.api import Representation
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.solutions.tree import TreeNode
 
-# TODO: Redo initialization to be parameterless
+# TODO Dependent Types:
+# Redo all initializers with the depth limits and so on.
 
 
 class FullInitializer(PopulationInitializer):
@@ -116,7 +117,6 @@ class RampedHalfAndHalfInitializer(PopulationInitializer):
     ) -> Iterator[Individual]:
         assert isinstance(representation, TreeBasedRepresentation)
         for _ in range(target_size):
-            # TODO: This is not RH&H
             yield Individual(
                 representation.create_genotype(
                     random,

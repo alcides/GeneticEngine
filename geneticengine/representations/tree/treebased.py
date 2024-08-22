@@ -15,6 +15,7 @@ from geneticengine.representations.tree.initializations import (
     BasicSynthesisDecider,
     GlobalSynthesisContext,
     LocalSynthesisContext,
+    SynthesisDecider,
     apply_constructor,
     create_node,
     number_of_nodes,
@@ -35,14 +36,19 @@ def random_node(
     grammar: Grammar,
     max_depth: int,
     starting_symbol: type[Any] | None = None,
+    decider: SynthesisDecider | None = None,
 ):
-    starting_symbol = starting_symbol if starting_symbol else grammar.starting_symbol
+    cdecider: SynthesisDecider = (
+        decider if decider is not None else BasicSynthesisDecider(random, grammar, max_depth=max_depth)
+    )
+    starting_symbol = starting_symbol if starting_symbol is not None else grammar.starting_symbol
+
     return create_node(
         GlobalSynthesisContext(
             random=random,
             grammar=grammar,
-            decider=BasicSynthesisDecider(random, grammar, max_depth=max_depth),
-        ),  # TODO
+            decider=cdecider,
+        ),
         starting_symbol,
         context=LocalSynthesisContext(depth=0, nodes=0, expansions=0, dependent_values={}),
     )

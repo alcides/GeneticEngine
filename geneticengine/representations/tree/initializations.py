@@ -30,7 +30,7 @@ T = TypeVar("T")
 
 class SynthesisDecider(ABC):
     def random_int(self, min_int=-sys.maxsize, max_int=sys.maxsize) -> int: ...
-    def random_float(self) -> float: ...  # TODO: range
+    def random_float(self) -> float: ...
     def random_str(self) -> str: ...
     def random_bool(self) -> bool: ...
     def random_tuple(self, types) -> tuple: ...
@@ -87,7 +87,7 @@ def wrap_result(
 ) -> TreeNode:
     if not is_builtin_class_instance(v):
         relabel_nodes_of_trees(v, global_context.grammar)
-        v.gengy_synthesis_context = context  # TODO: move inside relabel
+        v.gengy_synthesis_context = context
     return v
 
 
@@ -170,7 +170,10 @@ def create_node(
                         global_context,
                         rule,
                         context=LocalSynthesisContext(
-                            context.depth, context.nodes, context.expansions + 1, dependent_vals,
+                            context.depth,
+                            context.nodes,
+                            context.expansions + 1,
+                            dependent_vals,
                         ),
                         initial_values=initial_vals,
                     )
