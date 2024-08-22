@@ -44,7 +44,7 @@ def random_node(
             decider=BasicSynthesisDecider(random, grammar, max_depth=max_depth),
         ),  # TODO
         starting_symbol,
-        context=LocalSynthesisContext(depth=0, nodes=0, expansions=0),
+        context=LocalSynthesisContext(depth=0, nodes=0, expansions=0, dependent_values={}),
     )
 
 
@@ -86,8 +86,8 @@ def mutate(
     global_context: GlobalSynthesisContext,
     i: TreeNode,
     ty: type,
-    dependent_values: dict[str, Any] = None,
-    source_material: list[TreeNode] = None,
+    dependent_values: dict[str, Any] | None = None,
+    source_material: list[TreeNode] | None = None,
 ) -> TreeNode:
     """Generates all nodes that can be mutable in a program."""
     if not hasattr(i, "synthesis_context"):
@@ -96,7 +96,7 @@ def mutate(
         node_to_mutate = global_context.decider.random_int(0, i.gengy_weighted_nodes + 1)
 
     # First, we start by deciding whether we should mutate the current node, or one of its children.
-    if node_to_mutate == 0 or not hasattr(i, "synthesis_context"):
+    if node_to_mutate == 0 or not hasattr(i, "gengy_synthesis_context"):
         if has_annotated_mutation(ty):
             # Secondly, if there is a custom mutation to apply, do it.
             assert hasattr(ty, "__metadata__")
@@ -109,23 +109,23 @@ def mutate(
                 get_generic_parameter(ty),
                 current_node=i,
             )
-        elif not hasattr(i, "synthesis_context"):
-            return create_node(global_context, ty, LocalSynthesisContext(0, 0, 0), dependent_values)
+        elif not hasattr(i, "gengy_synthesis_context"):
+            return create_node(global_context, ty, LocalSynthesisContext(0, 0, 0, {}), dependent_values)
         else:
             options = []
             if source_material and source_material[0] is not None:
                 options = find_in_tree(ty, source_material[0])  # TODO: add support for multiple material
             if not options:
-                return create_node(global_context, ty, i.synthesis_context, dependent_values)
+                return create_node(global_context, ty, i.gengy_synthesis_context, dependent_values)
             else:
-                return global_context.decider.choose_options(options, i.synthesis_context)
+                return global_context.decider.choose_options(options, i.gengy_synthesis_context)
     else:
         # Otherwise, select a random field and change it.
 
         nargs = []
         dependent_values = {}
-        ctx = i.synthesis_context
-        nctx = LocalSynthesisContext(ctx.depth + 1, ctx.nodes + 1, ctx.expansions + 1)
+        ctx = i.gengy_synthesis_context
+        nctx = LocalSynthesisContext(ctx.depth + 1, ctx.nodes + 1, ctx.expansions + 1, dependent_values={})
 
         seen = 0
         mutated: list[str] = []
@@ -157,7 +157,7 @@ def mutate(
         else:
             v = apply_constructor(type(i), nargs)
 
-        return wrap_result(v, global_context, i.synthesis_context)
+        return wrap_result(v, global_context, i.gengy_synthesis_context)
 
 
 def tree_mutate(
@@ -227,11 +227,11 @@ class TreeBasedRepresentation(
     def genotype_to_phenotype(self, genotype: TreeNode) -> TreeNode:
         return genotype
 
-    def mutate(self, random: RandomSource, internal: TreeNode, **kwargs) -> TreeNode:
+    def mutate(self, random: RandomSource, genotype: TreeNode, **kwargs) -> TreeNode:
         return tree_mutate(
             random,
             self.grammar,
-            internal,
+            genotype,
             max_depth=self.max_depth,
             target_type=self.grammar.starting_symbol,
         )

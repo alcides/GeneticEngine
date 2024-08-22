@@ -5,7 +5,6 @@ from typing import Protocol
 from typing import runtime_checkable
 
 from geneticengine.grammar.utils import get_arguments
-from geneticengine.representations.tree.initializations import LocalSynthesisContext
 
 
 @runtime_checkable
@@ -16,7 +15,7 @@ class TreeNode(Protocol):
     gengy_weighted_nodes: int
     gengy_types_this_way: dict[type, list[Any]]
     gengy_init_values: tuple[Any]
-    gengy_synthesis_context: dict[str, "TreeNode"]
+    gengy_synthesis_context: Any # TODO: LocalSynthesisContext
 
 
 class PrettyPrintable:
@@ -32,8 +31,6 @@ T = TypeVar("T")
 
 class GengyList(list, Generic[T]):
 
-    gengy_synthesis_context : LocalSynthesisContext
-
     def __init__(self, typ, vals):
         super().__init__(vals)
         self.typ = typ
@@ -41,8 +38,7 @@ class GengyList(list, Generic[T]):
 
     def new_like(self, *newargs) -> GengyList[T]:
         n: GengyList[T] = GengyList(self.typ, newargs)
-        if hasattr(self, "gengy_synthesis_context"):
-            n.gengy_synthesis_context = self.gengy_synthesis_context
+        assert isinstance(self, TreeNode)
         return n
 
     def __hash__(self): # pyright: ignore
