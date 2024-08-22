@@ -61,9 +61,9 @@ class GrammaticalEvolutionRepresentation(
         rand: RandomSource = ListWrapper(genotype.dna)
         return random_node(rand, self.grammar, self.max_depth, self.grammar.starting_symbol)
 
-    def mutate(self, random: RandomSource, internal: Genotype, **kwargs) -> Genotype:
+    def mutate(self, random: RandomSource, genotype: Genotype, **kwargs) -> Genotype:
         rindex = random.randint(0, self.gene_length - 1)
-        clone = [i for i in internal.dna]
+        clone = [i for i in genotype.dna]
         clone[rindex] = random.randint(0, sys.maxsize)
         return Genotype(clone)
 

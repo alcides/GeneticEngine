@@ -98,11 +98,11 @@ class StructuredGrammaticalEvolutionRepresentation(
         rand: RandomSource = StructuredListWrapper(genotype.dna)
         return random_node(rand, self.grammar, self.max_depth, self.grammar.starting_symbol)
 
-    def mutate(self, random: RandomSource, internal: Genotype, **kwargs) -> Genotype:
-        rkey = random.choice(list(internal.dna.keys()))
-        rindex = random.randint(0, len(internal.dna[rkey]) - 1)
+    def mutate(self, random: RandomSource, genotype: Genotype, **kwargs) -> Genotype:
+        rkey = random.choice(list(genotype.dna.keys()))
+        rindex = random.randint(0, len(genotype.dna[rkey]) - 1)
 
-        dna = deepcopy(internal.dna)
+        dna = deepcopy(genotype.dna)
         dna[rkey][rindex] = random.randint(0, sys.maxsize)
         return Genotype(dna)
 

@@ -167,9 +167,9 @@ class StackBasedGGGPRepresentation(
             self.max_depth,
         )
 
-    def mutate(self, random: RandomSource, internal: Genotype, **kwargs) -> Genotype:
+    def mutate(self, random: RandomSource, genotype: Genotype, **kwargs) -> Genotype:
         rindex = random.randint(0, 255)
-        clone = [i for i in internal.dna]
+        clone = [i for i in genotype.dna]
         clone[rindex] = random.randint(0, 10000)
         return Genotype(clone)
 
