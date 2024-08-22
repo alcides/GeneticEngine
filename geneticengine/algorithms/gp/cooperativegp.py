@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable, Optional, TypeVar
+from typing import Callable, Generic, Optional, TypeVar
 
 from geneticengine.algorithms.gp.gp import GeneticProgramming
 from geneticengine.algorithms.gp.operators.initializers import StandardInitializer
@@ -16,7 +16,7 @@ a = TypeVar("a")
 b = TypeVar("b")
 
 
-class CooperativeGP:
+class CooperativeGP(Generic[a, b]):
     """CooperativeGP takes two representations and a function that pits two
     individuals against each other.
 

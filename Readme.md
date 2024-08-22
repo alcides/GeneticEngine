@@ -91,7 +91,7 @@ Publications
 
 Applications of GeneticEngine
 -----------------------------
-
+* [Semantically Rich Local Dataset Generation for Explainable AI in Genomics](https://www.researchgate.net/publication/381960322_Semantically_Rich_Local_Dataset_Generation_for_Explainable_AI_in_Genomics) at GECCO'24
 * [Comparing Individual Representations in Grammar-Guided Genetic Programming for Glucose Prediction in People with Diabetes](https://www.researchgate.net/publication/371324298_Comparing_Individual_Representations_in_Gram-mar-Guided_Genetic_Programming_for_Glucose_Prediction_in_People_with_Diabetes) at Grammatical Workshop at GECCO'23
 * [Domain-Aware Feature Learning with Grammar-Guided Genetic Programming](https://link.springer.com/chapter/10.1007/978-3-031-29573-7_15) at EuroGP'23
 * [Benchmarking Individual Representation in Grammar-Guided Genetic Programming](https://wwwww.easychair.org/publications/preprint_download/wqrb) at Evo*'22

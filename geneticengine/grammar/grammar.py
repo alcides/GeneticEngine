@@ -10,7 +10,7 @@ from typing import Generic
 from typing import NamedTuple
 
 from geneticengine.grammar.decorators import get_gengy
-from geneticengine.grammar.utils import all_init_arguments_typed
+from geneticengine.grammar.utils import all_init_arguments_typed, is_union
 from geneticengine.grammar.utils import get_arguments
 from geneticengine.grammar.utils import get_generic_parameter
 from geneticengine.grammar.utils import get_generic_parameters
@@ -140,16 +140,18 @@ class Grammar:
         terminal = False
         if not is_abstract(ty):
             terminal = True
-            for arg, argt in get_arguments(ty):
+            for _, argt in get_arguments(ty):
                 terminal = False
                 if isinstance(argt, type) or isinstance(argt, ABCMeta):
                     self.register_type(argt)
                 if is_annotated(argt):
                     gen = get_generic_parameter(argt)
-                    if is_generic_list(gen):
-                        self.register_type(get_generic_parameter(gen))
-                    else:
-                        self.register_type(gen)
+                else:
+                    gen = argt
+                if is_generic_list(gen):
+                    self.register_type(get_generic_parameter(gen))
+                else:
+                    self.register_type(gen)
 
         for st in self.considered_subtypes:
             if issubclass(st, ty):
@@ -194,7 +196,13 @@ class Grammar:
         """All symbols in the current grammar, including terminals."""
         keys = {k for k in self.alternatives.keys()}
         sequence = {v for vv in self.alternatives.values() for v in vv}
-        return (keys, sequence, sequence.union(keys).union(self.all_nodes))
+        # extra = []
+        # for k in sequence:
+        #     for _, argt in get_arguments(k):
+        #         if is_generic(argt):
+        #             extra.extend(get_generic_parameters(argt))
+
+        return (keys, sequence, sequence.union(keys).union(self.all_nodes))  # .union(extra)
 
     def get_distance_to_terminal(self, ty: type) -> int:
         """Returns the current distance to terminal of a given type."""
@@ -232,12 +240,20 @@ class Grammar:
 
         reachability: dict[type, set[type]] = defaultdict(lambda: set())
 
+        def explode_generics(tys: list[type]):
+            for ty in tys:
+                if is_union(ty):
+                    yield from explode_generics(get_generic_parameters(ty))
+                elif is_generic_list(ty) or is_annotated(ty):
+                    yield from explode_generics([get_generic_parameter(ty)])
+                else:
+                    yield ty
+
         def process_reachability(src: type, dsts: list[type]):
-            src = strip_annotations(src)
+            src = strip_annotations(src)  # TODO remove strip annotations???
             ch = False
             src_reach = reachability[src]
-            for prod in dsts:
-                prod = strip_annotations(prod)
+            for prod in explode_generics(dsts):
                 reach = reachability[prod]
                 oldlen = len(reach)
                 reach.add(src)
@@ -273,7 +289,7 @@ class Grammar:
                         changed |= process_reachability(sym, prods)
                 else:
                     if is_terminal(sym, self.non_terminals):
-                        if (sym == int or sym == float or sym == str) and not self.expansion_depthing:
+                        if (sym is int or sym is float or sym is str) and not self.expansion_depthing:
                             val = 0
                         else:
                             val = 1
@@ -281,7 +297,6 @@ class Grammar:
                         args = get_arguments(sym)
                         assert args
                         val = max(1 + self.get_distance_to_terminal(argt) for (_, argt) in args)
-
                         changed |= process_reachability(
                             sym,
                             [argt for (_, argt) in args],

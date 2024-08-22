@@ -109,7 +109,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
         self.time_budget = time_budget
 
     def _preprocess_X(self, X):
-        if type(X) == pd.DataFrame:
+        if isinstance(X, pd.DataFrame):
             feature_names = list(X.columns.values)
             data = X.values
         else:
@@ -118,7 +118,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
         return data, feature_names
 
     def _preprocess_y(self, y):
-        if type(y) == pd.Series:
+        if isinstance(y, pd.Series):
             return y.values
         else:
             return y
@@ -184,7 +184,7 @@ class GeneticProgrammingClassifier(BaseEstimator, TransformerMixin):
         The model must have been fitted
         """
         assert self.evolved_phenotype is not None
-        if (type(X) == pd.DataFrame) or (type(X) == pd.Series):
+        if (isinstance(X, pd.DataFrame)) or (isinstance(X, pd.Series)):
             data = X.values
         else:
             data = X
@@ -253,12 +253,12 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
 
     def fit(self, X, y):
         """Fits the classifier with data X and target y."""
-        if type(y) == pd.Series:
+        if isinstance(y, pd.Series):
             target = y.values
         else:
             target = y
 
-        if type(X) == pd.DataFrame:
+        if isinstance(X, pd.DataFrame):
             feature_names = list(X.columns.values)
             data = X.values
         else:
@@ -312,7 +312,7 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
         The model must have been fitted
         """
         assert self.evolved_phenotype is not None
-        if (type(X) == pd.DataFrame) or (type(X) == pd.Series):
+        if (isinstance(X, pd.DataFrame)) or (isinstance(X, pd.Series)):
             data = X.values
         else:
             data = X

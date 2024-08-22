@@ -22,7 +22,7 @@ class Representation(Generic[g, p]):
 
 class RepresentationWithMutation(Generic[g]):
     @abc.abstractmethod
-    def mutate(self, random: RandomSource, genotype: g) -> g:
+    def mutate(self, random: RandomSource, genotype: g, **kwargs) -> g:
         ...
 
 

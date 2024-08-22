@@ -96,7 +96,7 @@ def random_individual(
             r.randint(0, sys.maxsize) for _ in range(1000)
         ]  # Necessary to source from when a production rule runs out of genes.
         current_genotype = Genotype(dna)
-    assert type(current_genotype) == Genotype
+    assert isinstance(current_genotype, Genotype)
 
     if starting_symbol in [int, float, str, bool]:
         val = r.randint(0, sys.maxsize)
@@ -115,7 +115,6 @@ def random_individual(
             prod = r.choice_weighted(
                 valid_productions,
                 weights,
-                str(starting_symbol),
             )
         else:
             prod = r.choice(valid_productions)
@@ -277,11 +276,11 @@ class DynamicStructuredGrammaticalEvolutionRepresentation(
         rand: RandomSource = DynamicStructuredListWrapper(genotype)
         return random_node(rand, self.grammar, self.max_depth, self.grammar.starting_symbol)
 
-    def mutate(self, random: RandomSource, internal: Genotype, **kwargs) -> Genotype:
-        dna = deepcopy(internal.dna)
-        rkey = random.choice(list(internal.dna.keys()))
-        if internal.dna[rkey]:
-            rindex = random.randint(0, len(internal.dna[rkey]) - 1)
+    def mutate(self, random: RandomSource, genotype: Genotype, **kwargs) -> Genotype:
+        dna = deepcopy(genotype.dna)
+        rkey = random.choice(list(genotype.dna.keys()))
+        if genotype.dna[rkey]:
+            rindex = random.randint(0, len(genotype.dna[rkey]) - 1)
             dna[rkey][rindex] = random.randint(0, sys.maxsize)
         return Genotype(dna)
 

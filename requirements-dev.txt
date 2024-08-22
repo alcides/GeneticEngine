@@ -1,14 +1,8 @@
 black
 docformatter
-mypy==1.9.0
-myst_parser
+mypy==1.11.1
 pre-commit
 pycln
 pytest
 pytest-cov
 ruff
-sphinx
-sphinx-autoapi
-sphinx-rtd-theme
-sphinxcontrib-fulltoc
-sphinxcontrib-spelling

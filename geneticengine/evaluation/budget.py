@@ -58,4 +58,15 @@ class TargetMultiFitness(SearchBudget):
     def is_done(self, tracker: ProgressTracker):
         assert isinstance(tracker, MultiObjectiveProgressTracker)
         comps = tracker.get_best_individuals()[0].get_fitness(tracker.get_problem()).fitness_components
+        assert len(comps) == len(self.targets)
         return all(abs(c - v) < 0.001 for v, c in zip(self.targets, comps))
+
+
+class TargetMultiSameFitness(SearchBudget):
+    def __init__(self, target_fitness: float):
+        self.target_fitness = target_fitness
+
+    def is_done(self, tracker: ProgressTracker):
+        assert isinstance(tracker, MultiObjectiveProgressTracker)
+        comps = tracker.get_best_individuals()[0].get_fitness(tracker.get_problem()).fitness_components
+        return all(abs(c - self.target_fitness) < 0.001 for c in comps)

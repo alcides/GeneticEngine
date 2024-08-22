@@ -11,6 +11,7 @@ from geneticengine.random.sources import RandomSource
 from geneticengine.solutions.tree import GengyList, TreeNode
 from geneticengine.representations.tree.utils import relabel_nodes_of_trees
 from geneticengine.grammar.utils import get_arguments, is_builtin_class_instance
+from geneticengine.grammar.utils import is_union, get_generic_parameters
 from geneticengine.grammar.utils import get_generic_parameter
 from geneticengine.grammar.utils import is_generic_list
 from geneticengine.exceptions import GeneticEngineError
@@ -46,7 +47,7 @@ class SynthesisDecider(ABC):
     def random_bool(self) -> bool: ...
     def random_tuple(self, types) -> tuple: ...
     def random_list(self, type) -> list[Any]: ...
-    def choose_production_alternatives(self, alternatives: list[T], ctx: LocalSynthesisContext) -> T: ...
+    def choose_production_alternatives(self, alternatives: list[type], ctx: LocalSynthesisContext) -> type: ...
     def choose_options(self, alternatives: list[T], ctx: LocalSynthesisContext) -> T: ...
 
 
@@ -79,9 +80,9 @@ class BasicSynthesisDecider(SynthesisDecider):
     def random_bool(self) -> bool:
         return self.random.random_bool()
 
-    def choose_production_alternatives(self, alternatives: list[T], ctx: LocalSynthesisContext) -> T:
+    def choose_production_alternatives(self, alternatives: list[type], ctx: LocalSynthesisContext) -> type:
         assert len(alternatives) > 0, "No alternatives presented"
-        alternatives = [x for x in alternatives if self.grammar.distanceToTerminal[x] <= (self.max_depth - ctx.depth)]
+        alternatives = [x for x in alternatives if self.grammar.get_distance_to_terminal(x) <= (self.max_depth - ctx.depth)]
         return self.random.choice(alternatives)
 
     def choose_options(self, alternatives: list[T], ctx: LocalSynthesisContext) -> T:
@@ -142,8 +143,8 @@ def create_node(
             nv = create_node(global_context, inner_type, nctx)
             nctx.nodes += number_of_nodes(nv)
             nli.append(nv)
-        v: GengyList = GengyList(starting_symbol, nli)
-        return wrap_result(v, global_context, context)
+        vl: GengyList = GengyList(starting_symbol, nli)
+        return wrap_result(vl, global_context, context)
     elif is_metahandler(starting_symbol):
         metahandler: MetaHandlerGenerator = starting_symbol.__metadata__[0]
         base_type = get_generic_parameter(starting_symbol)
@@ -159,6 +160,10 @@ def create_node(
             return v
 
         v = metahandler.generate(global_context.random, global_context.grammar, base_type, recurse, dependent_vals)
+        return wrap_result(v, global_context, context)
+    elif is_union(starting_symbol):
+        t : type = decider.choose_production_alternatives(get_generic_parameters(starting_symbol), context)
+        v = create_node(global_context, t, context, dependent_values, initial_values)
         return wrap_result(v, global_context, context)
     else:
         if starting_symbol not in global_context.grammar.all_nodes:
