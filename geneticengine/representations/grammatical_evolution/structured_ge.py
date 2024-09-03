@@ -11,6 +11,7 @@ from geneticengine.representations.api import (
     RepresentationWithMutation,
     Representation,
 )
+from geneticengine.representations.tree.initializations import SynthesisDecider
 from geneticengine.representations.tree.treebased import random_node
 from geneticengine.solutions.tree import TreeNode
 from geneticengine.grammar.utils import get_arguments
@@ -62,7 +63,7 @@ class StructuredGrammaticalEvolutionRepresentation(
     def __init__(
         self,
         grammar: Grammar,
-        max_depth: int,  # TODO: parameterize
+        decider: SynthesisDecider,
         gene_length: int = 256,
     ):
         """
@@ -71,7 +72,7 @@ class StructuredGrammaticalEvolutionRepresentation(
             max_depth (int): the maximum depth when performing the mapping
         """
         self.grammar = grammar
-        self.max_depth = max_depth
+        self.decider = decider
         self.gene_length = gene_length
 
     def create_genotype(self, random: RandomSource, **kwargs) -> Genotype:
@@ -96,7 +97,7 @@ class StructuredGrammaticalEvolutionRepresentation(
 
     def genotype_to_phenotype(self, genotype: Genotype) -> TreeNode:
         rand: RandomSource = StructuredListWrapper(genotype.dna)
-        return random_node(rand, self.grammar, self.max_depth, self.grammar.starting_symbol)
+        return random_node(rand, self.grammar, self.grammar.starting_symbol, self.decider)
 
     def mutate(self, random: RandomSource, genotype: Genotype, **kwargs) -> Genotype:
         rkey = random.choice(list(genotype.dna.keys()))

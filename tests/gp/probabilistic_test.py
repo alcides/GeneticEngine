@@ -8,6 +8,7 @@ from geneticengine.grammar.decorators import abstract
 from geneticengine.grammar.decorators import weight
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
+from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.grammatical_evolution.dynamic_structured_ge import (
     DynamicStructuredGrammaticalEvolutionRepresentation,
 )
@@ -17,6 +18,7 @@ from geneticengine.representations.grammatical_evolution.ge import (
 from geneticengine.representations.grammatical_evolution.structured_ge import (
     StructuredGrammaticalEvolutionRepresentation,
 )
+from geneticengine.representations.tree.initializations import MaxDepthDecider
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 
 
@@ -96,6 +98,8 @@ class TestProbabilisticGrammar:
 
     def test_probabilistic_grammar_dsge(self):
         g = extract_grammar([OptionA, OptionB], Option)
+        r = NativeRandomSource(1)
+        decider = MaxDepthDecider(random=r, grammar=g, max_depth=10)
 
         gp = GeneticProgramming(
             problem=SingleObjectiveProblem(
@@ -106,10 +110,8 @@ class TestProbabilisticGrammar:
                 EvaluationBudget(50 * 1000),
                 TargetFitness(0),
             ),
-            representation=DynamicStructuredGrammaticalEvolutionRepresentation(
-                grammar=g,
-                max_depth=10,
-            ),
+            representation=DynamicStructuredGrammaticalEvolutionRepresentation(grammar=g, decider=decider),
+            random=r,
             population_size=1000,
         )
         ind = gp.search()

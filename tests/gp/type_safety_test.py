@@ -12,6 +12,7 @@ from geneticengine.evaluation.budget import EvaluationBudget
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
+from geneticengine.representations.tree.initializations import MaxDepthDecider
 from geneticengine.representations.tree.operators import FullInitializer
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 
@@ -44,6 +45,8 @@ def fitness_function(x):
 
 class TestGrammar:
     def test_safety(self):
+        max_depth = 10
+        r = NativeRandomSource(seed=123)
         g = extract_grammar([Leaf, OtherLeaf], UnderTest)
         gp = GeneticProgramming(
             problem=SingleObjectiveProblem(
@@ -51,10 +54,10 @@ class TestGrammar:
                 minimize=True,
             ),
             budget=EvaluationBudget(100),
-            representation=TreeBasedRepresentation(g, 10),
-            random=NativeRandomSource(seed=123),
+            representation=TreeBasedRepresentation(g, MaxDepthDecider(r, g, max_depth)),
+            random=r,
             population_size=20,
-            population_initializer=FullInitializer(),
+            population_initializer=FullInitializer(max_depth=max_depth),
             step=SequenceStep(
                 TournamentSelection(10),
                 GenericCrossoverStep(1),

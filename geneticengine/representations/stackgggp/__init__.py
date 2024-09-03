@@ -16,6 +16,7 @@ from geneticengine.representations.api import (
     RepresentationWithMutation,
     Representation,
 )
+from geneticengine.representations.tree.initializations import SynthesisDecider
 from geneticengine.solutions.tree import TreeNode
 from geneticengine.grammar.utils import (
     get_arguments,
@@ -53,7 +54,7 @@ def add_to_stacks(stacks: dict[type, list[Any]], t: type, v: Any):
     stacks[t].append(v)
 
 
-def create_tree_using_stacks(g: Grammar, r: ListWrapper, max_depth: int = 10):
+def create_tree_using_stacks(g: Grammar, r: ListWrapper, decider: SynthesisDecider):
     a, b, c = g.get_all_symbols()
     all_stack_types = list(a) + list(b) + list(c)
 
@@ -150,11 +151,11 @@ class StackBasedGGGPRepresentation(
     def __init__(
         self,
         grammar: Grammar,
-        max_depth: int,
+        decider: SynthesisDecider,
         gene_length: int = 256,
     ):
         self.grammar = grammar
-        self.max_depth = max_depth
+        self.decider = decider
         self.gene_length = gene_length
 
     def create_genotype(self, random: RandomSource, **kwargs) -> Genotype:
@@ -164,7 +165,7 @@ class StackBasedGGGPRepresentation(
         return create_tree_using_stacks(
             self.grammar,
             ListWrapper(genotype.dna),
-            self.max_depth,
+            self.decider,
         )
 
     def mutate(self, random: RandomSource, genotype: Genotype, **kwargs) -> Genotype:

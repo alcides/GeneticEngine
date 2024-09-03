@@ -9,6 +9,7 @@ from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator
 from geneticengine.grammar.metahandlers.dependent import Dependent
 from geneticengine.grammar.metahandlers.vars import VarRange
 from geneticengine.random.sources import NativeRandomSource, RandomSource
+from geneticengine.representations.tree.initializations import MaxDepthDecider
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammar.metahandlers.ints import IntRange
 from geneticengine.solutions.tree import GengyList
@@ -98,9 +99,9 @@ def typecheck(ctx: list[str], e: Expr) -> bool:
 def test_dependent_types_context():
     r = NativeRandomSource(seed=1)
     g = extract_grammar([Let, Var, Literal], Expr)
-    max_depth = 5
+    decider = MaxDepthDecider(r, g, 5)
 
-    repr = TreeBasedRepresentation(g, max_depth)
+    repr = TreeBasedRepresentation(g, decider)
 
     for _ in range(10):
         el = repr.create_genotype(r)

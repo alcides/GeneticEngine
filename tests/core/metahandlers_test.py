@@ -8,6 +8,7 @@ import numpy as np
 
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.random.sources import NativeRandomSource
+from geneticengine.representations.tree.initializations import MaxDepthDecider
 from geneticengine.representations.tree.treebased import random_node
 from geneticengine.grammar.metahandlers.floats import FloatRange
 from geneticengine.grammar.metahandlers.ints import IntervalRange
@@ -95,7 +96,8 @@ class TestMetaHandler:
     def test_int(self):
         r = NativeRandomSource(seed=1)
         g = extract_grammar([IntRangeM], Root)
-        n = random_node(r, g, 3, Root)
+        decider = MaxDepthDecider(r, g, 3)
+        n = random_node(r, g, Root, decider=decider)
         assert isinstance(n, IntRangeM)
         assert 9 <= n.x <= 10
         assert isinstance(n, Root)
@@ -103,7 +105,8 @@ class TestMetaHandler:
     def test_float(self):
         r = NativeRandomSource(seed=1)
         g = extract_grammar([FloatRangeM], Root)
-        n = random_node(r, g, 3, Root)
+        decider = MaxDepthDecider(r, g, 3)
+        n = random_node(r, g, Root, decider=decider)
         assert isinstance(n, FloatRangeM)
         assert 9.0 <= n.x <= 10.0
         assert isinstance(n, Root)
@@ -111,7 +114,8 @@ class TestMetaHandler:
     def test_var(self):
         r = NativeRandomSource(seed=1)
         g = extract_grammar([VarRangeM], Root)
-        n = random_node(r, g, 3, Root)
+        decider = MaxDepthDecider(r, g, 3)
+        n = random_node(r, g, Root, decider=decider)
         assert isinstance(n, VarRangeM)
         assert n.x in ["x", "y", "z"]
         assert isinstance(n, Root)
@@ -119,7 +123,8 @@ class TestMetaHandler:
     def test_list(self):
         r = NativeRandomSource(seed=1)
         g = extract_grammar([ListRangeM], Root)
-        n = random_node(r, g, 4, Root)
+        decider = MaxDepthDecider(r, g, 4)
+        n = random_node(r, g, Root, decider=decider)
         assert isinstance(n, ListRangeM)
         assert 3 <= len(n.x) <= 4
         assert isinstance(n, Root)
@@ -127,7 +132,8 @@ class TestMetaHandler:
     def test_string(self):
         r = NativeRandomSource(seed=1)
         g = extract_grammar([StringM], Root)
-        n = random_node(r, g, 3, Root)
+        decider = MaxDepthDecider(r, g, 3)
+        n = random_node(r, g, Root, decider=decider)
         assert isinstance(n.x, str)
         assert len(n.x) >= 3
         assert len(n.x) <= 7
@@ -149,7 +155,8 @@ class TestMetaHandler:
     def test_weightedstrings(self):
         r = NativeRandomSource(seed=1)
         g = extract_grammar([WeightedStringHandlerM], Root)
-        n = random_node(r, g, 3, Root)
+        decider = MaxDepthDecider(r, g, 3)
+        n = random_node(r, g, Root, decider=decider)
         assert isinstance(n, WeightedStringHandlerM)
         assert all(_x in ["A", "C", "G", "T"] for _x in n.x)
         assert isinstance(n, Root)
@@ -157,8 +164,8 @@ class TestMetaHandler:
     def test_intervalrange(self):
         r = NativeRandomSource(seed=1)
         g = extract_grammar([IntervalRangeM], Root)
-
-        n = random_node(r, g, 4, Root)
+        decider = MaxDepthDecider(r, g, 4)
+        n = random_node(r, g, Root, decider=decider)
 
         assert isinstance(n, IntervalRangeM)
         assert 5 < n.x[1] - n.x[0] < 10 and n.x[1] < 100
@@ -167,9 +174,9 @@ class TestMetaHandler:
     def test_union_int(self):
         r = NativeRandomSource(seed=1)
         g = extract_grammar([UnionIntRangeM], Root)
+        decider = MaxDepthDecider(r, g, 3)
         for _ in range(100):
-            n = random_node(r, g, 3, Root)
+            n = random_node(r, g, Root, decider=decider)
             assert isinstance(n, UnionIntRangeM)
             assert (0 <= n.x <= 10) or (20 <= n.x <= 30)
             assert isinstance(n, Root)
-

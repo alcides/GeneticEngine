@@ -12,6 +12,7 @@ from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
+from geneticengine.representations.tree.initializations import MaxDepthDecider
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammar.metahandlers.floats import FloatRange
 from geneticengine.grammar.metahandlers.ints import IntRange
@@ -67,15 +68,14 @@ class TestRepresentation:
             # GrammaticalEvolutionRepresentation,
             # DynamicStructuredGrammaticalEvolutionRepresentation,
             # StackBasedGGGPRepresentation,
-            # TODO: enable representations
+            # TODO Dependent Types
         ],
     )
     def test_rep(self, representation_class) -> None:
         r = NativeRandomSource(seed=1)
         g: Grammar = extract_grammar([IntRangeM, ListRangeM, FloatRangeM, Branch, Concrete, ListWrapper], Root)
-        max_depth = 3
-
-        repr = representation_class(g, max_depth)
+        decider = MaxDepthDecider(r, g, max_depth=3)
+        repr = representation_class(g, decider)
 
         def fitness_function(x: Root) -> float:
             return 0.5

@@ -10,6 +10,7 @@ from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.grammar.decorators import abstract
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.random.sources import NativeRandomSource
+from geneticengine.representations.tree.initializations import MaxDepthDecider
 from geneticengine.representations.tree.operators import FullInitializer, GrowInitializer
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammar.metahandlers.floats import FloatRange
@@ -56,10 +57,10 @@ class TestInitializers:
         target_depth = 10
 
         g = extract_grammar([B, C], A)
-        f = FullInitializer()
+        f = FullInitializer(max_depth=target_depth)
         p = SingleObjectiveProblem(lambda x: 3)
-        repr = TreeBasedRepresentation(grammar=g, max_depth=target_depth)
         rs = NativeRandomSource(5)
+        repr = TreeBasedRepresentation(grammar=g, decider=MaxDepthDecider(rs, g, target_depth))
 
         population = list(f.initialize(p, repr, rs, target_size))
         assert len(population) == target_size

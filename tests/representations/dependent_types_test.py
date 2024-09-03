@@ -8,6 +8,7 @@ from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.metahandlers.dependent import Dependent
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
+from geneticengine.representations.tree.initializations import MaxDepthDecider
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammar.metahandlers.ints import IntRange
 
@@ -22,9 +23,9 @@ class SimplePair:
 def test_dependent_types():
     r = NativeRandomSource(seed=1)
     g = extract_grammar([SimplePair], SimplePair)
-    max_depth = 3
+    decider = MaxDepthDecider(r, g, 3)
 
-    repr = TreeBasedRepresentation(g, max_depth)
+    repr = TreeBasedRepresentation(g, decider)
 
     def fitness_function(x: SimplePair) -> float:
         return x.b - x.a
@@ -44,9 +45,9 @@ def test_dependent_types():
 def test_dependent_types_mutation():
     r = NativeRandomSource(seed=1)
     g = extract_grammar([SimplePair], SimplePair)
-    max_depth = 3
+    decider = MaxDepthDecider(r, g, 3)
 
-    repr = TreeBasedRepresentation(g, max_depth)
+    repr = TreeBasedRepresentation(g, decider)
 
     for _ in range(10):
         el = repr.create_genotype(r)

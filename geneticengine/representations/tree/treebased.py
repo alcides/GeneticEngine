@@ -12,7 +12,6 @@ from geneticengine.representations.api import (
     Representation,
 )
 from geneticengine.representations.tree.initializations import (
-    BasicSynthesisDecider,
     GlobalSynthesisContext,
     LocalSynthesisContext,
     SynthesisDecider,
@@ -26,7 +25,6 @@ from geneticengine.solutions.tree import GengyList, TreeNode
 from geneticengine.grammar.utils import get_arguments
 from geneticengine.grammar.utils import get_generic_parameter
 from geneticengine.grammar.utils import has_annotated_mutation
-from geneticengine.exceptions import GeneticEngineError
 
 T = TypeVar("T")
 
@@ -34,44 +32,27 @@ T = TypeVar("T")
 def random_node(
     random: RandomSource,
     grammar: Grammar,
-    max_depth: int,
-    starting_symbol: type[Any] | None = None,
-    decider: SynthesisDecider | None = None,
+    starting_symbol: type[Any],
+    decider: SynthesisDecider,
 ):
-    cdecider: SynthesisDecider = (
-        decider if decider is not None else BasicSynthesisDecider(random, grammar, max_depth=max_depth)
-    )
-    starting_symbol = starting_symbol if starting_symbol is not None else grammar.starting_symbol
-
     return create_node(
         GlobalSynthesisContext(
             random=random,
             grammar=grammar,
-            decider=cdecider,
+            decider=decider,
         ),
         starting_symbol,
         context=LocalSynthesisContext(depth=0, nodes=0, expansions=0, dependent_values={}),
     )
 
 
-def random_individual(
-    r: RandomSource,
-    g: Grammar,
-    max_depth: int = 5,
+def random_tree(
+    random: RandomSource,
+    grammar: Grammar,
+    decider: SynthesisDecider,
 ) -> TreeNode:
-    try:
-        assert max_depth >= g.get_min_tree_depth()
-    except AssertionError:
-        if g.get_min_tree_depth() == 1000000:
-            raise GeneticEngineError(
-                f"""Grammar's minimal tree depth is {g.get_min_tree_depth()}, which is the default tree depth.
-                 It's highly like that there are nodes of your grammar than cannot reach any terminal.""",
-            )
-        raise GeneticEngineError(
-            f"""Cannot use complete grammar for individual creation. Max depth ({max_depth})
-            is smaller than grammar's minimal tree depth ({g.get_min_tree_depth()}).""",
-        )
-    ind = random_node(r, g, max_depth, g.starting_symbol)
+    ind = random_node(random, grammar, grammar.starting_symbol, decider=decider)
+    assert isinstance(ind, grammar.starting_symbol)
     assert isinstance(ind, TreeNode)
     return ind
 
@@ -170,11 +151,10 @@ def tree_mutate(
     r: RandomSource,
     g: Grammar,
     i: TreeNode,
-    max_depth: int,
     target_type: type,
-    depth_aware_mut: bool = False,
+    decider: SynthesisDecider,
 ) -> Any:
-    global_context: GlobalSynthesisContext = GlobalSynthesisContext(r, g, BasicSynthesisDecider(r, g, max_depth))
+    global_context: GlobalSynthesisContext = GlobalSynthesisContext(r, g, decider)
 
     new_tree = mutate(global_context, i, target_type, dependent_values={})
     relabeled_new_tree = relabel_nodes_of_trees(new_tree, g)
@@ -186,9 +166,7 @@ def tree_crossover(
     g: Grammar,
     p1: TreeNode,
     p2: TreeNode,
-    max_depth: int,
-    specific_type: type | None = None,
-    depth_aware_co: bool = False,
+    decider: SynthesisDecider,
 ) -> tuple[TreeNode, TreeNode]:
     """Given the two input trees [p1] and [p2], the grammar and the random
     source, this function returns two trees that are created by crossing over.
@@ -198,7 +176,7 @@ def tree_crossover(
     The first tree returned has [p1] as the base, and the second tree
     has [p2] as a base.
     """
-    global_context: GlobalSynthesisContext = GlobalSynthesisContext(r, g, BasicSynthesisDecider(r, g, max_depth))
+    global_context: GlobalSynthesisContext = GlobalSynthesisContext(r, g, decider)
     return mutate(global_context, p1, g.starting_symbol, source_material=[p2]), mutate(
         global_context,
         p2,
@@ -218,27 +196,24 @@ class TreeBasedRepresentation(
     same.
     """
 
-    def __init__(
-        self,
-        grammar: Grammar,
-        max_depth: int,
-    ):
+    def __init__(self, grammar: Grammar, decider: SynthesisDecider):
         self.grammar = grammar
-        self.max_depth = max_depth
+        self.decider = decider
 
     def create_genotype(self, random: RandomSource, **kwargs) -> TreeNode:
-        actual_depth = kwargs.get("depth", self.max_depth)
-        return random_individual(random, self.grammar, max_depth=actual_depth)
+        decider = kwargs.get("decider", self.decider)
+        return random_tree(random, self.grammar, decider=decider)
 
     def genotype_to_phenotype(self, genotype: TreeNode) -> TreeNode:
         return genotype
 
     def mutate(self, random: RandomSource, genotype: TreeNode, **kwargs) -> TreeNode:
+        decider = kwargs.get("decider", self.decider)
         return tree_mutate(
             random,
             self.grammar,
             genotype,
-            max_depth=self.max_depth,
+            decider=decider,
             target_type=self.grammar.starting_symbol,
         )
 
@@ -249,4 +224,5 @@ class TreeBasedRepresentation(
         parent2: TreeNode,
         **kwargs,
     ) -> tuple[TreeNode, TreeNode]:
-        return tree_crossover(random, self.grammar, parent1, parent2, self.max_depth)
+        decider = kwargs.get("decider", self.decider)
+        return tree_crossover(random, self.grammar, parent1, parent2, decider=decider)

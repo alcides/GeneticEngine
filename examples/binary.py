@@ -9,6 +9,7 @@ from geneticengine.random.sources import NativeRandomSource, RandomSource
 
 from geneticengine.grammar.metahandlers.lists import ListSizeBetween
 from geneticengine.grammar.grammar import extract_grammar
+from geneticengine.representations.tree.initializations import MaxDepthDecider
 from geneticengine.representations.tree.treebased import (
     TreeBasedRepresentation,
     random_node,
@@ -54,7 +55,7 @@ class BinaryListTreeBasedRepresentation(TreeBasedRepresentation):
         assert isinstance(genotype, BinaryList)
 
         random_pos = random.randint(0, SIZE - 1)
-        next_val = random_node(random=r, grammar=g, max_depth=1, starting_symbol=Bit)
+        next_val = random_node(random=r, grammar=g, starting_symbol=Bit, decider=MaxDepthDecider(r, g, 1))
         c = copy.deepcopy(genotype)
         c.byte[random_pos] = next_val
         return c

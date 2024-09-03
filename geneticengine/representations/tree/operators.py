@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import Iterator
 
+from geneticengine.representations.tree.initializations import MaxDepthDecider
 from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.problems import Problem
@@ -17,6 +18,9 @@ class FullInitializer(PopulationInitializer):
     """All individuals are created with full trees (maximum depth in all
     branches)."""
 
+    def __init__(self, max_depth: int):
+        self.max_depth = max_depth
+
     def initialize(
         self,
         problem: Problem,
@@ -29,7 +33,7 @@ class FullInitializer(PopulationInitializer):
         for _ in range(target_size):
             yield Individual(
                 representation.create_genotype(
-                    random,
+                    random, decider=MaxDepthDecider(random, representation.grammar, max_depth=self.max_depth),
                 ),
                 representation=representation,
             )

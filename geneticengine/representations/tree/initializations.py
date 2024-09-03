@@ -1,5 +1,6 @@
 from __future__ import annotations
 from abc import ABC
+import abc
 from dataclasses import dataclass
 from math import log10
 import sys
@@ -10,7 +11,7 @@ from geneticengine.grammar.grammar import Grammar
 from geneticengine.random.sources import RandomSource
 from geneticengine.solutions.tree import GengyList, LocalSynthesisContext, TreeNode
 from geneticengine.representations.tree.utils import relabel_nodes_of_trees
-from geneticengine.grammar.utils import get_arguments, is_builtin_class_instance
+from geneticengine.grammar.utils import get_arguments, is_builtin_class_instance, is_generic_tuple
 from geneticengine.grammar.utils import is_union, get_generic_parameters
 from geneticengine.grammar.utils import get_generic_parameter
 from geneticengine.grammar.utils import is_generic_list
@@ -29,21 +30,28 @@ T = TypeVar("T")
 
 
 class SynthesisDecider(ABC):
+    @abc.abstractmethod
     def random_int(self, min_int=-sys.maxsize, max_int=sys.maxsize) -> int: ...
+    @abc.abstractmethod
     def random_float(self) -> float: ...
+    @abc.abstractmethod
     def random_str(self) -> str: ...
+    @abc.abstractmethod
     def random_bool(self) -> bool: ...
-    def random_tuple(self, types) -> tuple: ...
-    def random_list(self, type) -> list[Any]: ...
-    def choose_production_alternatives(self, alternatives: list[type], ctx: LocalSynthesisContext) -> type: ...
+    @abc.abstractmethod
+    def choose_production_alternatives(
+        self, ty: type, alternatives: list[type], ctx: LocalSynthesisContext,
+    ) -> type: ...
+    @abc.abstractmethod
     def choose_options(self, alternatives: list[T], ctx: LocalSynthesisContext) -> T: ...
 
 
-class BasicSynthesisDecider(SynthesisDecider):
-    def __init__(self, random: RandomSource, grammar: Grammar, max_depth=10):
+class MaxDepthDecider(SynthesisDecider):
+    def __init__(self, random: RandomSource, grammar: Grammar, max_depth: int = 10):
         self.random = random
         self.grammar = grammar
-        self.max_depth = 10
+        self.max_depth = max_depth
+        self.validate()
 
     def random_int(self, min_int=-sys.maxsize, max_int=sys.maxsize) -> int:
         width = max_int - min_int
@@ -68,7 +76,7 @@ class BasicSynthesisDecider(SynthesisDecider):
     def random_bool(self) -> bool:
         return self.random.random_bool()
 
-    def choose_production_alternatives(self, alternatives: list[type], ctx: LocalSynthesisContext) -> type:
+    def choose_production_alternatives(self, ty: type, alternatives: list[type], ctx: LocalSynthesisContext) -> type:
         assert len(alternatives) > 0, "No alternatives presented"
         alternatives = [
             x for x in alternatives if self.grammar.get_distance_to_terminal(x) <= (self.max_depth - ctx.depth)
@@ -78,6 +86,18 @@ class BasicSynthesisDecider(SynthesisDecider):
     def choose_options(self, alternatives: list[T], ctx: LocalSynthesisContext) -> T:
         assert len(alternatives) > 0, "No alternatives presented"
         return self.random.choice(alternatives)
+
+    def validate(self) -> None:
+        if self.max_depth <= self.grammar.get_min_tree_depth():
+            if self.grammar.get_min_tree_depth() == 1000000:
+                raise GeneticEngineError(
+                    f"""Grammar's minimal tree depth is {self.grammar.get_min_tree_depth()}, which is the default tree depth.
+                    It's highly like that there are nodes of your grammar than cannot reach any terminal.""",
+                )
+            raise GeneticEngineError(
+                f"""Cannot use complete grammar for individual creation. Max depth ({self.max_depth})
+                is smaller than grammar's minimal tree depth ({self.grammar.get_min_tree_depth()}).""",
+            )
 
 
 def wrap_result(
@@ -124,6 +144,10 @@ def create_node(
         return decider.random_float()
     elif starting_symbol is bool:
         return decider.random_bool()
+    elif is_generic_tuple(starting_symbol):
+        types = get_generic_parameters(starting_symbol)
+        vals = (create_node(global_context, t, context, {}) for t in types)  # TODO Dependent Types (Tuples)
+        return wrap_result(vals, global_context, context)
     elif is_generic_list(starting_symbol):
         inner_type = get_generic_parameter(starting_symbol)
         length = decider.random_int(0, 10)
@@ -152,7 +176,9 @@ def create_node(
         v = metahandler.generate(global_context.random, global_context.grammar, base_type, recurse, dependent_vals)
         return wrap_result(v, global_context, context)
     elif is_union(starting_symbol):
-        t: type = decider.choose_production_alternatives(get_generic_parameters(starting_symbol), context)
+        t: type = decider.choose_production_alternatives(
+            starting_symbol, get_generic_parameters(starting_symbol), context,
+        )
         v = create_node(global_context, t, context, dependent_values, initial_values)
         return wrap_result(v, global_context, context)
     else:
@@ -164,7 +190,7 @@ def create_node(
             # Expand abstract type (Non-Terminal)
             compatible_productions = global_context.grammar.alternatives[starting_symbol]
             while compatible_productions:
-                rule = decider.choose_production_alternatives(compatible_productions, context)
+                rule = decider.choose_production_alternatives(starting_symbol, compatible_productions, context)
                 try:
                     v = create_node(
                         global_context,

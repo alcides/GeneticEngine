@@ -8,6 +8,8 @@ from geneticengine.algorithms.gp.gp import GeneticProgramming
 from geneticengine.evaluation.budget import TimeBudget
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
+from geneticengine.random.sources import NativeRandomSource
+from geneticengine.representations.tree.initializations import MaxDepthDecider
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geml.grammars.basic_math import SafeDiv
 from geml.grammars.sgp import Literal
@@ -55,7 +57,8 @@ def target(x):
     return x**2
 
 
-representation = TreeBasedRepresentation(g, max_depth=5)
+r = NativeRandomSource()
+representation = TreeBasedRepresentation(g, MaxDepthDecider(r, g, 5))
 problem = SingleObjectiveProblem(
     minimize=True,
     fitness_function=fit,

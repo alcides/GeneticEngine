@@ -7,6 +7,8 @@ from geneticengine.evaluation.budget import EvaluationBudget
 
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem, MultiObjectiveProblem
+from geneticengine.random.sources import NativeRandomSource
+from geneticengine.representations.tree.initializations import MaxDepthDecider
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 
 
@@ -35,8 +37,10 @@ class TestBudget:
         population_size = 11
 
         grammar = extract_grammar([Option], Root)
+        random = NativeRandomSource(1)
+        decider = MaxDepthDecider(random, grammar, max_depth=2)
         gp = GeneticProgramming(
-            representation=TreeBasedRepresentation(grammar=grammar, max_depth=2),
+            representation=TreeBasedRepresentation(grammar, decider=decider),
             budget=EvaluationBudget(limit),
             problem=SingleObjectiveProblem(fitness_function=fitness_function),
             population_size=population_size,
@@ -50,8 +54,10 @@ class TestBudget:
         population_size = 11
 
         grammar = extract_grammar([Option], Root)
+        random = NativeRandomSource(1)
+        decider = MaxDepthDecider(random, grammar, max_depth=2)
         gp = GeneticProgramming(
-            representation=TreeBasedRepresentation(grammar=grammar, max_depth=2),
+            representation=TreeBasedRepresentation(grammar, decider=decider),
             budget=EvaluationBudget(limit),
             problem=MultiObjectiveProblem(minimize=False, fitness_function=fitness_function_multi),
             population_size=population_size,

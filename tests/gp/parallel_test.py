@@ -11,6 +11,7 @@ from geneticengine.evaluation.tracker import SingleObjectiveProgressTracker
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import Problem, SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
+from geneticengine.representations.tree.initializations import MaxDepthDecider
 from geneticengine.representations.tree.operators import FullInitializer
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.evaluation.parallel import ParallelEvaluator
@@ -46,19 +47,24 @@ class TestRecorder(SearchRecorder):
 
 class TestParallel:
     def test_parallel(self):
+        max_depth = 10
         g = extract_grammar([Leaf, OtherLeaf], UnderTest)
         p = SingleObjectiveProblem(
             fitness_function=lambda x: 3,
             minimize=True,
         )
+        r = NativeRandomSource(seed=123)
         tracker = SingleObjectiveProgressTracker(problem=p, evaluator=ParallelEvaluator(), recorders=[TestRecorder()])
         gp = GeneticProgramming(
-            representation=TreeBasedRepresentation(g, 10),
-            random=NativeRandomSource(seed=123),
+            representation=TreeBasedRepresentation(
+                g,
+                MaxDepthDecider(r, g, max_depth=max_depth),
+            ),
+            random=r,
             problem=p,
             population_size=20,
             budget=EvaluationBudget(100),
-            population_initializer=FullInitializer(),
+            population_initializer=FullInitializer(max_depth=max_depth),
             tracker=tracker,
         )
         ind = gp.search()

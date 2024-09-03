@@ -3,7 +3,6 @@ from __future__ import annotations
 import inspect
 from abc import ABC
 from typing import Any, get_origin, Union
-from typing import Callable
 from typing import get_type_hints
 from typing import Protocol
 from typing import TYPE_CHECKING
@@ -38,6 +37,11 @@ def is_annotated(ty: type[Any]):
 def is_generic_list(ty: type[Any]):
     """Returns whether a type is List[T] for any T."""
     return hasattr(ty, "__origin__") and ty.__origin__ is list
+
+
+def is_generic_tuple(ty: type[Any]):
+    """Returns whether a type is tuple[X, Y, ...] for any X, Y, ...."""
+    return hasattr(ty, "__origin__") and ty.__origin__ is tuple
 
 
 def is_generic(ty: type[Any]):
@@ -123,57 +127,6 @@ def all_init_arguments_typed(t: type) -> bool:
 
 def strip_dependencies(s: str) -> str:
     return s.split(".")[-1].split("'")[0]
-
-
-# debug_fin
-
-
-def build_finalizers(
-    final_callback,
-    n_args,
-    per_callback: list[Callable[[Any], None]] | None = None,
-) -> list[Any]:
-    """Builds a set of functions that accumulate the arguments provided.
-
-    :param final_callback:
-    :param n_args:
-    :return:
-    """
-    uninit = object()
-    rets = [uninit] * n_args
-    to_arrive = [n_args]
-
-    finalizers = []
-    # id = debug_fin[0]
-    # print("%i has %i fin " % (id, n_args))
-    # debug_fin[0] += 1
-
-    for i in range(n_args):
-
-        def fin(x, i=i):
-            if rets[i] is uninit:
-                rets[i] = x
-                to_arrive[0] -= 1
-
-                if per_callback is not None:
-                    per_callback[i](x)
-
-                if to_arrive[0] == 0:
-                    # we recieved all params, finish construction
-                    final_callback(*rets)
-                # else:
-                #     print("%i prog %i" % (id, to_arrive[0]))
-            else:
-                raise Exception(
-                    "Received duplicate param on finalizer! i=%d" % i,
-                )
-
-        finalizers.append(fin)
-
-    if n_args == 0:
-        final_callback()
-
-    return finalizers
 
 
 def is_builtin_class_instance(obj):

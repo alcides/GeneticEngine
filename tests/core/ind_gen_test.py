@@ -6,6 +6,7 @@ from typing import Annotated
 
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.random.sources import NativeRandomSource
+from geneticengine.representations.tree.initializations import MaxDepthDecider
 from geneticengine.representations.tree.treebased import random_node
 from geneticengine.grammar.metahandlers.ints import IntRange
 from geneticengine.grammar.metahandlers.lists import ListSizeBetween
@@ -56,28 +57,32 @@ class TestPIGrow:
     def test_root(self):
         r = NativeRandomSource(seed=1)
         g = extract_grammar([Concrete], Root)
-        x = random_node(r, g, 4, Root)
+        decider = MaxDepthDecider(r, g, 4)
+        x = random_node(r, g, Concrete, decider=decider)
         assert isinstance(x, Concrete)
         assert isinstance(x, Root)
 
     def test_leaf(self):
         r = NativeRandomSource(seed=1)
         g = extract_grammar([Leaf], Root)
-        x = random_node(r, g, 4, Leaf)
+        decider = MaxDepthDecider(r, g, 4)
+        x = random_node(r, g, Leaf, decider=decider)
         assert isinstance(x, Leaf)
         assert isinstance(x, Root)
 
     def test_leaf2(self):
         r = NativeRandomSource(seed=1)
         g = extract_grammar([Concrete], Root)
-        x = random_node(r, g, 4, Concrete)
+        decider = MaxDepthDecider(r, g, 4)
+        x = random_node(r, g, Concrete, decider=decider)
         assert isinstance(x, Concrete)
         assert isinstance(x, Root)
 
     def test_concrete_list(self):
         r = NativeRandomSource(seed=1)
         g = extract_grammar([ConcreteList], Root)
-        x = random_node(r, g, 6, Root)
+        decider = MaxDepthDecider(r, g, 6)
+        x = random_node(r, g, Root, decider=decider)
         assert isinstance(x, ConcreteList)
         assert isinstance(x.xs, list)
         assert isinstance(x, Root)
@@ -85,7 +90,8 @@ class TestPIGrow:
     def test_concrete_annotated_list(self):
         r = NativeRandomSource(seed=1)
         g = extract_grammar([ConcreteAnnotatedList], Root)
-        x = random_node(r, g, 6, Root)
+        decider = MaxDepthDecider(r, g, 6)
+        x = random_node(r, g, Root, decider=decider)
         assert isinstance(x, ConcreteAnnotatedList)
         assert isinstance(x.xs, list)
         assert isinstance(x, Root)
@@ -93,7 +99,8 @@ class TestPIGrow:
     def test_middle_list(self):
         r = NativeRandomSource(seed=1)
         g = extract_grammar([MiddleList, Concrete], Root)
-        x = random_node(r, g, 6, Root)
+        decider = MaxDepthDecider(r, g, 6)
+        x = random_node(r, g, Root, decider=decider)
         assert (isinstance(x, MiddleList) and isinstance(x.z, list)) or isinstance(x, Concrete)
         assert isinstance(x, Root)
 
@@ -104,5 +111,6 @@ class TestPIGrow:
 
         r = NativeRandomSource(seed=1)
         g = extract_grammar([Concrete, Middle, Root], RootHolder)
-        x = random_node(r, g, 20, RootHolder)
+        decider = MaxDepthDecider(r, g, 20)
+        x = random_node(r, g, RootHolder, decider=decider)
         assert isinstance(x, RootHolder)
