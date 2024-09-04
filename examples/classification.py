@@ -14,9 +14,6 @@ from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.problems import Problem
 from geneticengine.problems import SingleObjectiveProblem
-from geneticengine.random.sources import NativeRandomSource
-from geneticengine.representations.tree.treebased import random_tree
-from geneticengine.representations.tree.utils import get_nodes_depth_specific
 from geml.grammars.basic_math import SafeDiv
 from geml.grammars.sgp import Mul
 from geml.grammars.sgp import Number
@@ -129,14 +126,6 @@ class ClassificationBenchmark:
 
     def main(self, **args):
         g = self.get_grammar()
-
-        def find_depth_specific_nodes(r, g, depth):
-            ind = random_tree(r, g, depth)
-            return get_nodes_depth_specific(ind, g)
-
-        r = NativeRandomSource(123)
-        print(g.get_branching_average_proxy(r, find_depth_specific_nodes, 100, 17))
-
         alg = SimpleGP(
             grammar=g,
             minimize=True,
