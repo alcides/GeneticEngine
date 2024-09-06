@@ -33,6 +33,9 @@ class IntRange(MetaHandlerGenerator):
     ):
         return random.randint(self.min, self.max)
 
+    def validate(self, v) -> bool:
+        return self.min <= v <= self.max
+
     def __class_getitem__(cls, args):
         return IntRange(*args)
 
@@ -62,6 +65,9 @@ class IntList(MetaHandlerGenerator):
     ):
         return random.choice(self.elements)
 
+    def validate(self, v) -> bool:
+        return v in self.elements
+
     def __class_getitem__(cls, args):
         return IntList(*args)
 
@@ -69,6 +75,7 @@ class IntList(MetaHandlerGenerator):
         return f"[{self.elements}]"
 
 
+# TODO: deprecate
 class IntervalRange(MetaHandlerGenerator):
     """This metahandler restricts the creation of ranges between two integers
     by forcing a minimum and maximum range size, as well as a top limit that
@@ -111,3 +118,7 @@ class IntervalRange(MetaHandlerGenerator):
         range_length = random.randint(self.minimum_length, self.maximum_length)
         start_position = random.randint(0, self.maximum_top_limit - range_length)
         return (start_position, start_position + range_length)
+
+    def validate(self, v) -> bool:
+        length = v[1] - v[0]
+        return self.minimum_length < length <= self.maximum_length and v[1] < self.maximum_top_limit

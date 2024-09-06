@@ -12,6 +12,9 @@ class Dependent(MetaHandlerGenerator):
     name: str
     callable: Callable[[Any], type]
 
+    def validate(self, v) -> bool:
+        raise NotImplementedError()  # TODO: Dependent Types
+
     def generate(
         self,
         random: RandomSource,

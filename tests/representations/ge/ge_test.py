@@ -29,6 +29,9 @@ class RandomDNA(MetaHandlerGenerator):
         sequence = "".join(random.choice(self.nucleotides) for _ in range(self.size))
         return sequence
 
+    def validate(self, v) -> bool:
+        return len(v) == self.size and all(x in self.nucleotides for x in v)
+
 
 class Root(ABC):
     pass

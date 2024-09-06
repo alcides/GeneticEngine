@@ -5,11 +5,12 @@ import warnings
 from abc import ABC
 from abc import ABCMeta
 from collections import defaultdict
-from typing import Any
+from typing import Any, get_args
 from typing import Generic
 from typing import NamedTuple
 
 from geneticengine.grammar.decorators import get_gengy
+from geneticengine.grammar.utils import is_metahandler
 from geneticengine.grammar.utils import all_init_arguments_typed, is_union
 from geneticengine.grammar.utils import get_arguments
 from geneticengine.grammar.utils import get_generic_parameter
@@ -144,14 +145,7 @@ class Grammar:
                 terminal = False
                 if isinstance(argt, type) or isinstance(argt, ABCMeta):
                     self.register_type(argt)
-                if is_annotated(argt):
-                    gen = get_generic_parameter(argt)
-                else:
-                    gen = argt
-                if is_generic_list(gen):
-                    self.register_type(get_generic_parameter(gen))
-                else:
-                    self.register_type(gen)
+                self.register_type(argt)
 
         for st in self.considered_subtypes:
             if issubclass(st, ty):
@@ -197,6 +191,29 @@ class Grammar:
         keys = {k for k in self.alternatives.keys()}
         sequence = {v for vv in self.alternatives.values() for v in vv}
         return (keys, sequence, sequence.union(keys).union(self.all_nodes))
+
+    def collect_types(self, ty: type):
+        yield ty
+        if is_generic_list(ty):
+            gty = get_generic_parameter(ty)
+            yield from self.collect_types(gty)
+        elif is_annotated(ty):
+            gty = get_generic_parameter(ty)
+            yield from self.collect_types(gty)
+        elif is_generic(ty):
+            for p in get_generic_parameters(ty):
+                yield from self.collect_types(p)
+        elif is_metahandler(ty):
+            nt = get_args(ty)[0]
+            yield from self.collect_types(nt)
+        elif is_abstract(ty):
+            pass
+        else:
+            for _, argt in get_arguments(ty):
+                yield from self.collect_types(argt)
+
+    def get_all_mentioned_symbols(self) -> set[type]:
+        return {x for t in self.get_all_symbols()[2] for x in self.collect_types(t)}
 
     def get_distance_to_terminal(self, ty: type) -> int:
         """Returns the current distance to terminal of a given type."""

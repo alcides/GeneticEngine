@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from abc import ABC
+from abc import ABC, abstractmethod
 from typing import Any, Callable, TypeVar
 
 from geneticengine.grammar.grammar import Grammar
@@ -19,6 +19,9 @@ class MetaHandlerGenerator(ABC):
 
     They override the generation procedure of the base type.
     """
+
+    @abstractmethod
+    def validate(self, Any) -> bool: ...
 
     def generate(
         self,
@@ -44,13 +47,3 @@ class MetaHandlerGenerator(ABC):
 
     def get_dependencies(self):
         return []
-
-
-def is_metahandler(ty: type) -> bool:
-    """Returns if type is a metahandler. AnnotatedType[int, IntRange(3,10)] is
-    an example of a Metahandler.
-
-    Verification is done using the __metadata__, which is the first
-    argument of Annotated
-    """
-    return hasattr(ty, "__metadata__")

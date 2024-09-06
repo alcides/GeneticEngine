@@ -34,6 +34,9 @@ class ListSizeBetween(MetaHandlerGenerator):
         self.min = min
         self.max = max
 
+    def validate(self, v) -> bool:
+        return self.min <= len(v) <= self.max
+
     def generate(
         self,
         random: RandomSource,
@@ -142,6 +145,9 @@ class ListSizeBetweenWithoutListOperations(MetaHandlerGenerator):
     def __init__(self, min, max):
         self.min = min
         self.max = max
+
+    def validate(self, v) -> bool:
+        return self.min <= len(v) <= self.max
 
     def generate(
         self,

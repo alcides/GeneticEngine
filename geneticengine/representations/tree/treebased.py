@@ -4,7 +4,7 @@ from typing import Any
 from typing import TypeVar
 
 from geneticengine.grammar.grammar import Grammar
-from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator, is_metahandler
+from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator
 from geneticengine.random.sources import RandomSource
 from geneticengine.representations.api import (
     RepresentationWithCrossover,
@@ -22,7 +22,7 @@ from geneticengine.representations.tree.initializations import (
 )
 from geneticengine.representations.tree.utils import relabel_nodes_of_trees
 from geneticengine.solutions.tree import GengyList, TreeNode
-from geneticengine.grammar.utils import get_arguments
+from geneticengine.grammar.utils import get_arguments, is_metahandler
 from geneticengine.grammar.utils import get_generic_parameter
 from geneticengine.grammar.utils import has_annotated_mutation
 

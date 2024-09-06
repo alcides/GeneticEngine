@@ -141,10 +141,11 @@ def test_random_pop():
         lambda g, r, depth: TreeBasedRepresentation(g, decider=MaxDepthDecider(r, g, max_depth=depth)),
         lambda g, r, depth: GrammaticalEvolutionRepresentation(g, decider=MaxDepthDecider(r, g, max_depth=depth)),
         lambda g, r, depth: StructuredGrammaticalEvolutionRepresentation(
-            g, decider=MaxDepthDecider(r, g, max_depth=depth),
+            g,
+            decider=MaxDepthDecider(r, g, max_depth=depth),
         ),
         lambda g, r, depth: DynamicStructuredGrammaticalEvolutionRepresentation(g, max_depth=depth),
-        lambda g, r, depth: StackBasedGGGPRepresentation(g, decider=MaxDepthDecider(r, g, max_depth=depth)),
+        lambda g, r, depth: StackBasedGGGPRepresentation(g),
     ],
 )
 def test_random_gp(representation):

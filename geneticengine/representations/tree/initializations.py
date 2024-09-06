@@ -15,8 +15,9 @@ from geneticengine.grammar.utils import get_arguments, is_builtin_class_instance
 from geneticengine.grammar.utils import is_union, get_generic_parameters
 from geneticengine.grammar.utils import get_generic_parameter
 from geneticengine.grammar.utils import is_generic_list
+from geneticengine.grammar.utils import is_metahandler
 from geneticengine.exceptions import GeneticEngineError
-from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator, SynthesisException, is_metahandler
+from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator, SynthesisException
 
 
 @dataclass
@@ -40,7 +41,10 @@ class SynthesisDecider(ABC):
     def random_bool(self) -> bool: ...
     @abc.abstractmethod
     def choose_production_alternatives(
-        self, ty: type, alternatives: list[type], ctx: LocalSynthesisContext,
+        self,
+        ty: type,
+        alternatives: list[type],
+        ctx: LocalSynthesisContext,
     ) -> type: ...
     @abc.abstractmethod
     def choose_options(self, alternatives: list[T], ctx: LocalSynthesisContext) -> T: ...
@@ -177,7 +181,9 @@ def create_node(
         return wrap_result(v, global_context, context)
     elif is_union(starting_symbol):
         t: type = decider.choose_production_alternatives(
-            starting_symbol, get_generic_parameters(starting_symbol), context,
+            starting_symbol,
+            get_generic_parameters(starting_symbol),
+            context,
         )
         v = create_node(global_context, t, context, dependent_values, initial_values)
         return wrap_result(v, global_context, context)

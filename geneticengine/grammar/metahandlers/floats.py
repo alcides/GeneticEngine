@@ -37,6 +37,9 @@ class FloatRange(MetaHandlerGenerator):
     ):
         return random.random_float(self.min, self.max)
 
+    def validate(self, v) -> bool:
+        return self.min <= v <= self.max
+
     def __class_getitem__(cls, args):
         return FloatRange(*args)
 

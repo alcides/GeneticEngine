@@ -24,6 +24,9 @@ class VarRange(MetaHandlerGenerator):
             )
         self.options = options
 
+    def validate(self, v) -> bool:
+        return v in self.options
+
     def generate(
         self,
         random: RandomSource,

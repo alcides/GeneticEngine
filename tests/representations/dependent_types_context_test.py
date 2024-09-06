@@ -29,6 +29,9 @@ class IdMH(MetaHandlerGenerator):
     ):
         return rec(base_type)
 
+    def validate(self, v) -> bool:
+        return True
+
 
 class AnyContext(MetaHandlerGenerator):
     def generate(
@@ -42,6 +45,9 @@ class AnyContext(MetaHandlerGenerator):
         # Always creates an empty list.
         # Genetic Engine requires a specific wrapper (GengyList) with meta-information
         return GengyList(str, [])
+
+    def validate(self, v) -> bool:
+        return True
 
 
 class ContextMH(MetaHandlerGenerator):
@@ -61,6 +67,9 @@ class ContextMH(MetaHandlerGenerator):
     ):
         v = rec(base_type, initial_values={"ctx": self.ctx})
         return v
+
+    def validate(self, v) -> bool:
+        return True  # TODO: all free variables are in context
 
 
 class Expr(ABC):

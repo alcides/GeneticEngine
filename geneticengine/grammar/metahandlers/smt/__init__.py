@@ -4,8 +4,9 @@ from typing import Any, get_args
 
 
 from geneticengine.grammar.grammar import Grammar
+from geneticengine.grammar.utils import is_metahandler
 from geneticengine.random.sources import RandomSource
-from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator, is_metahandler
+from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator
 from geneticengine.grammar.metahandlers.smt.parser import p_expr
 
 
@@ -19,6 +20,9 @@ class SMT(MetaHandlerGenerator):
     def __init__(self, restriction_as_str="true==true"):
         self.restriction_as_str = restriction_as_str
         self.restriction = p_expr(restriction_as_str)
+
+    def validate(self, v) -> bool:
+        return True  # TODO: SMT
 
     def generate(
         self,

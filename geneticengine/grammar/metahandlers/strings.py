@@ -25,6 +25,9 @@ class StringSizeBetween(MetaHandlerGenerator):
         self.max = max
         self.options = list(options)
 
+    def validate(self, v) -> bool:
+        return self.min <= len(v) <= self.max and all(x in self.options for x in v)
+
     def generate(
         self,
         random: RandomSource,
@@ -111,6 +114,9 @@ class WeightedStringHandler(MetaHandlerGenerator):
         assert (
             len(self.alphabet) == self.probability_matrix.shape[1]
         ), "Cols in probability matrix must have the same size as the alphabet provided"
+
+    def validate(self, v) -> bool:
+        return len(v) == self.probability_matrix.shape[0] and all(x in self.alphabet for x in v)
 
     def generate(
         self,
