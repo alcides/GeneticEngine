@@ -124,7 +124,7 @@ def create_tree_using_stacks(g: Grammar, r: ListWrapper, failures_limit=100):
                     if argt in stacks:
                         arg = stacks[argt].pop()
                     elif is_metahandler(argt):
-                        metahandler = get_args(argt)[0]
+                        metahandler = get_args(argt)[1]
                         base_type = get_generic_parameter(argt)
                         index = find_element_that_meets_mh(stacks[base_type], metahandler)
                         arg = stacks[base_type].pop(index)
