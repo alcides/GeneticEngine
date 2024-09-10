@@ -3,14 +3,16 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Annotated
 
-import pytest
 from geneticengine.problems import SingleObjectiveProblem
 
 
 from geneticengine.grammar.decorators import abstract
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.random.sources import NativeRandomSource
-from geneticengine.representations.tree.initializations import MaxDepthDecider
+from geneticengine.representations.tree.initializations import (
+    FullDecider,
+    PositionIndependentGrowDecider,
+)
 from geneticengine.representations.tree.operators import FullInitializer, GrowInitializer
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammar.metahandlers.floats import FloatRange
@@ -50,7 +52,6 @@ class C(A):
     two: A
 
 
-@pytest.mark.skip
 class TestInitializers:
     def test_full(self):
         target_size = 10
@@ -60,7 +61,7 @@ class TestInitializers:
         f = FullInitializer(max_depth=target_depth)
         p = SingleObjectiveProblem(lambda x: 3)
         rs = NativeRandomSource(5)
-        repr = TreeBasedRepresentation(grammar=g, decider=MaxDepthDecider(rs, g, target_depth))
+        repr = TreeBasedRepresentation(grammar=g, decider=FullDecider(rs, g, target_depth))
 
         population = list(f.initialize(p, repr, rs, target_size))
         assert len(population) == target_size
@@ -74,8 +75,8 @@ class TestInitializers:
         g = extract_grammar([B, C], A)
         f = GrowInitializer()
         p = SingleObjectiveProblem(lambda x: 3)
-        repr = TreeBasedRepresentation(grammar=g, max_depth=target_depth)
         rs = NativeRandomSource(5)
+        repr = TreeBasedRepresentation(grammar=g, decider=PositionIndependentGrowDecider(rs, g, target_depth))
 
         population = list(f.initialize(p, repr, rs, target_size))
         assert len(population) == target_size

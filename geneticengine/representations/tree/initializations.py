@@ -51,6 +51,8 @@ class SynthesisDecider(ABC):
 
 
 class MaxDepthDecider(SynthesisDecider):
+    """MaxDecider will generate random trees up to a maximum depth."""
+
     def __init__(self, random: RandomSource, grammar: Grammar, max_depth: int = 10):
         self.random = random
         self.grammar = grammar
@@ -102,6 +104,52 @@ class MaxDepthDecider(SynthesisDecider):
                 f"""Cannot use complete grammar for individual creation. Max depth ({self.max_depth})
                 is smaller than grammar's minimal tree depth ({self.grammar.get_min_tree_depth()}).""",
             )
+
+
+class FullDecider(MaxDepthDecider):
+    """FullDecider will always preffer non-terminal productions within a maximum depth."""
+
+    def choose_production_alternatives(self, ty: type, alternatives: list[type], ctx: LocalSynthesisContext) -> type:
+        assert len(alternatives) > 0, "No alternatives presented"
+        if ctx.depth <= self.max_depth:
+            c_alternatives = [
+                x
+                for x in alternatives
+                if (
+                    x in self.grammar.recursive_prods
+                    and self.grammar.get_distance_to_terminal(x) < (self.max_depth - ctx.depth)
+                )
+                or self.grammar.get_distance_to_terminal(x) == (self.max_depth - ctx.depth - 1)
+            ]
+        else:
+            c_alternatives = []
+        if not c_alternatives:
+            c_alternatives = [
+                x for x in alternatives if self.grammar.get_distance_to_terminal(x) <= (self.max_depth - ctx.depth)
+            ]
+        return self.random.choice(c_alternatives)
+
+
+class PositionIndependentGrowDecider(MaxDepthDecider):
+    """PositionIndependentGrowDecider will always randomly expand one path of the tree to get to the max depth, and others randomly."""
+
+    def choose_production_alternatives(self, ty: type, alternatives: list[type], ctx: LocalSynthesisContext) -> type:
+        assert len(alternatives) > 0, "No alternatives presented"
+        if ctx.expansions == 0:
+            self.expanding = True  # expanding until a maximum depth is achieved
+        if ctx.depth == self.max_depth - 1:
+            self.expanding = (
+                False  # after reaching the maximum depth, we no longer need to prevent branches from being terminals
+            )
+        if self.expanding:
+            c_alternatives = [x for x in alternatives if x in self.grammar.recursive_prods]
+        else:
+            c_alternatives = [
+                x for x in alternatives if self.grammar.get_distance_to_terminal(x) <= (self.max_depth - ctx.depth - 1)
+            ]
+        if not c_alternatives:
+            c_alternatives = alternatives
+        return self.random.choice(c_alternatives)
 
 
 def wrap_result(

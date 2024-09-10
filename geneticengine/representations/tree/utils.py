@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import Any
+from typing import Any, Callable, TypeVar
 
 from geneticengine.grammar.decorators import is_builtin
 from geneticengine.grammar.grammar import Grammar
@@ -9,6 +9,7 @@ from geneticengine.solutions.tree import TreeNode
 from geneticengine.grammar.utils import get_arguments
 from geneticengine.grammar.utils import is_abstract
 from geneticengine.grammar.utils import is_terminal
+import dataclasses
 
 
 def relabel_nodes(
@@ -91,30 +92,15 @@ def relabel_nodes_of_trees(i: TreeNode, g: Grammar) -> TreeNode:
     return i
 
 
-def get_nodes_depth_specific(i: TreeNode, g: Grammar):
-    depth = i.gengy_distance_to_term
-    if not i.gengy_labeled:
-        relabel_nodes_of_trees(i, g)
+T = TypeVar("T")
 
-    nodes_depth_specific: dict[str, float] = dict()
 
-    def add_count(node: TreeNode, n_d_spec_dict: dict[str, float]):
-        if hasattr(node, "gengy_distance_to_term"):
-            try:
-                n_d_spec_dict[str(depth - node.gengy_distance_to_term)] += 1
-            except Exception:
-                n_d_spec_dict[str(depth - node.gengy_distance_to_term)] = 1
-
-        if not (is_terminal(type(node), g.non_terminals) and (not isinstance(node, list))):
-            if isinstance(node, list):
-                children = [(type(obj), obj) for obj in node]
-            else:
-                if not hasattr(node, "gengy_init_values"):
-                    breakpoint()
-                children = [(typ[1], node.gengy_init_values[idx]) for idx, typ in enumerate(get_arguments(node))]
-            for t, c in children:
-                n_d_spec_dict = add_count(c, n_d_spec_dict)
-        return n_d_spec_dict
-
-    add_count(i, nodes_depth_specific)
-    return nodes_depth_specific
+def tree_node_fold(i: TreeNode, f: Callable[[Any, list[T]], T]):
+    """Recursively folds over all elements of the tree."""
+    ty = type(i)
+    if isinstance(i, list):
+        return f(i, [tree_node_fold(n, f) for n in i])
+    elif dataclasses.is_dataclass(i):
+        return f(i, [tree_node_fold(getattr(i, aname), f) for (aname, _) in get_arguments(ty)])
+    else:
+        return f(i, [])

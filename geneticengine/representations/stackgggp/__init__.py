@@ -167,7 +167,7 @@ class StackBasedGGGPRepresentation(
         return create_tree_using_stacks(self.grammar, ListWrapper(genotype.dna), failures_limit=self.failures_limit)
 
     def mutate(self, random: RandomSource, genotype: Genotype, **kwargs) -> Genotype:
-        rindex = random.randint(0, 255)
+        rindex = random.randint(0, self.gene_length - 1)
         clone = [i for i in genotype.dna]
         clone[rindex] = random.randint(0, 10000)
         return Genotype(clone)
