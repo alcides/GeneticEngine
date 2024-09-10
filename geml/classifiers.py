@@ -15,6 +15,7 @@ from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.api import Representation
+from geneticengine.representations.tree.initializations import MaxDepthDecider
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammar.metahandlers.vars import VarRange
 from geml.grammars.basic_math import SafeDiv
@@ -292,14 +293,15 @@ class HillClimbingClassifier(BaseEstimator, TransformerMixin):
                 fitness = -100000000
             return fitness
 
+        r = NativeRandomSource(self.seed)
         model = HC(
             problem=SingleObjectiveProblem(
                 minimize=False,
                 fitness_function=fitness_function,
             ),
             budget=TimeBudget(3),
-            representation=self.representation_class(self.grammar, self.max_depth),
-            random=NativeRandomSource(self.seed),
+            representation=self.representation_class(self.grammar, MaxDepthDecider(r, self.grammar, self.max_depth)),
+            random=r,
         )
 
         ind = model.search()
