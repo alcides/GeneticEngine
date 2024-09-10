@@ -35,6 +35,7 @@ def random_node(
     starting_symbol: type[Any],
     decider: SynthesisDecider,
 ):
+    assert isinstance(decider, SynthesisDecider)
     return create_node(
         GlobalSynthesisContext(
             random=random,
@@ -199,6 +200,7 @@ class TreeBasedRepresentation(
     def __init__(self, grammar: Grammar, decider: SynthesisDecider):
         self.grammar = grammar
         self.decider = decider
+        assert isinstance(decider, SynthesisDecider)
 
     def create_genotype(self, random: RandomSource, **kwargs) -> TreeNode:
         decider = kwargs.get("decider", self.decider)

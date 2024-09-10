@@ -48,14 +48,14 @@ def fitness(i: BinaryList):
 
 
 class BinaryListTreeBasedRepresentation(TreeBasedRepresentation):
-    def __init__(self, grammar, max_depth):
-        super().__init__(grammar, max_depth)
+    def __init__(self, random, grammar, max_depth):
+        super().__init__(grammar, MaxDepthDecider(random, grammar, max_depth))
 
     def mutate(self, random: RandomSource, genotype: TreeNode, **kwargs) -> TreeNode:
         assert isinstance(genotype, BinaryList)
 
         random_pos = random.randint(0, SIZE - 1)
-        next_val = random_node(random=r, grammar=g, starting_symbol=Bit, decider=MaxDepthDecider(r, g, 1))
+        next_val = random_node(random=r, grammar=g, starting_symbol=Bit, decider=MaxDepthDecider(r, g, 3))
         c = copy.deepcopy(genotype)
         c.byte[random_pos] = next_val
         return c
@@ -76,15 +76,15 @@ class BinaryListTreeBasedRepresentation(TreeBasedRepresentation):
         q2 = copy.deepcopy(parent1.byte[: len(parent1.byte) - p])
         b1 = BinaryList(byte=p1 + p2)
         b2 = BinaryList(byte=q1 + q2)
-        assert isinstance(b1, TreeNode)
-        assert isinstance(b2, TreeNode)
-        return (b1, b2)
+        assert isinstance(b1, BinaryList)
+        assert isinstance(b2, BinaryList)
+        return (b1, b2)  # type: ignore
 
 
 if __name__ == "__main__":
     r = NativeRandomSource()
     g = extract_grammar([One, Zero, BinaryList], BinaryList)
-    repr = BinaryListTreeBasedRepresentation(grammar=g, max_depth=4)
+    repr = BinaryListTreeBasedRepresentation(random=r, grammar=g, max_depth=4)
 
     gp = GeneticProgramming(
         problem=SingleObjectiveProblem(fitness_function=fitness, minimize=False),
