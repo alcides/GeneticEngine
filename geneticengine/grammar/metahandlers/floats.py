@@ -73,3 +73,6 @@ class FloatList(MetaHandlerGenerator):
 
     def __repr__(self):
         return f"[{self.elements}]"
+
+    def validate(self, v) -> bool:
+        return v in self.elements
