@@ -1,6 +1,6 @@
 lark==1.1.9
 loguru==0.7.2
-numpy==2.0.1
+numpy==2.1.1
 palettable==3.3.3
 pandas==2.2.2
 pathos==0.3.2
