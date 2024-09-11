@@ -135,6 +135,8 @@ class PositionIndependentGrowDecider(MaxDepthDecider):
 
     def choose_production_alternatives(self, ty: type, alternatives: list[type], ctx: LocalSynthesisContext) -> type:
         assert len(alternatives) > 0, "No alternatives presented"
+
+        baseline = [x for x in alternatives if self.grammar.get_distance_to_terminal(x) <= (self.max_depth - ctx.depth)]
         if ctx.expansions == 0:
             self.expanding = True  # expanding until a maximum depth is achieved
         if ctx.depth == self.max_depth - 1:
@@ -142,13 +144,16 @@ class PositionIndependentGrowDecider(MaxDepthDecider):
                 False  # after reaching the maximum depth, we no longer need to prevent branches from being terminals
             )
         if self.expanding:
-            c_alternatives = [x for x in alternatives if x in self.grammar.recursive_prods]
-        else:
             c_alternatives = [
-                x for x in alternatives if self.grammar.get_distance_to_terminal(x) <= (self.max_depth - ctx.depth - 1)
+                x
+                for x in alternatives
+                if x in self.grammar.recursive_prods
+                and self.grammar.get_distance_to_terminal(x) < (self.max_depth - ctx.depth)
             ]
+        else:
+            c_alternatives = baseline
         if not c_alternatives:
-            c_alternatives = alternatives
+            c_alternatives = baseline
         return self.random.choice(c_alternatives)
 
 

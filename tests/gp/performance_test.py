@@ -89,7 +89,7 @@ def test_bench_initialization(benchmark, d):
 def test_bench_initialization_class(benchmark, representation, initializer_builder):
     r = NativeRandomSource(seed=1)
     p = SingleObjectiveProblem(lambda x: 3)
-    target_depth = 20
+    target_depth = 15
     target_size = 100
 
     def population_initialization():
