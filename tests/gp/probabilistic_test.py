@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import pytest
 
 from geneticengine.algorithms.gp.gp import GeneticProgramming
 from geneticengine.evaluation.budget import AnyOf, EvaluationBudget, TargetFitness
@@ -11,9 +10,6 @@ from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.grammatical_evolution.dynamic_structured_ge import (
     DynamicStructuredGrammaticalEvolutionRepresentation,
-)
-from geneticengine.representations.grammatical_evolution.ge import (
-    GrammaticalEvolutionRepresentation,
 )
 from geneticengine.representations.grammatical_evolution.structured_ge import (
     StructuredGrammaticalEvolutionRepresentation,
@@ -37,13 +33,13 @@ class OptionB(Option):
     pass
 
 
-@pytest.mark.skip(reason="Takes too long")
 class TestProbabilisticGrammar:
     def test_probabilistic_grammar_tree_based(self):
         g = extract_grammar([OptionA, OptionB], Option)
+        r = NativeRandomSource(0)
 
         gp = GeneticProgramming(
-            representation=TreeBasedRepresentation(grammar=g, max_depth=10),
+            representation=TreeBasedRepresentation(grammar=g, decider=MaxDepthDecider(r, g, 10)),
             problem=SingleObjectiveProblem(
                 lambda p: isinstance(p, OptionA) and 1 or 2,
                 minimize=True,
@@ -57,9 +53,10 @@ class TestProbabilisticGrammar:
 
     def test_probabilistic_grammar_ge(self):
         g = extract_grammar([OptionA, OptionB], Option)
+        r = NativeRandomSource(0)
 
         gp = GeneticProgramming(
-            representation=GrammaticalEvolutionRepresentation(grammar=g, max_depth=10),
+            representation=TreeBasedRepresentation(grammar=g, decider=MaxDepthDecider(r, g, 10)),
             problem=SingleObjectiveProblem(
                 lambda p: isinstance(p, OptionA) and 1 or 2,
                 minimize=True,
@@ -76,12 +73,10 @@ class TestProbabilisticGrammar:
 
     def test_probabilistic_grammar_sge(self):
         g = extract_grammar([OptionA, OptionB], Option)
+        r = NativeRandomSource(0)
 
         gp = GeneticProgramming(
-            representation=StructuredGrammaticalEvolutionRepresentation(
-                grammar=g,
-                max_depth=10,
-            ),
+            representation=StructuredGrammaticalEvolutionRepresentation(grammar=g, decider=MaxDepthDecider(r, g, 10)),
             problem=SingleObjectiveProblem(
                 lambda p: isinstance(p, OptionA) and 1 or 2,
                 minimize=True,
@@ -99,7 +94,6 @@ class TestProbabilisticGrammar:
     def test_probabilistic_grammar_dsge(self):
         g = extract_grammar([OptionA, OptionB], Option)
         r = NativeRandomSource(1)
-        decider = MaxDepthDecider(random=r, grammar=g, max_depth=10)
 
         gp = GeneticProgramming(
             problem=SingleObjectiveProblem(
@@ -110,7 +104,7 @@ class TestProbabilisticGrammar:
                 EvaluationBudget(50 * 1000),
                 TargetFitness(0),
             ),
-            representation=DynamicStructuredGrammaticalEvolutionRepresentation(grammar=g, decider=decider),
+            representation=DynamicStructuredGrammaticalEvolutionRepresentation(grammar=g, max_depth=10),
             random=r,
             population_size=1000,
         )
