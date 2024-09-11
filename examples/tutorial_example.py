@@ -11,6 +11,7 @@ from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.grammatical_evolution.ge import GrammaticalEvolutionRepresentation
 from geneticengine.grammar.metahandlers.ints import IntRange
+from geneticengine.representations.tree.initializations import MaxDepthDecider
 
 
 class Scalar(ABC):
@@ -62,13 +63,13 @@ def main(seed=123):
         fitness_function=fitness_function,
         minimize=True,
     )
-
+    r = NativeRandomSource(seed)
     alg = GeneticProgramming(
         problem=prob,
         budget=AnyOf(TargetFitness(0), TimeBudget(3)),
         population_size=20,
-        representation=GrammaticalEvolutionRepresentation(grammar, 10),
-        random=NativeRandomSource(seed),
+        representation=GrammaticalEvolutionRepresentation(grammar, MaxDepthDecider(r, grammar, 10)),
+        random=r,
     )
     best = alg.search()
     print(

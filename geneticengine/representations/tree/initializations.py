@@ -94,7 +94,7 @@ class MaxDepthDecider(SynthesisDecider):
         return self.random.choice(alternatives)
 
     def validate(self) -> None:
-        if self.max_depth <= self.grammar.get_min_tree_depth():
+        if self.max_depth < self.grammar.get_min_tree_depth():
             if self.grammar.get_min_tree_depth() == 1000000:
                 raise GeneticEngineError(
                     f"""Grammar's minimal tree depth is {self.grammar.get_min_tree_depth()}, which is the default tree depth.
