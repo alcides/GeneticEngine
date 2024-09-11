@@ -5,7 +5,6 @@ from geneticengine.exceptions import GeneticEngineError
 from geneticengine.representations.tree.initializations import (
     FullDecider,
     MaxDepthDecider,
-    PositionIndependentGrowDecider,
 )
 from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.structure import PopulationInitializer
@@ -14,9 +13,6 @@ from geneticengine.random.sources import RandomSource
 from geneticengine.representations.api import Representation
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.solutions.tree import TreeNode
-
-# TODO Dependent Types:
-# Redo all initializers with the depth limits and so on.
 
 
 class FullInitializer(PopulationInitializer):
@@ -48,6 +44,9 @@ class FullInitializer(PopulationInitializer):
 class GrowInitializer(PopulationInitializer):
     """All individuals are created expanding productions until a maximum depth,
     but without the requirement of reaching that depth."""
+
+    def __init__(self):
+        pass
 
     def initialize(
         self,
@@ -85,6 +84,8 @@ class PositionIndependentGrowInitializer(PopulationInitializer):
 
     def __init__(self, max_depth: int):
         self.max_depth = max_depth
+        self.grow = GrowInitializer()
+        self.full = FullInitializer(max_depth)
 
     def initialize(
         self,
@@ -95,14 +96,9 @@ class PositionIndependentGrowInitializer(PopulationInitializer):
         **kwargs,
     ) -> Iterator[Individual]:
         assert isinstance(representation, TreeBasedRepresentation)
-        for _ in range(target_size):
-            yield Individual(
-                representation.create_genotype(
-                    random,
-                    decider=PositionIndependentGrowDecider(random, representation.grammar, max_depth=self.max_depth),
-                ),
-                representation=representation,
-            )
+        half = target_size // 2
+        yield from self.grow.initialize(problem, representation, random, half)
+        yield from self.full.initialize(problem, representation, random, target_size - half)
 
 
 class RampedHalfAndHalfInitializer(PopulationInitializer):
@@ -113,6 +109,9 @@ class RampedHalfAndHalfInitializer(PopulationInitializer):
     There's an equal chance of using full or grow method.
     """
 
+    def __init__(self, max_depth: int):
+        self.max_depth = max_depth
+
     def initialize(
         self,
         problem: Problem,
@@ -122,6 +121,7 @@ class RampedHalfAndHalfInitializer(PopulationInitializer):
     ) -> Iterator[Individual]:
         assert isinstance(representation, TreeBasedRepresentation)
         for _ in range(target_size):
+
             yield Individual(
                 representation.create_genotype(
                     random,

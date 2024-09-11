@@ -95,19 +95,19 @@ def create_tree_using_stacks(g: Grammar, r: ListWrapper, failures_limit=100):
                 add_to_stacks(stacks, float, r.random_float(-100.0, 100.0))
             elif target_type is bool:
                 add_to_stacks(stacks, bool, r.random_bool())
+            elif target_type is tuple:
+                args = []
+                for inner_type in get_generic_parameters(target_type):
+                    ret = stacks[inner_type].pop(0)
+                    args.append(ret)
+                v = tuple(args)
+                add_to_stacks(stacks, target_type, v)
             elif is_generic_list(target_type):
-                inner_type: type = get_generic_parameters(target_type)[0]
+                inner_type = get_generic_parameters(target_type)[0]
                 length = r.randint(0, len(stacks[inner_type]))
                 ret = stacks[inner_type][:length]
                 stacks[inner_type] = stacks[inner_type][length:]
                 add_to_stacks(stacks, target_type, ret)
-            elif is_generic_list(target_type):
-                length = r.randint(0, 10)
-                ty = get_generic_parameter(target_type)
-                list_prototype = []
-                for _ in range(length):
-                    list_prototype.append(stacks[ty].pop())
-                return list_prototype
             elif is_union(target_type):
                 alternatives = get_generic_parameters(target_type)
                 ty = r.choice(alternatives)
@@ -129,7 +129,6 @@ def create_tree_using_stacks(g: Grammar, r: ListWrapper, failures_limit=100):
                         index = find_element_that_meets_mh(stacks[base_type], metahandler)
                         arg = stacks[base_type].pop(index)
                     else:
-                        print("failed", argt)
                         raise IndexError()
                     args.append(arg)
                 v = apply_constructor(target_type, args)

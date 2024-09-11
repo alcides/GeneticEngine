@@ -129,10 +129,12 @@ class DynamicStructuredGrammaticalEvolutionRepresentation(
 
     def mutate(self, random: RandomSource, genotype: Genotype, **kwargs) -> Genotype:
         dna = deepcopy(genotype.dna)
-        rkey = random.choice(list(genotype.dna.keys()))
-        if genotype.dna[rkey]:
-            rindex = random.randint(0, len(genotype.dna[rkey]) - 1)
-            dna[rkey][rindex] = random.randint(0, sys.maxsize)
+        alternatives = list(genotype.dna.keys())
+        if alternatives:
+            rkey = random.choice(alternatives)
+            if genotype.dna[rkey]:
+                rindex = random.randint(0, len(genotype.dna[rkey]) - 1)
+                dna[rkey][rindex] = random.randint(0, sys.maxsize)
         return Genotype(genotype.random, dna)
 
     def crossover(
@@ -149,9 +151,9 @@ class DynamicStructuredGrammaticalEvolutionRepresentation(
         c2 = dict()
         for k, b in mask:
             if b:
-                c1[k] = deepcopy(parent1.dna[k])
-                c2[k] = deepcopy(parent2.dna[k])
+                c1[k] = deepcopy(parent1.dna.get(k, []))
+                c2[k] = deepcopy(parent2.dna.get(k, []))
             else:
-                c1[k] = deepcopy(parent2.dna[k])
-                c2[k] = deepcopy(parent1.dna[k])
+                c1[k] = deepcopy(parent2.dna.get(k, []))
+                c2[k] = deepcopy(parent1.dna.get(k, []))
         return (Genotype(parent1.random, c1), Genotype(parent2.random, c2))

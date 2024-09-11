@@ -93,6 +93,6 @@ class TestRepresentation:
             representation=representation(g, r, 10),
             problem=SingleObjectiveProblem(fitness_function=fitness_function),
             random=r,
-            budget=EvaluationBudget(10),
+            budget=EvaluationBudget(1000),
         )
         gp.search()

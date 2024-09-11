@@ -210,7 +210,9 @@ class Grammar:
             pass
         else:
             for _, argt in get_arguments(ty):
-                yield from self.collect_types(argt)
+                if argt != ty:
+                    yield from self.collect_types(argt)
+                # TODO: This does not support mutually recursive types.
 
     def get_all_mentioned_symbols(self) -> set[type]:
         return {x for t in self.get_all_symbols()[2] for x in self.collect_types(t)}

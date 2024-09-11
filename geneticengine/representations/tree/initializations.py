@@ -164,9 +164,15 @@ def wrap_result(
 
 
 def apply_constructor(ty: Type, args: list[Any]):
-    v = ty(*args)
     # This saves the metadata used in the constructor for use in mutation and crossover
-    if not any(isinstance(v, t) for t in [int, bool, float, str, list]):
+    v: Any
+    if ty is list:
+        v = GengyList(ty, args)
+    elif ty is tuple:
+        v = tuple(args)
+    else:
+        v = ty(*args)
+    if not any(isinstance(v, t) for t in [int, bool, float, str, tuple, list]):
         v.gengy_init_values = args
     return v
 
