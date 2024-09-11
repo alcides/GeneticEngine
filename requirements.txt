@@ -1,4 +1,4 @@
-lark==1.1.9
+lark==1.2.2
 loguru==0.7.2
 numpy==2.0.1
 palettable==3.3.3
