@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from abc import ABC
 from dataclasses import dataclass
+from geneticengine.random.sources import NativeRandomSource
+from geneticengine.representations.tree.initializations import MaxDepthDecider
 from geneticengine.solutions.individual import Individual
 from geneticengine.evaluation.sequential import SequentialEvaluator
 from geneticengine.problems.helpers import best_individual, is_better, sort_population
@@ -23,7 +25,8 @@ class Leaf(Root):
 class TestFitnessHelpers:
     def test_best_individual(self):
         g = extract_grammar([Leaf], Root)
-        representation = TreeBasedRepresentation(g, 2)
+        r = NativeRandomSource(0)
+        representation = TreeBasedRepresentation(g, MaxDepthDecider(r, g, 2))
         evaluator = SequentialEvaluator()
 
         population = [
@@ -48,7 +51,8 @@ class TestFitnessHelpers:
 
     def test_is_better(self):
         g = extract_grammar([Leaf], Root)
-        representation = TreeBasedRepresentation(g, 2)
+        r = NativeRandomSource(0)
+        representation = TreeBasedRepresentation(g, MaxDepthDecider(r, g, 2))
         evaluator = SequentialEvaluator()
 
         a = Individual(genotype=Leaf(1), representation=representation)
@@ -64,7 +68,8 @@ class TestFitnessHelpers:
 
     def test_sort(self):
         g = extract_grammar([Leaf], Root)
-        representation = TreeBasedRepresentation(g, 2)
+        r = NativeRandomSource(0)
+        representation = TreeBasedRepresentation(g, MaxDepthDecider(r, g, 2))
         evaluator = SequentialEvaluator()
 
         a = Individual(genotype=Leaf(1), representation=representation)
