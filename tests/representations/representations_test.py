@@ -16,7 +16,11 @@ from geneticengine.representations.grammatical_evolution.dynamic_structured_ge i
     DynamicStructuredGrammaticalEvolutionRepresentation,
 )
 from geneticengine.representations.grammatical_evolution.ge import GrammaticalEvolutionRepresentation
+from geneticengine.representations.grammatical_evolution.structured_ge import (
+    StructuredGrammaticalEvolutionRepresentation,
+)
 from geneticengine.representations.stackgggp import StackBasedGGGPRepresentation
+from geneticengine.representations.tree.initializations import MaxDepthDecider
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammar.metahandlers.floats import FloatRange
 from geneticengine.grammar.metahandlers.ints import IntRange
@@ -66,26 +70,27 @@ class ListWrapper(Root):
 
 class TestRepresentation:
     @pytest.mark.parametrize(
-        "representation_class",
+        "representation",
         [
-            TreeBasedRepresentation,
-            GrammaticalEvolutionRepresentation,
-            DynamicStructuredGrammaticalEvolutionRepresentation,
-            StackBasedGGGPRepresentation,
+            lambda g, r, depth: TreeBasedRepresentation(g, decider=MaxDepthDecider(r, g, max_depth=depth)),
+            lambda g, r, depth: GrammaticalEvolutionRepresentation(g, decider=MaxDepthDecider(r, g, max_depth=depth)),
+            lambda g, r, depth: StructuredGrammaticalEvolutionRepresentation(
+                g,
+                decider=MaxDepthDecider(r, g, max_depth=depth),
+            ),
+            lambda g, r, depth: DynamicStructuredGrammaticalEvolutionRepresentation(g, max_depth=depth),
+            lambda g, r, depth: StackBasedGGGPRepresentation(g, 100000, 10000),
         ],
     )
-    def test_rep(self, representation_class) -> None:
+    def test_rep(self, representation) -> None:
         r = NativeRandomSource(seed=1)
         g: Grammar = extract_grammar([IntRangeM, ListRangeM, FloatRangeM, Branch, Concrete, ListWrapper], Root)
-        max_depth = 3
-
-        repr = representation_class(g, max_depth)
 
         def fitness_function(x: Root) -> float:
             return 0.5
 
         gp = GeneticProgramming(
-            representation=repr,
+            representation=representation(g, r, 10),
             problem=SingleObjectiveProblem(fitness_function=fitness_function),
             random=r,
             budget=EvaluationBudget(10),

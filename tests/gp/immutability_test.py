@@ -3,6 +3,7 @@ from abc import ABC
 
 from dataclasses import dataclass
 from typing import Annotated
+from geneticengine.representations.tree.initializations import MaxDepthDecider
 from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
 from geneticengine.algorithms.gp.operators.selection import TournamentSelection
@@ -78,9 +79,10 @@ class Two(Alt):
 class TestImmutability:
     def test_hash(self):
         g = extract_grammar([A, B], A)
-        rep = TreeBasedRepresentation(g, max_depth=10)
         r = NativeRandomSource(3)
-        ind = rep.create_genotype(r, depth=10)
+        decider = MaxDepthDecider(r, g, max_depth=10)
+        rep = TreeBasedRepresentation(g, decider=decider)
+        ind = rep.create_genotype(r, decider=decider)
         assert isinstance(hash(ind), int)
 
     @pytest.mark.parametrize(
@@ -100,14 +102,17 @@ class TestImmutability:
         ],
     )
     def test_immutability(self, test_step, g):
-        rep = GrammaticalEvolutionRepresentation(g, max_depth=10)
         r = NativeRandomSource(3)
+        decider = MaxDepthDecider(r, g, max_depth=10)
+        rep = GrammaticalEvolutionRepresentation(g, decider)
+
         problem = SingleObjectiveProblem(fitness_function=lambda x: 1)
 
         population_size = 1000
 
         initial_population = [
-            Individual(genotype=rep.create_genotype(r, depth=10), representation=rep) for _ in range(population_size)
+            Individual(genotype=rep.create_genotype(r, decider=decider), representation=rep)
+            for _ in range(population_size)
         ]
 
         def encode_population(pop: list[Individual]) -> list[str]:

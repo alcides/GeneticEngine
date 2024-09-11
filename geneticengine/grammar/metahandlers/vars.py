@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from typing import TypeVar
+from typing import Any, Callable, TypeVar
 
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.random.sources import RandomSource
-from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator
+from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator, SynthesisException
 
 T = TypeVar("T")
 
@@ -19,25 +19,26 @@ class VarRange(MetaHandlerGenerator):
 
     def __init__(self, options: list[T]):
         if not options:
-            raise Exception(
+            raise SynthesisException(
                 f"The VarRange metahandler requires a non-empty set of options. Options found: {options}",
             )
         self.options = options
 
+    def validate(self, v) -> bool:
+        return v in self.options
+
     def generate(
         self,
-        r: RandomSource,
-        g: Grammar,
-        rec,
-        new_symbol,
-        depth: int,
-        base_type,
-        context: dict[str, str],
+        random: RandomSource,
+        grammar: Grammar,
+        base_type: type,
+        rec: Callable[[type[T]], T],
+        dependent_values: dict[str, Any],
     ):
-        rec(r.choice(self.options, str(base_type)))
+        return random.choice(self.options)
 
     def __repr__(self):
         return str(self.options)
 
-    def __class_getitem__(self, args):
+    def __class_getitem__(cls, args):
         return VarRange(*args)

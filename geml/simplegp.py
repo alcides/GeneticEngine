@@ -33,6 +33,7 @@ from geneticengine.representations.grammatical_evolution.structured_ge import (
     StructuredGrammaticalEvolutionRepresentation,
 )
 from geneticengine.representations.stackgggp import StackBasedGGGPRepresentation
+from geneticengine.representations.tree.initializations import MaxDepthDecider
 from geneticengine.representations.tree.operators import (
     GrowInitializer,
     InjectInitialPopulationWrapper,
@@ -86,10 +87,12 @@ class SimpleGP:
         crossover_probability: float = 0.9,
         selection_method: tuple[str, int | bool] = ("tournament", 5),
     ):
+        self.random = NativeRandomSource(seed)
         self.problem = self.process_problem(fitness_function, minimize)
         budget = self.build_budget(target_fitness, max_time, max_evaluations)
         representation_internal = self.process_representation(representation, grammar, max_depth)
         population_initializer = self.process_population_initializer(initial_population)
+
         step = self.build_step(
             population_size,
             elitism,
@@ -108,7 +111,7 @@ class SimpleGP:
         self.gp = GeneticProgramming(
             self.problem,
             budget=budget,
-            random=NativeRandomSource(seed),
+            random=self.random,
             representation=representation_internal,
             population_size=population_size,
             population_initializer=population_initializer,
@@ -124,16 +127,14 @@ class SimpleGP:
         self,
         fitness_function: Callable[[P], float],
         minimize: bool,
-    ) -> Problem:
-        ...
+    ) -> Problem: ...
 
     @overload
     def process_problem(
         self,
         fitness_function: Callable[[P], list[float]],
         minimize: list[bool],
-    ) -> Problem:
-        ...
+    ) -> Problem: ...
 
     def process_problem(
         self,
@@ -153,7 +154,10 @@ class SimpleGP:
             "dsge": DynamicStructuredGrammaticalEvolutionRepresentation,
             "stack": StackBasedGGGPRepresentation,
         }[representation]
-        return representation_class(grammar=grammar, max_depth=max_depth)
+
+        decider = MaxDepthDecider(self.random, grammar, max_depth)  # TODO: Dependent Types
+
+        return representation_class(grammar=grammar, decider=decider)
 
     def build_budget(self, target_fitness, max_time, max_evaluations):
         base = AnyOf(TimeBudget(max_time), EvaluationBudget(max_evaluations))

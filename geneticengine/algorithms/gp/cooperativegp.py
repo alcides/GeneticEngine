@@ -9,6 +9,7 @@ from geneticengine.grammar.grammar import Grammar
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource, RandomSource
 from geneticengine.representations.api import Representation
+from geneticengine.representations.tree.initializations import MaxDepthDecider
 from geneticengine.representations.tree.operators import InjectInitialPopulationWrapper
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 
@@ -63,8 +64,12 @@ class CooperativeGP(Generic[a, b]):
         self.population1_size = population1_size
         self.population2_size = population2_size
         self.coevolutions = coevolutions
-        self.representation1 = representation1 or TreeBasedRepresentation(grammar=self.g1, max_depth=10)
-        self.representation2 = representation2 or TreeBasedRepresentation(grammar=self.g2, max_depth=10)
+        self.representation1 = representation1 or TreeBasedRepresentation(
+            grammar=self.g1, decider=MaxDepthDecider(random, self.g1),
+        )
+        self.representation2 = representation2 or TreeBasedRepresentation(
+            grammar=self.g2, decider=MaxDepthDecider(random, self.g2),
+        )
         self.kwargs1 = kwargs1 or {}
         self.kwargs2 = kwargs2 or {}
         self.random = random or NativeRandomSource()

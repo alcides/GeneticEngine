@@ -9,13 +9,14 @@ from geneticengine.evaluation.budget import AnyOf, EvaluationBudget, TargetFitne
 from geneticengine.grammar.grammar import Grammar, extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
+from geneticengine.representations.tree.initializations import MaxDepthDecider
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammar.synthetic_grammar import create_arbitrary_grammar
 
 
 def create_target_individual(grammar_seed: int, g: Grammar):
     r = NativeRandomSource(grammar_seed)
-    representation = TreeBasedRepresentation(g, max_depth=g.get_min_tree_depth())
+    representation = TreeBasedRepresentation(g, decider=MaxDepthDecider(r, g, g.get_min_tree_depth()))
     target_individual = representation.create_genotype(r, depth=10)
     individual_phenotype = representation.genotype_to_phenotype(target_individual)
     return individual_phenotype
@@ -47,13 +48,13 @@ def single_run(
         fitness_function=fitness_function,
         minimize=True,
     )
-
+    r = NativeRandomSource(seed)
     alg = GeneticProgramming(
         problem=problem,
         budget=AnyOf(TargetFitness(0), EvaluationBudget(100)),
-        representation=TreeBasedRepresentation(g, max_depth=g.get_min_tree_depth() + 10),
+        representation=TreeBasedRepresentation(g, decider=MaxDepthDecider(r, g, g.get_min_tree_depth() + 10)),
         population_size=10,
-        random=NativeRandomSource(seed),
+        random=r,
         # callbacks=[
         #     ProgressCallback(),
         #     CSVCallback(

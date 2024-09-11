@@ -8,6 +8,7 @@ import pytest
 
 from geneticengine.algorithms.gp.gp import default_generic_programming_step
 from geneticengine.representations.api import Representation
+from geneticengine.representations.tree.initializations import MaxDepthDecider
 from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.operators.combinators import SequenceStep
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
@@ -66,7 +67,7 @@ class TestPreCache:
     )
     def test_immutability(self, test_step):
         g = extract_grammar([Sub], Base)
-        rep = TreeBasedRepresentation(g, max_depth=10)
+        rep = TreeBasedRepresentation(g, decider=MaxDepthDecider(NativeRandomSource(), g, max_depth=10))
         r = NativeRandomSource(3)
 
         def fitness_function(x):

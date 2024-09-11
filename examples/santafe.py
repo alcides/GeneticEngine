@@ -11,6 +11,8 @@ from geneticengine.evaluation.budget import EvaluationBudget
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.problems import SingleObjectiveProblem
+from geneticengine.random.sources import NativeRandomSource
+from geneticengine.representations.tree.initializations import MaxDepthDecider
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammar.metahandlers.lists import ListSizeBetween
 
@@ -193,10 +195,10 @@ class SantaFeBenchmark:
         ind = alg.search()
         print("\n======\nGP\n======\n")
         print(f"{ind.get_fitness(alg.problem)} - {ind}")
-
+        r = NativeRandomSource(0)
         alg_hc = HC(
             problem=SingleObjectiveProblem(fitness_function),
-            representation=TreeBasedRepresentation(g, 10),
+            representation=TreeBasedRepresentation(g, MaxDepthDecider(r, g, 10)),
             budget=EvaluationBudget(1000),
         )
         ind = alg_hc.search()

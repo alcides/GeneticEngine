@@ -2,16 +2,20 @@ from __future__ import annotations
 
 from abc import ABC
 from dataclasses import dataclass
+from typing import Any
 
 from geneticengine.algorithms.gp.gp import GeneticProgramming
 from geneticengine.evaluation.budget import EvaluationBudget
+from geneticengine.evaluation.recorder import SearchRecorder
 from geneticengine.evaluation.tracker import SingleObjectiveProgressTracker
 from geneticengine.grammar.grammar import extract_grammar
-from geneticengine.problems import SingleObjectiveProblem
+from geneticengine.problems import Problem, SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
+from geneticengine.representations.tree.initializations import MaxDepthDecider
 from geneticengine.representations.tree.operators import FullInitializer
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.evaluation.parallel import ParallelEvaluator
+from geneticengine.solutions.individual import Individual
 
 
 class Root(ABC):
@@ -34,36 +38,34 @@ class UnderTest(Root):
     b: Root
 
 
-# TODO
-class TestCallback:
-    def process_iteration(
-        self,
-        generation: int,
-        population,
-        time: float,
-        gp: GeneticProgramming,
-    ) -> None:
-        for ind in population:
-            x = ind.genotype
-            assert isinstance(x, UnderTest)
-            assert isinstance(x.a, Leaf)
+class TestRecorder(SearchRecorder):
+    def register(self, tracker: Any, individual: Individual, problem: Problem, is_best: bool):
+        x = individual.genotype
+        assert isinstance(x, UnderTest)
+        assert isinstance(x.a, Leaf)
 
 
 class TestParallel:
     def test_parallel(self):
+        max_depth = 10
         g = extract_grammar([Leaf, OtherLeaf], UnderTest)
         p = SingleObjectiveProblem(
             fitness_function=lambda x: 3,
             minimize=True,
         )
+        r = NativeRandomSource(seed=123)
+        tracker = SingleObjectiveProgressTracker(problem=p, evaluator=ParallelEvaluator(), recorders=[TestRecorder()])
         gp = GeneticProgramming(
-            representation=TreeBasedRepresentation(g, 10),
-            random=NativeRandomSource(seed=123),
+            representation=TreeBasedRepresentation(
+                g,
+                MaxDepthDecider(r, g, max_depth=max_depth),
+            ),
+            random=r,
             problem=p,
             population_size=20,
             budget=EvaluationBudget(100),
-            population_initializer=FullInitializer(),
-            tracker=SingleObjectiveProgressTracker(problem=p, evaluator=ParallelEvaluator()),
+            population_initializer=FullInitializer(max_depth=max_depth),
+            tracker=tracker,
         )
         ind = gp.search()
         tree = ind.get_phenotype()

@@ -4,6 +4,7 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
 
+
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.stackgggp import StackBasedGGGPRepresentation
@@ -39,9 +40,7 @@ class TestStackBased:
         r = NativeRandomSource(seed=1)
         g = extract_grammar([Concrete, Middle, MiddleList], Root, False)
 
-        max_depth = 10
-
-        repr = StackBasedGGGPRepresentation(g, max_depth)
+        repr = StackBasedGGGPRepresentation(g, 2048)
         genotype = repr.create_genotype(r)
 
         for i in range(10):

@@ -1,6 +1,12 @@
 from __future__ import annotations
 from typing import Iterator
 
+from geneticengine.exceptions import GeneticEngineError
+from geneticengine.representations.tree.initializations import (
+    FullDecider,
+    MaxDepthDecider,
+    PositionIndependentGrowDecider,
+)
 from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.problems import Problem
@@ -9,12 +15,16 @@ from geneticengine.representations.api import Representation
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.solutions.tree import TreeNode
 
-# TODO: Redo initialization to be parameterless
+# TODO Dependent Types:
+# Redo all initializers with the depth limits and so on.
 
 
 class FullInitializer(PopulationInitializer):
     """All individuals are created with full trees (maximum depth in all
     branches)."""
+
+    def __init__(self, max_depth: int):
+        self.max_depth = max_depth
 
     def initialize(
         self,
@@ -29,6 +39,7 @@ class FullInitializer(PopulationInitializer):
             yield Individual(
                 representation.create_genotype(
                     random,
+                    decider=FullDecider(random, representation.grammar, max_depth=self.max_depth + 1),
                 ),
                 representation=representation,
             )
@@ -44,22 +55,37 @@ class GrowInitializer(PopulationInitializer):
         representation: Representation,
         random: RandomSource,
         target_size: int,
+        max_tries: int = 1000,
         **kwargs,
     ) -> Iterator[Individual]:
         assert isinstance(representation, TreeBasedRepresentation)
-        for _ in range(target_size):
-            yield Individual(
-                representation.create_genotype(
-                    random,
-                ),
-                representation=representation,
-            )
+        generated = 0
+        current_failures = 0
+        depth = 1
+        while generated < target_size:
+            try:
+                yield Individual(
+                    representation.create_genotype(
+                        random,
+                        decider=MaxDepthDecider(random, representation.grammar, max_depth=depth),
+                    ),
+                    representation=representation,
+                )
+                generated += 1
+                current_failures = 0
+            except GeneticEngineError:
+                current_failures += 1
+                if current_failures >= max_tries:
+                    depth += 1
 
 
 class PositionIndependentGrowInitializer(PopulationInitializer):
     """All individuals are created expanding productions until a maximum depth,
     but without the requirement of reaching that depth."""
 
+    def __init__(self, max_depth: int):
+        self.max_depth = max_depth
+
     def initialize(
         self,
         problem: Problem,
@@ -73,27 +99,7 @@ class PositionIndependentGrowInitializer(PopulationInitializer):
             yield Individual(
                 representation.create_genotype(
                     random,
-                ),
-                representation=representation,
-            )
-
-
-class RampedInitializer(PopulationInitializer):
-    """This method uses the grow method from the minimum grammar depth to the
-    maximum."""
-
-    def initialize(
-        self,
-        problem: Problem,
-        representation: Representation,
-        random: RandomSource,
-        target_size: int,
-    ) -> Iterator[Individual]:
-        assert isinstance(representation, TreeBasedRepresentation)
-        for _ in range(target_size):
-            yield Individual(
-                representation.create_genotype(
-                    random,
+                    decider=PositionIndependentGrowDecider(random, representation.grammar, max_depth=self.max_depth),
                 ),
                 representation=representation,
             )
@@ -116,7 +122,6 @@ class RampedHalfAndHalfInitializer(PopulationInitializer):
     ) -> Iterator[Individual]:
         assert isinstance(representation, TreeBasedRepresentation)
         for _ in range(target_size):
-            # TODO: This is not RH&H
             yield Individual(
                 representation.create_genotype(
                     random,

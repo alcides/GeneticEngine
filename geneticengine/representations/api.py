@@ -16,13 +16,13 @@ class Representation(Generic[g, p]):
         ...
 
     @abc.abstractmethod
-    def genotype_to_phenotype(self, internal: g) -> p:
+    def genotype_to_phenotype(self, genotype: g) -> p:
         ...
 
 
 class RepresentationWithMutation(Generic[g]):
     @abc.abstractmethod
-    def mutate(self, random: RandomSource, internal: g) -> g:
+    def mutate(self, random: RandomSource, genotype: g, **kwargs) -> g:
         ...
 
 

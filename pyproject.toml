@@ -3,21 +3,23 @@ name = "GeneticEngine"
 version = "0.9.0"
 description = "Genetic Programming with Types and Grammars"
 authors = [
-    {name = "Guilherme Espada", email = "gjespada@fc.ul.pt"},
-    {name = "Leon Ingelse", email = "leoningelse@gmail.com"},
-    {name = "Paulo Santos", email = "pacsantos@fc.ul.pt"},
-    {name = "Pedro Barbosa", email = "psbarbosa@ciencias.ulisboa.pt"},
-    {name = "Alcides Fonseca", email = "me@alcidesfonseca.com"}
+    { name = "Guilherme Espada", email = "gjespada@fc.ul.pt" },
+    { name = "Leon Ingelse", email = "leoningelse@gmail.com" },
+    { name = "Paulo Santos", email = "pacsantos@fc.ul.pt" },
+    { name = "Pedro Barbosa", email = "psbarbosa@ciencias.ulisboa.pt" },
+    { name = "Alcides Fonseca", email = "me@alcidesfonseca.com" },
 ]
 readme = "Readme.md"
-requires-python = ">=3.9"
-keywords = ["evolutionary computation, genetic programming, regression, machine learning"]
+requires-python = ">=3.10"
+keywords = [
+    "evolutionary computation, genetic programming, regression, machine learning",
+]
 
 classifiers = [
-  "Development Status :: 4 - Beta",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11"
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
 ]
 
 [project.urls]
@@ -30,9 +32,7 @@ text = "https://opensource.org/licenses/MIT"
 
 [build-system]
 build-backend = 'setuptools.build_meta'
-requires = [
-    'setuptools >= 67.6.0',
-]
+requires = ['setuptools >= 67.6.0']
 
 [tool.setuptools]
 py-modules = ["geneticengine", "geml"]
@@ -93,7 +93,6 @@ select = ["E", "F"]
 ignore = ["E741", "E501"]
 
 per-file-ignores = {}
-
 
 
 [tool.ruff.lint.flake8-import-conventions.aliases]

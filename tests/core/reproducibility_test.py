@@ -15,6 +15,7 @@ from geneticengine.representations.grammatical_evolution.structured_ge import (
     StructuredGrammaticalEvolutionRepresentation,
 )
 from geneticengine.representations.stackgggp import StackBasedGGGPRepresentation
+from geneticengine.representations.tree.initializations import MaxDepthDecider
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 
 
@@ -137,11 +138,14 @@ def test_random_pop():
 @pytest.mark.parametrize(
     "representation",
     [
-        TreeBasedRepresentation,
-        GrammaticalEvolutionRepresentation,
-        StructuredGrammaticalEvolutionRepresentation,
-        DynamicStructuredGrammaticalEvolutionRepresentation,
-        StackBasedGGGPRepresentation,
+        lambda g, r, depth: TreeBasedRepresentation(g, decider=MaxDepthDecider(r, g, max_depth=depth)),
+        lambda g, r, depth: GrammaticalEvolutionRepresentation(g, decider=MaxDepthDecider(r, g, max_depth=depth)),
+        lambda g, r, depth: StructuredGrammaticalEvolutionRepresentation(
+            g,
+            decider=MaxDepthDecider(r, g, max_depth=depth),
+        ),
+        lambda g, r, depth: DynamicStructuredGrammaticalEvolutionRepresentation(g, max_depth=depth),
+        lambda g, r, depth: StackBasedGGGPRepresentation(g),
     ],
 )
 def test_random_gp(representation):
@@ -149,12 +153,14 @@ def test_random_gp(representation):
 
     vals = []
     for _ in range(2):
+        r = NativeRandomSource(0)
+        repr = representation(grammar, r, depth=3)
         gp = GeneticProgramming(
             problem=SingleObjectiveProblem(lambda x: x.i * x.j),
             budget=EvaluationBudget(100),
             population_size=10,
-            representation=representation(grammar, max_depth=3),
-            random=NativeRandomSource(0),
+            representation=repr,
+            random=r,
         )
         e = gp.search()
         v = e.get_phenotype().i, e.get_phenotype().j

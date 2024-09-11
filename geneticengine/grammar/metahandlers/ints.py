@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TypeVar
+from typing import Any, Callable, TypeVar
 
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.random.sources import RandomSource
@@ -8,6 +8,8 @@ from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator
 
 min = TypeVar("min", covariant=True)
 max = TypeVar("max", covariant=True)
+
+T = TypeVar("T")
 
 
 class IntRange(MetaHandlerGenerator):
@@ -23,17 +25,18 @@ class IntRange(MetaHandlerGenerator):
 
     def generate(
         self,
-        r: RandomSource,
-        g: Grammar,
-        rec,
-        new_symbol,
-        depth: int,
-        base_type,
-        context: dict[str, str],
+        random: RandomSource,
+        grammar: Grammar,
+        base_type: type,
+        rec: Callable[[type[T]], T],
+        dependent_values: dict[str, Any],
     ):
-        rec(r.randint(self.min, self.max, str(base_type)))
+        return random.randint(self.min, self.max)
 
-    def __class_getitem__(self, args):
+    def validate(self, v) -> bool:
+        return self.min <= v <= self.max
+
+    def __class_getitem__(cls, args):
         return IntRange(*args)
 
     def __repr__(self):
@@ -54,23 +57,25 @@ class IntList(MetaHandlerGenerator):
 
     def generate(
         self,
-        r: RandomSource,
-        g: Grammar,
-        rec,
-        new_symbol,
-        depth: int,
-        base_type,
-        context: dict[str, str],
+        random: RandomSource,
+        grammar: Grammar,
+        base_type: type,
+        rec: Callable[[type[T]], T],
+        dependent_values: dict[str, Any],
     ):
-        rec(r.choice(self.elements, str(base_type)))
+        return random.choice(self.elements)
 
-    def __class_getitem__(self, args):
+    def validate(self, v) -> bool:
+        return v in self.elements
+
+    def __class_getitem__(cls, args):
         return IntList(*args)
 
     def __repr__(self):
         return f"[{self.elements}]"
 
 
+# TODO: deprecate
 class IntervalRange(MetaHandlerGenerator):
     """This metahandler restricts the creation of ranges between two integers
     by forcing a minimum and maximum range size, as well as a top limit that
@@ -98,20 +103,22 @@ class IntervalRange(MetaHandlerGenerator):
         self.maximum_length = maximum_length
         self.maximum_top_limit = maximum_top_limit
 
-    def __class_getitem__(self, args):
+    def __class_getitem__(cls, args):
         return IntervalRange(*args)
 
     def generate(
         self,
-        r: RandomSource,
-        g: Grammar,
-        rec,
-        new_symbol,
-        depth: int,
-        base_type,
-        context: dict[str, str],
+        random: RandomSource,
+        grammar: Grammar,
+        base_type: type,
+        rec: Callable[[type[T]], T],
+        dependent_values: dict[str, Any],
     ):
 
-        range_length = r.randint(self.minimum_length, self.maximum_length)
-        start_position = r.randint(0, self.maximum_top_limit - range_length)
-        rec((start_position, start_position + range_length))
+        range_length = random.randint(self.minimum_length, self.maximum_length)
+        start_position = random.randint(0, self.maximum_top_limit - range_length)
+        return (start_position, start_position + range_length)
+
+    def validate(self, v) -> bool:
+        length = v[1] - v[0]
+        return self.minimum_length < length <= self.maximum_length and v[1] < self.maximum_top_limit

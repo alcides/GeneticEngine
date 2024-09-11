@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Annotated
+
 from geneticengine.algorithms.gp.gp import GeneticProgramming
 from geneticengine.algorithms.gp.operators.combinators import ParallelStep, SequenceStep
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
@@ -13,6 +14,8 @@ from geneticengine.evaluation.budget import EvaluationBudget
 from geneticengine.grammar.decorators import abstract
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
+from geneticengine.random.sources import NativeRandomSource
+from geneticengine.representations.tree.initializations import MaxDepthDecider
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammar.metahandlers.lists import ListSizeBetween
 
@@ -83,10 +86,12 @@ problem = SingleObjectiveProblem(minimize=False, fitness_function=fitness_functi
 class TestNodesDepthSpecific:
     def test_nodes_depth_specific_simple(self):
         g = extract_grammar([Concrete, Middle, MiddleList, ConcreteTerm, RootToConcrete], Root)
+        r = NativeRandomSource(seed=3)
         alg = GeneticProgramming(
-            representation=TreeBasedRepresentation(g, gp_parameters["max_depth"]),
+            representation=TreeBasedRepresentation(g, MaxDepthDecider(r, g, gp_parameters["max_depth"])),
             budget=EvaluationBudget(100),
             problem=problem,
+            random=r,
             step=algorithm_steps(),
             population_size=gp_parameters["population_size"],
         )

@@ -5,11 +5,12 @@ import warnings
 from abc import ABC
 from abc import ABCMeta
 from collections import defaultdict
-from typing import Any
+from typing import Any, get_args
 from typing import Generic
 from typing import NamedTuple
 
 from geneticengine.grammar.decorators import get_gengy
+from geneticengine.grammar.utils import is_metahandler
 from geneticengine.grammar.utils import all_init_arguments_typed, is_union
 from geneticengine.grammar.utils import get_arguments
 from geneticengine.grammar.utils import get_generic_parameter
@@ -144,14 +145,7 @@ class Grammar:
                 terminal = False
                 if isinstance(argt, type) or isinstance(argt, ABCMeta):
                     self.register_type(argt)
-                if is_annotated(argt):
-                    gen = get_generic_parameter(argt)
-                else:
-                    gen = argt
-                if is_generic_list(gen):
-                    self.register_type(get_generic_parameter(gen))
-                else:
-                    self.register_type(gen)
+                self.register_type(argt)
 
         for st in self.considered_subtypes:
             if issubclass(st, ty):
@@ -196,13 +190,30 @@ class Grammar:
         """All symbols in the current grammar, including terminals."""
         keys = {k for k in self.alternatives.keys()}
         sequence = {v for vv in self.alternatives.values() for v in vv}
-        # extra = []
-        # for k in sequence:
-        #     for _, argt in get_arguments(k):
-        #         if is_generic(argt):
-        #             extra.extend(get_generic_parameters(argt))
+        return (keys, sequence, sequence.union(keys).union(self.all_nodes))
 
-        return (keys, sequence, sequence.union(keys).union(self.all_nodes))  # .union(extra)
+    def collect_types(self, ty: type):
+        yield ty
+        if is_generic_list(ty):
+            gty = get_generic_parameter(ty)
+            yield from self.collect_types(gty)
+        elif is_annotated(ty):
+            gty = get_generic_parameter(ty)
+            yield from self.collect_types(gty)
+        elif is_generic(ty):
+            for p in get_generic_parameters(ty):
+                yield from self.collect_types(p)
+        elif is_metahandler(ty):
+            nt = get_args(ty)[0]
+            yield from self.collect_types(nt)
+        elif is_abstract(ty):
+            pass
+        else:
+            for _, argt in get_arguments(ty):
+                yield from self.collect_types(argt)
+
+    def get_all_mentioned_symbols(self) -> set[type]:
+        return {x for t in self.get_all_symbols()[2] for x in self.collect_types(t)}
 
     def get_distance_to_terminal(self, ty: type) -> int:
         """Returns the current distance to terminal of a given type."""
@@ -250,7 +261,6 @@ class Grammar:
                     yield ty
 
         def process_reachability(src: type, dsts: list[type]):
-            src = strip_annotations(src)  # TODO remove strip annotations???
             ch = False
             src_reach = reachability[src]
             for prod in explode_generics(dsts):
@@ -340,25 +350,6 @@ class Grammar:
         self.register_type(starting_symbol)
         self.preprocess()
         return self
-
-    def get_branching_average_proxy(self, r, get_nodes_depth_specific, n_individuals: int = 100, max_depth: int = 17):
-        """Get a proxy for the average branching factor of a grammar.
-
-        This proxy is a dictionary with the number of non-terminals in
-        each depth of the grammar, obtained by generating
-        <n_individuals> random individuals with depth <max_depth> and
-        analyzing those.
-        """
-        max_depth = max(max_depth, self.get_min_tree_depth())
-        branching_factors = dict()
-        for i in range(max_depth + 1):
-            branching_factors[str(i)] = 0
-        for idx in range(n_individuals):
-            n_d_specs = get_nodes_depth_specific(r, self, max_depth)
-            for key in n_d_specs.keys():
-                branching_factors[key] = (branching_factors[key] * idx + n_d_specs[key]) / (idx + 1)
-
-        return branching_factors
 
     def get_grammar_properties_summary(self) -> GrammarSummary:
         """Returns a summary of grammar properties:
