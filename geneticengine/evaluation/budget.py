@@ -9,8 +9,7 @@ from geneticengine.evaluation.tracker import (
 
 class SearchBudget(ABC):
     @abstractmethod
-    def is_done(self, tracker: ProgressTracker):
-        ...
+    def is_done(self, tracker: ProgressTracker): ...
 
 
 class TimeBudget(SearchBudget):
@@ -44,7 +43,10 @@ class TargetFitness(SearchBudget):
 
     def is_done(self, tracker: ProgressTracker):
         assert isinstance(tracker, SingleObjectiveProgressTracker)
-        comps = tracker.get_best_individual().get_fitness(tracker.get_problem()).fitness_components
+        best = tracker.get_best_individual()
+        if best is None:
+            return False
+        comps = best.get_fitness(tracker.get_problem()).fitness_components
         if isinstance(self.value, float):
             return abs(comps[0] - self.value) < 0.0001
         else:
