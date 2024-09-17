@@ -23,6 +23,7 @@ class MetaHandlerGenerator(ABC):
     @abstractmethod
     def validate(self, Any) -> bool: ...
 
+    @abstractmethod
     def generate(
         self,
         random: RandomSource,

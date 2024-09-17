@@ -353,6 +353,38 @@ class Grammar:
         self.preprocess()
         return self
 
+    def usable_grammar(self) -> Grammar:
+        """Returns a subset of the grammar that is actually reachable."""
+        considered_subtypes = [self.starting_symbol]
+        new_symbols = [self.starting_symbol]
+
+        def add(k):
+            if k not in considered_subtypes:
+                considered_subtypes.append(k)
+                new_symbols.append(k)
+
+        while new_symbols:
+            c = new_symbols.pop(0)
+            if is_abstract(c):
+                if c in self.alternatives:
+                    for k in self.alternatives[c]:
+                        add(k)
+            else:
+                for _, k in get_arguments(c):
+                    if is_metahandler(k):
+                        k = get_generic_parameter(k)
+                        add(k)
+                    elif is_generic_list(k):
+                        k = get_generic_parameter(k)
+                        add(k)
+                    elif is_generic(k):
+                        for v in get_generic_parameters(k):
+                            add(v)
+                    else:
+                        add(k)
+
+        return Grammar(self.starting_symbol, considered_subtypes)
+
     def get_grammar_properties_summary(self) -> GrammarSummary:
         """Returns a summary of grammar properties:
 
