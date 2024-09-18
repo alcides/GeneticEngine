@@ -23,6 +23,8 @@ from geneticengine.grammar.utils import is_terminal
 from geneticengine.grammar.utils import strip_annotations
 from geneticengine.grammar.utils import strip_dependencies
 
+INF_VALUE = 1000000
+
 
 class InvalidGrammarException(Exception):
     """Exception to be raised when a passed node is neither abstract nor
@@ -77,7 +79,7 @@ class Grammar:
         self.terminals = set()
         self.non_terminals = set()
         self.abstract_dist_to_t = defaultdict(
-            lambda: defaultdict(lambda: 1000000),
+            lambda: defaultdict(lambda: INF_VALUE),
         )
         self.considered_subtypes = considered_subtypes or []
         self.expansion_depthing = expansion_depthing
@@ -248,7 +250,7 @@ class Grammar:
         """Computes distanceToTerminal via a fixpoint algorithm."""
         (keys, _, all_sym) = self.get_all_symbols()
         for s in all_sym:
-            self.distanceToTerminal[s] = 1000000
+            self.distanceToTerminal[s] = INF_VALUE
         changed = True
 
         reachability: dict[type, set[type]] = defaultdict(lambda: set())

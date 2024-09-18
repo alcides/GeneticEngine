@@ -7,7 +7,7 @@ import sys
 from typing import Any, Type, TypeVar
 
 
-from geneticengine.grammar.grammar import Grammar
+from geneticengine.grammar.grammar import INF_VALUE, Grammar
 from geneticengine.random.sources import RandomSource
 from geneticengine.solutions.tree import GengyList, LocalSynthesisContext, TreeNode
 from geneticengine.representations.tree.utils import relabel_nodes_of_trees
@@ -18,6 +18,9 @@ from geneticengine.grammar.utils import is_generic_list
 from geneticengine.grammar.utils import is_metahandler
 from geneticengine.exceptions import GeneticEngineError
 from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator, SynthesisException
+
+
+sys.setrecursionlimit(10000)
 
 
 @dataclass
@@ -166,27 +169,24 @@ class PositionIndependentGrowDecider(MaxDepthDecider):
         return self.random.choice(c_alternatives)
 
 
-class AverageNodesDecider(BaseDecider):
+class ProgressivelyTerminalDecider(BaseDecider):
     """Decides whether to restrict to non-recursive symbols based on the current depth, probabilistically."""
-
-    def __init__(self, random: RandomSource, grammar: Grammar, average_number_of_nodes: int = 1000):
-        super().__init__(random, grammar)
-        self.average_number_of_nodes = average_number_of_nodes
 
     def choose_production_alternatives(self, ty: type, alternatives: list[type], ctx: LocalSynthesisContext) -> type:
         assert len(alternatives) > 0, "No alternatives presented"
 
-        should_stop = (
-            self.random.randint(0, self.average_number_of_nodes + self.average_number_of_nodes // 3) < ctx.nodes
-        )
-        baseline = alternatives
-        if should_stop:
-            c_alternatives = [x for x in alternatives if x in self.grammar.recursive_prods]
-        else:
-            c_alternatives = baseline
-        if not c_alternatives:
-            c_alternatives = baseline
-        return self.random.choice(c_alternatives)
+        target = self.grammar.get_max_node_depth()
+        if target == INF_VALUE:
+            target = self.grammar.get_min_tree_depth() * len(self.grammar.recursive_prods)
+
+        def w(n):
+            if n in self.grammar.recursive_prods:
+                return target // (ctx.depth + 1)
+            else:
+                return target - self.grammar.get_distance_to_terminal(n)
+
+        weights = [w(alt) * self.grammar.get_weights()[alt] for alt in alternatives]
+        return self.random.choice_weighted(alternatives, weights)
 
 
 def wrap_result(

@@ -12,7 +12,7 @@ from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.tree.initializations import (
     FullDecider,
     PositionIndependentGrowDecider,
-    AverageNodesDecider,
+    ProgressivelyTerminalDecider,
 )
 from geneticengine.representations.tree.operators import FullInitializer, GrowInitializer
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
@@ -84,14 +84,14 @@ class TestInitializers:
         for ind in population:
             assert ind.get_phenotype().gengy_distance_to_term <= target_depth
 
-    def test_average_nodes(self):
+    def test_progressive(self):
         target_size = 10
 
         g = extract_grammar([B, C], A)
         f = GrowInitializer()
         p = SingleObjectiveProblem(lambda x: 3)
         rs = NativeRandomSource(5)
-        repr = TreeBasedRepresentation(grammar=g, decider=AverageNodesDecider(rs, g))
+        repr = TreeBasedRepresentation(grammar=g, decider=ProgressivelyTerminalDecider(rs, g))
 
         population = list(f.initialize(p, repr, rs, target_size))
         assert len(population) == target_size
