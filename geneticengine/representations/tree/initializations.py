@@ -59,15 +59,19 @@ class MaxDepthDecider(SynthesisDecider):
         self.max_depth = max_depth
         self.validate()
 
-    def random_int(self, min_int=-sys.maxsize, max_int=sys.maxsize) -> int:
+    def random_int(self, min_int=-(sys.maxsize - 1), max_int=sys.maxsize) -> int:
         width = max_int - min_int
         if width > 1000:
+            half = width // 2
             n = self.random.randint(0, 10)
             e = self.random.randint(0, round(log10(width)))
-            extra = (n ^ e) % width
-            v = min_int + extra
+
+            extra = pow(n, e) % width
+            extra = extra if self.random_bool() else -extra
+            v = min_int + half + extra
             return v
-        return self.random.randint(min_int, max_int)
+        else:
+            return self.random.randint(min_int, max_int)
 
     def random_float(self) -> float:
         max_float = sys.float_info.max
