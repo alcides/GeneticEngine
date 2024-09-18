@@ -50,14 +50,10 @@ class SynthesisDecider(ABC):
     def choose_options(self, alternatives: list[T], ctx: LocalSynthesisContext) -> T: ...
 
 
-class MaxDepthDecider(SynthesisDecider):
-    """MaxDecider will generate random trees up to a maximum depth."""
-
-    def __init__(self, random: RandomSource, grammar: Grammar, max_depth: int = 10):
+class BaseDecider(SynthesisDecider):
+    def __init__(self, random: RandomSource, grammar: Grammar):
         self.random = random
         self.grammar = grammar
-        self.max_depth = max_depth
-        self.validate()
 
     def random_int(self, min_int=-(sys.maxsize - 1), max_int=sys.maxsize) -> int:
         width = max_int - min_int
@@ -86,15 +82,24 @@ class MaxDepthDecider(SynthesisDecider):
     def random_bool(self) -> bool:
         return self.random.random_bool()
 
+    def choose_options(self, alternatives: list[T], ctx: LocalSynthesisContext) -> T:
+        assert len(alternatives) > 0, "No alternatives presented"
+        return self.random.choice(alternatives)
+
+
+class MaxDepthDecider(BaseDecider):
+    """MaxDecider will generate random trees up to a maximum depth."""
+
+    def __init__(self, random: RandomSource, grammar: Grammar, max_depth: int = 10):
+        super().__init__(random, grammar)
+        self.max_depth = max_depth
+        self.validate()
+
     def choose_production_alternatives(self, ty: type, alternatives: list[type], ctx: LocalSynthesisContext) -> type:
         assert len(alternatives) > 0, "No alternatives presented"
         alternatives = [
             x for x in alternatives if self.grammar.get_distance_to_terminal(x) <= (self.max_depth - ctx.depth)
         ]
-        return self.random.choice(alternatives)
-
-    def choose_options(self, alternatives: list[T], ctx: LocalSynthesisContext) -> T:
-        assert len(alternatives) > 0, "No alternatives presented"
         return self.random.choice(alternatives)
 
     def validate(self) -> None:
@@ -154,6 +159,29 @@ class PositionIndependentGrowDecider(MaxDepthDecider):
                 if x in self.grammar.recursive_prods
                 and self.grammar.get_distance_to_terminal(x) < (self.max_depth - ctx.depth)
             ]
+        else:
+            c_alternatives = baseline
+        if not c_alternatives:
+            c_alternatives = baseline
+        return self.random.choice(c_alternatives)
+
+
+class AverageNodesDecider(BaseDecider):
+    """Decides whether to restrict to non-recursive symbols based on the current depth, probabilistically."""
+
+    def __init__(self, random: RandomSource, grammar: Grammar, average_number_of_nodes: int = 1000):
+        super().__init__(random, grammar)
+        self.average_number_of_nodes = average_number_of_nodes
+
+    def choose_production_alternatives(self, ty: type, alternatives: list[type], ctx: LocalSynthesisContext) -> type:
+        assert len(alternatives) > 0, "No alternatives presented"
+
+        should_stop = (
+            self.random.randint(0, self.average_number_of_nodes + self.average_number_of_nodes // 3) < ctx.nodes
+        )
+        baseline = alternatives
+        if should_stop:
+            c_alternatives = [x for x in alternatives if x in self.grammar.recursive_prods]
         else:
             c_alternatives = baseline
         if not c_alternatives:
