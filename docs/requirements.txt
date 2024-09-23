@@ -1,6 +1,6 @@
 myst-parser==4.0.0
 sphinx==8.0.2
 sphinx-autoapi==3.3.1
-sphinx-rtd-theme==3.0.0rc1
+sphinx-rtd-theme==3.0.0rc2
 sphinxcontrib-fulltoc==1.2.0
 sphinxcontrib-spelling==8.0.0
