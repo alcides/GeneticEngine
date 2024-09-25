@@ -41,7 +41,7 @@ def test_symbolic_regression_gp():
         Pi(),
         Pow(Var("x"), Two()),
     )
-    dataset = np.arange(-1000.0, 1000.0, 1.0)
+    dataset = np.arange(-1000.0, 1000.0, 1.0).reshape(2000, 1)
     y_true = forward_dataset(target_expression, dataset)
 
     def fitness_function(x: Expression) -> float:
