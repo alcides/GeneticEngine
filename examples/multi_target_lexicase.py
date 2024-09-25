@@ -6,6 +6,7 @@ from typing import Annotated
 
 import numpy as np
 from sklearn.datasets import load_linnerud
+from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 
 from geml.simplegp import SimpleGP
@@ -25,7 +26,6 @@ from geml.grammars.sgp import Var
 from geneticengine.grammar.metahandlers.ints import IntRange
 from geneticengine.grammar.metahandlers.lists import ListSizeBetween
 from geneticengine.grammar.metahandlers.vars import VarRange
-from geml.metrics import mse
 
 # ===================================
 # This is an example of a Multi target regression problem using normal GP,
@@ -111,7 +111,7 @@ def fitness_function_lexicase(n: Number):
 
             print(type(n.lst), y_pred, "<...")
             # mse is used in PonyGE, as the error metric is not None!
-            fitness = mse(y_pred[index], y[cases.index(c)])
+            fitness = mean_squared_error(y_pred[index], y[cases.index(c)])
             if isinf(fitness) or np.isnan(fitness):
                 fitness = 100000000
 

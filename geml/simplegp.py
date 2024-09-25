@@ -155,7 +155,7 @@ class SimpleGP:
             "stack": StackBasedGGGPRepresentation,
         }[representation]
 
-        decider = MaxDepthDecider(self.random, grammar, max_depth)  # TODO: Dependent Types
+        decider = MaxDepthDecider(self.random, grammar, max_depth)
 
         return representation_class(grammar=grammar, decider=decider)
 

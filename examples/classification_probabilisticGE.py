@@ -19,7 +19,7 @@ from geml.grammars.sgp import Plus
 from geml.grammars.sgp import Var
 from geneticengine.grammar.metahandlers.floats import FloatList
 from geneticengine.grammar.metahandlers.vars import VarRange
-from geml.metrics import f1_score
+from sklearn.metrics import f1_score
 
 # An example of classification using Probabilistic GE (https://arxiv.org/pdf/2103.08389.pdf).
 # The main differences with the normal classification example are the addition of weights/probabilities to the

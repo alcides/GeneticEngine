@@ -24,7 +24,7 @@ from geml.grammars.sgp import Number
 from geml.grammars.sgp import Plus
 from geml.grammars.sgp import Var
 from geneticengine.grammar.metahandlers.vars import VarRange
-from geml.metrics import mse
+from sklearn.metrics import mean_squared_error
 
 # ===================================
 # This is a simple example of normal regression using normal GP,
@@ -55,7 +55,7 @@ def fitness_function(n: Number):
 
     y_pred = n.evaluate(**variables)
     # mse is used in PonyGE, as the error metric is not None!
-    fitness = mse(y_pred, y)
+    fitness = mean_squared_error(y_pred, y)
     if isinf(fitness) or np.isnan(fitness):
         fitness = 100000000
     return fitness
