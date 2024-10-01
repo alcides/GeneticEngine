@@ -1,15 +1,24 @@
-from typing import Annotated
 import numpy as np
 from sklearn.metrics import r2_score
-from geml.grammars.symbolic_regression import Pi, Two, components, Zero, Minus, Plus, Mult, One, Expression, Var, Pow
+from geml.grammars.symbolic_regression import (
+    Pi,
+    Two,
+    components,
+    Zero,
+    Minus,
+    Plus,
+    Mult,
+    One,
+    Expression,
+    Pow,
+    make_var,
+)
 from sympy.parsing.sympy_parser import parse_expr
 from sympy.simplify import simplify
 
 from geneticengine.algorithms.gp.gp import GeneticProgramming
 from geneticengine.evaluation.budget import EvaluationBudget
-from geneticengine.grammar.decorators import weight
 from geneticengine.grammar.grammar import Grammar, extract_grammar
-from geneticengine.grammar.metahandlers.vars import VarRange
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.tree.initializations import ProgressivelyTerminalDecider
@@ -33,8 +42,8 @@ def test_symbolic_regression_gp():
 
     # Grammar setup
     vars = ["x"]
-    Var.__init__.__annotations__["name"] = Annotated[str, VarRange(vars)]
-    g: Grammar = extract_grammar(components + [weight(500)(Var)], Expression)
+    Var = make_var(vars, 5000)
+    g: Grammar = extract_grammar(components + [Var], Expression)
 
     # Dataset setup
     target_expression = Plus(

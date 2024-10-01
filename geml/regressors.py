@@ -1,20 +1,18 @@
 from abc import ABC, abstractmethod
-from typing import Annotated, Any
+from typing import Any
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.metrics import r2_score
 from geml.common import PopulationRecorder, PredictorWrapper, forward_dataset
-from geml.grammars.symbolic_regression import Var, components, Expression
+from geml.grammars.symbolic_regression import make_var, components, Expression
 from geneticengine.algorithms.gp.gp import GeneticProgramming
 from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.algorithms.one_plus_one import OnePlusOne
 from geneticengine.algorithms.random_search import RandomSearch
 from geneticengine.evaluation.budget import TimeBudget
 from geneticengine.evaluation.tracker import SingleObjectiveProgressTracker
-from geneticengine.grammar.decorators import weight
 from geneticengine.grammar.grammar import Grammar, extract_grammar
-from geneticengine.grammar.metahandlers.vars import VarRange
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource, RandomSource
 from geneticengine.representations.tree.initializations import ProgressivelyTerminalDecider
@@ -78,12 +76,11 @@ class GeneticEngineRegressor(
         feature_names, data = self.prepare_inputs(X)
         target = self.prepare_outputs(y)
         assert data.shape[0] == target.shape[0]
-
-        Var.__init__.__annotations__["name"] = Annotated[str, VarRange(feature_names)]
+        Var = make_var(feature_names, relative_weight=10)
         Var.feature_names = feature_names
         index_of = {n: i for i, n in enumerate(feature_names)}
         Var.to_numpy = lambda s: f"dataset[:,{index_of[s.name]}]"
-        complete_components = components + [weight(10)(Var)]
+        complete_components = components + [Var]
         self.grammar: Grammar = extract_grammar(complete_components, Expression)
 
         def fitness_function(x: Expression) -> float:

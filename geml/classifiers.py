@@ -1,20 +1,18 @@
 from abc import ABC, abstractmethod
-from typing import Annotated, Any
+from typing import Any
 import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.metrics import r2_score
 from geml.common import PopulationRecorder, PredictorWrapper, forward_dataset
-from geml.grammars.ruleset_classification import Klass, Var, components, RuleSet
+from geml.grammars.ruleset_classification import make_grammar
 from geneticengine.algorithms.gp.gp import GeneticProgramming
 from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.algorithms.one_plus_one import OnePlusOne
 from geneticengine.algorithms.random_search import RandomSearch
 from geneticengine.evaluation.budget import TimeBudget
 from geneticengine.evaluation.tracker import SingleObjectiveProgressTracker
-from geneticengine.grammar.decorators import weight
 from geneticengine.grammar.grammar import Grammar, extract_grammar
-from geneticengine.grammar.metahandlers.vars import VarRange
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource, RandomSource
 from geneticengine.representations.tree.initializations import ProgressivelyTerminalDecider
@@ -74,17 +72,16 @@ class GeneticEngineClassifier(
         classes = np.unique(target).tolist()
         assert data.shape[0] == target.shape[0]
 
-        Var.__init__.__annotations__["name"] = Annotated[str, VarRange(feature_names)]
+        components, RuleSet = make_grammar(feature_names, classes)
+        Var = components[-1]
         Var.feature_names = feature_names
-        Klass.__init__.__annotations__["value"] = Annotated[str, VarRange(classes)]
         index_of = {n: i for i, n in enumerate(feature_names)}
         Var.to_numpy = lambda s: f"dataset[:,{index_of[s.name]}]"
-        complete_components = components + [weight(10)(Var)]
-        self.grammar: Grammar = extract_grammar(complete_components, RuleSet)
+        self.grammar: Grammar = extract_grammar(components, RuleSet)
 
-        def fitness_function(x: RuleSet) -> float:
+        def fitness_function(ruleset) -> float:
             try:
-                y_pred = forward_dataset(x, data)
+                y_pred = forward_dataset(ruleset, data)
                 with np.errstate(all="ignore"):
                     return r2_score(target, y_pred)
             except ValueError:

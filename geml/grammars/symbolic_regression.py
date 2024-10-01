@@ -190,15 +190,20 @@ class FloatLiteral(Expression):
         return f"{self.value}"
 
 
-@dataclass
-class Var(Expression):
-    name: Annotated[str, VarRange(["x", "y", "z"])]
+def make_var(options: list[str], relative_weight: float = 1):
+    @weight(relative_weight)
+    @dataclass
+    class Var(Expression):
+        name: Annotated[str, VarRange(options)]
+        # The list of vars should always be filled in dynamically
 
-    def to_sympy(self) -> str:
-        return f"{self.name}"
+        def to_sympy(self) -> str:
+            return f"{self.name}"
 
-    def to_numpy(self) -> str:
-        return f"{self.name}"
+        def to_numpy(self) -> str:
+            return f"{self.name}"
+
+    return Var
 
 
 components = [Plus, Minus, Mult, SafeDiv, Pow, Sin, Cos, Log, Pi, E, Zero, One, Two, Ten]
