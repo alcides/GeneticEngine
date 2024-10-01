@@ -20,6 +20,7 @@ extensions = [
     "autoapi.extension",
     "sphinx.ext.autosectionlabel",
     "sphinxcontrib.spelling",
+    "sphinx_autodoc_typehints",
 ]
 
 autoapi_type = "python"
