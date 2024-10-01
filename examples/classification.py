@@ -87,7 +87,8 @@ def fitness_function(n: Number):
         y_pred = np.full(len(y), y_pred)
     if y_pred.shape != (len(y),):
         return -100000000
-    fitness = f1_score(y_pred, y)
+    y_pred = np.round(y_pred, 0).astype(int)
+    fitness = f1_score(y, y_pred, average="weighted")
     if isinf(fitness):
         fitness = -100000000
     return fitness

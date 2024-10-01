@@ -19,19 +19,21 @@ class PopulationRecorder(SearchRecorder):
                 self.best_individuals.pop()
 
 
+def wrap_in_shape(r, right_shape: tuple[int, int]):
+    if not isinstance(r, np.ndarray):
+        return np.full(shape=right_shape, fill_value=r)
+    elif len(r.shape) == 0:
+        return np.full(shape=right_shape, fill_value=0)
+    elif r.shape[0] != right_shape[0]:
+        return np.full(shape=right_shape, fill_value=r)
+    else:
+        return r.reshape(right_shape)
+
+
 def forward_dataset(e: Any, dataset) -> float:
-    right_shape = (len(dataset), 1)
     with np.errstate(all="ignore"):
         r = eval(e.to_numpy(), {"dataset": dataset, "np": np})
-    if not isinstance(r, np.ndarray):
-        r = np.full(shape=right_shape, fill_value=r)
-    elif len(r.shape) == 0:
-        r = np.full(shape=right_shape, fill_value=0)
-    elif r.shape[0] != len(dataset):
-        r = np.full(shape=right_shape, fill_value=r)
-    else:
-        r = r.reshape(right_shape)
-    return r
+    return wrap_in_shape(r, right_shape=(len(dataset), 1))
 
 
 def PredictorWrapper(BaseEstimator):

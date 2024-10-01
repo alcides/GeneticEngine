@@ -6,6 +6,7 @@ from typing import Annotated
 import numpy as np
 import pandas as pd
 
+from geml.common import wrap_in_shape
 from geml.simplegp import SimpleGP
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
@@ -61,6 +62,9 @@ class Literal(Number):
         return str(self.val)
 
 
+BAD_FITNESS = 10000000
+
+
 def fitness_function(n: Number):
     X = data.values
     y = target.values
@@ -70,11 +74,15 @@ def fitness_function(n: Number):
         i = feature_indices[x]
         variables[x] = X[:, i]
 
-    y_pred = n.evaluate(**variables)
-    # mse is used in PonyGE, as the error metric is not None!
-    fitness = mean_squared_error(y_pred, y)
-    if np.isinf(fitness) or np.isnan(fitness):
-        fitness = 100000000
+    try:
+        with np.errstate(all="ignore"):
+            y_pred = n.evaluate(**variables)
+        y_pred = wrap_in_shape(y_pred, (len(target.values), 1))
+        fitness = mean_squared_error(y, y_pred)
+        if np.isinf(fitness) or np.isnan(fitness):
+            fitness = BAD_FITNESS
+    except ValueError:
+        fitness = BAD_FITNESS
     return fitness
 
 

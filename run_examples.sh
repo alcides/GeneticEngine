@@ -34,10 +34,10 @@ run_example examples/vectorialgp_example.py
 run_example examples/regression.py
 run_example examples/regression_lexicase.py
 run_example examples/classification.py
-run_example examples/classification_probabilisticGE.py
 run_example examples/classification_lexicase.py
 run_example examples/classification_unknown_length_objectives.py
-run_example examples/sklearn_type_examples.py
+run_example examples/geml/classifier_example.py
+run_example examples/geml/regressor_example.py
 run_example examples/santafe.py
 run_example examples/game_of_life.py
 run_example examples/string_match.py
