@@ -11,7 +11,6 @@ from geneticengine.grammar.decorators import weight
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.grammar.metahandlers.ints import IntRange
-from geneticengine.grammar.metahandlers.lists import ListSizeBetween
 
 blacks = [
     (0, 6),
@@ -22,8 +21,6 @@ blacks = [
 ]
 top_target = [3,2,4,10,4,3,9]
 side_target = [5,5,6,5,4,4,6]
-
-
 
 class Board(ABC):
     pass
@@ -38,10 +35,8 @@ class Domino(ABC):
         pass
 
     def __str__(self):
-            return "("+ str(self.posX) +" "+ str(self.posY) +")"
+            return "("+ str(self.posX) +", "+ str(self.posY) +")"
 
-
-#------------------------------------------------------------
 @dataclass
 class DominoVertical(Domino):
     value = 1
@@ -63,17 +58,6 @@ class DominoHorizontal(Domino):
         board[self.posY, self.posX] +=1
         board[self.posY, self.posX-1] +=1
 
-
-
-@dataclass
-class GeneratedBoard(Board):
-
-    dominos : Annotated[list[Domino], ListSizeBetween(22, 23)]
-
-    def __str__(self):
-        return str(self.dominos)
-
-#------------------------------------------------------------------------------
 @weight(0.99)
 @dataclass
 class Add(Board):
@@ -81,7 +65,7 @@ class Add(Board):
     next : Board
 
     def __str__(self):
-        return "("+ str(self.current)+")"
+        return str(self.current) +", "+ str(self.next)
 
 @weight(0.01)
 @dataclass
@@ -89,26 +73,31 @@ class Stop(Board):
     current : Domino
 
     def __str__(self):
-        return "("+ str(self.current)+")"
+        return str(self.current)
 
-def fitness_function(n:GeneratedBoard):
-    r = 0
+def fitness_function(n:Board):
+    r = 0.0
     temp_target = np.zeros((2, 7))
     board = np.zeros((7, 7))
     #penalty for overlap
-    p_overlap = 1
+    p_overlap = 5
     #penalty for overlap black squares
-    p_black = 10000
+    p_black = 100000
     #penalty for miss the target number
     p_target = 1
     #penalty for not visited a empty squares
     p_not_visited = 1
+    obj = n
     for blackX, blackY in blacks:
         board[blackY, blackX] = p_black
-    for i in n.dominos:
+    while isinstance(obj, Add) or isinstance(obj, Stop):
+        i = obj.current
         i.processBoard(board)
         temp_target[0, i.posX] += i.value
         temp_target[1, i.posY] += i.value
+        if isinstance(obj, Stop):
+            break
+        obj = obj.next
     for a in range(7):
         r += p_target * (2.0-((abs(temp_target[0, a] - top_target[a]))/top_target[a]))
         r += p_target * (2.0-((abs(temp_target[0, a] - side_target[a]))/side_target[a]))
@@ -122,13 +111,17 @@ def fitness_function(n:GeneratedBoard):
             r += (elem - 1) * p_overlap
     return r
 
-
 def toboard(board):
     visited = np.zeros((7,7), dtype = int)
     for blackX, blackY in blacks:
         visited[blackY, blackX] = -10
-    for i in board.dominos:
+    obj = board
+    while True:
+        i=obj.current
         visited[i.posY, i.posX] += i.value
+        if isinstance(obj, Stop):
+            break
+        obj = obj.next
     result='\n'
     for i in visited:
         for j in i:
@@ -136,10 +129,10 @@ def toboard(board):
         result += "\n"
     return result
 
-class DominoMatchBenchmark:
+class DominoMatchBenchmarkRecursive:
 
     def get_grammar(self) -> Grammar:
-        return extract_grammar([GeneratedBoard, DominoHorizontal, DominoVertical], Board)
+        return extract_grammar([Add, Stop, DominoHorizontal, DominoVertical], Board)
 
     def main(self, **args):
         g = self.get_grammar()
@@ -150,10 +143,9 @@ class DominoMatchBenchmark:
             fitness_function=fitness_function,
             crossover_probability=0.75,
             mutation_probability=0.01,
+            max_depth=25,
             max_evaluations=10000,
-            max_depth=20,
-            max_time=60,
-            population_size=50,
+            population_size=1000,
             selection_method=("tournament", 2),
             elitism=5,
             **args,
@@ -164,4 +156,4 @@ class DominoMatchBenchmark:
         )
 
 if __name__ == "__main__":
-    DominoMatchBenchmark().main(seed=0)
+    DominoMatchBenchmarkRecursive().main(seed=0)
