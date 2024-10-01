@@ -50,7 +50,6 @@ run_example examples/progsys/Sum_of_Squares.py
 # Other features
 
 run_example examples/binary.py
-run_example examples/exponentiation.py
 run_example examples/game_of_life_vectorial.py
 run_example examples/multi_target_lexicase.py
 run_example examples/pcfg_example.py
