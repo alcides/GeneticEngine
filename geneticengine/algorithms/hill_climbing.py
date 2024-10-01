@@ -19,10 +19,10 @@ class HC(HeuristicSearch):
         budget: SearchBudget,
         representation: Representation,
         random: RandomSource = None,
-        recorder: SingleObjectiveProgressTracker | None = None,
+        tracker: SingleObjectiveProgressTracker | None = None,
         number_of_mutations: int = 5,
     ):
-        super().__init__(problem, budget, representation, random, recorder)
+        super().__init__(problem, budget, representation, random, tracker)
         self.number_of_mutations = number_of_mutations
 
     def search(self) -> Individual:

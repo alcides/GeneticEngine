@@ -9,5 +9,6 @@ pytest==8.3.3
 pytest-benchmark==4.0.0
 scikit-learn==1.5.2
 seaborn==0.13.2
+sympy==1.13.3
 threadpoolctl==3.5.0
 z3-solver==4.13.2.0

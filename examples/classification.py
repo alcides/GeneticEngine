@@ -21,7 +21,7 @@ from geml.grammars.sgp import Plus
 from geml.grammars.sgp import Var
 from geneticengine.grammar.metahandlers.floats import FloatList
 from geneticengine.grammar.metahandlers.vars import VarRange
-from geml.metrics import f1_score
+from sklearn.metrics import f1_score
 
 # An example of classification using Probabilistic GE (https://arxiv.org/pdf/2103.08389.pdf).
 # The main differences with the normal classification example are the addition of weights/probabilities to the
@@ -87,7 +87,8 @@ def fitness_function(n: Number):
         y_pred = np.full(len(y), y_pred)
     if y_pred.shape != (len(y),):
         return -100000000
-    fitness = f1_score(y_pred, y)
+    y_pred = np.round(y_pred, 0).astype(int)
+    fitness = f1_score(y, y_pred, average="weighted")
     if isinf(fitness):
         fitness = -100000000
     return fitness

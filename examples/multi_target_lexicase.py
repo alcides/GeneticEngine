@@ -6,7 +6,9 @@ from typing import Annotated
 
 import numpy as np
 from sklearn.datasets import load_linnerud
+from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
+from sklearn.utils._param_validation import InvalidParameterError
 
 from geml.simplegp import SimpleGP
 from geneticengine.grammar.grammar import extract_grammar
@@ -25,13 +27,14 @@ from geml.grammars.sgp import Var
 from geneticengine.grammar.metahandlers.ints import IntRange
 from geneticengine.grammar.metahandlers.lists import ListSizeBetween
 from geneticengine.grammar.metahandlers.vars import VarRange
-from geml.metrics import mse
 
 # ===================================
 # This is an example of a Multi target regression problem using normal GP,
 # with a lexicase selection algorithm as the parent selection.
 # We used the Linnerud dataset from sklearn library
 # ===================================
+
+BAD_FITNESS = 10000000
 
 # Load the data from Sklearn
 bunch = load_linnerud(as_frame=True)  # returns a Bunch instance
@@ -108,12 +111,12 @@ def fitness_function_lexicase(n: Number):
             if type(y_pred) in [np.float64, int, float]:
                 """If n does not use variables, the output will be scalar."""
                 y_pred = np.full(len(y), y_pred)
-
-            print(type(n.lst), y_pred, "<...")
-            # mse is used in PonyGE, as the error metric is not None!
-            fitness = mse(y_pred[index], y[cases.index(c)])
+            try:
+                fitness = mean_squared_error(y_pred[index], y[cases.index(c)])
+            except InvalidParameterError:
+                fitness = BAD_FITNESS
             if isinf(fitness) or np.isnan(fitness):
-                fitness = 100000000
+                fitness = BAD_FITNESS
 
             fit.append(fitness)
 

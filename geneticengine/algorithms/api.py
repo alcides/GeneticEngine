@@ -46,5 +46,4 @@ class SynthesisAlgorithm(ABC):
         return self.problem
 
     @abstractmethod
-    def search(self):
-        ...
+    def search(self): ...
