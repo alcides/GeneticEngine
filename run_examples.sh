@@ -41,6 +41,7 @@ run_example examples/sklearn_type_examples.py
 run_example examples/santafe.py
 run_example examples/game_of_life.py
 run_example examples/string_match.py
+run_example examples/domino.py
 
 run_example examples/progsys/Number_IO.py
 run_example examples/progsys/Median.py
