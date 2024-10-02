@@ -113,7 +113,7 @@ def fitness_function(n:GeneratedBoard):
         r += p_target * (2.0-((abs(temp_target[0, a] - top_target[a]))/top_target[a]))
         r += p_target * (2.0-((abs(temp_target[0, a] - side_target[a]))/side_target[a]))
     for elem in board.flatten():
-        if elem > p_black:
+        if elem >= p_black:
             if elem % p_black:
                 r += elem
         elif not elem:
