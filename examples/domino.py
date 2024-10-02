@@ -7,7 +7,6 @@ import numpy as np
 
 
 from geml.simplegp import SimpleGP
-from geneticengine.grammar.decorators import weight
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.grammar.metahandlers.ints import IntRange
@@ -74,25 +73,8 @@ class GeneratedBoard(Board):
         return str(self.dominos)
 
 #------------------------------------------------------------------------------
-@weight(0.99)
-@dataclass
-class Add(Board):
-    current : Domino
-    next : Board
-
-    def __str__(self):
-        return "("+ str(self.current)+")"
-
-@weight(0.01)
-@dataclass
-class Stop(Board):
-    current : Domino
-
-    def __str__(self):
-        return "("+ str(self.current)+")"
 
 def fitness_function(n:GeneratedBoard):
-    r = 0
     temp_target = np.zeros((2, 7))
     board = np.zeros((7, 7))
     #penalty for overlap
@@ -109,24 +91,22 @@ def fitness_function(n:GeneratedBoard):
         i.processBoard(board)
         temp_target[0, i.posX] += i.value
         temp_target[1, i.posY] += i.value
-    for a in range(7):
-        r += p_target * (2.0-((abs(temp_target[0, a] - top_target[a]))/top_target[a]))
-        r += p_target * (2.0-((abs(temp_target[0, a] - side_target[a]))/side_target[a]))
-    for elem in board.flatten():
-        if elem >= p_black:
-            if elem % p_black:
-                r += elem
-        elif not elem:
-            r += p_not_visited
-        else:
-            r += (elem - 1) * p_overlap
-    return r
+    r_p_top_target = [p_target * ((2.0-((abs(temp_target[0, a] - top_target[a]))/top_target[a]))%2) for a in range(7)]
+    r_p_side_target = [p_target * ((2.0-((abs(temp_target[1, a] - side_target[a]))/side_target[a]))%2) for a in range(7)]
+    r_p_board =[
+        elem if elem > p_black
+        else 0 if elem == p_black
+        else p_not_visited if elem == 0
+        else (elem - 1) * p_overlap
+        for elem in board.flatten()
+    ]
+    return sum(r_p_top_target) + sum(r_p_side_target) + sum(r_p_board)
 
 
 def toboard(board):
     visited = np.zeros((7,7), dtype = int)
-    for blackX, blackY in blacks:
-        visited[blackY, blackX] = -10
+    for i in blacks:
+        visited[i[1], i[0]] = -10
     for i in board.dominos:
         visited[i.posY, i.posX] += i.value
     result='\n'

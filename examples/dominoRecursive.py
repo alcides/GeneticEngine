@@ -76,7 +76,6 @@ class Stop(Board):
         return str(self.current)
 
 def fitness_function(n:Board):
-    r = 0.0
     temp_target = np.zeros((2, 7))
     board = np.zeros((7, 7))
     #penalty for overlap
@@ -98,18 +97,16 @@ def fitness_function(n:Board):
         if isinstance(obj, Stop):
             break
         obj = obj.next
-    for a in range(7):
-        r += p_target * (2.0-((abs(temp_target[0, a] - top_target[a]))/top_target[a]))
-        r += p_target * (2.0-((abs(temp_target[0, a] - side_target[a]))/side_target[a]))
-    for elem in board.flatten():
-        if elem >= p_black:
-            if elem % p_black:
-                r += elem
-        elif not elem:
-            r += p_not_visited
-        else:
-            r += (elem - 1) * p_overlap
-    return r
+    r_p_top_target = [p_target * ((2.0-((abs(temp_target[0, a] - top_target[a]))/top_target[a]))%2) for a in range(7)]
+    r_p_side_target = [p_target * ((2.0-((abs(temp_target[1, a] - side_target[a]))/side_target[a]))%2) for a in range(7)]
+    r_p_board =[
+        elem if elem > p_black
+        else 0 if elem == p_black
+        else p_not_visited if elem == 0
+        else (elem - 1) * p_overlap
+        for elem in board.flatten()
+    ]
+    return sum(r_p_top_target) + sum(r_p_side_target) + sum(r_p_board)
 
 def toboard(board):
     visited = np.zeros((7,7), dtype = int)
