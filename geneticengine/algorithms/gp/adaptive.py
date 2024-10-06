@@ -141,10 +141,10 @@ class FeedbackParallelStep(ParallelStep):
                 yield from new_individuals
 
 
-def best_of_population(population: Iterator[Individual], problem: Problem) -> Individual:
+def best_of_population(population: list[Individual], problem: Problem) -> Individual:
     return reduce(
         lambda x, s: x if problem.is_better(x.get_fitness(problem), s.get_fitness(problem)) else s,
-        list(population),
+        population,
     )
 
 
@@ -166,8 +166,9 @@ class GenericAdaptiveMutationStep(GenericMutationStep):
         target_size: int,
         generation: int,
     ) -> None:
-        evaluator.evaluate(problem, population)
-        best = best_of_population(population, problem)
+        npop = [i for i in population]
+        evaluator.evaluate(problem, npop)
+        best = best_of_population(npop, problem)
         best_fitness = best.get_fitness(problem)
         if self.first:
             self.first = False
@@ -196,8 +197,9 @@ class GenericAdaptiveCrossoverStep(GenericCrossoverStep):
         target_size: int,
         generation: int,
     ) -> None:
-        evaluator.evaluate(problem, population)
-        best = best_of_population(population, problem)
+        npop = [i for i in population]
+        evaluator.evaluate(problem, npop)
+        best = best_of_population(npop, problem)
         best_fitness = best.get_fitness(problem)
         if self.first:
             self.first = False

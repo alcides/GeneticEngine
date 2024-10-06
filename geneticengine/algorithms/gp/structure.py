@@ -49,7 +49,7 @@ class GeneticStep(abc.ABC):
         for ind in self.iterate(problem, evaluator, representation, random, population, target_size, generation):
             current.append(ind)
             yield ind
-        self.post_iterate(problem, evaluator, representation, random, iter(current), target_size, generation)
+        self.post_iterate(problem, evaluator, representation, random, (i for i in current), target_size, generation)
 
     def pre_iterate(
         self,
