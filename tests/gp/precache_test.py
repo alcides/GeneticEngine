@@ -88,7 +88,7 @@ class TestPreCache:
         step = SequenceStep(CacheFitness(), default_generic_programming_step())
 
         for i in range(10):
-            _ = step.iterate(
+            _ = step.apply(
                 problem=problem,
                 evaluator=SequentialEvaluator(),
                 representation=rep,

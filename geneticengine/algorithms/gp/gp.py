@@ -99,7 +99,7 @@ class GeneticProgramming(HeuristicSearch):
             generation += 1
             logger.debug(f"Generating population at generation {generation}")
             population = Population(
-                self.step.iterate(
+                self.step.apply(
                     self.problem,
                     self.tracker.evaluator,
                     self.representation,

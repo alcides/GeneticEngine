@@ -121,7 +121,7 @@ class TestImmutability:
         cpy = encode_population(initial_population)
 
         for i in range(10):
-            _ = test_step.iterate(
+            _ = test_step.apply(
                 problem=problem,
                 evaluator=SequentialEvaluator(),
                 representation=rep,
