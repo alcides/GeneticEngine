@@ -9,6 +9,23 @@ from geneticengine.representations.api import Representation
 from geneticengine.evaluation import Evaluator
 
 
+class IdentityStep(GeneticStep):
+    """Returns the population that was presented to it"""
+
+    def iterate(
+        self,
+        problem: Problem,
+        evaluator: Evaluator,
+        representation: Representation,
+        random: RandomSource,
+        population: Iterator[Individual],
+        target_size: int,
+        generation: int,
+    ) -> Iterator[Individual]:
+        for _, p in zip(range(target_size), population):
+            yield p
+
+
 class SequenceStep(GeneticStep):
     """Applies multiple steps in order, passing the output population of one
     step to the input population of the next step."""
@@ -28,7 +45,7 @@ class SequenceStep(GeneticStep):
     ) -> Iterator[Individual]:
         npopulation = population
         for step in self.steps:
-            npopulation = step.iterate(
+            npopulation = step.apply(
                 problem,
                 evaluator,
                 representation,
@@ -94,7 +111,7 @@ class ParallelStep(GeneticStep):
 
         for (start, end), step in zip(ranges, self.steps):
             if end - start > 0:
-                yield from step.iterate(
+                yield from step.apply(
                     problem,
                     evaluator,
                     representation,
@@ -146,7 +163,7 @@ class ExclusiveParallelStep(ParallelStep):
         ranges[-1] = (ranges[-1][0], target_size)  # Fix the last position
 
         for (start, end), step in zip(ranges, self.steps):
-            yield from step.iterate(
+            yield from step.apply(
                 problem,
                 evaluator,
                 representation,

@@ -13,7 +13,7 @@ class SearchBudget(ABC):
 
 
 class TimeBudget(SearchBudget):
-    def __init__(self, time: int):
+    def __init__(self, time: float):
         self.time_budget = time
 
     def is_done(self, tracker: ProgressTracker):
