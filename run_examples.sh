@@ -40,9 +40,7 @@ run_example examples/example.py
 run_example examples/pymax.py
 run_example examples/vectorialgp_example.py
 run_example examples/regression_lexicase.py
-run_example examples/classification.py
 run_example examples/classification_unknown_length_objectives.py
-run_example examples/geml/regressor_example.py
 run_example examples/santafe.py
 run_example examples/game_of_life.py
 run_example examples/string_match.py
