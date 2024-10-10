@@ -35,7 +35,7 @@ class ClassificationBenchmark(Benchmark):
         # Problem
         def fitness_function(ruleset):
             try:
-                y_pred = forward_dataset(ruleset, data)
+                y_pred = forward_dataset(ruleset.to_numpy(), data)
                 with np.errstate(all="ignore"):
                     return f1_score(target, y_pred)
             except ValueError:

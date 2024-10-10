@@ -21,7 +21,9 @@ class ClassificationLexicaseBenchmark(Benchmark):
         feature_names = list(data.columns.values)
 
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
-            data.values, target.values, test_size=0.75,
+            data.values,
+            target.values,
+            test_size=0.75,
         )
 
         self.setup_problem()
@@ -30,7 +32,7 @@ class ClassificationLexicaseBenchmark(Benchmark):
     def setup_problem(self):
         def fitness_function_lexicase(ruleset):
             try:
-                y_pred = forward_dataset(ruleset, self.X_test)
+                y_pred = forward_dataset(ruleset.to_numpy(), self.X_test)
                 return [int(p == r) for (p, r) in zip(self.y_test, y_pred)]
             except ValueError:
                 return [0 for _ in self.y_test]
