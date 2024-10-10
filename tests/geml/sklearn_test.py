@@ -4,6 +4,8 @@ import numpy as np
 import pandas as pd
 
 import pytest
+
+from sklearn.utils.estimator_checks import parametrize_with_checks
 from sklearn.metrics import r2_score, f1_score
 from geml.classifiers import (
     GeneticProgrammingClassifier,
@@ -32,7 +34,7 @@ class TestSklearnAPI:
         X_test = pd.DataFrame({"a": [3, 2], "b": [5, 10]})
         y_test = np.array([1, 0])
 
-        c = classifier(max_time=5, remove_time_overheads=False)
+        c = classifier(max_time=5.0)
         c.fit(X, y)
         y_pred = c.predict(X_test)
         k = f1_score(y_test, y_pred)
@@ -50,8 +52,24 @@ class TestSklearnAPI:
         X_test = pd.DataFrame({"a": [3.0, 2.0], "b": [3.0, 2.0]})
         y_test = np.array([0.0, 0.0])
 
-        c = regressor(max_time=5, remove_time_overheads=False)
+        c = regressor(max_time=1.0)
         c.fit(X, y)
         y_pred = c.predict(X_test)
         k = r2_score(y_test, y_pred)
         assert k <= 1
+
+
+@parametrize_with_checks(
+    [
+        GeneticProgrammingRegressor(0.5),
+        HillClimbingRegressor(0.5),
+        RandomSearchRegressor(0.5),
+        OnePlusOneRegressor(0.5),
+        GeneticProgrammingClassifier(0.5),
+        HillClimbingClassifier(0.5),
+        RandomSearchClassifier(0.5),
+        OnePlusOneClassifier(0.5),
+    ],
+)
+def test_sklearn_compatible_estimator(estimator, check):
+    check(estimator)

@@ -34,9 +34,10 @@ class SynthesisAlgorithm(ABC):
                 self.tracker = SingleObjectiveProgressTracker(problem, SequentialEvaluator())
             else:
                 self.tracker = MultiObjectiveProgressTracker(problem, SequentialEvaluator())
-
         else:
             self.tracker = tracker
+
+        assert self.tracker is not None
 
     def is_done(self) -> bool:
         """Whether the synthesis should stop, or not."""

@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
@@ -9,31 +8,20 @@ from typing import Callable
 import numpy as np
 from sklearn.metrics import f1_score
 
-from geml.simplegp import SimpleGP
-from geneticengine.grammar.decorators import abstract
-from geneticengine.grammar.grammar import extract_grammar
-from geneticengine.grammar.grammar import Grammar
-from geneticengine.problems import Problem
-from geneticengine.problems import SingleObjectiveProblem
+from examples.benchmarks.benchmark import Benchmark, example_run
+from geml.grammars.coding.conditions import Equals, GreaterThan, LessThan
+from geml.grammars.coding.numbers import Literal, Number
+from geneticengine.grammar.grammar import extract_grammar, Grammar
+from geneticengine.problems import Problem, SingleObjectiveProblem
 from geml.grammars.coding.classes import Condition
 from geml.grammars.coding.classes import Expr
-from geml.grammars.coding.classes import Number
-from geml.grammars.coding.conditions import Equals
-from geml.grammars.coding.conditions import GreaterThan
-from geml.grammars.coding.conditions import LessThan
 from geml.grammars.coding.logical_ops import And
 from geml.grammars.coding.logical_ops import Not
 from geml.grammars.coding.logical_ops import Or
-from geml.grammars.coding.numbers import Literal
 from geneticengine.grammar.metahandlers.ints import IntRange
 
-# ===================================
-# This is an example on how to use GeneticEngine to solve a GP problem.
-# We define the tree structure of the representation and then we define the fitness function for our problem
-# In this example we are Reversing Game of Life Using GP
-# We used the GameOfLife dataset stored in examples/data folder.
-# This example differs from the normal game_of_life.py through the addition of Vectorial-GP-style grammar (https://link.springer.com/chapter/10.1007/978-3-030-16670-0_14).
-# ===================================
+# [Include all the necessary imports and class definitions here]
+
 
 MATRIX_ROW_SIZE = 3
 MATRIX_COL_SIZE = 3
@@ -75,7 +63,6 @@ class MatrixElement(Condition):
         return f"(X[{self.row}, {self.column}])"
 
 
-@abstract
 class Matrix(ABC):
     pass
 
@@ -310,54 +297,95 @@ grammars = {
 }
 
 
-dataset_name = "GameOfLife"
-Xtrain, Xtest, ytrain, ytest = prepare_data(dataset_name)
-
-
-def fitness_function(i: Condition):
-    _clf = evaluate(i)
-    ypred = [_clf(line) for line in np.rollaxis(Xtrain, 0)]
-    return f1_score(ytrain, ypred)
-
-
-class GameOfLifeVectorialBenchmark:
+class GameOfLifeVectorialBenchmark(Benchmark):
     def __init__(self, method: str = "standard"):
-        self.grammar = grammars[method]
+        self.method = method
+        self.setup_data()
+        self.setup_problem()
+        self.setup_grammar()
+
+    def setup_data(self):
+        DATASET_NAME = "GameOfLife"
+        DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.csv"
+        DATA_FILE_TEST = f"examples/data/{DATASET_NAME}/Test.csv"
+
+        train = np.genfromtxt(DATA_FILE_TRAIN, skip_header=1, delimiter=",", dtype=int)
+        self.Xtrain = train[:, :-1].reshape(train.shape[0], 3, 3)
+        self.ytrain = train[:, -1]
+
+        test = np.genfromtxt(DATA_FILE_TEST, skip_header=1, delimiter=",", dtype=int)
+        self.Xtest = test[:, :-1].reshape(test.shape[0], 3, 3)
+        self.ytest = test[:, -1]
+
+    def setup_problem(self):
+        def fitness_function(i: Condition):
+            _clf = evaluate(i)
+            ypred = [_clf(line) for line in np.rollaxis(self.Xtrain, 0)]
+            return f1_score(self.ytrain, ypred)
+
+        self.problem = SingleObjectiveProblem(minimize=False, fitness_function=fitness_function)
+
+    def setup_grammar(self):
+        grammars = {
+            "standard": extract_grammar([And, Or, Not, MatrixElement], Condition),
+            "row": extract_grammar(
+                [And, Or, Not, MatrixElement, MatrixElementsRow, MatrixSum, Equals, GreaterThan, LessThan, Literal],
+                Condition,
+            ),
+            "col": extract_grammar(
+                [And, Or, Not, MatrixElement, MatrixElementsCol, MatrixSum, Equals, GreaterThan, LessThan, Literal],
+                Condition,
+            ),
+            "row_col": extract_grammar(
+                [
+                    And,
+                    Or,
+                    Not,
+                    MatrixElement,
+                    MatrixElementsRow,
+                    MatrixElementsCol,
+                    MatrixSum,
+                    Equals,
+                    GreaterThan,
+                    LessThan,
+                    Literal,
+                ],
+                Condition,
+            ),
+            "cube": extract_grammar(
+                [And, Or, Not, MatrixElement, MatrixElementsCube, MatrixSum, Equals, GreaterThan, LessThan, Literal],
+                Condition,
+            ),
+            "row_col_cube": extract_grammar(
+                [
+                    And,
+                    Or,
+                    Not,
+                    MatrixElement,
+                    MatrixElementsRow,
+                    MatrixElementsCol,
+                    MatrixElementsCube,
+                    MatrixSum,
+                    Equals,
+                    GreaterThan,
+                    LessThan,
+                    Literal,
+                ],
+                Condition,
+            ),
+            "sum_all": extract_grammar(
+                [And, Or, Not, MatrixElement, SumAll, Equals, GreaterThan, LessThan, Literal],
+                Condition,
+            ),
+        }
+        self.grammar = grammars[self.method]
 
     def get_problem(self) -> Problem:
-        return SingleObjectiveProblem(
-            minimize=False,
-            fitness_function=fitness_function,
-        )
+        return self.problem
 
     def get_grammar(self) -> Grammar:
         return self.grammar
 
-    def main(self, **args):
-        g = self.get_grammar()
-
-        alg = SimpleGP(
-            grammar=g,
-            minimize=True,
-            fitness_function=fitness_function,
-            max_evaluations=10000,
-            population_size=50,
-            max_depth=10,
-            # favor_less_complex_trees=True,
-            # crossover_probability=0.75,
-            # mutation_probability=0.01,
-            # selection_method=("tournament", 2),
-            **args,
-        )
-        best = alg.search()
-        print(
-            f"Fitness of {best.get_fitness(alg.get_problem())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
-        )
-
-        _clf = evaluate(best.get_phenotype())
-        ypred = [_clf(line) for line in np.rollaxis(Xtest, 0)]
-        print("GeneticEngine Test F1 score:", f1_score(ytest, ypred))
-
 
 if __name__ == "__main__":
-    GameOfLifeVectorialBenchmark(method="col").main(seed=0)
+    example_run(GameOfLifeVectorialBenchmark("col"))
