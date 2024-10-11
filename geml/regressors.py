@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from sklearn.base import BaseEstimator
 from geml.common import GeneticEngineEstimator, PopulationRecorder
-from geml.grammars.symbolic_regression import make_var, components, Expression
+from geml.grammars.symbolic_regression import make_var, components, Expression, optimize_expression
 from geneticengine.algorithms.gp.gp import GeneticProgramming
 from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.algorithms.one_plus_one import OnePlusOne
@@ -62,7 +62,9 @@ class GeneticProgrammingRegressor(GeneticEngineRegressor):
             budget=budget,
             tracker=SingleObjectiveProgressTracker(problem=problem, recorders=[population_recorder]),
         )
-        return gp.search()
+        best = gp.search()
+
+        return optimize_expression(best.get_phenotype())
 
     def __str__(self):
         return "GPRegressor"
