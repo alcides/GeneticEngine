@@ -62,14 +62,14 @@ def PredictorWrapper(BaseEstimator):
 
 
 class GeneticEngineEstimator(BaseEstimator):
-    max_time: float
+    max_time: float | int
 
-    def __init__(self, max_time: float = 1, seed: int = 0):
+    def __init__(self, max_time: float | int = 1, seed: int = 0):
         self.max_time = max_time
         self.seed = 0
 
     _parameter_constraints = {
-        "max_time": [float],
+        "max_time": [float, int],
         "seed": [int],
     }
 

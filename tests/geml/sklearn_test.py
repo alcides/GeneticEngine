@@ -34,7 +34,7 @@ class TestSklearnAPI:
         X_test = pd.DataFrame({"a": [3, 2], "b": [5, 10]})
         y_test = np.array([1, 0])
 
-        c = classifier(max_time=5.0)
+        c = classifier(max_time=5)
         c.fit(X, y)
         y_pred = c.predict(X_test)
         k = f1_score(y_test, y_pred)
@@ -52,7 +52,7 @@ class TestSklearnAPI:
         X_test = pd.DataFrame({"a": [3.0, 2.0], "b": [3.0, 2.0]})
         y_test = np.array([0.0, 0.0])
 
-        c = regressor(max_time=1.0)
+        c = regressor(max_time=1)
         c.fit(X, y)
         y_pred = c.predict(X_test)
         k = r2_score(y_test, y_pred)
