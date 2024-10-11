@@ -88,7 +88,7 @@ class GeneticEngineEstimator(BaseEstimator):
     def get_population(self) -> list[str]:
         return [PredictorWrapper(x) for x in self._best_individuals]
 
-    def get_best_individual(self) -> str:
+    def get_best_solution(self) -> str:
         return PredictorWrapper(self._best_individual)
 
     def get_budget(self) -> SearchBudget:
