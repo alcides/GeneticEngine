@@ -95,8 +95,10 @@ class GeneticEngineEstimator(BaseEstimator):
         return TimeBudget(self.max_time)
 
     def to_sympy(self):
-        assert self.get_best_individual is not None
-        return self._best_individual[1]
+        if self.is_fitted_:
+            return self._best_individual[1]
+        else:
+            return "0"
 
     def predict(self, X):
         check_is_fitted(self)
