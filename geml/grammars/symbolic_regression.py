@@ -66,7 +66,7 @@ class SafeDiv(Expression):
         return f"({self.l.to_sympy()} / {self.r.to_sympy()})"
 
     def to_numpy(self) -> str:
-        return f"(lambda a, b: np.divide(a, b, out=np.zeros_like(a), where=b!=0.0))({self.l.to_numpy()}, {self.r.to_numpy()})"
+        return f"(lambda a, b: np.divide(a, b, out=np.zeros_like(a, dtype=np.float64), where=b!=0.0))({self.l.to_numpy()}, {self.r.to_numpy()})"
 
 
 @weight(100)

@@ -25,7 +25,7 @@ from geneticengine.representations.tree.initializations import ProgressivelyTerm
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 
 
-def forward_dataset(e: Expression, dataset) -> float:
+def forward_dataset_expr(e: Expression, dataset) -> float:
     return eval(e.to_numpy(), {"x": dataset, "np": np})
 
 
@@ -37,7 +37,7 @@ def test_symbolic_regression_sympy_simp():
     assert str(e2) == "0"
 
 
-def test_symbolic_regression_gp():
+def test_symbolic_regression_gp() -> None:
     r = NativeRandomSource(seed=1)
 
     # Grammar setup
@@ -51,7 +51,7 @@ def test_symbolic_regression_gp():
         Pow(Var("x"), Two()),
     )
     dataset = np.arange(-1000.0, 1000.0, 1.0).reshape(2000, 1)
-    y_true = forward_dataset(target_expression, dataset)
+    y_true = forward_dataset_expr(target_expression, dataset)
 
     def fitness_function(x: Expression) -> float:
         symbolic = x.to_sympy()
@@ -63,7 +63,7 @@ def test_symbolic_regression_gp():
             return -100000000
         else:
             try:
-                y_pred = forward_dataset(x, dataset)
+                y_pred = forward_dataset_expr(x, dataset)
                 return r2_score(y_true, y_pred)
             except ValueError as e:
                 return -10000000

@@ -118,4 +118,4 @@ class GeneticProgramming(HeuristicSearch):
             # TODO: Think about this API
             return self.tracker.get_best_individuals()[0]
         else:
-            return None
+            assert False, "Tracker not defined or not supported"

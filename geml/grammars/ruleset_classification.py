@@ -17,6 +17,9 @@ def make_grammar(feature_names: list[str], classes: list[Any]) -> tuple[list[typ
         def to_numpy(self) -> str:
             return f"{self.value}"
 
+        def __str__(self):
+            return f"Class={self.value}"
+
     class BExpression(ABC):
 
         @abstractmethod
@@ -147,10 +150,16 @@ def make_grammar(feature_names: list[str], classes: list[Any]) -> tuple[list[typ
         def to_numpy(self) -> str:
             return f"{self.name}"
 
+        def __str__(self) -> str:
+            return f"{self.name}"
+
     @dataclass
     class Rule:
         condition: BExpression
         answer: Klass
+
+        def __str__(self):
+            return f"IF ({self.condition}) THEN {self.answer}"
 
     @dataclass
     class RuleSet:
@@ -163,6 +172,13 @@ def make_grammar(feature_names: list[str], classes: list[Any]) -> tuple[list[typ
                 self.rules,
                 self.default.to_numpy(),
             )
+
+        def to_sympy(self) -> str:
+            return None
+
+        def __str__(self):
+            rules_ext = "; ".join(str(r) for r in self.rules)
+            return f"{rules_ext}; default={self.default}"
 
     components = [
         BExpression,

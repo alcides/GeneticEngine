@@ -28,6 +28,7 @@ class HC(HeuristicSearch):
     def search(self) -> Individual:
         assert isinstance(self.representation, RepresentationWithMutation)
         current_ind = None
+        print(self.is_done())
         while not self.is_done():
             if current_ind is None:
                 n = self.representation.create_genotype(self.random)
@@ -40,4 +41,5 @@ class HC(HeuristicSearch):
                 neighbourhood = [Individual(genotype=n2, representation=self.representation) for n2 in genotypes]
                 self.tracker.evaluate(neighbourhood)
             current_ind = self.tracker.get_best_individual()
+        print("debug", current_ind, self.tracker.get_best_individual())
         return self.tracker.get_best_individual()

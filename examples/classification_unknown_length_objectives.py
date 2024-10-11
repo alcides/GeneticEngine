@@ -171,7 +171,7 @@ def fitness_function_lexicase(n: Number):
     return [int(p == r) for (p, r) in zip(y, y_pred)]
 
 
-class ClassificationLexicaseBenchmark:
+class ClassificationUnknownBenchmark:
     def get_grammar(self) -> Grammar:
         return extract_grammar(
             [Plus, Mul, SafeDiv, Literal2, Var, SafeSqrt, SafeLog],
@@ -201,4 +201,4 @@ class ClassificationLexicaseBenchmark:
 
 
 if __name__ == "__main__":
-    ClassificationLexicaseBenchmark().main(seed=0)
+    ClassificationUnknownBenchmark().main(seed=0)
