@@ -70,7 +70,7 @@ class GeneticProgrammingRegressor(GeneticEngineRegressor):
 
 class HillClimbingRegressor(GeneticEngineRegressor):
 
-    def __init__(self, max_time: float = 1, seed: int = 0, number_of_mutations: int = 5):
+    def __init__(self, max_time: float | int = 1, seed: int = 0, number_of_mutations: int = 5):
         super().__init__(max_time, seed)
         self.number_of_mutations = number_of_mutations
 

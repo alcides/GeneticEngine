@@ -53,12 +53,12 @@ class GeneticProgrammingClassifier(GeneticEngineClassifier):
 
 class HillClimbingClassifier(GeneticEngineClassifier):
 
-    def __init__(self, max_time: float = 1, seed: int = 0, number_of_mutations: int = 5):
+    def __init__(self, max_time: float | int = 1, seed: int = 0, number_of_mutations: int = 5):
         super().__init__(max_time, seed)
         self.number_of_mutations = number_of_mutations
 
     _parameter_constraints = {
-        "max_time": [float],
+        "max_time": [float, int],
         "seed": [int],
         "number_of_mutations": [int],
     }
