@@ -18,9 +18,9 @@ from geneticengine.solutions.individual import Individual
 
 
 class SRBenchRegressor(ABC):
-    max_time: float
+    max_time: float | int
 
-    def __init__(self, max_time: float):
+    def __init__(self, max_time: float | int):
         self.max_time = max_time
 
     @abstractmethod
@@ -75,7 +75,7 @@ class HillClimbingRegressor(GeneticEngineRegressor):
         self.number_of_mutations = number_of_mutations
 
     _parameter_constraints = {
-        "max_time": [float],
+        "max_time": [float, int],
         "seed": [int],
         "number_of_mutations": [int],
     }
