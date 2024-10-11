@@ -95,7 +95,7 @@ class GeneticEngineEstimator(BaseEstimator):
         return TimeBudget(self.max_time)
 
     def to_sympy(self):
-        if self.is_fitted_:
+        if hasattr(self, "_best_individual"):
             return self._best_individual[1]
         else:
             return "0"
