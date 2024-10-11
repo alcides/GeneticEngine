@@ -1,0 +1,16 @@
+coverage:
+  status:
+    project:
+      default: # default is the status check's name, not default settings
+        target: auto
+        threshold: 5
+        flags:
+          - unit
+        paths:
+          - "geneticengine"
+        # advanced settings
+        branches:
+          - master
+        if_ci_failed: success #success, failure, error, ignore
+        informational: true
+        only_pulls: false
