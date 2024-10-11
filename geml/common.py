@@ -95,10 +95,8 @@ class GeneticEngineEstimator(BaseEstimator):
         return TimeBudget(self.max_time)
 
     def to_sympy(self):
-        if hasattr(self, "_best_individual"):
-            return self._best_individual[1]
-        else:
-            return "0"
+        check_is_fitted(self)
+        return self._best_individual[1]
 
     def predict(self, X):
         check_is_fitted(self)
@@ -144,8 +142,14 @@ class GeneticEngineEstimator(BaseEstimator):
 
         self._best_individuals = [make_pair(ind) for ind in population_recorder.best_individuals]
 
-        self.is_fitted_ = True
+        self._is_fitted = True
         return self
+
+    def __sklearn_is_fitted__(self):
+        """
+        Check fitted status and return a Boolean value.
+        """
+        return hasattr(self, "_is_fitted") and self._is_fitted
 
     @abstractmethod
     def get_grammar(self, feature_names: list[str], data, target) -> Grammar: ...
