@@ -151,4 +151,7 @@ class OnePlusOneRegressor(GeneticEngineRegressor):
 
 
 def model(est, X=None) -> str:
-    return est.to_sympy()
+    if est is None:
+        return "0"
+    else:
+        return est.to_sympy()
