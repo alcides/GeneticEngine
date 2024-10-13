@@ -49,30 +49,7 @@ def forward_dataset(e: str, dataset) -> float:
     return wrap_in_shape(r, right_shape=(len(dataset), 1))
 
 
-class PredictorWrapper(BaseEstimator):
-    def __init__(self, ind: tuple[str, str]):
-        self.ind = ind
-
-    def predict(self, X):
-        _, data = self.prepare_inputs(X)
-        return forward_dataset(self.ind[0], data)
-
-    def to_sympy(self):
-        return self.ind[1]
-
-
-class GeneticEngineEstimator(BaseEstimator):
-    max_time: float | int
-
-    def __init__(self, max_time: float | int = 1, seed: int = 0):
-        self.max_time = max_time
-        self.seed = 0
-
-    _parameter_constraints = {
-        "max_time": [float, int],
-        "seed": [int],
-    }
-
+class GEBaseEstimator(BaseEstimator):
     def prepare_inputs(self, X) -> tuple[list[str], Any]:
         if isinstance(X, pd.DataFrame):
             return list(X.columns.values), X.values
@@ -84,6 +61,31 @@ class GeneticEngineEstimator(BaseEstimator):
             return y.values
         else:
             return y
+
+
+class PredictorWrapper(GEBaseEstimator):
+    def __init__(self, ind: tuple[str, str]):
+        self.ind = ind
+
+    def predict(self, X):
+        _, data = self.prepare_inputs(X)
+        return forward_dataset(self.ind[0], data)
+
+    def to_sympy(self):
+        return self.ind[1]
+
+
+class GeneticEngineEstimator(GEBaseEstimator):
+    max_time: float | int
+
+    def __init__(self, max_time: float | int = 1, seed: int = 0):
+        self.max_time = max_time
+        self.seed = 0
+
+    _parameter_constraints = {
+        "max_time": [float, int],
+        "seed": [int],
+    }
 
     def get_population(self) -> list[BaseEstimator]:
         check_is_fitted(self)
