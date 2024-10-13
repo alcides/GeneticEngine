@@ -61,6 +61,13 @@ def PredictorWrapper(BaseEstimator):
         return self.ind[1]
 
 
+def mk_estimator(x):
+    print(f"x={x}")
+    p = PredictorWrapper(x)
+    print(f"p={p}")
+    return p
+
+
 class GeneticEngineEstimator(BaseEstimator):
     max_time: float | int
 
@@ -86,9 +93,8 @@ class GeneticEngineEstimator(BaseEstimator):
             return y
 
     def get_population(self) -> list[BaseEstimator]:
-        print("before")
         check_is_fitted(self)
-        print("after", [PredictorWrapper(x) for x in self._best_individuals])
+        print("after", [mk_estimator(x) for x in self._best_individuals])
         return [PredictorWrapper(x) for x in self._best_individuals]
 
     def get_best_solution(self) -> BaseEstimator:
