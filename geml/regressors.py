@@ -32,7 +32,6 @@ class SRBenchRegressor(ABC):
 
 class GeneticEngineRegressor(
     GeneticEngineEstimator,
-    SRBenchRegressor,
 ):
 
     def get_grammar(self, feature_names: list[str], data, target) -> Grammar:

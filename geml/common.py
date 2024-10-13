@@ -85,10 +85,14 @@ class GeneticEngineEstimator(BaseEstimator):
         else:
             return y
 
-    def get_population(self) -> list[str]:
+    def get_population(self) -> list[BaseEstimator]:
+        print("before")
+        check_is_fitted(self)
+        print("after", [PredictorWrapper(x) for x in self._best_individuals])
         return [PredictorWrapper(x) for x in self._best_individuals]
 
     def get_best_solution(self) -> BaseEstimator:
+        check_is_fitted(self)
         return PredictorWrapper(self._best_individual)
 
     def get_budget(self) -> SearchBudget:
