@@ -49,7 +49,7 @@ def forward_dataset(e: str, dataset) -> float:
     return wrap_in_shape(r, right_shape=(len(dataset), 1))
 
 
-def PredictorWrapper(BaseEstimator):
+class PredictorWrapper(BaseEstimator):
     def __init__(self, ind: tuple[str, str]):
         self.ind = ind
 
@@ -59,13 +59,6 @@ def PredictorWrapper(BaseEstimator):
 
     def to_sympy(self):
         return self.ind[1]
-
-
-def mk_estimator(x):
-    print(f"x={x}")
-    p = PredictorWrapper(x)
-    print(f"p={p}")
-    return p
 
 
 class GeneticEngineEstimator(BaseEstimator):
@@ -94,7 +87,6 @@ class GeneticEngineEstimator(BaseEstimator):
 
     def get_population(self) -> list[BaseEstimator]:
         check_is_fitted(self)
-        print("after", [mk_estimator(x) for x in self._best_individuals])
         return [PredictorWrapper(x) for x in self._best_individuals]
 
     def get_best_solution(self) -> BaseEstimator:
