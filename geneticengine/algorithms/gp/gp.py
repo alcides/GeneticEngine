@@ -104,7 +104,7 @@ class GeneticProgramming(HeuristicSearch):
                     self.tracker.evaluator,
                     self.representation,
                     self.random,
-                    population,
+                    iter(population),
                     self.population_size,
                     generation,
                 ),
