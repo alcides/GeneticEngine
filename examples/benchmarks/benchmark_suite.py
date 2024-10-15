@@ -4,7 +4,7 @@ from examples.benchmarks.game_of_life_vectorial import GameOfLifeVectorialBenchm
 from examples.benchmarks.regression import RegressionBenchmark
 from examples.benchmarks.regression_lexicase import RegressionLexicaseBenchmark
 from examples.benchmarks.string_match import StringMatchBenchmark
-from examples.benchmarks.santa_fe import SantaFeBenchmark, map
+from examples.benchmarks.santafe import SantaFeBenchmark, map
 from examples.benchmarks.vectorialgp import VectorialGPBenchmark, dataset
 from geml.common import PopulationRecorder
 from geneticengine.algorithms.random_search import RandomSearch
