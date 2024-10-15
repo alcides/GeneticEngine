@@ -6,7 +6,7 @@ from examples.benchmarks.regression_lexicase import RegressionLexicaseBenchmark
 from examples.benchmarks.string_match import StringMatchBenchmark
 from examples.benchmarks.santafe import SantaFeBenchmark, map
 from examples.benchmarks.vectorialgp import VectorialGPBenchmark, dataset
-from examples.pymax import PyMaxBenchmark
+from examples.benchmarks.pymax import PyMaxBenchmark
 from geml.common import PopulationRecorder
 from geneticengine.algorithms.random_search import RandomSearch
 from geneticengine.evaluation.budget import TimeBudget
