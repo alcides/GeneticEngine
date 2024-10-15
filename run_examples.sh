@@ -34,24 +34,23 @@ run_example examples/geml/regressor_example.py
 run_example examples/benchmarks/classification.py
 run_example examples/benchmarks/classification_lexicase.py
 run_example examples/benchmarks/game_of_life_vectorial.py
+run_example examples/benchmarks/regression.py
+run_example examples/benchmarks/regression_lexicase.py
+run_example examples/benchmarks/santafe.py
+run_example examples/benchmarks/string_match.py
+run_example examples/benchmarks/vectorialgp.py
 
-
-run_example examples/example.py
 run_example examples/pymax.py
-run_example examples/vectorialgp_example.py
-run_example examples/regression_lexicase.py
-run_example examples/classification_unknown_length_objectives.py
-run_example examples/santafe.py
-run_example examples/game_of_life.py
-run_example examples/string_match.py
-
 run_example examples/progsys/Number_IO.py
 run_example examples/progsys/Median.py
 run_example examples/progsys/Smallest.py
 run_example examples/progsys/Sum_of_Squares.py
 
+
 # Other features
 
+run_example examples/example.py
+run_example examples/classification_unknown_length_objectives.py
 run_example examples/binary.py
 run_example examples/multi_target_lexicase.py
 run_example examples/pcfg_example.py
