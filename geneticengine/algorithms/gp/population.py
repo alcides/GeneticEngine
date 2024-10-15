@@ -16,3 +16,6 @@ class Population:
 
     def __iter__(self):
         return iter(self.individuals)
+
+    def get_individuals(self):
+        return self.individuals
