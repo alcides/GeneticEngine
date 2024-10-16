@@ -1,6 +1,12 @@
 from examples.benchmarks.classification import ClassificationBenchmark
 from examples.benchmarks.classification_lexicase import ClassificationLexicaseBenchmark
 from examples.benchmarks.game_of_life_vectorial import GameOfLifeVectorialBenchmark
+from examples.benchmarks.regression import RegressionBenchmark
+from examples.benchmarks.regression_lexicase import RegressionLexicaseBenchmark
+from examples.benchmarks.string_match import StringMatchBenchmark
+from examples.benchmarks.santafe import SantaFeBenchmark, map
+from examples.benchmarks.vectorialgp import VectorialGPBenchmark, dataset
+from examples.benchmarks.pymax import PyMaxBenchmark
 from geml.common import PopulationRecorder
 from geneticengine.algorithms.random_search import RandomSearch
 from geneticengine.evaluation.budget import TimeBudget
@@ -14,13 +20,13 @@ from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 benchmarks = [
     ClassificationBenchmark(),
     ClassificationLexicaseBenchmark(),
-    GameOfLifeVectorialBenchmark("col"),
-    # DiabetesBenchmark(),
-    # LexicaseRegressionBenchmark(),
-    # RegressionBenchmark(),
-    # SantaFeBenchmark(),
-    # StringMatchBenchmark(),
-    # VectorialGPBenchmark(),
+    GameOfLifeVectorialBenchmark("standard"),
+    PyMaxBenchmark(),
+    RegressionLexicaseBenchmark(),
+    RegressionBenchmark(),
+    SantaFeBenchmark(map),
+    StringMatchBenchmark(),
+    VectorialGPBenchmark(dataset),
 ]
 
 
@@ -43,7 +49,9 @@ if __name__ == "__main__":
         for m in methods:
             random = NativeRandomSource(1337)
             tracker = SingleObjectiveProgressTracker(
-                problem, evaluator=SequentialEvaluator(), recorders=[PopulationRecorder()],
+                problem,
+                evaluator=SequentialEvaluator(),
+                recorders=[PopulationRecorder()],
             )
             instance = m(grammar, problem, random, budget, tracker)
             best = instance.search()
