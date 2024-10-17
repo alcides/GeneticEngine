@@ -12,7 +12,7 @@ authors = [
 readme = "Readme.md"
 requires-python = ">=3.10"
 keywords = [
-    "evolutionary computation, genetic programming, regression, machine learning",
+    "evolutionary computation", "genetic programming", "regression", "machine learning",
 ]
 
 classifiers = [
@@ -57,7 +57,6 @@ include-package-data = true
 
 [tool.setuptools.packages.find]
 where = ["."]
-
 
 [tool.docformatter]
 syntax = 'google'
