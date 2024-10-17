@@ -57,6 +57,10 @@ py-modules = ["geneticengine", "geml", "examples"]
 [tool.setuptools.packages.find]
 where = ["."]
 
+[tool.setuptools.package-data]
+examples = ["*.csv"]
+
+
 [tool.docformatter]
 syntax = 'google'
 black = true
