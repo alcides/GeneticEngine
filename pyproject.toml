@@ -53,12 +53,10 @@ requires = ['setuptools >= 67.6.0']
 
 [tool.setuptools]
 py-modules = ["geneticengine", "geml", "examples"]
+include-package-data = true
 
 [tool.setuptools.packages.find]
 where = ["."]
-
-[tool.setuptools.package-data]
-examples = ["*.csv"]
 
 
 [tool.docformatter]
