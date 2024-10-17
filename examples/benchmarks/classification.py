@@ -15,10 +15,15 @@ from geneticengine.problems import SingleObjectiveProblem
 from geml.common import forward_dataset
 from geml.grammars.ruleset_classification import make_grammar
 
+import importlib.resources as resources
+from examples import __name__ as pkg_name
+
 
 class ClassificationBenchmark(Benchmark):
     def __init__(self, dataset_name="Banknote"):
         DATA_FILE_TRAIN = f"examples/data/{dataset_name}/Train.csv"
+        DATA_FILE_TRAIN = resources.files(pkg_name) / "data" / dataset_name / "Train.csv"
+
         # DATA_FILE_TEST = f"examples/data/{dataset_name}/Test.csv"
 
         bunch = pd.read_csv(DATA_FILE_TRAIN, delimiter=" ")
