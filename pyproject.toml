@@ -52,7 +52,6 @@ build-backend = 'setuptools.build_meta'
 requires = ['setuptools >= 67.6.0']
 
 [tool.setuptools]
-packages = ["geneticengine", "geml", "examples"]
 py-modules = ["geneticengine", "geml", "examples"]
 
 [tool.docformatter]
