@@ -54,6 +54,9 @@ requires = ['setuptools >= 67.6.0']
 [tool.setuptools]
 py-modules = ["geneticengine", "geml", "examples"]
 
+[tool.setuptools.package-data]
+myModule = ["*.csv"]
+
 [tool.docformatter]
 syntax = 'google'
 black = true
