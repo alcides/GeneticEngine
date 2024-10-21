@@ -18,7 +18,7 @@ from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.evaluation.budget import AnyOf, EvaluationBudget, TargetFitness, TimeBudget
 from geneticengine.evaluation.parallel import ParallelEvaluator
 from geneticengine.evaluation.recorder import CSVSearchRecorder, SearchRecorder
-from geneticengine.evaluation.tracker import MultiObjectiveProgressTracker, SingleObjectiveProgressTracker
+from geneticengine.evaluation.tracker import ProgressTracker
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.evaluation.sequential import SequentialEvaluator
 from geneticengine.problems import MultiObjectiveProblem
@@ -232,9 +232,9 @@ class SimpleGP:
             recorders.append(recorder)
         ev = SequentialEvaluator() if not parallel_evaluation else ParallelEvaluator()
         if problem.number_of_objectives() == 1:
-            return SingleObjectiveProgressTracker(problem=problem, evaluator=ev, recorders=recorders)
+            return ProgressTracker(problem=problem, evaluator=ev, recorders=recorders)
         else:
-            return MultiObjectiveProgressTracker(problem=problem, evaluator=ev, recorders=recorders)
+            return ProgressTracker(problem=problem, evaluator=ev, recorders=recorders)
 
     def get_problem(self):
         return self.problem

@@ -1,9 +1,7 @@
 from abc import ABC, abstractmethod
 
 from geneticengine.evaluation.tracker import (
-    MultiObjectiveProgressTracker,
     ProgressTracker,
-    SingleObjectiveProgressTracker,
 )
 
 
@@ -42,7 +40,7 @@ class TargetFitness(SearchBudget):
         self.value = float(value)
 
     def is_done(self, tracker: ProgressTracker):
-        assert isinstance(tracker, SingleObjectiveProgressTracker)
+        assert isinstance(tracker, ProgressTracker)
         best = tracker.get_best_individual()
         if best is None:
             return False
@@ -58,7 +56,7 @@ class TargetMultiFitness(SearchBudget):
         self.targets = targets
 
     def is_done(self, tracker: ProgressTracker):
-        assert isinstance(tracker, MultiObjectiveProgressTracker)
+        assert isinstance(tracker, ProgressTracker)
         comps = tracker.get_best_individuals()[0].get_fitness(tracker.get_problem()).fitness_components
         assert len(comps) == len(self.targets)
         return all(abs(c - v) < 0.001 for v, c in zip(self.targets, comps))
@@ -69,6 +67,6 @@ class TargetMultiSameFitness(SearchBudget):
         self.target_fitness = target_fitness
 
     def is_done(self, tracker: ProgressTracker):
-        assert isinstance(tracker, MultiObjectiveProgressTracker)
+        assert isinstance(tracker, ProgressTracker)
         comps = tracker.get_best_individuals()[0].get_fitness(tracker.get_problem()).fitness_components
         return all(abs(c - self.target_fitness) < 0.001 for c in comps)

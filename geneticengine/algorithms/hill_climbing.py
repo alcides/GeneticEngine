@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from geneticengine.algorithms.heuristics import HeuristicSearch
 from geneticengine.evaluation.budget import SearchBudget
-from geneticengine.evaluation.tracker import SingleObjectiveProgressTracker
+from geneticengine.evaluation.tracker import ProgressTracker
 from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
 from geneticengine.representations.api import RepresentationWithMutation, Representation
@@ -19,7 +19,7 @@ class HC(HeuristicSearch):
         budget: SearchBudget,
         representation: Representation,
         random: RandomSource = None,
-        tracker: SingleObjectiveProgressTracker | None = None,
+        tracker: ProgressTracker | None = None,
         number_of_mutations: int = 5,
     ):
         super().__init__(problem, budget, representation, random, tracker)

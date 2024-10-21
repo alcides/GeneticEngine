@@ -3,9 +3,7 @@ from typing import Optional
 from geneticengine.evaluation.budget import SearchBudget
 
 from geneticengine.evaluation.tracker import (
-    MultiObjectiveProgressTracker,
     ProgressTracker,
-    SingleObjectiveProgressTracker,
 )
 from geneticengine.evaluation.sequential import SequentialEvaluator
 from geneticengine.problems import Problem, SingleObjectiveProblem
@@ -31,9 +29,9 @@ class SynthesisAlgorithm(ABC):
 
         if tracker is None:
             if isinstance(problem, SingleObjectiveProblem):
-                self.tracker = SingleObjectiveProgressTracker(problem, SequentialEvaluator())
+                self.tracker = ProgressTracker(problem, SequentialEvaluator())
             else:
-                self.tracker = MultiObjectiveProgressTracker(problem, SequentialEvaluator())
+                self.tracker = ProgressTracker(problem, SequentialEvaluator())
         else:
             self.tracker = tracker
 

@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from geneticengine.algorithms.gp.gp import GeneticProgramming
 from geneticengine.evaluation.budget import EvaluationBudget
 from geneticengine.evaluation.recorder import CSVSearchRecorder
-from geneticengine.evaluation.tracker import SingleObjectiveProgressTracker
+from geneticengine.evaluation.tracker import ProgressTracker
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
@@ -49,7 +49,7 @@ class TestCSVCallback:
             population_size=population_size,
             budget=EvaluationBudget(population_size * max_generations),
             random=r,
-            tracker=SingleObjectiveProgressTracker(
+            tracker=ProgressTracker(
                 objective,
                 recorders=[CSVSearchRecorder(csv_path=path, problem=objective)],
             ),
@@ -82,7 +82,7 @@ class TestCSVCallback:
             population_size=population_size,
             budget=EvaluationBudget(population_size * max_generations),
             random=NativeRandomSource(seed),
-            tracker=SingleObjectiveProgressTracker(
+            tracker=ProgressTracker(
                 objective,
                 recorders=[
                     CSVSearchRecorder(csv_path=path, problem=objective, extra_fields={"Seed": lambda t, i, p: seed}),
@@ -119,7 +119,7 @@ class TestCSVCallback:
             population_size=population_size,
             budget=EvaluationBudget(population_size * max_generations),
             random=NativeRandomSource(seed),
-            tracker=SingleObjectiveProgressTracker(
+            tracker=ProgressTracker(
                 objective,
                 recorders=[CSVSearchRecorder(csv_path=path, problem=objective, fields={"Seed": lambda t, i, p: seed})],
             ),

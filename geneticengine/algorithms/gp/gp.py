@@ -6,9 +6,7 @@ from geneticengine.algorithms.gp.population import Population
 from geneticengine.algorithms.heuristics import HeuristicSearch
 from geneticengine.evaluation.budget import SearchBudget
 from geneticengine.evaluation.tracker import (
-    MultiObjectiveProgressTracker,
     ProgressTracker,
-    SingleObjectiveProgressTracker,
 )
 from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.operators.combinators import ParallelStep, SequenceStep
@@ -112,9 +110,9 @@ class GeneticProgramming(HeuristicSearch):
                 generation,
             )
 
-        if isinstance(self.tracker, SingleObjectiveProgressTracker):
+        if isinstance(self.tracker, ProgressTracker):
             return self.tracker.get_best_individual()
-        elif isinstance(self.tracker, MultiObjectiveProgressTracker):
+        elif isinstance(self.tracker, ProgressTracker):
             # TODO: Think about this API
             return self.tracker.get_best_individuals()[0]
         else:

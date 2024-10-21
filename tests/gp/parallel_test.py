@@ -7,7 +7,7 @@ from typing import Any
 from geneticengine.algorithms.gp.gp import GeneticProgramming
 from geneticengine.evaluation.budget import EvaluationBudget
 from geneticengine.evaluation.recorder import SearchRecorder
-from geneticengine.evaluation.tracker import SingleObjectiveProgressTracker
+from geneticengine.evaluation.tracker import ProgressTracker
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import Problem, SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
@@ -54,7 +54,7 @@ class TestParallel:
             minimize=True,
         )
         r = NativeRandomSource(seed=123)
-        tracker = SingleObjectiveProgressTracker(problem=p, evaluator=ParallelEvaluator(), recorders=[TestRecorder()])
+        tracker = ProgressTracker(problem=p, evaluator=ParallelEvaluator(), recorders=[TestRecorder()])
         gp = GeneticProgramming(
             representation=TreeBasedRepresentation(
                 g,

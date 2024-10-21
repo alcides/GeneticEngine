@@ -12,7 +12,7 @@ from geml.common import PopulationRecorder
 from geneticengine.algorithms.random_search import RandomSearch
 from geneticengine.evaluation.budget import TimeBudget
 from geneticengine.evaluation.sequential import SequentialEvaluator
-from geneticengine.evaluation.tracker import SingleObjectiveProgressTracker
+from geneticengine.evaluation.tracker import ProgressTracker
 from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.tree.initializations import ProgressivelyTerminalDecider
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
@@ -53,7 +53,7 @@ if __name__ == "__main__":
 
         for m in methods:
             random = NativeRandomSource(1337)
-            tracker = SingleObjectiveProgressTracker(
+            tracker = ProgressTracker(
                 problem,
                 evaluator=SequentialEvaluator(),
                 recorders=[PopulationRecorder()],

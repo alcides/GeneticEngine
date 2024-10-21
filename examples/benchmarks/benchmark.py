@@ -3,7 +3,7 @@ from abc import ABC
 from geml.common import PopulationRecorder
 from geneticengine.algorithms.gp.gp import GeneticProgramming
 from geneticengine.evaluation.budget import TimeBudget
-from geneticengine.evaluation.tracker import SingleObjectiveProgressTracker
+from geneticengine.evaluation.tracker import ProgressTracker
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.problems import Problem
 from geneticengine.random.sources import NativeRandomSource
@@ -25,10 +25,11 @@ def example_run(b: Benchmark):
         problem=problem,
         budget=TimeBudget(5),
         representation=TreeBasedRepresentation(
-            grammar, decider=ProgressivelyTerminalDecider(random=random, grammar=grammar),
+            grammar,
+            decider=ProgressivelyTerminalDecider(random=random, grammar=grammar),
         ),
         random=random,
-        tracker=SingleObjectiveProgressTracker(problem, recorders=[PopulationRecorder()]),
+        tracker=ProgressTracker(problem, recorders=[PopulationRecorder()]),
     )
     best = s.search()
     print(

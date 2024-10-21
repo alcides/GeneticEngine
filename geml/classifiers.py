@@ -6,7 +6,7 @@ from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.algorithms.one_plus_one import OnePlusOne
 from geneticengine.algorithms.random_search import RandomSearch
 from geneticengine.evaluation.budget import SearchBudget
-from geneticengine.evaluation.tracker import SingleObjectiveProgressTracker
+from geneticengine.evaluation.tracker import ProgressTracker
 from geneticengine.grammar.grammar import Grammar, extract_grammar
 from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
@@ -43,7 +43,7 @@ class GeneticProgrammingClassifier(GeneticEngineClassifier):
             problem=problem,
             random=random,
             budget=budget,
-            tracker=SingleObjectiveProgressTracker(problem=problem, recorders=[population_recorder]),
+            tracker=ProgressTracker(problem=problem, recorders=[population_recorder]),
         )
         return gp.search()
 
@@ -77,7 +77,7 @@ class HillClimbingClassifier(GeneticEngineClassifier):
             problem=problem,
             random=random,
             budget=budget,
-            tracker=SingleObjectiveProgressTracker(problem=problem, recorders=[population_recorder]),
+            tracker=ProgressTracker(problem=problem, recorders=[population_recorder]),
         )
         return hc.search()
 
@@ -101,7 +101,7 @@ class RandomSearchClassifier(GeneticEngineClassifier):
             problem=problem,
             random=random,
             budget=budget,
-            tracker=SingleObjectiveProgressTracker(problem=problem, recorders=[population_recorder]),
+            tracker=ProgressTracker(problem=problem, recorders=[population_recorder]),
         )
         return rs.search()
 
@@ -125,7 +125,7 @@ class OnePlusOneClassifier(GeneticEngineClassifier):
             problem=problem,
             random=random,
             budget=budget,
-            tracker=SingleObjectiveProgressTracker(problem=problem, recorders=[population_recorder]),
+            tracker=ProgressTracker(problem=problem, recorders=[population_recorder]),
         )
         return hc.search()
 
