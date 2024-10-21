@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import pandas as pd
-from sklearn.model_selection import train_test_split
+import numpy as np
 
 from examples.benchmarks.benchmark import Benchmark, example_run
+from examples.benchmarks.datasets import get_banknote
 from geneticengine.grammar.grammar import extract_grammar, Grammar
 from geneticengine.problems import Problem, MultiObjectiveProblem
 from geml.common import forward_dataset
@@ -11,36 +11,24 @@ from geml.grammars.ruleset_classification import make_grammar
 
 
 class ClassificationLexicaseBenchmark(Benchmark):
-    def __init__(self, dataset_name="Banknote"):
-        DATA_FILE_TRAIN = f"examples/data/{dataset_name}/Train.csv"
 
-        bunch = pd.read_csv(DATA_FILE_TRAIN, delimiter=" ")
-        target = bunch.y
-        data = bunch.drop(["y"], axis=1)
+    def __init__(self, X, y, feature_names):
+        self.setup_problem(X, y)
+        self.setup_grammar(y, feature_names)
 
-        feature_names = list(data.columns.values)
-
-        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
-            data.values,
-            target.values,
-            test_size=0.75,
-        )
-
-        self.setup_problem()
-        self.setup_grammar(feature_names)
-
-    def setup_problem(self):
+    def setup_problem(self, X, y):
         def fitness_function_lexicase(ruleset):
             try:
-                y_pred = forward_dataset(ruleset.to_numpy(), self.X_test)
-                return [int(p == r) for (p, r) in zip(self.y_test, y_pred)]
+                y_pred = forward_dataset(ruleset.to_numpy(), X)
+                return np.equal(y, y_pred).reshape(len(y)).astype(int)
             except ValueError:
-                return [0 for _ in self.y_test]
+                return [0 for _ in y]
 
         self.problem = MultiObjectiveProblem(minimize=False, fitness_function=fitness_function_lexicase)
 
-    def setup_grammar(self, feature_names):
-        components, RuleSet = make_grammar(feature_names, [0, 1])
+    def setup_grammar(self, y, feature_names):
+        options = [int(v) for v in np.unique(y)]
+        components, RuleSet = make_grammar(feature_names, options)
         Var = components[-1]
         Var.feature_names = feature_names
         index_of = {n: i for i, n in enumerate(feature_names)}
@@ -55,4 +43,5 @@ class ClassificationLexicaseBenchmark(Benchmark):
 
 
 if __name__ == "__main__":
-    example_run(ClassificationLexicaseBenchmark("Banknote"))
+    data, target, features = get_banknote()
+    example_run(ClassificationLexicaseBenchmark(data, target, features))

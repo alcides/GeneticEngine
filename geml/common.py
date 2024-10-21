@@ -31,7 +31,7 @@ class PopulationRecorder(SearchRecorder):
                 self.best_individuals.pop()
 
 
-def wrap_in_shape(r, right_shape: tuple[int, int]):
+def wrap_in_shape(r, right_shape: tuple[int]):
     if not isinstance(r, np.ndarray):
         return np.full(shape=right_shape, fill_value=r)
     elif len(r.shape) == 0:
@@ -46,7 +46,7 @@ def forward_dataset(e: str, dataset) -> float:
     assert isinstance(e, str)
     with np.errstate(all="ignore"):
         r = eval(e, {"dataset": dataset, "np": np})
-    return wrap_in_shape(r, right_shape=(len(dataset), 1))
+    return wrap_in_shape(r, right_shape=(len(dataset),))
 
 
 class GEBaseEstimator(BaseEstimator):

@@ -9,6 +9,7 @@ import numpy as np
 from sklearn.metrics import f1_score
 
 from examples.benchmarks.benchmark import Benchmark, example_run
+from examples.benchmarks.datasets import get_game_of_life
 from geml.grammars.coding.conditions import Equals, GreaterThan, LessThan
 from geml.grammars.coding.numbers import Literal, Number
 from geneticengine.grammar.grammar import extract_grammar, Grammar
@@ -25,33 +26,6 @@ from geneticengine.grammar.metahandlers.ints import IntRange
 
 MATRIX_ROW_SIZE = 3
 MATRIX_COL_SIZE = 3
-
-
-def prepare_data(DATASET_NAME):
-    DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.csv"
-    DATA_FILE_TEST = f"examples/data/{DATASET_NAME}/Test.csv"
-
-    train = np.genfromtxt(
-        DATA_FILE_TRAIN,
-        skip_header=1,
-        delimiter=",",
-        dtype=int,
-    )
-    Xtrain = train[:, :-1]
-    Xtrain = Xtrain.reshape(train.shape[0], MATRIX_ROW_SIZE, MATRIX_COL_SIZE)
-    ytrain = train[:, -1]
-
-    test = np.genfromtxt(
-        DATA_FILE_TEST,
-        skip_header=1,
-        delimiter=",",
-        dtype=int,
-    )
-    Xtest = test[:, :-1]
-    Xtest = Xtest.reshape(test.shape[0], MATRIX_ROW_SIZE, MATRIX_COL_SIZE)
-    ytest = test[:, -1]
-
-    return Xtrain, Xtest, ytrain, ytest
 
 
 @dataclass
@@ -200,185 +174,37 @@ def evaluate(e: Expr | Matrix | Number) -> Callable[[Any], float]:
         raise NotImplementedError(str(e))
 
 
-grammars = {
-    "standard": extract_grammar([And, Or, Not, MatrixElement], Condition),
-    "row": extract_grammar(
-        [
-            And,
-            Or,
-            Not,
-            MatrixElement,
-            MatrixElementsRow,
-            MatrixSum,
-            Equals,
-            GreaterThan,
-            LessThan,
-            Literal,
-        ],
-        Condition,
-    ),
-    "col": extract_grammar(
-        [
-            And,
-            Or,
-            Not,
-            MatrixElement,
-            MatrixElementsCol,
-            MatrixSum,
-            Equals,
-            GreaterThan,
-            LessThan,
-            Literal,
-        ],
-        Condition,
-    ),
-    "row_col": extract_grammar(
-        [
-            And,
-            Or,
-            Not,
-            MatrixElement,
-            MatrixElementsRow,
-            MatrixElementsCol,
-            MatrixSum,
-            Equals,
-            GreaterThan,
-            LessThan,
-            Literal,
-        ],
-        Condition,
-    ),
-    "cube": extract_grammar(
-        [
-            And,
-            Or,
-            Not,
-            MatrixElement,
-            MatrixElementsCube,
-            MatrixSum,
-            Equals,
-            GreaterThan,
-            LessThan,
-            Literal,
-        ],
-        Condition,
-    ),
-    "row_col_cube": extract_grammar(
-        [
-            And,
-            Or,
-            Not,
-            MatrixElement,
-            MatrixElementsRow,
-            MatrixElementsCol,
-            MatrixElementsCube,
-            MatrixSum,
-            Equals,
-            GreaterThan,
-            LessThan,
-            Literal,
-        ],
-        Condition,
-    ),
-    "sum_all": extract_grammar(
-        [
-            And,
-            Or,
-            Not,
-            MatrixElement,
-            SumAll,
-            Equals,
-            GreaterThan,
-            LessThan,
-            Literal,
-        ],
-        Condition,
-    ),
-}
-
-
 class GameOfLifeVectorialBenchmark(Benchmark):
-    def __init__(self, method: str = "standard"):
-        self.method = method
-        self.setup_data()
-        self.setup_problem()
+    def __init__(self, X, y):
+        self.setup_problem(X, y)
         self.setup_grammar()
 
-    def setup_data(self):
-        DATASET_NAME = "GameOfLife"
-        DATA_FILE_TRAIN = f"examples/data/{DATASET_NAME}/Train.csv"
-        DATA_FILE_TEST = f"examples/data/{DATASET_NAME}/Test.csv"
-
-        train = np.genfromtxt(DATA_FILE_TRAIN, skip_header=1, delimiter=",", dtype=int)
-        self.Xtrain = train[:, :-1].reshape(train.shape[0], 3, 3)
-        self.ytrain = train[:, -1]
-
-        test = np.genfromtxt(DATA_FILE_TEST, skip_header=1, delimiter=",", dtype=int)
-        self.Xtest = test[:, :-1].reshape(test.shape[0], 3, 3)
-        self.ytest = test[:, -1]
-
-    def setup_problem(self):
+    def setup_problem(self, X, y):
         def fitness_function(i: Condition):
             _clf = evaluate(i)
-            ypred = [_clf(line) for line in np.rollaxis(self.Xtrain, 0)]
-            return f1_score(self.ytrain, ypred)
+            ypred = [_clf(line) for line in np.rollaxis(X, 0)]
+            return f1_score(y, ypred)
 
         self.problem = SingleObjectiveProblem(minimize=False, fitness_function=fitness_function)
 
     def setup_grammar(self):
-        grammars = {
-            "standard": extract_grammar([And, Or, Not, MatrixElement], Condition),
-            "row": extract_grammar(
-                [And, Or, Not, MatrixElement, MatrixElementsRow, MatrixSum, Equals, GreaterThan, LessThan, Literal],
-                Condition,
-            ),
-            "col": extract_grammar(
-                [And, Or, Not, MatrixElement, MatrixElementsCol, MatrixSum, Equals, GreaterThan, LessThan, Literal],
-                Condition,
-            ),
-            "row_col": extract_grammar(
-                [
-                    And,
-                    Or,
-                    Not,
-                    MatrixElement,
-                    MatrixElementsRow,
-                    MatrixElementsCol,
-                    MatrixSum,
-                    Equals,
-                    GreaterThan,
-                    LessThan,
-                    Literal,
-                ],
-                Condition,
-            ),
-            "cube": extract_grammar(
-                [And, Or, Not, MatrixElement, MatrixElementsCube, MatrixSum, Equals, GreaterThan, LessThan, Literal],
-                Condition,
-            ),
-            "row_col_cube": extract_grammar(
-                [
-                    And,
-                    Or,
-                    Not,
-                    MatrixElement,
-                    MatrixElementsRow,
-                    MatrixElementsCol,
-                    MatrixElementsCube,
-                    MatrixSum,
-                    Equals,
-                    GreaterThan,
-                    LessThan,
-                    Literal,
-                ],
-                Condition,
-            ),
-            "sum_all": extract_grammar(
-                [And, Or, Not, MatrixElement, SumAll, Equals, GreaterThan, LessThan, Literal],
-                Condition,
-            ),
-        }
-        self.grammar = grammars[self.method]
+        self.grammar = extract_grammar(
+            [
+                And,
+                Or,
+                Not,
+                MatrixElement,
+                MatrixElementsRow,
+                MatrixElementsCol,
+                MatrixElementsCube,
+                MatrixSum,
+                Equals,
+                GreaterThan,
+                LessThan,
+                Literal,
+            ],
+            Condition,
+        )
 
     def get_problem(self) -> Problem:
         return self.problem
@@ -388,4 +214,5 @@ class GameOfLifeVectorialBenchmark(Benchmark):
 
 
 if __name__ == "__main__":
-    example_run(GameOfLifeVectorialBenchmark("col"))
+    X, y = get_game_of_life()
+    example_run(GameOfLifeVectorialBenchmark(X, y))

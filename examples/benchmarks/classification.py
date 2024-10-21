@@ -2,11 +2,11 @@ from __future__ import annotations
 
 
 import numpy as np
-import pandas as pd
 
 from sklearn.metrics import f1_score
 
 from examples.benchmarks.benchmark import Benchmark, example_run
+from examples.benchmarks.datasets import get_banknote
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.problems import Problem
@@ -15,25 +15,13 @@ from geneticengine.problems import SingleObjectiveProblem
 from geml.common import forward_dataset
 from geml.grammars.ruleset_classification import make_grammar
 
-import importlib.resources as resources
-from examples import __name__ as pkg_name
 
 
 class ClassificationBenchmark(Benchmark):
-    def __init__(self, dataset_name="Banknote"):
-        DATA_FILE_TRAIN = f"examples/data/{dataset_name}/Train.csv"
-        DATA_FILE_TRAIN = resources.files(pkg_name) / "data" / dataset_name / "Train.csv"
 
-        # DATA_FILE_TEST = f"examples/data/{dataset_name}/Test.csv"
-
-        bunch = pd.read_csv(DATA_FILE_TRAIN, delimiter=" ")
-        target = bunch.y
-        data = bunch.drop(["y"], axis=1)
-
-        feature_names = list(data.columns.values)
-
-        self.setup_problem(data.values, target.values)
-        self.setup_grammar(feature_names)
+    def __init__(self, X, y, feature_names):
+        self.setup_problem(X, y)
+        self.setup_grammar(y, feature_names)
 
     def setup_problem(self, data, target):
 
@@ -48,9 +36,10 @@ class ClassificationBenchmark(Benchmark):
 
         self.problem = SingleObjectiveProblem(minimize=False, fitness_function=fitness_function)
 
-    def setup_grammar(self, feature_names):
+    def setup_grammar(self, y, feature_names):
         # Grammar
-        components, RuleSet = make_grammar(feature_names, [0, 1])
+        options = [int(v) for v in np.unique(y)]
+        components, RuleSet = make_grammar(feature_names, options)
         Var = components[-1]
         Var.feature_names = feature_names
         index_of = {n: i for i, n in enumerate(feature_names)}
@@ -65,4 +54,5 @@ class ClassificationBenchmark(Benchmark):
 
 
 if __name__ == "__main__":
-    example_run(ClassificationBenchmark("Banknote"))
+    data, target, features = get_banknote()
+    example_run(ClassificationBenchmark(data, target, features))

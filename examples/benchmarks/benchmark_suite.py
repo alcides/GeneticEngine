@@ -1,5 +1,6 @@
 from examples.benchmarks.classification import ClassificationBenchmark
 from examples.benchmarks.classification_lexicase import ClassificationLexicaseBenchmark
+from examples.benchmarks.datasets import get_banknote, get_game_of_life, get_vladislavleva
 from examples.benchmarks.game_of_life_vectorial import GameOfLifeVectorialBenchmark
 from examples.benchmarks.regression import RegressionBenchmark
 from examples.benchmarks.regression_lexicase import RegressionLexicaseBenchmark
@@ -17,13 +18,17 @@ from geneticengine.representations.tree.initializations import ProgressivelyTerm
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 
 
+banknote = get_banknote()
+vladislavleva = get_vladislavleva()
+gol = get_game_of_life()
+
 benchmarks = [
-    ClassificationBenchmark(),
-    ClassificationLexicaseBenchmark(),
-    GameOfLifeVectorialBenchmark("standard"),
+    ClassificationBenchmark(*banknote),
+    ClassificationLexicaseBenchmark(*banknote),
+    GameOfLifeVectorialBenchmark(*gol),
     PyMaxBenchmark(),
-    RegressionLexicaseBenchmark(),
-    RegressionBenchmark(),
+    RegressionLexicaseBenchmark(*vladislavleva),
+    RegressionBenchmark(*vladislavleva),
     SantaFeBenchmark(map),
     StringMatchBenchmark(),
     VectorialGPBenchmark(dataset),

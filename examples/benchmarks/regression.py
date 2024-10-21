@@ -2,11 +2,11 @@ from __future__ import annotations
 
 
 import numpy as np
-import pandas as pd
 
 from sklearn.metrics import r2_score
 
 from examples.benchmarks.benchmark import Benchmark, example_run
+from examples.benchmarks.datasets import get_vladislavleva
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.problems import Problem
@@ -17,17 +17,9 @@ from geml.grammars.symbolic_regression import Expression, components, make_var
 
 
 class RegressionBenchmark(Benchmark):
-    def __init__(self, dataset_name="Vladislavleva4"):
-        DATA_FILE_TRAIN = f"examples/data/{dataset_name}/Train.txt"
-        # DATA_FILE_TEST = f"examples/data/{dataset_name}/Test.txt"
 
-        bunch = pd.read_csv(DATA_FILE_TRAIN, delimiter="\t")
-        target = bunch.response
-        data = bunch.drop(["response"], axis=1)
-
-        feature_names = list(data.columns.values)
-
-        self.setup_problem(data.values, target.values)
+    def __init__(self, X, y, feature_names):
+        self.setup_problem(X, y)
         self.setup_grammar(feature_names)
 
     def setup_problem(self, data, target):
@@ -59,4 +51,5 @@ class RegressionBenchmark(Benchmark):
 
 
 if __name__ == "__main__":
-    example_run(RegressionBenchmark())
+    X, y, feature_names = get_vladislavleva()
+    example_run(RegressionBenchmark(X, y, feature_names))
