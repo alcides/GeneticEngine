@@ -1,15 +1,12 @@
 from __future__ import annotations
 
 
-
-
 from examples.benchmarks.benchmark import Benchmark, example_run
 from geml.grammars.letter import Char, Consonant, LetterString, String, Vowel
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.problems import Problem
 from geneticengine.problems import SingleObjectiveProblem
-
 
 
 class StringMatchBenchmark(Benchmark):
@@ -33,7 +30,7 @@ class StringMatchBenchmark(Benchmark):
                     fitness -= 1 / (1 + (abs(ord(t_p) - ord(g_p))))
             return fitness
 
-        self.problem = SingleObjectiveProblem(minimize=True, fitness_function=fitness_function)
+        self.problem = SingleObjectiveProblem(minimize=True, fitness_function=fitness_function, target=0)
 
     def setup_grammar(self):
         self.grammar = extract_grammar([LetterString, Char, Vowel, Consonant], String)

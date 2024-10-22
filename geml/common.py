@@ -1,4 +1,5 @@
 from abc import abstractmethod
+import abc
 from typing import Any
 
 import numpy as np
@@ -108,6 +109,9 @@ class GeneticEngineEstimator(GEBaseEstimator):
         feature_names, data = self.prepare_inputs(X)
         return forward_dataset(self._best_individual[0], data)
 
+    @abc.abstractmethod
+    def get_goal(self) -> tuple[bool, float]: ...
+
     @_fit_context(prefer_skip_nested_validation=True)
     def fit(self, X, y):
 
@@ -129,7 +133,8 @@ class GeneticEngineEstimator(GEBaseEstimator):
             except ValueError:
                 return -10000000
 
-        problem = SingleObjectiveProblem(fitness_function)
+        minimize, target = self.get_goal()
+        problem = SingleObjectiveProblem(fitness_function, minimize, target)
 
         population_recorder = PopulationRecorder()
 

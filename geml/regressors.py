@@ -42,6 +42,9 @@ class GeneticEngineRegressor(
         complete_components = components + [Var]
         return extract_grammar(complete_components, Expression)
 
+    def get_goal(self) -> tuple[bool, float]:
+        return False, 0
+
 
 class GeneticProgrammingRegressor(GeneticEngineRegressor):
 

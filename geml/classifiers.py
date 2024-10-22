@@ -26,6 +26,9 @@ class GeneticEngineClassifier(GeneticEngineEstimator):
         Var.to_numpy = lambda s: f"dataset[:,{index_of[s.name]}]"  # type:ignore
         return extract_grammar(components, RuleSet)
 
+    def get_goal(self) -> tuple[bool, float]:
+        return True, 1
+
 
 class GeneticProgrammingClassifier(GeneticEngineClassifier):
 

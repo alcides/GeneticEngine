@@ -174,7 +174,8 @@ class SantaFeBenchmark(Benchmark):
         def fitness_function(i):
             return simulate(i, map)
 
-        self.problem = SingleObjectiveProblem(minimize=False, fitness_function=fitness_function)
+        target_food = map.count("#")
+        self.problem = SingleObjectiveProblem(minimize=False, fitness_function=fitness_function, target=target_food)
 
     def setup_grammar(self):
         self.grammar = extract_grammar([ActionBlock, Action, IfFood, Move, Right, Left], ActionMain)
