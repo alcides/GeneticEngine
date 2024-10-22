@@ -117,8 +117,8 @@ class CooperativeGP(Generic[a, b]):
                 ),  # TODO: we might want to keep individuals, and not only the phenotypes.
                 **self.kwargs1,
             )
-            ind = gp1.search()
-            self.bests.b1 = ind.get_phenotype()
+            inds = gp1.search()
+            self.bests.b1 = inds[0].get_phenotype()
 
             gp2 = GeneticProgramming(
                 problem=p2,
@@ -128,7 +128,7 @@ class CooperativeGP(Generic[a, b]):
                 population_initializer=InjectInitialPopulationWrapper([e.get_phenotype() for e in pop2], init),
                 **self.kwargs2,
             )
-            ind = gp2.search()
-            self.bests.b2 = ind.get_phenotype()
+            inds = gp2.search()
+            self.bests.b2 = inds[0].get_phenotype()
 
         return (self.bests.b1, self.bests.b2)
