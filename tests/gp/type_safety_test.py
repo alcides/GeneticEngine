@@ -64,7 +64,7 @@ class TestGrammar:
                 GenericMutationStep(1),
             ),
         )
-        ind = gp.search()
+        ind = gp.search()[0]
         tree = ind.get_phenotype()
         assert isinstance(tree, UnderTest)
         assert isinstance(tree.a, Leaf)

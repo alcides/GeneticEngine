@@ -47,7 +47,7 @@ class TestProbabilisticGrammar:
             population_size=1000,
             budget=EvaluationBudget(50 * 1000),
         )
-        ind = gp.search()
+        ind = gp.search()[0]
         tree = ind.get_phenotype()
         assert isinstance(tree, OptionA)
 
@@ -65,7 +65,7 @@ class TestProbabilisticGrammar:
             population_size=1000,
             budget=EvaluationBudget(50 * 1000),
         )
-        ind = gp.search()
+        ind = gp.search()[0]
         tree = ind.get_phenotype()
         assert isinstance(tree, OptionA)
 
@@ -83,7 +83,7 @@ class TestProbabilisticGrammar:
             population_size=1000,
             budget=EvaluationBudget(50 * 1000),
         )
-        ind = gp.search()
+        ind = gp.search()[0]
         tree = ind.get_phenotype()
         assert isinstance(tree, OptionA)
 
@@ -102,6 +102,6 @@ class TestProbabilisticGrammar:
             random=r,
             population_size=1000,
         )
-        ind = gp.search()
+        ind = gp.search()[0]
         tree = ind.get_phenotype()
         assert isinstance(tree, OptionA)

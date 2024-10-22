@@ -162,7 +162,8 @@ def test_random_gp(representation):
             representation=repr,
             random=r,
         )
-        e = gp.search()
+        es = gp.search()
+        e = es[0]
         v = e.get_phenotype().i, e.get_phenotype().j
         vals.append(v)
     assert vals[0] == vals[1]

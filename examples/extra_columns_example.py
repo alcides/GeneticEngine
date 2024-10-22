@@ -59,5 +59,5 @@ gp = SimpleGP(
     seed=SEED,
 )
 
-ind = gp.search()
+ind = gp.search()[0]
 print(simplify(ind.get_phenotype()))

@@ -51,7 +51,7 @@ class TestUnknownObjectives:
                 GenericMutationStep(1),
             ),
         )
-        ind = gp.search()
+        ind = gp.search()[0]
         tree = ind.get_phenotype()
         assert isinstance(tree, Root)
         assert isinstance(tree, Leaf)
@@ -75,7 +75,7 @@ class TestUnknownObjectives:
                 GenericMutationStep(1),
             ),
         )
-        ind = gp.search()
+        ind = gp.search()[0]
         tree = ind.get_phenotype()
         assert isinstance(tree, Root)
         assert isinstance(tree, Leaf)

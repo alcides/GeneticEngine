@@ -37,7 +37,7 @@ def test_dependent_types():
             random=r,
             budget=EvaluationBudget(10),
         )
-        ind = gp.search()
+        ind = gp.search()[0]
         p = ind.get_phenotype()
         assert p.a <= p.b
 
