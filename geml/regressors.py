@@ -55,7 +55,7 @@ class GeneticProgrammingRegressor(GeneticEngineRegressor):
         random: RandomSource,
         budget: SearchBudget,
         population_recorder: PopulationRecorder,
-    ) -> Individual:
+    ) -> list[Individual] | None:
         decider = ProgressivelyTerminalDecider(random, grammar)
         gp = GeneticProgramming(
             representation=TreeBasedRepresentation(grammar, decider),
@@ -89,7 +89,7 @@ class HillClimbingRegressor(GeneticEngineRegressor):
         random: RandomSource,
         budget: SearchBudget,
         population_recorder: PopulationRecorder,
-    ) -> Individual:
+    ) -> list[Individual] | None:
         decider = ProgressivelyTerminalDecider(random, grammar)
         hc = HC(
             representation=TreeBasedRepresentation(grammar, decider),
@@ -113,7 +113,7 @@ class RandomSearchRegressor(GeneticEngineRegressor):
         random: RandomSource,
         budget: SearchBudget,
         population_recorder: PopulationRecorder,
-    ) -> Individual:
+    ) -> list[Individual] | None:
         decider = ProgressivelyTerminalDecider(random, grammar)
         rs = RandomSearch(
             representation=TreeBasedRepresentation(grammar, decider),
@@ -137,7 +137,7 @@ class OnePlusOneRegressor(GeneticEngineRegressor):
         random: RandomSource,
         budget: SearchBudget,
         population_recorder: PopulationRecorder,
-    ) -> Individual:
+    ) -> list[Individual] | None:
         decider = ProgressivelyTerminalDecider(random, grammar)
         hc = OnePlusOne(
             representation=TreeBasedRepresentation(grammar, decider),

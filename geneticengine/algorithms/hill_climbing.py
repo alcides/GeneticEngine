@@ -25,7 +25,7 @@ class HC(HeuristicSearch):
         super().__init__(problem, budget, representation, random, tracker)
         self.number_of_mutations = number_of_mutations
 
-    def search(self) -> Individual:
+    def perform_search(self) -> list[Individual] | None:
         assert isinstance(self.representation, RepresentationWithMutation)
         current_ind = None
         while not self.is_done():
@@ -39,5 +39,5 @@ class HC(HeuristicSearch):
                 ]
                 neighbourhood = [Individual(genotype=n2, representation=self.representation) for n2 in genotypes]
                 self.tracker.evaluate(neighbourhood)
-            current_ind = self.tracker.get_best_individual()
-        return self.tracker.get_best_individual()
+            current_ind = self.tracker.get_best_individuals()[0]
+        return self.tracker.get_best_individuals()

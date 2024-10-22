@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Optional
+from geneticengine.evaluation.exceptions import IndividualFoundException
 from geneticengine.evaluation.budget import SearchBudget
 
 from geneticengine.evaluation.tracker import (
@@ -8,6 +9,7 @@ from geneticengine.evaluation.tracker import (
 from geneticengine.evaluation.sequential import SequentialEvaluator
 from geneticengine.problems import Problem, SingleObjectiveProblem
 from geneticengine.representations.api import Representation
+from geneticengine.solutions.individual import Individual
 
 
 class SynthesisAlgorithm(ABC):
@@ -44,5 +46,11 @@ class SynthesisAlgorithm(ABC):
     def get_problem(self) -> Problem:
         return self.problem
 
+    def search(self) -> list[Individual] | None:
+        try:
+            return self.perform_search()
+        except IndividualFoundException as e:
+            return [e.individual]
+
     @abstractmethod
-    def search(self): ...
+    def perform_search(self) -> list[Individual] | None: ...

@@ -6,6 +6,7 @@ import numpy as np
 
 import pandas as pd
 from sklearn.base import BaseEstimator, check_is_fitted, _fit_context
+from sklearn.exceptions import FitFailedWarning
 from sklearn.metrics import r2_score
 
 from geneticengine.evaluation.budget import SearchBudget, TimeBudget
@@ -138,10 +139,13 @@ class GeneticEngineEstimator(GEBaseEstimator):
 
         population_recorder = PopulationRecorder()
 
-        best_individual = self.search(grammar, problem, random, self.get_budget(), population_recorder)
-        assert best_individual is not None, "Best individual is none..."
+        best_individuals = self.search(grammar, problem, random, self.get_budget(), population_recorder)
+        if best_individuals is None:
+            raise FitFailedWarning("Genetic Programming ")
+        best_individual = best_individuals[0]
 
         def make_pair(ind: Individual) -> tuple[str, str]:
+            assert isinstance(ind, Individual)
             return (
                 ind.get_phenotype().to_numpy(),
                 ind.get_phenotype().to_sympy(),
@@ -171,4 +175,4 @@ class GeneticEngineEstimator(GEBaseEstimator):
         random: RandomSource,
         budget: SearchBudget,
         population_recorder: PopulationRecorder,
-    ) -> Individual: ...
+    ) -> list[Individual] | None: ...

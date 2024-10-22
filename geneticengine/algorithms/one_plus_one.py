@@ -11,7 +11,7 @@ from geneticengine.solutions.individual import Individual
 class OnePlusOne(HeuristicSearch):
     """The (1 + 1) Evolutionary Algorithm."""
 
-    def search(self) -> Individual:
+    def perform_search(self) -> list[Individual] | None:
         assert isinstance(self.representation, RepresentationWithMutation)
         current_ind = None
         while not self.is_done():
@@ -22,4 +22,4 @@ class OnePlusOne(HeuristicSearch):
                 n2 = self.representation.mutate(self.random, ind.genotype)
                 ind = Individual(genotype=n2, representation=self.representation)
             self.tracker.evaluate([ind])
-        return self.tracker.get_best_individual()
+        return self.tracker.get_best_individuals()

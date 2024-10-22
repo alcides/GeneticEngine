@@ -39,6 +39,7 @@ from geneticengine.representations.tree.operators import (
     InjectInitialPopulationWrapper,
 )
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
+from geneticengine.solutions.individual import Individual
 
 P = TypeVar("P")
 
@@ -119,7 +120,7 @@ class SimpleGP:
             tracker=recorder,
         )
 
-    def search(self):
+    def search(self) -> list[Individual] | None:
         return self.gp.search()
 
     @overload

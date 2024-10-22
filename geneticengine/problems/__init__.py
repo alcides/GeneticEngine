@@ -110,11 +110,11 @@ class LazyMultiObjectiveProblem(MultiObjectiveProblem):
         return super().number_of_objectives()
 
 
-__all__ = [
-    "Fitness",
-    "Problem",
-    "SingleObjectiveProblem",
-    "SequentialObjectiveProblem",
-    "MultiObjectiveProblem",
-    "LazyMultiObjectiveProblem",
+__ALL__ = [
+    Fitness,
+    Problem,
+    SingleObjectiveProblem,
+    SequentialObjectiveProblem,
+    MultiObjectiveProblem,
+    LazyMultiObjectiveProblem,
 ]

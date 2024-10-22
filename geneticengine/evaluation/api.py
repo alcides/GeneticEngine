@@ -3,6 +3,7 @@ import logging
 from typing import Any, Generator, Iterable
 
 
+from geneticengine.evaluation.exceptions import IndividualFoundException
 from geneticengine.solutions.individual import Individual
 from geneticengine.problems import Fitness, Problem
 
@@ -14,14 +15,18 @@ class Evaluator(ABC):
         self.count = 0
 
     @abstractmethod
-    def evaluate_async(self, problem: Problem, individuals: Iterable[Individual[Any, Any]]) -> Generator[Individual, Any, Any]: ...
+    def evaluate_async(
+        self, problem: Problem, individuals: Iterable[Individual[Any, Any]],
+    ) -> Generator[Individual, Any, Any]: ...
 
     def evaluate(self, problem: Problem, individuals: Iterable[Individual[Any, Any]]):
         for _ in self.evaluate_async(problem, individuals):
             pass
 
-    def register_evaluation(self):
+    def register_evaluation(self, individual: Individual, problem: Problem):
         self.count += 1
+        if problem.is_solved(individual.get_fitness(problem)):
+            raise IndividualFoundException(individual)
 
     def number_of_evaluations(self):
         return self.count
