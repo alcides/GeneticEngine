@@ -120,16 +120,16 @@ class GeneticEngineEstimator(GEBaseEstimator):
         random = NativeRandomSource(self.seed)
 
         feature_names, data = self.prepare_inputs(X)
-        target = self.prepare_outputs(y)
-        assert data.shape[0] == target.shape[0]
+        y = self.prepare_outputs(y)
+        assert data.shape[0] == y.shape[0]
 
-        grammar = self.get_grammar(feature_names, data, target)
+        grammar = self.get_grammar(feature_names, data, y)
 
         def fitness_function(x: Expression) -> float:
             try:
                 y_pred = forward_dataset(x.to_numpy(), data)
                 with np.errstate(all="ignore"):
-                    return r2_score(target, y_pred)
+                    return r2_score(y, y_pred)
             except ValueError:
                 return -10000000
 
