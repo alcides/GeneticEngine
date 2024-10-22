@@ -193,7 +193,7 @@ class ClassificationUnknownBenchmark:
             budget=EvaluationBudget(1000),
             population_size=50,
         )
-        best = alg.search()
+        best = alg.search()[0]
         print(
             f"Fitness of {best.get_fitness(alg.get_problem())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
         )

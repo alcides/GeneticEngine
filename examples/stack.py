@@ -71,7 +71,7 @@ def main(seed=123):
         representation=StackBasedGGGPRepresentation(grammar, 2048),
         random=NativeRandomSource(seed),
     )
-    best = alg.search()
+    best = alg.search()[0]
     print(
         f"Fitness of {best.get_fitness(alg.get_problem())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
     )

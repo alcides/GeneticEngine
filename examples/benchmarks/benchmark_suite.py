@@ -59,7 +59,8 @@ if __name__ == "__main__":
                 recorders=[PopulationRecorder()],
             )
             instance = m(grammar, problem, random, budget, tracker)
-            best = instance.search()
+            bests = instance.search()
+            best = bests[0]
             print(
                 f"Fitness of {best.get_fitness(problem)} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
             )
