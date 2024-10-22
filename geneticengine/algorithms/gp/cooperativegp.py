@@ -65,10 +65,12 @@ class CooperativeGP(Generic[a, b]):
         self.population2_size = population2_size
         self.coevolutions = coevolutions
         self.representation1 = representation1 or TreeBasedRepresentation(
-            grammar=self.g1, decider=MaxDepthDecider(random, self.g1),
+            grammar=self.g1,
+            decider=MaxDepthDecider(random, self.g1),
         )
         self.representation2 = representation2 or TreeBasedRepresentation(
-            grammar=self.g2, decider=MaxDepthDecider(random, self.g2),
+            grammar=self.g2,
+            decider=MaxDepthDecider(random, self.g2),
         )
         self.kwargs1 = kwargs1 or {}
         self.kwargs2 = kwargs2 or {}

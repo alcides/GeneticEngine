@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, overload
+from typing import Any, Optional, overload
 from typing import Callable
 from typing import TypeVar
 
@@ -15,7 +15,7 @@ from geneticengine.algorithms.gp.operators.novelty import NoveltyStep
 from geneticengine.algorithms.gp.operators.selection import LexicaseSelection
 from geneticengine.algorithms.gp.operators.selection import TournamentSelection
 from geneticengine.algorithms.gp.structure import GeneticStep
-from geneticengine.evaluation.budget import AnyOf, EvaluationBudget, TargetFitness, TimeBudget
+from geneticengine.evaluation.budget import EvaluationBudget, TimeBudget
 from geneticengine.evaluation.parallel import ParallelEvaluator
 from geneticengine.evaluation.recorder import CSVSearchRecorder, SearchRecorder
 from geneticengine.evaluation.tracker import ProgressTracker
@@ -68,9 +68,9 @@ class SimpleGP:
         representation: str = "treebased",
         max_depth: int = 15,
         # Budget
-        target_fitness: float | None = None,
-        max_time: float = 60,
-        max_evaluations: int = 200,
+        target_fitness: list[float] | float | None = None,
+        max_time: Optional[float] = None,
+        max_evaluations: Optional[int] = None,
         # Tracker
         csv_output: str | None = None,
         csv_extra_fields: dict[str, Callable[[Any], str]] | None = None,
@@ -88,8 +88,8 @@ class SimpleGP:
         selection_method: tuple[str, int | bool] = ("tournament", 5),
     ):
         self.random = NativeRandomSource(seed)
-        self.problem = self.process_problem(fitness_function, minimize)
-        budget = self.build_budget(target_fitness, max_time, max_evaluations)
+        self.problem = self.process_problem(fitness_function, minimize, target_fitness)
+        budget = self.build_budget(max_time, max_evaluations)
         representation_internal = self.process_representation(representation, grammar, max_depth)
         population_initializer = self.process_population_initializer(initial_population)
 
@@ -126,7 +126,8 @@ class SimpleGP:
     def process_problem(
         self,
         fitness_function: Callable[[P], float],
-        minimize: bool,
+        minimize: bool | list[bool],
+        target_fitness: list[float] | float | None,
     ) -> Problem: ...
 
     @overload
@@ -134,17 +135,14 @@ class SimpleGP:
         self,
         fitness_function: Callable[[P], list[float]],
         minimize: list[bool],
+        target_fitness: Optional[list[float]],
     ) -> Problem: ...
 
-    def process_problem(
-        self,
-        fitness_function,
-        minimize=False,
-    ) -> Problem:
+    def process_problem(self, fitness_function, minimize=False, target_fitness=None) -> Problem:
         if isinstance(minimize, list):
-            return MultiObjectiveProblem(minimize, fitness_function)
+            return MultiObjectiveProblem(fitness_function, minimize, target_fitness)
         else:
-            return SingleObjectiveProblem(fitness_function, minimize)
+            return SingleObjectiveProblem(fitness_function, minimize, target_fitness)
 
     def process_representation(self, representation: str, grammar: Grammar, max_depth: int):
         representation_class = {
@@ -159,12 +157,13 @@ class SimpleGP:
 
         return representation_class(grammar=grammar, decider=decider)
 
-    def build_budget(self, target_fitness, max_time, max_evaluations):
-        base = AnyOf(TimeBudget(max_time), EvaluationBudget(max_evaluations))
-        if target_fitness is None:
-            return base
+    def build_budget(self, max_time, max_evaluations):
+        if max_time is None and max_evaluations is None:
+            assert False, "You have to define wither the max_time or max_evaluations"
+        elif max_time is not None:
+            return TimeBudget(max_time)
         else:
-            return AnyOf(TargetFitness(target_fitness), base)
+            return EvaluationBudget(max_evaluations)
 
     def process_population_initializer(self, initial_population: list[Any] | None = None):
         if initial_population:

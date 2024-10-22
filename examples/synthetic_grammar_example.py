@@ -5,7 +5,7 @@ from argparse import ArgumentParser
 from polyleven import levenshtein
 
 from geneticengine.algorithms.gp.gp import GeneticProgramming
-from geneticengine.evaluation.budget import AnyOf, EvaluationBudget, TargetFitness
+from geneticengine.evaluation.budget import EvaluationBudget
 from geneticengine.grammar.grammar import Grammar, extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
@@ -47,11 +47,12 @@ def single_run(
     problem = SingleObjectiveProblem(
         fitness_function=fitness_function,
         minimize=True,
+        target=0,
     )
     r = NativeRandomSource(seed)
     alg = GeneticProgramming(
         problem=problem,
-        budget=AnyOf(TargetFitness(0), EvaluationBudget(100)),
+        budget=EvaluationBudget(100),
         representation=TreeBasedRepresentation(g, decider=MaxDepthDecider(r, g, g.get_min_tree_depth() + 10)),
         population_size=10,
         random=r,

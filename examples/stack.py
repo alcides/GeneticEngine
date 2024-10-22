@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import Annotated
 
 from geneticengine.algorithms.gp.gp import GeneticProgramming
-from geneticengine.evaluation.budget import AnyOf, TargetFitness, TimeBudget
+from geneticengine.evaluation.budget import TimeBudget
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
@@ -61,11 +61,12 @@ def main(seed=123):
     prob = SingleObjectiveProblem(
         fitness_function=fitness_function,
         minimize=True,
+        target=0,
     )
 
     alg = GeneticProgramming(
         problem=prob,
-        budget=AnyOf(TargetFitness(0), TimeBudget(3)),
+        budget=TimeBudget(3),
         population_size=20,
         representation=StackBasedGGGPRepresentation(grammar, 2048),
         random=NativeRandomSource(seed),

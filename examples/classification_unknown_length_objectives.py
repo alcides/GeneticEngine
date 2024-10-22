@@ -7,7 +7,8 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-from geml.simplegp import SimpleGP
+from geneticengine.algorithms.gp.gp import GeneticProgramming
+from geneticengine.evaluation.budget import EvaluationBudget
 from geneticengine.grammar.decorators import abstract
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
@@ -20,6 +21,10 @@ from geml.grammars.sgp import Plus
 from geml.grammars.sgp import Var
 from geneticengine.grammar.metahandlers.floats import FloatList
 from geneticengine.grammar.metahandlers.vars import VarRange
+from geneticengine.problems import LazyMultiObjectiveProblem
+from geneticengine.random.sources import NativeRandomSource
+from geneticengine.representations.tree.initializations import MaxDepthDecider
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 
 # ===================================
 # This is an example of normal classification using normal GP,
@@ -179,20 +184,14 @@ class ClassificationUnknownBenchmark:
         )
 
     def main(self, **args):
-        g = self.get_grammar()
-
-        alg = SimpleGP(
-            grammar=g,
-            minimize=[],
-            fitness_function=fitness_function_lexicase,
-            crossover_probability=0.75,
-            mutation_probability=0.01,
-            max_evaluations=10000,
-            max_depth=15,
+        grammar = self.get_grammar()
+        random = NativeRandomSource(0)
+        problem = LazyMultiObjectiveProblem(fitness_function_lexicase, minimize=False, target=1)
+        alg = GeneticProgramming(
+            problem=problem,
+            representation=TreeBasedRepresentation(grammar, MaxDepthDecider(random, grammar, 15)),
+            budget=EvaluationBudget(1000),
             population_size=50,
-            selection_method=("lexicase",),
-            elitism=5,
-            **args,
         )
         best = alg.search()
         print(

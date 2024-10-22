@@ -2,7 +2,7 @@ from __future__ import annotations
 
 
 from geneticengine.algorithms.gp.gp import GeneticProgramming
-from geneticengine.evaluation.budget import AnyOf, EvaluationBudget, TargetFitness
+from geneticengine.evaluation.budget import EvaluationBudget
 from geneticengine.grammar.decorators import abstract
 from geneticengine.grammar.decorators import weight
 from geneticengine.grammar.grammar import extract_grammar
@@ -60,12 +60,10 @@ class TestProbabilisticGrammar:
             problem=SingleObjectiveProblem(
                 lambda p: isinstance(p, OptionA) and 1 or 2,
                 minimize=True,
+                target=0,
             ),
             population_size=1000,
-            budget=AnyOf(
-                EvaluationBudget(50 * 1000),
-                TargetFitness(0),
-            ),
+            budget=EvaluationBudget(50 * 1000),
         )
         ind = gp.search()
         tree = ind.get_phenotype()
@@ -80,12 +78,10 @@ class TestProbabilisticGrammar:
             problem=SingleObjectiveProblem(
                 lambda p: isinstance(p, OptionA) and 1 or 2,
                 minimize=True,
+                target=0,
             ),
             population_size=1000,
-            budget=AnyOf(
-                EvaluationBudget(50 * 1000),
-                TargetFitness(0),
-            ),
+            budget=EvaluationBudget(50 * 1000),
         )
         ind = gp.search()
         tree = ind.get_phenotype()
@@ -99,11 +95,9 @@ class TestProbabilisticGrammar:
             problem=SingleObjectiveProblem(
                 lambda p: isinstance(p, OptionA) and 1 or 2,
                 minimize=True,
+                target=0,
             ),
-            budget=AnyOf(
-                EvaluationBudget(50 * 1000),
-                TargetFitness(0),
-            ),
+            budget=EvaluationBudget(50 * 1000),
             representation=DynamicStructuredGrammaticalEvolutionRepresentation(grammar=g, max_depth=10),
             random=r,
             population_size=1000,

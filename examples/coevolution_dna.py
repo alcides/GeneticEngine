@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Annotated
 
 from geneticengine.algorithms.gp.cooperativegp import CooperativeGP
-from geneticengine.evaluation.budget import AnyOf, EvaluationBudget, TargetFitness
+from geneticengine.evaluation.budget import EvaluationBudget
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.metahandlers.lists import ListSizeBetween
 from geneticengine.grammar.metahandlers.strings import StringSizeBetween
@@ -47,8 +47,7 @@ def dataset_fitness_function(d: Dataset):
 
 class Explanation(ABC):
     @abstractmethod
-    def eval(self, line: str) -> bool:
-        ...
+    def eval(self, line: str) -> bool: ...
 
 
 @dataclass
@@ -118,10 +117,10 @@ alg = CooperativeGP(
     population2_size=500,
     coevolutions=10,
     kwargs1={
-        "budget": AnyOf(TargetFitness(55), EvaluationBudget(10000)),
+        "budget": EvaluationBudget(10000),
     },
     kwargs2={
-        "budget": AnyOf(TargetFitness(100), EvaluationBudget(10000)),
+        "budget": EvaluationBudget(10000),
     },
 )
 x: tuple[Dataset, Explanation] = alg.search()

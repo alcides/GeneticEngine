@@ -8,7 +8,7 @@ from examples.benchmarks.benchmark import Benchmark, example_run
 from examples.benchmarks.datasets import get_vladislavleva
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
-from geneticengine.problems import MultiObjectiveProblem, Problem
+from geneticengine.problems import LazyMultiObjectiveProblem, Problem
 
 from geml.common import forward_dataset
 from geml.grammars.symbolic_regression import Expression, components, make_var
@@ -61,7 +61,7 @@ class RegressionLexicaseBenchmark(Benchmark):
 
             return grouped_errors
 
-        self.problem = MultiObjectiveProblem(minimize=True, fitness_function=lexicase_fitness_function)
+        self.problem = LazyMultiObjectiveProblem(minimize=True, fitness_function=lexicase_fitness_function)
 
     def setup_grammar(self, feature_names):
         # Grammar
