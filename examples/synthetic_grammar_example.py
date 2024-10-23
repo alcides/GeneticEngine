@@ -69,7 +69,7 @@ def single_run(
         #     ),
         # ],
     )
-    ind = alg.search()
+    ind = alg.search()[0]
     print(ind)
     print(f"With fitness: {ind.get_fitness(problem)}")
 

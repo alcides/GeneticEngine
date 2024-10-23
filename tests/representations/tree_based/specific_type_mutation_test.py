@@ -95,5 +95,5 @@ class TestNodesDepthSpecific:
             step=algorithm_steps(),
             population_size=gp_parameters["population_size"],
         )
-        ind = alg.search()
+        ind = alg.search()[0]
         assert ind
