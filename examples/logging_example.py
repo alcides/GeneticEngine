@@ -67,6 +67,6 @@ budget = TimeBudget(3)
 
 
 alg_gp = GeneticProgramming(problem=problem, budget=budget, representation=representation, population_size=10)
-ind = alg_gp.search()
+ind = alg_gp.search()[0]
 print("\n======\nGP\n======\n")
 print(f"{ind.get_fitness(problem)} - {ind}")
