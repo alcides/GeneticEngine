@@ -33,7 +33,7 @@ class RegressionBenchmark(Benchmark):
             except ValueError:
                 return -1
 
-        self.problem = SingleObjectiveProblem(minimize=False, fitness_function=fitness_function)
+        self.problem = SingleObjectiveProblem(minimize=False, fitness_function=fitness_function, target=0)
 
     def setup_grammar(self, feature_names):
         # Grammar

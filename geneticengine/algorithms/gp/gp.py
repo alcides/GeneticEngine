@@ -77,7 +77,7 @@ class GeneticProgramming(HeuristicSearch):
         )
         self.step = step if step is not None else default_generic_programming_step()
 
-    def search(self) -> Individual:
+    def perform_search(self) -> list[Individual] | None:
         assert isinstance(self.representation, RepresentationWithMutation)
         assert isinstance(self.representation, RepresentationWithCrossover)
         generation = 0
@@ -110,10 +110,4 @@ class GeneticProgramming(HeuristicSearch):
                 generation,
             )
 
-        if isinstance(self.tracker, ProgressTracker):
-            return self.tracker.get_best_individual()
-        elif isinstance(self.tracker, ProgressTracker):
-            # TODO: Think about this API
-            return self.tracker.get_best_individuals()[0]
-        else:
-            assert False, "Tracker not defined or not supported"
+        return self.tracker.get_best_individuals()

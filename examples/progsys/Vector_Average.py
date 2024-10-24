@@ -111,7 +111,7 @@ def evolve(g, seed, mode, representation="treebased"):
         population_size=50,
         crossover_probability=0.9,
     )
-    ind = alg.search()
+    ind = alg.search()[0]
     return ind.get_phenotype(), ind.fitness, g
 
 

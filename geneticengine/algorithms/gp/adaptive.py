@@ -78,7 +78,7 @@ class AjustPopulationSizeStep(IdentityStep):
         generation: int,
     ) -> None:
         evaluator.evaluate(problem, population)
-        best = self.pgp.tracker.get_best_individual().get_fitness(problem)
+        best = self.pgp.tracker.get_best_individuals()[0].get_fitness(problem)
         if self.first_iteration:
             self.first_iteration = False
         elif problem.is_better(best, self.last_best):
@@ -118,7 +118,7 @@ class FeedbackParallelStep(ParallelStep):
 
         # Compute average fitness
         evaluator.evaluate(problem, npopulation)
-        old_best_fitness = self.tracker.get_best_individual().get_fitness(problem)
+        old_best_fitness = self.tracker.get_best_individuals()[0].get_fitness(problem)
 
         for (start, end), step, i in zip(ranges, self.steps, range(len(self.steps))):
             if end - start > 0:

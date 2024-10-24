@@ -3112,7 +3112,7 @@ class VectorialGPBenchmark(Benchmark):
                 y_pred,
             )
 
-        self.problem = SingleObjectiveProblem(minimize=True, fitness_function=fitness_function)
+        self.problem = SingleObjectiveProblem(minimize=True, fitness_function=fitness_function, target=0)
 
     def setup_grammar(self):
         """See fitness/vectorialgp.py for docs.

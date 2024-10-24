@@ -75,5 +75,5 @@ def test_symbolic_regression_gp() -> None:
         random=r,
         budget=EvaluationBudget(100),
     )
-    ind = gp.search()
+    ind = gp.search()[0]
     assert ind.get_fitness(p).fitness_components[0] <= 1

@@ -48,7 +48,7 @@ if __name__ == "__main__":
         population_size=1000,
         max_evaluations=10 * 1000,
     )
-    ind = alg.search()
+    ind = alg.search()[0]
 
     x: TreeNode = ind.get_phenotype()
     print(x)

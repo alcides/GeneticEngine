@@ -102,6 +102,3 @@ class ProgressTracker:
 
     def get_best_individuals(self) -> list[Individual]:
         return self.memory.to_list()
-
-    def get_best_individual(self) -> Individual:
-        return self.memory.to_list()[0]

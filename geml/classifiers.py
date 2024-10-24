@@ -26,6 +26,9 @@ class GeneticEngineClassifier(GeneticEngineEstimator):
         Var.to_numpy = lambda s: f"dataset[:,{index_of[s.name]}]"  # type:ignore
         return extract_grammar(components, RuleSet)
 
+    def get_goal(self) -> tuple[bool, float]:
+        return True, 1
+
 
 class GeneticProgrammingClassifier(GeneticEngineClassifier):
 
@@ -36,7 +39,7 @@ class GeneticProgrammingClassifier(GeneticEngineClassifier):
         random: RandomSource,
         budget: SearchBudget,
         population_recorder: PopulationRecorder,
-    ) -> Individual:
+    ) -> list[Individual] | None:
         decider = ProgressivelyTerminalDecider(random, grammar)
         gp = GeneticProgramming(
             representation=TreeBasedRepresentation(grammar, decider),
@@ -70,7 +73,7 @@ class HillClimbingClassifier(GeneticEngineClassifier):
         random: RandomSource,
         budget: SearchBudget,
         population_recorder: PopulationRecorder,
-    ) -> Individual:
+    ) -> list[Individual] | None:
         decider = ProgressivelyTerminalDecider(random, grammar)
         hc = HC(
             representation=TreeBasedRepresentation(grammar, decider),
@@ -94,7 +97,7 @@ class RandomSearchClassifier(GeneticEngineClassifier):
         random: RandomSource,
         budget: SearchBudget,
         population_recorder: PopulationRecorder,
-    ) -> Individual:
+    ) -> list[Individual] | None:
         decider = ProgressivelyTerminalDecider(random, grammar)
         rs = RandomSearch(
             representation=TreeBasedRepresentation(grammar, decider),
@@ -118,7 +121,7 @@ class OnePlusOneClassifier(GeneticEngineClassifier):
         random: RandomSource,
         budget: SearchBudget,
         population_recorder: PopulationRecorder,
-    ) -> Individual:
+    ) -> list[Individual] | None:
         decider = ProgressivelyTerminalDecider(random, grammar)
         hc = OnePlusOne(
             representation=TreeBasedRepresentation(grammar, decider),

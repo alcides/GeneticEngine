@@ -185,7 +185,7 @@ class GameOfLifeVectorialBenchmark(Benchmark):
             ypred = [_clf(line) for line in np.rollaxis(X, 0)]
             return f1_score(y, ypred)
 
-        self.problem = SingleObjectiveProblem(minimize=False, fitness_function=fitness_function)
+        self.problem = SingleObjectiveProblem(minimize=False, fitness_function=fitness_function, target=1)
 
     def setup_grammar(self):
         self.grammar = extract_grammar(

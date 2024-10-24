@@ -5,7 +5,7 @@ import numpy as np
 from examples.benchmarks.benchmark import Benchmark, example_run
 from examples.benchmarks.datasets import get_banknote
 from geneticengine.grammar.grammar import extract_grammar, Grammar
-from geneticengine.problems import Problem, MultiObjectiveProblem
+from geneticengine.problems import MultiObjectiveProblem, Problem
 from geml.common import forward_dataset
 from geml.grammars.ruleset_classification import make_grammar
 
@@ -24,7 +24,12 @@ class ClassificationLexicaseBenchmark(Benchmark):
             except ValueError:
                 return [0 for _ in y]
 
-        self.problem = MultiObjectiveProblem(minimize=False, fitness_function=fitness_function_lexicase)
+        n_objectives = len(y)
+        self.problem = MultiObjectiveProblem(
+            fitness_function=fitness_function_lexicase,
+            minimize=[False for _ in range(n_objectives)],
+            target=[1 for _ in range(n_objectives)],
+        )
 
     def setup_grammar(self, y, feature_names):
         options = [int(v) for v in np.unique(y)]

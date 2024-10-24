@@ -61,7 +61,12 @@ class RegressionLexicaseBenchmark(Benchmark):
 
             return grouped_errors
 
-        self.problem = MultiObjectiveProblem(minimize=True, fitness_function=lexicase_fitness_function)
+        n_objectives = len(y)
+        self.problem = MultiObjectiveProblem(
+            fitness_function=lexicase_fitness_function,
+            minimize=[True for _ in range(n_objectives)],
+            target=[0 for _ in range(n_objectives)],
+        )
 
     def setup_grammar(self, feature_names):
         # Grammar

@@ -16,7 +16,6 @@ from geml.common import forward_dataset
 from geml.grammars.ruleset_classification import make_grammar
 
 
-
 class ClassificationBenchmark(Benchmark):
 
     def __init__(self, X, y, feature_names):
@@ -34,7 +33,7 @@ class ClassificationBenchmark(Benchmark):
             except ValueError:
                 return -1
 
-        self.problem = SingleObjectiveProblem(minimize=False, fitness_function=fitness_function)
+        self.problem = SingleObjectiveProblem(minimize=False, fitness_function=fitness_function, target=1)
 
     def setup_grammar(self, y, feature_names):
         # Grammar

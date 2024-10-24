@@ -3,7 +3,7 @@ import copy
 from dataclasses import dataclass
 from typing import Annotated
 
-from geneticengine.evaluation.budget import AnyOf, TargetFitness, TimeBudget
+from geneticengine.evaluation.budget import TimeBudget
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource, RandomSource
 
@@ -87,8 +87,8 @@ if __name__ == "__main__":
     repr = BinaryListTreeBasedRepresentation(random=r, grammar=g, max_depth=4)
 
     gp = GeneticProgramming(
-        problem=SingleObjectiveProblem(fitness_function=fitness, minimize=False),
-        budget=AnyOf(TargetFitness(1), TimeBudget(3)),
+        problem=SingleObjectiveProblem(fitness_function=fitness, minimize=False, target=1),
+        budget=TimeBudget(3),
         representation=repr,
         random=r,
         population_size=10,

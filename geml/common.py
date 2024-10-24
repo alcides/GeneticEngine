@@ -1,10 +1,12 @@
 from abc import abstractmethod
+import abc
 from typing import Any
 
 import numpy as np
 
 import pandas as pd
 from sklearn.base import BaseEstimator, check_is_fitted, _fit_context
+from sklearn.exceptions import FitFailedWarning
 from sklearn.metrics import r2_score
 
 from geneticengine.evaluation.budget import SearchBudget, TimeBudget
@@ -108,6 +110,9 @@ class GeneticEngineEstimator(GEBaseEstimator):
         feature_names, data = self.prepare_inputs(X)
         return forward_dataset(self._best_individual[0], data)
 
+    @abc.abstractmethod
+    def get_goal(self) -> tuple[bool, float]: ...
+
     @_fit_context(prefer_skip_nested_validation=True)
     def fit(self, X, y):
 
@@ -116,27 +121,31 @@ class GeneticEngineEstimator(GEBaseEstimator):
         random = NativeRandomSource(self.seed)
 
         feature_names, data = self.prepare_inputs(X)
-        target = self.prepare_outputs(y)
-        assert data.shape[0] == target.shape[0]
+        y = self.prepare_outputs(y)
+        assert data.shape[0] == y.shape[0]
 
-        grammar = self.get_grammar(feature_names, data, target)
+        grammar = self.get_grammar(feature_names, data, y)
 
         def fitness_function(x: Expression) -> float:
             try:
                 y_pred = forward_dataset(x.to_numpy(), data)
                 with np.errstate(all="ignore"):
-                    return r2_score(target, y_pred)
+                    return r2_score(y, y_pred)
             except ValueError:
                 return -10000000
 
-        problem = SingleObjectiveProblem(fitness_function)
+        minimize, target = self.get_goal()
+        problem = SingleObjectiveProblem(fitness_function, minimize, target)
 
         population_recorder = PopulationRecorder()
 
-        best_individual = self.search(grammar, problem, random, self.get_budget(), population_recorder)
-        assert best_individual is not None, "Best individual is none..."
+        best_individuals = self.search(grammar, problem, random, self.get_budget(), population_recorder)
+        if best_individuals is None:
+            raise FitFailedWarning("Genetic Programming ")
+        best_individual = best_individuals[0]
 
         def make_pair(ind: Individual) -> tuple[str, str]:
+            assert isinstance(ind, Individual)
             return (
                 ind.get_phenotype().to_numpy(),
                 ind.get_phenotype().to_sympy(),
@@ -166,4 +175,4 @@ class GeneticEngineEstimator(GEBaseEstimator):
         random: RandomSource,
         budget: SearchBudget,
         population_recorder: PopulationRecorder,
-    ) -> Individual: ...
+    ) -> list[Individual] | None: ...

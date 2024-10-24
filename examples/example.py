@@ -56,17 +56,17 @@ budget = TimeBudget(3)
 
 
 alg_gp = GeneticProgramming(problem=problem, budget=budget, representation=representation)
-ind = alg_gp.search()
+ind = alg_gp.search()[0]
 print("\n======\nGP\n======\n")
 print(f"{ind.get_fitness(problem)} - {ind}")
 
 
 alg_hc = HC(problem=problem, budget=budget, representation=representation)
-ind = alg_hc.search()
+ind = alg_hc.search()[0]
 print("\n======\nHC\n======\n")
 print(f"{ind.get_fitness(problem)} - {ind}")
 
 alg_rs = RandomSearch(problem=problem, budget=budget, representation=representation)
-ind = alg_rs.search()
+ind = alg_rs.search()[0]
 print("\n======\nRS\n======\n")
 print(f"{ind.get_fitness(problem)} - {ind}")
