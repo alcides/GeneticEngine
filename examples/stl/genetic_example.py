@@ -70,7 +70,7 @@ class Disjunction(STLFormula):
 
 # Boolean expressions
 @dataclass
-class Variable:
+class Variable(ABC):
     var: Annotated[str, VarRange(variables)]
 
     def evaluate(self, X):
@@ -80,14 +80,14 @@ class Variable:
         return f"var[{self.var}]"
 
 @dataclass
-class Negation:
-    expression: Union[Operator]
+class Negation(ABC):
+    expression: Operator
 
     def evaluate(self, X):
         return not self.expression.evaluate(X)
 
 @dataclass
-class Operator:
+class Operator(ABC):
     left: Union[Variable, Annotated[int, IntRange(-100, 100)]]
     op: Annotated[str, VarRange[operators]]
     right: Union[Variable, Annotated[int, IntRange(-100, 100)]]
@@ -131,6 +131,8 @@ def main():
         ],
         STLFormula
     )
+
+    print(grammar)
 
     # Run the genetic programming algorithm
     gp: SimpleGP = SimpleGP(
