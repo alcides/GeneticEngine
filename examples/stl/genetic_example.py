@@ -10,7 +10,6 @@ from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.metahandlers.floats import FloatRange
 from geneticengine.grammar.metahandlers.ints import IntRange
 from geneticengine.grammar.metahandlers.vars import VarRange
-from geneticengine.problems import SingleObjectiveProblem
 
 # Load dataset
 trace1 = pd.read_csv("examples/stl/data/nominal_trace1.csv")
@@ -29,7 +28,7 @@ class STLFormula(ABC):
 # STL Temporal Operators
 @dataclass
 class Always(STLFormula):
-    expression: Union[STLFormula, BoolExpr]
+    expression: Union[STLFormula, Negation, Operator]
     lower_bound: Annotated[float, FloatRange(time_lb, time_up)]
     upper_bound:  Annotated[float, FloatRange(time_lb, time_up)]
     is_open_lower_bound: bool
@@ -41,7 +40,7 @@ class Always(STLFormula):
 
 @dataclass
 class Eventually(STLFormula):
-    expression: Union[STLFormula, BoolExpr]
+    expression: Union[STLFormula, Negation, Operator]
     lower_bound: Annotated[float, FloatRange(time_lb, time_up)]
     upper_bound:  Annotated[float, FloatRange(time_lb, time_up)]
     is_open_lower_bound: bool
@@ -70,13 +69,8 @@ class Disjunction(STLFormula):
 
 
 # Boolean expressions
-class BoolExpr(ABC):
-    def evaluate(self, X):
-        ...
-
-
 @dataclass
-class Variable(BoolExpr):
+class Variable:
     var: Annotated[str, VarRange(variables)]
 
     def evaluate(self, X):
@@ -86,20 +80,20 @@ class Variable(BoolExpr):
         return f"var[{self.var}]"
 
 @dataclass
-class Negation(BoolExpr):
-    expression: BoolExpr
+class Negation:
+    expression: Union[Operator]
 
     def evaluate(self, X):
         return not self.expression.evaluate(X)
 
 @dataclass
-class Operator(BoolExpr):
+class Operator:
     left: Union[Variable, Annotated[int, IntRange(-100, 100)]]
     op: Annotated[str, VarRange[operators]]
     right: Union[Variable, Annotated[int, IntRange(-100, 100)]]
 
     def evaluate(self, X):
-        left_val = self.left.evaluate(X) if isinstance(self.left, BoolExpr) else self.left
+        left_val = self.left.evaluate(X)
         right_val = self.right.evaluate(X)
         if self.op == '>':
             return left_val > right_val
