@@ -17,7 +17,7 @@ time_lb = trace1["Time"].min()
 time_up = trace1["Time"].max()
 variables = list(trace1.columns[1:-1])
 
-operators = [['>', '<', '==']]
+operators = ['>', '<', '==']
 
 
 # Abstract base class for STL formulas
@@ -25,12 +25,25 @@ class STLFormula(ABC):
     def evaluate(self, X):
         ...
 
+
+# Terminal class for Boolean literal
+@dataclass
+class BooleanTerminal(STLFormula):
+    value: bool
+
+    def evaluate(self, X):
+        return self.value
+
+    def __str__(self):
+        return str(self.value)
+
+
 # STL Temporal Operators
 @dataclass
 class Always(STLFormula):
-    expression: Union[STLFormula, Negation, Operator]
+    expression: Union[BooleanTerminal, Operator]
     lower_bound: Annotated[float, FloatRange(time_lb, time_up)]
-    upper_bound:  Annotated[float, FloatRange(time_lb, time_up)]
+    upper_bound: Annotated[float, FloatRange(time_lb, time_up)]
     is_open_lower_bound: bool
     is_open_upper_bound: bool
 
@@ -40,9 +53,9 @@ class Always(STLFormula):
 
 @dataclass
 class Eventually(STLFormula):
-    expression: Union[STLFormula, Negation, Operator]
+    expression: Union[BooleanTerminal, Operator]
     lower_bound: Annotated[float, FloatRange(time_lb, time_up)]
-    upper_bound:  Annotated[float, FloatRange(time_lb, time_up)]
+    upper_bound: Annotated[float, FloatRange(time_lb, time_up)]
     is_open_lower_bound: bool
     is_open_upper_bound: bool
 
@@ -79,18 +92,20 @@ class Variable(ABC):
     def __str__(self):
         return f"var[{self.var}]"
 
+
 @dataclass
 class Negation(ABC):
-    expression: Operator
+    expression: Union[BooleanTerminal, Operator]
 
     def evaluate(self, X):
         return not self.expression.evaluate(X)
 
+
 @dataclass
 class Operator(ABC):
-    left: Union[Variable, Annotated[int, IntRange(-100, 100)]]
+    left: Union[Variable, Annotated[int, IntRange(-10, 10)]]
     op: Annotated[str, VarRange[operators]]
-    right: Union[Variable, Annotated[int, IntRange(-100, 100)]]
+    right: Union[Variable, Annotated[int, IntRange(-10, 10)]]
 
     def evaluate(self, X):
         left_val = self.left.evaluate(X)
@@ -110,11 +125,11 @@ class Operator(ABC):
 
 # Fitness function for Genetic Programming
 def fitness_function(formula: STLFormula):
-    # Example fitness function: Mean Squared Error (MSE)
-    y_pred = [formula.evaluate(row) for _, row in trace1.iterrows()]
-    y_true = trace1["ExpectedOutput"].values  # Replace with actual target column
-    mse = np.mean((np.array(y_pred) - y_true) ** 2)
-    return float(mse)
+    #y_pred = [formula.evaluate(row) for _, row in trace1.iterrows()]
+    #y_true = trace1["ExpectedOutput"].values  # Replace with actual target column
+    #mse = np.mean((np.array(y_pred) - y_true) ** 2)
+    # TODO:
+    return 10
 
 
 def main():
@@ -128,6 +143,7 @@ def main():
             Variable,
             Negation,
             Operator,
+            BooleanTerminal,
         ],
         STLFormula
     )
