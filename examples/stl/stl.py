@@ -28,7 +28,7 @@ class STLFormula(ABC):
 
 # Terminal class for Boolean literal
 @dataclass
-class BooleanTerminal(STLFormula):
+class BooleanTerminal(ABC):
     value: bool
 
     def evaluate(self, X):
@@ -167,6 +167,7 @@ def main():
     # Execute the GP search
     best_individual = gp.search()
     print("Best individual found:")
+    print()
     print(best_individual)
 
 
