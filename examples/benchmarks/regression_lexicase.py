@@ -23,6 +23,8 @@ class RegressionLexicaseBenchmark(Benchmark):
     def setup_problem(self, data, target):
 
         # Problem
+        X = data
+        y = target
         n_cases = 50
         case_size = int(len(data) / n_cases)
 
@@ -44,8 +46,6 @@ class RegressionLexicaseBenchmark(Benchmark):
             return grouped_errors
 
         def lexicase_fitness_function(n: Expression):
-            X = data
-            y = target
 
             try:
                 y_pred = forward_dataset(n.to_numpy(), X)
