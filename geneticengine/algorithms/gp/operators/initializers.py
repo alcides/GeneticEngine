@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Iterator
 
-from geneticengine.solutions.individual import Individual
+from geneticengine.solutions.individual import PhenotypicIndividual
 from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
@@ -22,7 +22,7 @@ class HalfAndHalfInitializer(PopulationInitializer):
         random: RandomSource,
         target_size: int,
         **kwargs,
-    ) -> Iterator[Individual]:
+    ) -> Iterator[PhenotypicIndividual]:
         mid = target_size // 2
         yield from self.initializer1(problem, representation, random, mid)
         yield from self.initializer2(
@@ -44,9 +44,9 @@ class StandardInitializer(PopulationInitializer):
         random: RandomSource,
         target_size: int,
         **kwargs,
-    ) -> Iterator[Individual]:
+    ) -> Iterator[PhenotypicIndividual]:
         for i in range(target_size):
-            yield Individual(
+            yield PhenotypicIndividual(
                 representation.create_genotype(
                     random,
                     **kwargs,

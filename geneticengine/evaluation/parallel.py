@@ -16,7 +16,9 @@ class ParallelEvaluator(Evaluator):
     """Evaluates individuals in parallel, each time they are needed."""
 
     def evaluate_async(
-        self, problem: Problem, individuals: Iterable[Individual[Any, Any]],
+        self,
+        problem: Problem,
+        individuals: Iterable[Individual],
     ) -> Generator[Individual, Any, Any]:
         indivs = list(individuals)
 

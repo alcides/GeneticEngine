@@ -16,10 +16,12 @@ class Evaluator(ABC):
 
     @abstractmethod
     def evaluate_async(
-        self, problem: Problem, individuals: Iterable[Individual[Any, Any]],
+        self,
+        problem: Problem,
+        individuals: Iterable[Individual],
     ) -> Generator[Individual, Any, Any]: ...
 
-    def evaluate(self, problem: Problem, individuals: Iterable[Individual[Any, Any]]):
+    def evaluate(self, problem: Problem, individuals: Iterable[Individual]):
         for _ in self.evaluate_async(problem, individuals):
             pass
 

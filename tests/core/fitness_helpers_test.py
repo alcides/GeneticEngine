@@ -4,7 +4,7 @@ from abc import ABC
 from dataclasses import dataclass
 from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.tree.initializations import MaxDepthDecider
-from geneticengine.solutions.individual import Individual
+from geneticengine.solutions.individual import ConcreteIndividual, PhenotypicIndividual
 from geneticengine.evaluation.sequential import SequentialEvaluator
 from geneticengine.problems.helpers import best_individual, is_better, sort_population
 
@@ -30,8 +30,8 @@ class TestFitnessHelpers:
         evaluator = SequentialEvaluator()
 
         population = [
-            Individual(genotype=Leaf(1), representation=representation),
-            Individual(genotype=Leaf(2), representation=representation),
+            PhenotypicIndividual(genotype=Leaf(1), representation=representation),
+            PhenotypicIndividual(genotype=Leaf(2), representation=representation),
         ]
 
         problem = SingleObjectiveProblem(fitness_function=lambda x: x.a, minimize=False)
@@ -55,8 +55,8 @@ class TestFitnessHelpers:
         representation = TreeBasedRepresentation(g, MaxDepthDecider(r, g, 2))
         evaluator = SequentialEvaluator()
 
-        a = Individual(genotype=Leaf(1), representation=representation)
-        b = Individual(genotype=Leaf(2), representation=representation)
+        a = PhenotypicIndividual(genotype=Leaf(1), representation=representation)
+        b = PhenotypicIndividual(genotype=Leaf(2), representation=representation)
 
         problem = SingleObjectiveProblem(fitness_function=lambda x: x.a, minimize=True)
         evaluator.evaluate(problem, [a, b])
@@ -67,14 +67,11 @@ class TestFitnessHelpers:
         assert not is_better(problem, a, b)
 
     def test_sort(self):
-        g = extract_grammar([Leaf], Root)
-        r = NativeRandomSource(0)
-        representation = TreeBasedRepresentation(g, MaxDepthDecider(r, g, 2))
         evaluator = SequentialEvaluator()
 
-        a = Individual(genotype=Leaf(1), representation=representation)
-        b = Individual(genotype=Leaf(3), representation=representation)
-        c = Individual(genotype=Leaf(2), representation=representation)
+        a = ConcreteIndividual(instance=Leaf(1))
+        b = ConcreteIndividual(instance=Leaf(3))
+        c = ConcreteIndividual(instance=Leaf(2))
         population = [a, b, c]
 
         problem = SingleObjectiveProblem(fitness_function=lambda x: x.a, minimize=True)

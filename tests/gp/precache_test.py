@@ -9,7 +9,7 @@ import pytest
 from geneticengine.algorithms.gp.gp import default_generic_programming_step
 from geneticengine.representations.api import Representation
 from geneticengine.representations.tree.initializations import MaxDepthDecider
-from geneticengine.solutions.individual import Individual
+from geneticengine.solutions.individual import PhenotypicIndividual
 from geneticengine.algorithms.gp.operators.combinators import SequenceStep
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
 from geneticengine.algorithms.gp.operators.mutation import GenericMutationStep
@@ -46,10 +46,10 @@ class CacheFitness(GeneticStep):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: Iterator[Individual],
+        population: Iterator[PhenotypicIndividual],
         target_size: int,
         generation: int,
-    ) -> Iterator[Individual]:
+    ) -> Iterator[PhenotypicIndividual]:
         for ind in population:
             ind.set_fitness(problem, Fitness(-1.0, []))
         return population
@@ -77,10 +77,10 @@ class TestPreCache:
         population_size = 1000
 
         initial_population = [
-            Individual(genotype=rep.create_genotype(r), representation=rep) for _ in range(population_size)
+            PhenotypicIndividual(genotype=rep.create_genotype(r), representation=rep) for _ in range(population_size)
         ]
 
-        def encode_population(pop: list[Individual]) -> list[str]:
+        def encode_population(pop: list[PhenotypicIndividual]) -> list[str]:
             return [str(ind.genotype) for ind in pop]
 
         cpy = encode_population(initial_population)

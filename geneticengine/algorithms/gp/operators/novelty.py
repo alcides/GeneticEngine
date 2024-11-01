@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Iterator
 
-from geneticengine.solutions.individual import Individual
+from geneticengine.solutions.individual import PhenotypicIndividual
 from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
@@ -18,12 +18,12 @@ class NoveltyStep(GeneticStep):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: Iterator[Individual],
+        population: Iterator[PhenotypicIndividual],
         target_size: int,
         generation: int,
-    ) -> Iterator[Individual]:
+    ) -> Iterator[PhenotypicIndividual]:
         for _ in range(target_size):
-            yield Individual(
+            yield PhenotypicIndividual(
                 representation.create_genotype(random),
                 representation,
             )

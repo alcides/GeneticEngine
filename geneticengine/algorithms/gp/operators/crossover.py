@@ -2,7 +2,7 @@ from __future__ import annotations
 import logging
 from typing import Iterator
 
-from geneticengine.solutions.individual import Individual
+from geneticengine.solutions.individual import Individual, PhenotypicIndividual
 from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
@@ -28,10 +28,10 @@ class GenericCrossoverStep(GeneticStep):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: Iterator[Individual],
+        population: Iterator[PhenotypicIndividual],
         target_size: int,
         generation: int,
-    ) -> Iterator[Individual]:
+    ) -> Iterator[PhenotypicIndividual]:
         assert isinstance(representation, RepresentationWithCrossover)
         npopulation = list(population)
         for i in range(target_size // 2):
@@ -53,8 +53,8 @@ class GenericCrossoverStep(GeneticStep):
     def crossover(
         self,
         random: RandomSource,
-        individual1: Individual,
-        individual2: Individual,
+        individual1: PhenotypicIndividual,
+        individual2: PhenotypicIndividual,
         representation: Representation,
     ):
         assert isinstance(representation, RepresentationWithCrossover)
@@ -65,6 +65,6 @@ class GenericCrossoverStep(GeneticStep):
             individual2.genotype,
         )
         return (
-            Individual(g1, representation=representation),
-            Individual(g2, representation=representation),
+            PhenotypicIndividual(g1, representation=representation),
+            PhenotypicIndividual(g2, representation=representation),
         )
