@@ -7,8 +7,7 @@ from geneticengine.evaluation.tracker import (
     ProgressTracker,
 )
 from geneticengine.evaluation.sequential import SequentialEvaluator
-from geneticengine.problems import Problem, SingleObjectiveProblem
-from geneticengine.representations.api import Representation
+from geneticengine.problems import Problem
 from geneticengine.solutions.individual import Individual
 
 
@@ -16,24 +15,18 @@ class SynthesisAlgorithm(ABC):
     tracker: ProgressTracker
     problem: Problem
     budget: SearchBudget
-    representation: Representation
 
     def __init__(
         self,
         problem: Problem,
         budget: SearchBudget,
-        representation: Representation,
         tracker: Optional[ProgressTracker] = None,
     ):
         self.problem = problem
         self.budget = budget
-        self.representation = representation
 
         if tracker is None:
-            if isinstance(problem, SingleObjectiveProblem):
-                self.tracker = ProgressTracker(problem, SequentialEvaluator())
-            else:
-                self.tracker = ProgressTracker(problem, SequentialEvaluator())
+            self.tracker = ProgressTracker(problem, SequentialEvaluator())
         else:
             self.tracker = tracker
 
