@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable, Generator, TypeVar
 
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.random.sources import RandomSource
@@ -46,33 +46,12 @@ class FloatRange(MetaHandlerGenerator):
     def __repr__(self):
         return f"[{self.min},{self.max}]"
 
-
-class FloatList(MetaHandlerGenerator):
-    """FloatList([a_1, .., a_n]) restricts floats to be an element from the
-    list [a_1, .., a_n].
-
-    The range can be dynamically altered before the grammar extraction
-        Float.__init__.__annotations__["value"] = Annotated[float, FloatList[a_1, .., a_n]]
-    """
-
-    def __init__(self, elements):
-        self.elements = elements
-
-    def generate(
+    def iterate(
         self,
-        random: RandomSource,
-        grammar: Grammar,
         base_type: type,
-        rec: Callable[[type[T]], T],
-        dependent_values: dict[str, Any],
+        combine_lists: Callable[[list[type]], Generator[Any, Any, Any]],
     ):
-        return random.choice(self.elements)
-
-    def __class_getitem__(cls, args):
-        return FloatList(*args)
-
-    def __repr__(self):
-        return f"[{self.elements}]"
-
-    def validate(self, v) -> bool:
-        return v in self.elements
+        v = self.min
+        while v <= self.max:
+            yield v
+            v += 0.0001
