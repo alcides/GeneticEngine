@@ -30,17 +30,20 @@ def frange(start, stop, step):
     return takewhile(lambda x: x < stop, count(start, step))
 
 
-def iterate_grammar(grammar: Grammar, starting_symbol: type):
+def combine_list_types(ts: list[type], acc: list[Any], gen):
+    match ts:
+        case []:
+            yield acc
+        case _:
+            head = ts[0]
+            tail = ts[1:]
+            for x in gen(head):
+                yield from combine_list_types(tail, acc + [x], gen)
 
-    def combine_list(ts: list[type], acc: list[Any]):
-        match ts:
-            case []:
-                yield acc
-            case _:
-                head = ts[0]
-                tail = ts[1:]
-                for x in iterate_grammar(grammar, head):
-                    yield from combine_list(tail, acc + [x])
+
+def iterate_grammar(grammar: Grammar, starting_symbol: type):
+    def rec_generator(symbol):
+        return iterate_grammar(grammar, symbol)
 
     if starting_symbol is int:
         yield from range(-100000000, 100000000)
@@ -51,22 +54,28 @@ def iterate_grammar(grammar: Grammar, starting_symbol: type):
         yield False
     elif is_generic_tuple(starting_symbol):
         types = get_generic_parameters(starting_symbol)
-        for li in combine_list(types, []):
+        for li in combine_list_types(types, [], rec_generator):
             yield tuple(li)
     elif is_generic_list(starting_symbol):
         inner_type = get_generic_parameter(starting_symbol)
+
         for length in range(0, 1024):
-            generator_list = [iterate_grammar(grammar, inner_type) for _ in range(length)]
-            for concrete_list in combine_list(generator_list, []):
-                print(concrete_list)
+
+            generator_list = [inner_type for _ in range(length)]
+            for concrete_list in combine_list_types(generator_list, [], rec_generator):
                 yield concrete_list
 
     elif is_metahandler(starting_symbol):
         metahandler: MetaHandlerGenerator = starting_symbol.__metadata__[0]  # type: ignore
         base_type = get_generic_parameter(starting_symbol)
-        for ins in iterate_grammar(grammar, base_type):
-            if metahandler.validate(ins):
-                yield ins
+
+        if hasattr(metahandler, "iterate"):
+            yield from metahandler.iterate(base_type, lambda xs: combine_list_types(xs, [], rec_generator))
+        else:
+            base_type = get_generic_parameter(starting_symbol)
+            for ins in iterate_grammar(grammar, base_type):
+                if metahandler.validate(ins):
+                    yield ins
     elif is_union(starting_symbol):
         for alt in get_generic_parameters(starting_symbol):
             yield from iterate_grammar(grammar, alt)
@@ -82,10 +91,10 @@ def iterate_grammar(grammar: Grammar, starting_symbol: type):
         else:
             # Normal production
             args = []
+            # TODO: Add dependent types to enumerative
             # dependent_values = {}
             args = [argt for _, argt in get_arguments(starting_symbol)]
-            for li in combine_list(args, []):
-                assert isinstance(li, list)
+            for li in combine_list_types(args, [], rec_generator):
                 yield apply_constructor(starting_symbol, li)
 
 
@@ -110,6 +119,6 @@ class EnumerativeSearch(SynthesisAlgorithm):
     def perform_search(self) -> list[Individual]:
         for individual in iterate_individuals(self.grammar, self.grammar.starting_symbol):
             self.tracker.evaluate_single(individual)
-            if self.budget.is_done(self.tracker):
+            if self.is_done():
                 break
         return self.tracker.get_best_individuals()
