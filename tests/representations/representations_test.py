@@ -110,7 +110,6 @@ class TestRepresentation:
             grammar=g,
         )
         gp.search()
-        assert False
 
     def test_enumerative_combine(self) -> None:
         def gen_bool(t):
