@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC
 from dataclasses import dataclass
-from typing import Annotated
+from typing import Annotated, Union
 
 import pytest
 from geneticengine.algorithms.enumerative import EnumerativeSearch, combine_list_types
@@ -31,6 +31,18 @@ from geneticengine.grammar.metahandlers.vars import VarRange
 
 class Root(ABC):
     pass
+
+
+@dataclass
+class Basic(Root):
+    a: int
+    b: float
+    c: str
+
+
+@dataclass
+class UnionT(Root):
+    x: Union[int, Concrete]
 
 
 @dataclass
