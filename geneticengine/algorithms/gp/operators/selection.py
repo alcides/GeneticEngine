@@ -3,7 +3,7 @@ from typing import Iterator
 
 import numpy as np
 
-from geneticengine.solutions.individual import Individual
+from geneticengine.solutions.individual import Individual, PhenotypicIndividual
 from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.problems import Fitness, MultiObjectiveProblem
 from geneticengine.problems import Problem
@@ -32,10 +32,10 @@ class TournamentSelection(GeneticStep):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: Iterator[Individual],
+        population: Iterator[PhenotypicIndividual],
         target_size: int,
         generation: int,
-    ) -> Iterator[Individual]:
+    ) -> Iterator[PhenotypicIndividual]:
         candidates = list(population)
         evaluator.evaluate(problem, candidates)
         for _ in range(target_size):
@@ -67,10 +67,10 @@ class LexicaseSelection(GeneticStep):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: Iterator[Individual],
+        population: Iterator[PhenotypicIndividual],
         target_size: int,
         generation: int,
-    ) -> Iterator[Individual]:
+    ) -> Iterator[PhenotypicIndividual]:
         assert isinstance(problem, MultiObjectiveProblem)
         candidates = list(population)
         evaluator.evaluate(problem, candidates)
@@ -78,12 +78,12 @@ class LexicaseSelection(GeneticStep):
         cases = random.shuffle(list(range(n_cases)))
 
         assert isinstance(problem.minimize, list)
-        
+
         for _ in range(target_size):
-            candidates_to_check = candidates.copy()
+            candidates_to_check: list[PhenotypicIndividual] = candidates.copy()
 
             while len(candidates_to_check) > 1 and cases:
-                new_candidates: list[Individual] = list()
+                new_candidates: list[PhenotypicIndividual] = list()
                 c = cases.pop(0)
 
                 choose_best = min if problem.minimize[c] else max
@@ -93,7 +93,7 @@ class LexicaseSelection(GeneticStep):
 
                 if self.epsilon:
 
-                    def get_fitness_value(ind: Individual, c: int):
+                    def get_fitness_value(ind: PhenotypicIndividual, c: int):
                         (summary, values) = ind.get_fitness(problem)
                         return values[c]
 

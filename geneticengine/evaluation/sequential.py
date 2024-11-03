@@ -9,7 +9,9 @@ class SequentialEvaluator(Evaluator):
     """Default evaluator for individuals, executes sequentially."""
 
     def evaluate_async(
-        self, problem: Problem, individuals: Iterable[Individual[Any, Any]],
+        self,
+        problem: Problem,
+        individuals: Iterable[Individual],
     ) -> Generator[Individual, Any, Any]:
         for individual in individuals:
             if not individual.has_fitness(problem):

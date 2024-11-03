@@ -1,12 +1,11 @@
 from typing import Iterator
 
 from geneticengine.algorithms.api import ProgressTracker
-
-from geneticengine.solutions import Individual
+from geneticengine.solutions.individual import PhenotypicIndividual
 
 
 class Population:
-    def __init__(self, it: Iterator[Individual], tracker: ProgressTracker, generation: int = -1):
+    def __init__(self, it: Iterator[PhenotypicIndividual], tracker: ProgressTracker, generation: int = -1):
         self.tracker = tracker
         self.individuals = []
         for ind in it:

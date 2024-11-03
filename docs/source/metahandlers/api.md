@@ -18,18 +18,10 @@ Here are a few MetaHandlers provided by GeneticEngine
 .. autoapiclass:: geneticengine.grammar.metahandlers.floats.FloatRange
 ```
 
-```{eval-rst}
-.. autoapiclass:: geneticengine.grammar.metahandlers.floats.FloatList
-```
-
 #### Lists
 
 ```{eval-rst}
 .. autoapiclass:: geneticengine.grammar.metahandlers.lists.ListSizeBetween
-```
-
-```{eval-rst}
-.. autoapiclass:: geneticengine.grammar.metahandlers.lists.ListSizeBetweenWithoutListOperations
 ```
 
 #### Strings

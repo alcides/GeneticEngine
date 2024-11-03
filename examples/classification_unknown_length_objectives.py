@@ -19,7 +19,6 @@ from geml.grammars.sgp import Mul
 from geml.grammars.sgp import Number
 from geml.grammars.sgp import Plus
 from geml.grammars.sgp import Var
-from geneticengine.grammar.metahandlers.floats import FloatList
 from geneticengine.grammar.metahandlers.vars import VarRange
 from geneticengine.problems import LazyMultiObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
@@ -143,7 +142,7 @@ literals = [
 
 @dataclass
 class Literal2(Number):
-    val: Annotated[float, FloatList([-1, -0.1, -0.01, -0.001, 1, 0.1, 0.01, 0.001])]
+    val: Annotated[float, VarRange([-1, -0.1, -0.01, -0.001, 1, 0.1, 0.01, 0.001])]
 
     def evaluate(self, **kwargs):
         return self.val

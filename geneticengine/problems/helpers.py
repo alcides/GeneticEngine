@@ -1,3 +1,4 @@
+from typing import TypeVar
 from geneticengine.solutions.individual import Individual
 from geneticengine.problems import Problem
 
@@ -15,7 +16,10 @@ def is_better(problem: Problem, individual: Individual, other: Individual) -> bo
     return problem.is_better(individual.get_fitness(problem), other.get_fitness(problem))
 
 
-def sort_population(population: list[Individual], problem: Problem) -> list[Individual]:
+T = TypeVar("T", bound=Individual)
+
+
+def sort_population(population: list[T], problem: Problem) -> list[T]:
     """Sorts the population so the best one is first.
 
     Requires the individuals to be evaluated.

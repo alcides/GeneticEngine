@@ -4,10 +4,10 @@ import abc
 from typing import Iterator
 from geneticengine.representations.api import Representation
 
-from geneticengine.solutions.individual import Individual
 from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
 from geneticengine.evaluation import Evaluator
+from geneticengine.solutions.individual import PhenotypicIndividual
 
 
 class PopulationInitializer(abc.ABC):
@@ -18,7 +18,7 @@ class PopulationInitializer(abc.ABC):
         representation: Representation,
         random: RandomSource,
         target_size: int,
-    ) -> Iterator[Individual]: ...
+    ) -> Iterator[PhenotypicIndividual]: ...
 
 
 class GeneticStep(abc.ABC):
@@ -29,10 +29,10 @@ class GeneticStep(abc.ABC):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: Iterator[Individual],
+        population: Iterator[PhenotypicIndividual],
         target_size: int,
         generation: int,
-    ) -> Iterator[Individual]: ...
+    ) -> Iterator[PhenotypicIndividual]: ...
 
     def apply(
         self,
@@ -40,10 +40,10 @@ class GeneticStep(abc.ABC):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: Iterator[Individual],
+        population: Iterator[PhenotypicIndividual],
         target_size: int,
         generation: int,
-    ) -> Iterator[Individual]:
+    ) -> Iterator[PhenotypicIndividual]:
         self.pre_iterate(problem, evaluator, representation, random, population, target_size, generation)
         current = []
         for ind in self.iterate(problem, evaluator, representation, random, population, target_size, generation):
@@ -57,7 +57,7 @@ class GeneticStep(abc.ABC):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: Iterator[Individual],
+        population: Iterator[PhenotypicIndividual],
         target_size: int,
         generation: int,
     ) -> None:
@@ -69,7 +69,7 @@ class GeneticStep(abc.ABC):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: Iterator[Individual],
+        population: Iterator[PhenotypicIndividual],
         target_size: int,
         generation: int,
     ) -> None:

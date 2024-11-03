@@ -14,7 +14,7 @@ from geneticengine.evaluation.tracker import ProgressTracker
 from geneticengine.problems import Fitness, Problem
 from geneticengine.random.sources import RandomSource
 from geneticengine.representations.api import Representation
-from geneticengine.solutions.individual import Individual
+from geneticengine.solutions.individual import PhenotypicIndividual
 
 
 def generate_random_population_size(random: RandomSource) -> int:
@@ -47,9 +47,9 @@ class ParameterlessPopulationInitializer(PopulationInitializer):
         random: RandomSource,
         target_size: int,
         **kwargs,
-    ) -> Iterator[Individual]:
+    ) -> Iterator[PhenotypicIndividual]:
         while not self.budget.is_done(self.tracker):
-            yield Individual(
+            yield PhenotypicIndividual(
                 representation.create_genotype(
                     random,
                     **kwargs,
@@ -73,7 +73,7 @@ class AjustPopulationSizeStep(IdentityStep):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: Iterator[Individual],
+        population: Iterator[PhenotypicIndividual],
         target_size: int,
         generation: int,
     ) -> None:
@@ -108,11 +108,11 @@ class FeedbackParallelStep(ParallelStep):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: Iterator[Individual],
+        population: Iterator[PhenotypicIndividual],
         target_size: int,
         generation: int,
-    ) -> Iterator[Individual]:
-        npopulation: list[Individual] = [i for i in population]
+    ) -> Iterator[PhenotypicIndividual]:
+        npopulation: list[PhenotypicIndividual] = [i for i in population]
         ranges = self.compute_ranges(npopulation, target_size)
         assert len(ranges) == len(self.steps)
 
@@ -141,7 +141,7 @@ class FeedbackParallelStep(ParallelStep):
                 yield from new_individuals
 
 
-def best_of_population(population: list[Individual], problem: Problem) -> Individual:
+def best_of_population(population: list[PhenotypicIndividual], problem: Problem) -> PhenotypicIndividual:
     return reduce(
         lambda x, s: x if problem.is_better(x.get_fitness(problem), s.get_fitness(problem)) else s,
         population,
@@ -162,7 +162,7 @@ class GenericAdaptiveMutationStep(GenericMutationStep):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: Iterator[Individual],
+        population: Iterator[PhenotypicIndividual],
         target_size: int,
         generation: int,
     ) -> None:
@@ -193,7 +193,7 @@ class GenericAdaptiveCrossoverStep(GenericCrossoverStep):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: Iterator[Individual],
+        population: Iterator[PhenotypicIndividual],
         target_size: int,
         generation: int,
     ) -> None:

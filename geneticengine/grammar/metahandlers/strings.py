@@ -1,7 +1,8 @@
 from __future__ import annotations
 import copy
+import itertools
 import string
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable, Generator, TypeVar
 
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.random.sources import RandomSource
@@ -92,6 +93,17 @@ class StringSizeBetween(MetaHandlerGenerator):
     def __repr__(self):
         return f"StringSizeBetween[{self.min}...{self.max}]"
 
+    def iterate(
+        self,
+        base_type: type,
+        combine_lists: Callable[[list[type]], Generator[Any, Any, Any]],
+    ):
+        def generate_letter():
+            yield from self.options
+
+        for length in range(self.min, self.max + 1):
+            yield from itertools.product(*(generate_letter() for _ in range(length)))
+
 
 class WeightedStringHandler(MetaHandlerGenerator):
     """This metahandler restricts the creation of string nodes so that the
@@ -136,3 +148,13 @@ class WeightedStringHandler(MetaHandlerGenerator):
 
     def __class_getitem__(cls, args):
         return WeightedStringHandler(*args)
+
+    def iterate(
+        self,
+        base_type: type,
+        combine_lists: Callable[[list[type]], Generator[Any, Any, Any]],
+    ):
+        def generate_letter():
+            yield from self.options
+
+        yield from itertools.product(*(generate_letter() for _ in range(self.probability_matrix.shape[0])))

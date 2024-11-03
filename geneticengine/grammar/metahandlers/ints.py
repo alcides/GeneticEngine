@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable, Generator, TypeVar
 
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.random.sources import RandomSource
@@ -36,43 +36,19 @@ class IntRange(MetaHandlerGenerator):
     def validate(self, v) -> bool:
         return self.min <= v <= self.max
 
+    def iterate(
+        self,
+        base_type: type,
+        combine_lists: Callable[[list[type]], Generator[Any, Any, Any]],
+    ):
+        for i in range(self.min, self.max + 1):
+            yield i
+
     def __class_getitem__(cls, args):
         return IntRange(*args)
 
     def __repr__(self):
         return f"[{self.min},..,{self.max}]"
-
-
-class IntList(MetaHandlerGenerator):
-    """IntList([a_1, .., a_n]) restricts ints to be an element from the list.
-
-    [a_1, .., a_n].
-
-    The range can be dynamically altered before the grammar extraction
-        Int.__init__.__annotations__["value"] = Annotated[int, IntList[a_1, .., a_n]]
-    """
-
-    def __init__(self, elements):
-        self.elements = elements
-
-    def generate(
-        self,
-        random: RandomSource,
-        grammar: Grammar,
-        base_type: type,
-        rec: Callable[[type[T]], T],
-        dependent_values: dict[str, Any],
-    ):
-        return random.choice(self.elements)
-
-    def validate(self, v) -> bool:
-        return v in self.elements
-
-    def __class_getitem__(cls, args):
-        return IntList(*args)
-
-    def __repr__(self):
-        return f"[{self.elements}]"
 
 
 # TODO: deprecate
@@ -122,3 +98,11 @@ class IntervalRange(MetaHandlerGenerator):
     def validate(self, v) -> bool:
         length = v[1] - v[0]
         return self.minimum_length < length <= self.maximum_length and v[1] < self.maximum_top_limit
+
+    def iterate(
+        self,
+        base_type: type,
+        combine_lists: Callable[[list[type]], Generator[Any, Any, Any]],
+    ):
+        for i in range(self.maximum_length, self.maximum_top_limit + 1):
+            yield self.minimum_length + i

@@ -14,7 +14,7 @@ from geneticengine.evaluation.tracker import ProgressTracker
 from geneticengine.problems import Fitness, Problem
 from geneticengine.random.sources import RandomSource
 from geneticengine.representations.api import Representation
-from geneticengine.solutions.individual import Individual
+from geneticengine.solutions.individual import Individual, PhenotypicIndividual
 
 
 def generate_random_population_size(random: RandomSource) -> int:
@@ -47,9 +47,9 @@ class ParameterlessPopulationInitializer(PopulationInitializer):
         random: RandomSource,
         target_size: int,
         **kwargs,
-    ) -> Iterator[Individual]:
+    ) -> Iterator[PhenotypicIndividual]:
         while not self.budget.is_done(self.tracker):
-            yield Individual(
+            yield PhenotypicIndividual(
                 representation.create_genotype(
                     random,
                     **kwargs,
@@ -66,14 +66,14 @@ class RandomizeParallelStep(ParallelStep):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: Iterator[Individual],
+        population: Iterator[PhenotypicIndividual],
         target_size: int,
         generation: int,
     ) -> None:
         self.weights = [random.randint(0, 1000) for _ in range(4)]
 
 
-def best_of_population(population: Iterator[Individual], problem: Problem) -> Individual:
+def best_of_population(population: Iterator[PhenotypicIndividual], problem: Problem) -> Individual:
     return reduce(
         lambda x, s: x if problem.is_better(x.get_fitness(problem), s.get_fitness(problem)) else s,
         list(population),
@@ -100,7 +100,7 @@ class RegenerateWeightsStep(IdentityStep):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: Iterator[Individual],
+        population: Iterator[PhenotypicIndividual],
         target_size: int,
         generation: int,
     ) -> None:
@@ -124,7 +124,7 @@ class GenericAdaptiveCrossoverStep(GenericCrossoverStep):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: Iterator[Individual],
+        population: Iterator[PhenotypicIndividual],
         target_size: int,
         generation: int,
     ) -> None:
