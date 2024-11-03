@@ -17,13 +17,11 @@ dataset2 = pd.read_csv("dataset_secundario.csv", sep=";")
 
 
 class DecisionNode(ABC):
-    def evaluate(self, X):
-        ...
+    def evaluate(self, X): ...
 
 
 class IntNode(ABC):
-    def evaluate(self, X):
-        ...
+    def evaluate(self, X): ...
 
 
 @dataclass
@@ -101,7 +99,7 @@ def main():
         population_size=10,
         max_evaluations=10000,
     )
-    ind = alg.search()
+    ind = alg.search()[0]
     print(ind)
 
 

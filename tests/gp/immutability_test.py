@@ -4,7 +4,7 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated
 from geneticengine.representations.tree.initializations import MaxDepthDecider
-from geneticengine.solutions.individual import Individual
+from geneticengine.solutions.individual import PhenotypicIndividual
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
 from geneticengine.algorithms.gp.operators.selection import TournamentSelection
 from geneticengine.problems import SingleObjectiveProblem
@@ -111,17 +111,17 @@ class TestImmutability:
         population_size = 1000
 
         initial_population = [
-            Individual(genotype=rep.create_genotype(r, decider=decider), representation=rep)
+            PhenotypicIndividual(genotype=rep.create_genotype(r, decider=decider), representation=rep)
             for _ in range(population_size)
         ]
 
-        def encode_population(pop: list[Individual]) -> list[str]:
+        def encode_population(pop: list[PhenotypicIndividual]) -> list[str]:
             return [str(ind.genotype) for ind in pop]
 
         cpy = encode_population(initial_population)
 
         for i in range(10):
-            _ = test_step.iterate(
+            _ = test_step.apply(
                 problem=problem,
                 evaluator=SequentialEvaluator(),
                 representation=rep,

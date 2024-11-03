@@ -21,9 +21,10 @@ class HeuristicSearch(SynthesisAlgorithm):
         budget: SearchBudget,
         representation: Representation,
         random: RandomSource = None,
-        recorder: ProgressTracker | None = None,
+        tracker: ProgressTracker | None = None,
     ):
-        super().__init__(problem, budget, representation, recorder)
+        super().__init__(problem, budget, tracker)
+        self.representation = representation
         if random is None:
             self.random = NativeRandomSource(0)
         else:

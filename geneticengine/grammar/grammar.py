@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import is_dataclass
 import inspect
 import warnings
 from abc import ABC
@@ -367,11 +368,10 @@ class Grammar:
 
         while new_symbols:
             c = new_symbols.pop(0)
-            if is_abstract(c):
-                if c in self.alternatives:
-                    for k in self.alternatives[c]:
-                        add(k)
-            else:
+            if c in self.alternatives:
+                for k in self.alternatives[c]:
+                    add(k)
+            elif is_dataclass(c):
                 for _, k in get_arguments(c):
                     if is_metahandler(k):
                         k = get_generic_parameter(k)
@@ -384,8 +384,12 @@ class Grammar:
                             add(v)
                     else:
                         add(k)
+            elif c in [bool, int, str, float, list, tuple]:
+                pass
+            else:
+                assert False
 
-        return Grammar(self.starting_symbol, considered_subtypes)
+        return extract_grammar(considered_subtypes, self.starting_symbol)
 
     def get_grammar_properties_summary(self) -> GrammarSummary:
         """Returns a summary of grammar properties:

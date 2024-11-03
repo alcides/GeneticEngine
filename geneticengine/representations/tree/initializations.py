@@ -145,16 +145,17 @@ class FullDecider(MaxDepthDecider):
 class PositionIndependentGrowDecider(MaxDepthDecider):
     """PositionIndependentGrowDecider will always randomly expand one path of the tree to get to the max depth, and others randomly."""
 
+    def __init__(self, random: RandomSource, grammar: Grammar, max_depth: int = 10):
+        super().__init__(random, grammar, max_depth)
+        self.expanding = True
+
     def choose_production_alternatives(self, ty: type, alternatives: list[type], ctx: LocalSynthesisContext) -> type:
         assert len(alternatives) > 0, "No alternatives presented"
 
         baseline = [x for x in alternatives if self.grammar.get_distance_to_terminal(x) <= (self.max_depth - ctx.depth)]
-        if ctx.expansions == 0:
-            self.expanding = True  # expanding until a maximum depth is achieved
         if ctx.depth == self.max_depth - 1:
-            self.expanding = (
-                False  # after reaching the maximum depth, we no longer need to prevent branches from being terminals
-            )
+            # after reaching the maximum depth, we no longer need to prevent branches from being terminals
+            self.expanding = False
         if self.expanding:
             c_alternatives = [
                 x

@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from abc import ABC
 from dataclasses import dataclass
-from typing import Annotated
+from typing import Annotated, Union
 
 import pytest
+from geneticengine.algorithms.enumerative import EnumerativeSearch, combine_list_types
 from geneticengine.algorithms.gp.gp import GeneticProgramming
-from geneticengine.evaluation.budget import EvaluationBudget
+from geneticengine.evaluation.budget import EvaluationBudget, TimeBudget
 
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
@@ -30,6 +31,18 @@ from geneticengine.grammar.metahandlers.vars import VarRange
 
 class Root(ABC):
     pass
+
+
+@dataclass
+class Basic(Root):
+    a: int
+    b: float
+    c: str
+
+
+@dataclass
+class UnionT(Root):
+    x: Union[int, Concrete]
 
 
 @dataclass
@@ -96,3 +109,27 @@ class TestRepresentation:
             budget=EvaluationBudget(1000),
         )
         gp.search()
+
+    def test_enumerative(self) -> None:
+        g: Grammar = extract_grammar([IntRangeM, ListRangeM, FloatRangeM, Branch, Concrete, ListWrapper], Root)
+
+        def fitness_function(x: Root) -> float:
+            return 0.5
+
+        gp = EnumerativeSearch(
+            problem=SingleObjectiveProblem(fitness_function=fitness_function),
+            budget=TimeBudget(5),
+            grammar=g,
+        )
+        gp.search()
+
+    def test_enumerative_combine(self) -> None:
+        def gen_bool(t):
+            assert t is bool
+            yield True
+            yield False
+
+        for m in combine_list_types([bool, bool], [], gen_bool):
+            assert len(m) == 2
+            for el in m:
+                assert el in [True, False]

@@ -14,20 +14,6 @@ Search algorithms can be defined with different budgets (subclasses of `genetice
 .. autoapiclass:: geneticengine.evaluation.budget.EvaluationBudget
 ```
 
-## Target Fitness
-
-For single-objective:
-
-```{eval-rst}
-.. autoapiclass:: geneticengine.evaluation.budget.TargetFitness
-```
-
-For multi-objective:
-
-```{eval-rst}
-.. autoapiclass:: geneticengine.evaluation.budget.TargetMultiFitness
-```
-
 ## Budget Combinators
 
 ## AnyOf

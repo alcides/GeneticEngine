@@ -119,7 +119,7 @@ def test_bench_mutation(benchmark, representation):
         p = SingleObjectiveProblem(lambda x: 3)
         population = GenericPopulationInitializer().initialize(p, repr, r, target_size)
         for _ in range(number_of_iterations):
-            population = list(gs.iterate(p, SequentialEvaluator(), repr, r, population, target_size, 0))
+            population = list(gs.apply(p, SequentialEvaluator(), repr, r, population, target_size, 0))
             force_generation_of_population(population)
         return len(population)
 
@@ -143,7 +143,7 @@ def test_bench_crossover(benchmark, representation):
         p = SingleObjectiveProblem(lambda x: 3)
         population = GenericPopulationInitializer().initialize(p, repr, r, target_size)
         for _ in range(number_of_iterations):
-            population = list(gs.iterate(p, SequentialEvaluator(), repr, r, population, target_size, 0))
+            population = list(gs.apply(p, SequentialEvaluator(), repr, r, population, target_size, 0))
             force_generation_of_population(population)
         return len(population)
 

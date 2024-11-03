@@ -6,9 +6,7 @@ from geneticengine.algorithms.gp.population import Population
 from geneticengine.algorithms.heuristics import HeuristicSearch
 from geneticengine.evaluation.budget import SearchBudget
 from geneticengine.evaluation.tracker import (
-    MultiObjectiveProgressTracker,
     ProgressTracker,
-    SingleObjectiveProgressTracker,
 )
 from geneticengine.solutions.individual import Individual
 from geneticengine.algorithms.gp.operators.combinators import ParallelStep, SequenceStep
@@ -79,7 +77,7 @@ class GeneticProgramming(HeuristicSearch):
         )
         self.step = step if step is not None else default_generic_programming_step()
 
-    def search(self) -> Individual:
+    def perform_search(self) -> list[Individual] | None:
         assert isinstance(self.representation, RepresentationWithMutation)
         assert isinstance(self.representation, RepresentationWithCrossover)
         generation = 0
@@ -99,12 +97,12 @@ class GeneticProgramming(HeuristicSearch):
             generation += 1
             logger.debug(f"Generating population at generation {generation}")
             population = Population(
-                self.step.iterate(
+                self.step.apply(
                     self.problem,
                     self.tracker.evaluator,
                     self.representation,
                     self.random,
-                    population,
+                    population.get_individuals(),
                     self.population_size,
                     generation,
                 ),
@@ -112,10 +110,4 @@ class GeneticProgramming(HeuristicSearch):
                 generation,
             )
 
-        if isinstance(self.tracker, SingleObjectiveProgressTracker):
-            return self.tracker.get_best_individual()
-        elif isinstance(self.tracker, MultiObjectiveProgressTracker):
-            # TODO: Think about this API
-            return self.tracker.get_best_individuals()[0]
-        else:
-            return None
+        return self.tracker.get_best_individuals()

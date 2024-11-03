@@ -6,7 +6,7 @@ from geneticengine.representations.tree.initializations import (
     FullDecider,
     MaxDepthDecider,
 )
-from geneticengine.solutions.individual import Individual
+from geneticengine.solutions.individual import Individual, PhenotypicIndividual
 from geneticengine.algorithms.gp.structure import PopulationInitializer
 from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
@@ -29,10 +29,10 @@ class FullInitializer(PopulationInitializer):
         random: RandomSource,
         target_size: int,
         **kwargs,
-    ) -> Iterator[Individual]:
+    ) -> Iterator[PhenotypicIndividual]:
         assert isinstance(representation, TreeBasedRepresentation)
         for _ in range(target_size):
-            yield Individual(
+            yield PhenotypicIndividual(
                 representation.create_genotype(
                     random,
                     decider=FullDecider(random, representation.grammar, max_depth=self.max_depth + 1),
@@ -56,14 +56,14 @@ class GrowInitializer(PopulationInitializer):
         target_size: int,
         max_tries: int = 1000,
         **kwargs,
-    ) -> Iterator[Individual]:
+    ) -> Iterator[PhenotypicIndividual]:
         assert isinstance(representation, TreeBasedRepresentation)
         generated = 0
         current_failures = 0
         depth = 1
         while generated < target_size:
             try:
-                yield Individual(
+                yield PhenotypicIndividual(
                     representation.create_genotype(
                         random,
                         decider=MaxDepthDecider(random, representation.grammar, max_depth=depth),
@@ -94,7 +94,7 @@ class PositionIndependentGrowInitializer(PopulationInitializer):
         random: RandomSource,
         target_size: int,
         **kwargs,
-    ) -> Iterator[Individual]:
+    ) -> Iterator[PhenotypicIndividual]:
         assert isinstance(representation, TreeBasedRepresentation)
         half = target_size // 2
         yield from self.grow.initialize(problem, representation, random, half)
@@ -118,11 +118,11 @@ class RampedHalfAndHalfInitializer(PopulationInitializer):
         representation: Representation,
         random: RandomSource,
         target_size: int,
-    ) -> Iterator[Individual]:
+    ) -> Iterator[PhenotypicIndividual]:
         assert isinstance(representation, TreeBasedRepresentation)
         for _ in range(target_size):
 
-            yield Individual(
+            yield PhenotypicIndividual(
                 representation.create_genotype(
                     random,
                 ),
@@ -144,14 +144,14 @@ class InjectInitialPopulationWrapper(PopulationInitializer):
         representation: Representation,
         random: RandomSource,
         target_size: int,
-    ) -> Iterator[Individual]:
+    ) -> Iterator[PhenotypicIndividual]:
         assert isinstance(representation, TreeBasedRepresentation)
 
         def ensure_ind(x):
             if isinstance(x, Individual):
                 return x
             else:
-                return Individual(x, representation=representation)
+                return PhenotypicIndividual(x, representation=representation)
 
         for i, p in enumerate(self.programs[:target_size]):
             yield ensure_ind(p)

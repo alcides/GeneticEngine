@@ -1,24 +1,20 @@
 from __future__ import annotations
-
 from abc import ABC
 from dataclasses import dataclass
-from typing import Annotated
-from typing import Any
+from typing import Annotated, Any
+
 
 import numpy as np
+
 from sklearn.metrics import mean_squared_error
 
-from geml.simplegp import SimpleGP
+from examples.benchmarks.benchmark import Benchmark, example_run
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.grammar.metahandlers.ints import IntRange
+from geneticengine.problems import Problem
+from geneticengine.problems import SingleObjectiveProblem
 
-# ===================================
-# This is an example on how to use GeneticEngine to solve a GP problem.
-# We define the tree structure of the representation and then we define the fitness function for our problem
-# In this example we are solving our problem using a Vectorial Approach to Genetic Programming.
-# This example is taken from the Vectorial GP paper (https://link.springer.com/chapter/10.1007/978-3-030-16670-0_14).
-# ===================================
 
 # Load Dataset
 dataset = [
@@ -3098,30 +3094,27 @@ def compile(p, line) -> Any:
         raise NotImplementedError(str(p))
 
 
-def fitness_function(n: Scalar):
-    def regressor(l):
-        return compile(n, l)
+class VectorialGPBenchmark(Benchmark):
+    def __init__(self, dataset):
 
-    y_pred = [regressor(line) for line in dataset]
-    y = [line[-1] for line in dataset]
-    r = mean_squared_error(
-        y,
-        y_pred,
-    )  # should use our own from metrics, but left as such to align with pony
-    return r
+        self.setup_problem(dataset)
+        self.setup_grammar()
 
+    def setup_problem(self, dataset):
+        def fitness_function(n: Scalar):
+            def regressor(l):
+                return compile(n, l)
 
-def fitness_function_alternative(n: Scalar):
-    code = f"lambda line: {str(n)}"
-    regressor = eval(code)
-    y_pred = [regressor(line) for line in dataset]
-    y = [line[-1] for line in dataset]
-    r = mean_squared_error(y, y_pred)
-    return r
+            y_pred = [regressor(line) for line in dataset]
+            y = [line[-1] for line in dataset]
+            return mean_squared_error(
+                y,
+                y_pred,
+            )
 
+        self.problem = SingleObjectiveProblem(minimize=True, fitness_function=fitness_function, target=0)
 
-class VectorialGPBenchmark:
-    def get_grammar(self) -> Grammar:
+    def setup_grammar(self):
         """See fitness/vectorialgp.py for docs.
 
         <p> ::= XXX_output_XXX = <s>
@@ -3136,7 +3129,7 @@ class VectorialGPBenchmark:
 
         <d> ::= GE_RANGE:10
         """
-        return extract_grammar(
+        self.grammar = extract_grammar(
             [
                 Value,  #
                 ScalarVar,  #
@@ -3157,26 +3150,12 @@ class VectorialGPBenchmark:
             Scalar,
         )
 
-    def main(self, **args):
-        g = self.get_grammar()
-        alg = SimpleGP(
-            grammar=g,
-            minimize=True,
-            fitness_function=fitness_function,
-            crossover_probability=0.75,
-            mutation_probability=0.01,
-            max_evaluations=10000,
-            max_depth=10,
-            population_size=50,
-            selection_method=("tournament", 2),
-            elitism=5,
-            **args,
-        )
-        best = alg.search()
-        print(
-            f"Fitness of {best.get_fitness(alg.get_problem())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
-        )
+    def get_problem(self) -> Problem:
+        return self.problem
+
+    def get_grammar(self) -> Grammar:
+        return self.grammar
 
 
 if __name__ == "__main__":
-    VectorialGPBenchmark().main(seed=0)
+    example_run(VectorialGPBenchmark(dataset))

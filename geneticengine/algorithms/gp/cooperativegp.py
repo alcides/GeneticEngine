@@ -65,10 +65,12 @@ class CooperativeGP(Generic[a, b]):
         self.population2_size = population2_size
         self.coevolutions = coevolutions
         self.representation1 = representation1 or TreeBasedRepresentation(
-            grammar=self.g1, decider=MaxDepthDecider(random, self.g1),
+            grammar=self.g1,
+            decider=MaxDepthDecider(random, self.g1),
         )
         self.representation2 = representation2 or TreeBasedRepresentation(
-            grammar=self.g2, decider=MaxDepthDecider(random, self.g2),
+            grammar=self.g2,
+            decider=MaxDepthDecider(random, self.g2),
         )
         self.kwargs1 = kwargs1 or {}
         self.kwargs2 = kwargs2 or {}
@@ -115,8 +117,8 @@ class CooperativeGP(Generic[a, b]):
                 ),  # TODO: we might want to keep individuals, and not only the phenotypes.
                 **self.kwargs1,
             )
-            ind = gp1.search()
-            self.bests.b1 = ind.get_phenotype()
+            inds = gp1.search()
+            self.bests.b1 = inds[0].get_phenotype()
 
             gp2 = GeneticProgramming(
                 problem=p2,
@@ -126,7 +128,7 @@ class CooperativeGP(Generic[a, b]):
                 population_initializer=InjectInitialPopulationWrapper([e.get_phenotype() for e in pop2], init),
                 **self.kwargs2,
             )
-            ind = gp2.search()
-            self.bests.b2 = ind.get_phenotype()
+            inds = gp2.search()
+            self.bests.b2 = inds[0].get_phenotype()
 
         return (self.bests.b1, self.bests.b2)

@@ -3,7 +3,7 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated, Any
 from geneticengine.representations.tree.initializations import MaxDepthDecider
-from geneticengine.solutions.individual import Individual
+from geneticengine.solutions.individual import PhenotypicIndividual
 
 from geneticengine.grammar.grammar import Grammar, extract_grammar
 from geneticengine.random.sources import NativeRandomSource, RandomSource
@@ -47,6 +47,6 @@ def test_metahandler_gen():
     g = extract_grammar([Leaf], Root)
     d = MaxDepthDecider(r, g, 2)
     rep = GrammaticalEvolutionRepresentation(g, d)
-    ind = Individual(genotype=rep.create_genotype(random=r), representation=rep)
+    ind = PhenotypicIndividual(genotype=rep.create_genotype(random=r), representation=rep)
 
     assert ind.get_phenotype()

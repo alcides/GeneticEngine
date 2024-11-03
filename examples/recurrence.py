@@ -128,7 +128,7 @@ if __name__ == "__main__":
         target_fitness=0,
         novelty=10,
     )
-    best: Any = gp.search()
+    best: Any = gp.search()[0]
     print("Number of nodes:", best.get_phenotype().gengy_nodes)
     print("Distance to Terminal:", best.get_phenotype().gengy_distance_to_term)
     fitness = best.get_fitness(gp.get_problem())

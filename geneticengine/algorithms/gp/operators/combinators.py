@@ -1,12 +1,29 @@
 from __future__ import annotations
 from typing import Iterator
 
-from geneticengine.solutions.individual import Individual
+from geneticengine.solutions.individual import Individual, PhenotypicIndividual
 from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
 from geneticengine.representations.api import Representation
 from geneticengine.evaluation import Evaluator
+
+
+class IdentityStep(GeneticStep):
+    """Returns the population that was presented to it"""
+
+    def iterate(
+        self,
+        problem: Problem,
+        evaluator: Evaluator,
+        representation: Representation,
+        random: RandomSource,
+        population: Iterator[PhenotypicIndividual],
+        target_size: int,
+        generation: int,
+    ) -> Iterator[PhenotypicIndividual]:
+        for _, p in zip(range(target_size), population):
+            yield p
 
 
 class SequenceStep(GeneticStep):
@@ -22,13 +39,13 @@ class SequenceStep(GeneticStep):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: Iterator[Individual],
+        population: Iterator[PhenotypicIndividual],
         target_size: int,
         generation: int,
-    ) -> Iterator[Individual]:
+    ) -> Iterator[PhenotypicIndividual]:
         npopulation = population
         for step in self.steps:
-            npopulation = step.iterate(
+            npopulation = step.apply(
                 problem,
                 evaluator,
                 representation,
@@ -84,17 +101,17 @@ class ParallelStep(GeneticStep):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: Iterator[Individual],
+        population: Iterator[PhenotypicIndividual],
         target_size: int,
         generation: int,
-    ) -> Iterator[Individual]:
+    ) -> Iterator[PhenotypicIndividual]:
         npopulation: list[Individual] = [i for i in population]
         ranges = self.compute_ranges(npopulation, target_size)
         assert len(ranges) == len(self.steps)
 
         for (start, end), step in zip(ranges, self.steps):
             if end - start > 0:
-                yield from step.iterate(
+                yield from step.apply(
                     problem,
                     evaluator,
                     representation,
@@ -132,11 +149,11 @@ class ExclusiveParallelStep(ParallelStep):
         evaluator: Evaluator,
         representation: Representation,
         random: RandomSource,
-        population: Iterator[Individual],
+        population: Iterator[PhenotypicIndividual],
         target_size: int,
         generation: int,
-    ) -> Iterator[Individual]:
-        npopulation: list[Individual] = list(population)
+    ) -> Iterator[PhenotypicIndividual]:
+        npopulation: list[PhenotypicIndividual] = list(population)
         total = sum(self.weights)
         indices = [0] + self.cumsum(
             [int(round(w * len(npopulation) / total, 0)) for w in self.weights],
@@ -146,7 +163,7 @@ class ExclusiveParallelStep(ParallelStep):
         ranges[-1] = (ranges[-1][0], target_size)  # Fix the last position
 
         for (start, end), step in zip(ranges, self.steps):
-            yield from step.iterate(
+            yield from step.apply(
                 problem,
                 evaluator,
                 representation,

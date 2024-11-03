@@ -1,26 +1,19 @@
 from __future__ import annotations
 
+
 from abc import ABC
 from dataclasses import dataclass
 from enum import Enum
 from typing import Annotated
 
-from geml.simplegp import SimpleGP
-from geneticengine.algorithms.hill_climbing import HC
-from geneticengine.evaluation.budget import EvaluationBudget
+
+from examples.benchmarks.benchmark import Benchmark, example_run
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
-from geneticengine.problems import SingleObjectiveProblem
-from geneticengine.random.sources import NativeRandomSource
-from geneticengine.representations.tree.initializations import MaxDepthDecider
-from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammar.metahandlers.lists import ListSizeBetween
+from geneticengine.problems import Problem
+from geneticengine.problems import SingleObjectiveProblem
 
-# ===================================
-# This is a simple example on how to use GeneticEngine to solve a GP problem.
-# We define the tree structure of the representation and then we define the fitness function for our problem
-# The Santa Fe Trail problem is a GP problem in which artificial ants search for food pellets according to a programmed set of instructions
-# ===================================
 
 map = """.###............................
 ...#............................
@@ -169,42 +162,30 @@ def simulate(a: Action, map_str: str) -> int:
     return food_consumed
 
 
-def fitness_function(i) -> float:
-    return simulate(i, map)
+class SantaFeBenchmark(Benchmark):
+    def __init__(self, map: str):
 
+        self.setup_problem(map)
+        self.setup_grammar()
 
-class SantaFeBenchmark:
+    def setup_problem(self, map):
+
+        # Problem
+        def fitness_function(i):
+            return simulate(i, map)
+
+        target_food = map.count("#")
+        self.problem = SingleObjectiveProblem(minimize=False, fitness_function=fitness_function, target=target_food)
+
+    def setup_grammar(self):
+        self.grammar = extract_grammar([ActionBlock, Action, IfFood, Move, Right, Left], ActionMain)
+
+    def get_problem(self) -> Problem:
+        return self.problem
+
     def get_grammar(self) -> Grammar:
-        return extract_grammar([ActionBlock, Action, IfFood, Move, Right, Left], ActionMain)
-
-    def main(self, **args):
-        g = self.get_grammar()
-        alg = SimpleGP(
-            grammar=g,
-            minimize=False,
-            fitness_function=fitness_function,
-            crossover_probability=1,
-            mutation_probability=0.5,
-            max_evaluations=10000,
-            max_depth=10,
-            population_size=50,
-            selection_method=("tournament", 2),
-            elitism=5,
-            **args,
-        )
-        ind = alg.search()
-        print("\n======\nGP\n======\n")
-        print(f"{ind.get_fitness(alg.problem)} - {ind}")
-        r = NativeRandomSource(0)
-        alg_hc = HC(
-            problem=SingleObjectiveProblem(fitness_function),
-            representation=TreeBasedRepresentation(g, MaxDepthDecider(r, g, 10)),
-            budget=EvaluationBudget(1000),
-        )
-        ind = alg_hc.search()
-        print("\n======\nHC\n======\n")
-        print(f"{ind.get_fitness(alg_hc.problem)} - {ind}")
+        return self.grammar
 
 
 if __name__ == "__main__":
-    SantaFeBenchmark().main(seed=0)
+    example_run(SantaFeBenchmark(map))

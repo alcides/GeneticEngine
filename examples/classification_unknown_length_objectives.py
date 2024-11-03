@@ -7,7 +7,8 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-from geml.simplegp import SimpleGP
+from geneticengine.algorithms.gp.gp import GeneticProgramming
+from geneticengine.evaluation.budget import EvaluationBudget
 from geneticengine.grammar.decorators import abstract
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
@@ -18,8 +19,11 @@ from geml.grammars.sgp import Mul
 from geml.grammars.sgp import Number
 from geml.grammars.sgp import Plus
 from geml.grammars.sgp import Var
-from geneticengine.grammar.metahandlers.floats import FloatList
 from geneticengine.grammar.metahandlers.vars import VarRange
+from geneticengine.problems import LazyMultiObjectiveProblem
+from geneticengine.random.sources import NativeRandomSource
+from geneticengine.representations.tree.initializations import MaxDepthDecider
+from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 
 # ===================================
 # This is an example of normal classification using normal GP,
@@ -138,7 +142,7 @@ literals = [
 
 @dataclass
 class Literal2(Number):
-    val: Annotated[float, FloatList([-1, -0.1, -0.01, -0.001, 1, 0.1, 0.01, 0.001])]
+    val: Annotated[float, VarRange([-1, -0.1, -0.01, -0.001, 1, 0.1, 0.01, 0.001])]
 
     def evaluate(self, **kwargs):
         return self.val
@@ -171,7 +175,7 @@ def fitness_function_lexicase(n: Number):
     return [int(p == r) for (p, r) in zip(y, y_pred)]
 
 
-class ClassificationLexicaseBenchmark:
+class ClassificationUnknownBenchmark:
     def get_grammar(self) -> Grammar:
         return extract_grammar(
             [Plus, Mul, SafeDiv, Literal2, Var, SafeSqrt, SafeLog],
@@ -179,26 +183,20 @@ class ClassificationLexicaseBenchmark:
         )
 
     def main(self, **args):
-        g = self.get_grammar()
-
-        alg = SimpleGP(
-            grammar=g,
-            minimize=[],
-            fitness_function=fitness_function_lexicase,
-            crossover_probability=0.75,
-            mutation_probability=0.01,
-            max_evaluations=10000,
-            max_depth=15,
+        grammar = self.get_grammar()
+        random = NativeRandomSource(0)
+        problem = LazyMultiObjectiveProblem(fitness_function_lexicase, minimize=False, target=1)
+        alg = GeneticProgramming(
+            problem=problem,
+            representation=TreeBasedRepresentation(grammar, MaxDepthDecider(random, grammar, 15)),
+            budget=EvaluationBudget(1000),
             population_size=50,
-            selection_method=("lexicase",),
-            elitism=5,
-            **args,
         )
-        best = alg.search()
+        best = alg.search()[0]
         print(
             f"Fitness of {best.get_fitness(alg.get_problem())} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
         )
 
 
 if __name__ == "__main__":
-    ClassificationLexicaseBenchmark().main(seed=0)
+    ClassificationUnknownBenchmark().main(seed=0)

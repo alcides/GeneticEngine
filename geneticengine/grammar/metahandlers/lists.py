@@ -1,7 +1,7 @@
 from __future__ import annotations
 import copy
 from enum import Enum
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable, Generator, TypeVar
 
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.grammar.utils import get_generic_parameter, is_generic_list
@@ -127,47 +127,19 @@ class ListSizeBetween(MetaHandlerGenerator):
         assert self.min <= len(new_node) <= self.max
         return current_node.new_like(new_node)
 
+    def iterate(
+        self,
+        base_type: type,
+        combine_lists: Callable[[list[type]], Generator[Any, Any, Any]],
+    ):
+        assert is_generic_list(base_type)
+        inner_type = get_generic_parameter(base_type)
+        for length in range(self.min, self.max + 1):
+            for li in combine_lists([inner_type for _ in range(length)]):
+                yield li
+
     def __class_getitem__(cls, args):
         return ListSizeBetween(*args)
 
     def __repr__(self):
         return f"ListSizeBetween[{self.min}...{self.max}]"
-
-
-class ListSizeBetweenWithoutListOperations(MetaHandlerGenerator):
-    """ListSizeBetweenWithoutListOperations(a,b) restricts lists to be of
-    length between a and b.
-
-    The list of options can be dynamically altered before the grammar extraction
-        Set.__annotations__["set"] = Annotated[List[Type], ListSizeBetweenWithoutListOperations(c,d)]
-    """
-
-    def __init__(self, min, max):
-        self.min = min
-        self.max = max
-
-    def validate(self, v) -> bool:
-        return self.min <= len(v) <= self.max
-
-    def generate(
-        self,
-        random: RandomSource,
-        grammar: Grammar,
-        base_type: type,
-        rec: Any,
-        dependent_values: dict[str, Any],
-    ):
-        assert is_generic_list(base_type)
-        inner_type = get_generic_parameter(base_type)
-        size = random.randint(self.min, self.max)
-        li = []
-        for i in range(size):
-            nv = rec(inner_type)
-            li.append(nv)
-        return GengyList(inner_type, li)
-
-    def __class_getitem__(cls, args):
-        return ListSizeBetweenWithoutListOperations(*args)
-
-    def __repr__(self):
-        return f"ListSizeBetweenWithoutListOperations[{self.min}...{self.max}]"

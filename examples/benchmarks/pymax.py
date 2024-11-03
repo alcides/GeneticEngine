@@ -1,14 +1,20 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 
-from geml.simplegp import SimpleGP
+from examples.benchmarks.benchmark import Benchmark, example_run
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
+from geneticengine.problems import Problem
+from geneticengine.problems import SingleObjectiveProblem
+
+
+from dataclasses import dataclass
+
 from geml.grammars.coding.classes import Expr
 from geml.grammars.coding.classes import XAssign
 from geml.grammars.coding.control_flow import Code
 from geml.grammars.coding.control_flow import ForLoop
+
 
 # ===================================
 # This is a simple example on how to use GeneticEngine to solve a GP problem.
@@ -55,32 +61,26 @@ class XTimesConst(Expr):
         return f"x * {self.right}"
 
 
-def fit(indiv: Code):
-    return indiv.evaluate()
+class PyMaxBenchmark(Benchmark):
+    def __init__(self):
+        self.setup_problem()
+        self.setup_grammar()
 
+    def setup_problem(self):
+        self.problem = SingleObjectiveProblem(minimize=False, fitness_function=lambda x: x.evaluate())
 
-class PyMaxBenchmark:
-    def get_grammar(self) -> Grammar:
-        return extract_grammar(
+    def setup_grammar(self):
+        self.grammar = extract_grammar(
             [XPlusConst, XTimesConst, XAssign, ForLoop, Code, Const, VarX],
             ForLoop,
         )
 
-    def main(self, **args):
-        g = self.get_grammar()
-        alg = SimpleGP(
-            grammar=g,
-            minimize=False,
-            fitness_function=fit,
-            max_depth=8,
-            population_size=25,
-            max_evaluations=25 * 10,
-            **args,
-        )
-        best = alg.search()
-        fitness = best.get_fitness(alg.get_problem())
-        print(f"Fitness of {fitness} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}")
+    def get_problem(self) -> Problem:
+        return self.problem
+
+    def get_grammar(self) -> Grammar:
+        return self.grammar
 
 
 if __name__ == "__main__":
-    PyMaxBenchmark().main(seed=0)
+    example_run(PyMaxBenchmark())
