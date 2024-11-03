@@ -1,6 +1,7 @@
 from examples.benchmarks.classification import ClassificationBenchmark
 from examples.benchmarks.classification_lexicase import ClassificationLexicaseBenchmark
 from examples.benchmarks.datasets import get_banknote, get_game_of_life, get_vladislavleva
+from examples.benchmarks.domino import DominoBenchmark, blacks, top_target, side_target
 from examples.benchmarks.game_of_life_vectorial import GameOfLifeVectorialBenchmark
 from examples.benchmarks.regression import RegressionBenchmark
 from examples.benchmarks.regression_lexicase import RegressionLexicaseBenchmark
@@ -32,6 +33,7 @@ benchmarks = [
     SantaFeBenchmark(map),
     StringMatchBenchmark(),
     VectorialGPBenchmark(dataset),
+    DominoBenchmark(blacks, top_target, side_target),
 ]
 
 
@@ -62,5 +64,5 @@ if __name__ == "__main__":
             bests = instance.search()
             best = bests[0]
             print(
-                f"Fitness of {best.get_fitness(problem)} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+                f"Fitness of {best.get_fitness(problem)} for {best.get_phenotype()}",
             )

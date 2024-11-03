@@ -33,6 +33,7 @@ run_example examples/geml/regressor_example.py
 
 run_example examples/benchmarks/classification.py
 run_example examples/benchmarks/classification_lexicase.py
+run_example examples/benchmarks/domino.py
 run_example examples/benchmarks/game_of_life_vectorial.py
 run_example examples/benchmarks/pymax.py
 run_example examples/benchmarks/regression.py
@@ -40,8 +41,6 @@ run_example examples/benchmarks/regression_lexicase.py
 run_example examples/benchmarks/santafe.py
 run_example examples/benchmarks/string_match.py
 run_example examples/benchmarks/vectorialgp.py
-run_example examples/domino.py
-run_example examples/dominoRecursive.py
 
 
 run_example examples/progsys/Number_IO.py
@@ -61,3 +60,4 @@ run_example examples/recurrence.py
 run_example examples/synthetic_grammar_example.py
 run_example examples/tutorial_example.py
 run_example examples/logging_example.py
+run_example examples/dominoRecursive.py
