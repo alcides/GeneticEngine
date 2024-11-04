@@ -31,7 +31,7 @@ dependencies = [
     'pathos==0.3.3',
     'polyleven==0.8',
     'pytest==8.3.3',
-    'pytest-benchmark==4.0.0',
+    'pytest-benchmark==5.1.0',
     'scikit-learn==1.5.2',
     'seaborn==0.13.2',
     'sympy==1.13.3',
