@@ -86,7 +86,8 @@ def iterate_grammar(grammar: Grammar, starting_symbol: type):
             )
         elif starting_symbol in grammar.alternatives:
             compatible_productions = grammar.alternatives[starting_symbol]
-            for prod in compatible_productions:
+
+            for prod in sorted(compatible_productions, key=lambda x: grammar.distanceToTerminal[x]):
                 yield from iterate_grammar(grammar, prod)
         else:
             # Normal production
