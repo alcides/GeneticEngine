@@ -24,6 +24,8 @@ jobs:
         run: pip install -r requirements-dev.txt
       - name: Install dependencies
         run: pip install -r requirements.txt
+      - name: Install geneticengine
+        run: pip install -e .
 
       - name: Run benchmarks
         uses: CodSpeedHQ/action@v3
