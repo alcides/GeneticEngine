@@ -5,4 +5,5 @@ pre-commit
 pycln
 pytest
 pytest-cov
+pytest-codspeed
 ruff
