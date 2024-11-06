@@ -1,8 +1,9 @@
 from abc import ABC
 
 from geml.common import PopulationRecorder
+from geneticengine.algorithms.enumerative import EnumerativeSearch
 from geneticengine.algorithms.gp.gp import GeneticProgramming
-from geneticengine.evaluation.budget import TimeBudget
+from geneticengine.evaluation.budget import EvaluationBudget, TimeBudget
 from geneticengine.evaluation.tracker import ProgressTracker
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.problems import Problem
@@ -34,4 +35,18 @@ def example_run(b: Benchmark):
     best = alg.search()[0]
     print(
         f"Fitness of {best.get_fitness(problem)} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+    )
+
+def example_run_Enumerative(b: Benchmark):
+    problem = b.get_problem()
+    grammar = b.get_grammar()
+    alg = EnumerativeSearch(
+        problem=problem,
+        budget=EvaluationBudget(1000000),
+        grammar= grammar,
+        tracker=ProgressTracker(problem, recorders=[PopulationRecorder()]),
+    )
+    best = alg.search()[0]
+    print(
+        f"Fitness of {best.get_fitness(problem)} by phenotype: {best.get_phenotype()}",
     )

@@ -47,5 +47,7 @@ class VarRange(MetaHandlerGenerator):
         self,
         base_type: type,
         combine_lists: Callable[[list[type]], Generator[Any, Any, Any]],
+        rec: Any,
+        dependent_values: dict[str, Any],
     ):
         yield from self.options

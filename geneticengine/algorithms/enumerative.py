@@ -25,25 +25,34 @@ from geneticengine.solutions.individual import (
     Individual,
 )
 
+a = []
+a.insert
 
 def frange(start, stop, step):
     return takewhile(lambda x: x < stop, count(start, step))
 
+def foundDict(d, target, result):
+    for key,value in d.items():
+        if target == value[0]:
+            d[key][1] = result
+            return
 
-def combine_list_types(ts: list[type], acc: list[Any], gen):
+
+def combine_list_types(ts: list[type], acc: list[Any], gen, dependent_values: dict[str:Any]):
     match ts:
         case []:
             yield acc
         case _:
             head = ts[0]
             tail = ts[1:]
-            for x in gen(head):
-                yield from combine_list_types(tail, acc + [x], gen)
+            for x in gen(head,dependent_values):
+                foundDict(dependent_values, head, x)
+                yield from combine_list_types(tail, acc + [x], gen,dependent_values)
 
 
-def iterate_grammar(grammar: Grammar, starting_symbol: type):
-    def rec_generator(symbol):
-        return iterate_grammar(grammar, symbol)
+def iterate_grammar(grammar: Grammar, starting_symbol: type, dependent_values: dict[str:Any]|None = {}):
+    def rec_generator(symbol,dependent_values):
+        return iterate_grammar(grammar, symbol, dependent_values)
 
     if starting_symbol is int:
         yield from range(-100000000, 100000000)
@@ -54,7 +63,7 @@ def iterate_grammar(grammar: Grammar, starting_symbol: type):
         yield False
     elif is_generic_tuple(starting_symbol):
         types = get_generic_parameters(starting_symbol)
-        for li in combine_list_types(types, [], rec_generator):
+        for li in combine_list_types(types, [], rec_generator,{}):
             yield tuple(li)
     elif is_generic_list(starting_symbol):
         inner_type = get_generic_parameter(starting_symbol)
@@ -62,7 +71,7 @@ def iterate_grammar(grammar: Grammar, starting_symbol: type):
         for length in range(0, 1024):
 
             generator_list = [inner_type for _ in range(length)]
-            for concrete_list in combine_list_types(generator_list, [], rec_generator):
+            for concrete_list in combine_list_types(generator_list, [], rec_generator,{}):
                 yield concrete_list
 
     elif is_metahandler(starting_symbol):
@@ -70,7 +79,7 @@ def iterate_grammar(grammar: Grammar, starting_symbol: type):
         base_type = get_generic_parameter(starting_symbol)
 
         if hasattr(metahandler, "iterate"):
-            yield from metahandler.iterate(base_type, lambda xs: combine_list_types(xs, [], rec_generator))
+            yield from metahandler.iterate(base_type, lambda xs: combine_list_types(xs, [], rec_generator,dependent_values),rec_generator, dependent_values)
         else:
             base_type = get_generic_parameter(starting_symbol)
             for ins in iterate_grammar(grammar, base_type):
@@ -93,9 +102,11 @@ def iterate_grammar(grammar: Grammar, starting_symbol: type):
             # Normal production
             args = []
             # TODO: Add dependent types to enumerative
-            # dependent_values = {}
-            args = [argt for _, argt in get_arguments(starting_symbol)]
-            for li in combine_list_types(args, [], rec_generator):
+            dependent_values = {}
+            for argn, argt in get_arguments(starting_symbol):
+                dependent_values[argn] = [argt,0]
+                args.append(argt)
+            for li in combine_list_types(args, [], rec_generator, dependent_values):
                 yield apply_constructor(starting_symbol, li)
 
 

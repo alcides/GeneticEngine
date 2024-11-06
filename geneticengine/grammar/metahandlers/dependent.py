@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Annotated, Any, Callable
+from typing import Annotated, Any, Callable, Generator
 
 
 from geneticengine.grammar.grammar import Grammar
@@ -13,7 +13,7 @@ class Dependent(MetaHandlerGenerator):
     callable: Callable[[Any], type]
 
     def validate(self, v) -> bool:
-        raise NotImplementedError()  # TODO: Dependent Types
+        return True
 
     def generate(
         self,
@@ -26,6 +26,18 @@ class Dependent(MetaHandlerGenerator):
         values = [dependent_values[name] for name in self.get_dependencies()]
         t: Any = self.callable(*values)
         v = rec(Annotated[base_type, t])
+        return v
+    
+    def iterate(
+        self,
+        base_type: type,
+        combine_lists: Callable[[list[type]], Generator[Any, Any, Any]],
+        rec: Any,
+        dependent_values: dict[str, Any],
+    ):
+        values = [dependent_values[name][1] for name in self.get_dependencies()]
+        t: Any = self.callable(*values)
+        v = rec(Annotated[base_type, t],dependent_values)
         return v
 
     def __hash__(self):
