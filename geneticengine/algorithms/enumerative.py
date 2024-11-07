@@ -62,11 +62,12 @@ def iterate_grammar(grammar: Grammar, starting_symbol: type, generator_for_recur
     elif is_generic_list(starting_symbol):
         inner_type = get_generic_parameter(starting_symbol)
 
-        for length in range(0, 1024):
-
+        length = 0
+        while True:
             generator_list = [inner_type for _ in range(length)]
             for concrete_list in combine_list_types(generator_list, [], generator_for_recursive):
                 yield concrete_list
+            length += 1
 
     elif is_metahandler(starting_symbol):
         metahandler: MetaHandlerGenerator = starting_symbol.__metadata__[0]  # type: ignore
