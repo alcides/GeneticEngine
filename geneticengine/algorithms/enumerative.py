@@ -50,11 +50,11 @@ def combine_list_types(ts: list[type], acc: list[Any], gen, dependent_values: di
                 yield from combine_list_types(tail, acc + [x], gen,dependent_values)
 
 
-def iterate_grammar(grammar: Grammar, starting_symbol: type, generator_for_recursive: Optional[Any] = None, dependent_values: dict[str:Any]|None = {}):
+def iterate_grammar(grammar: Grammar, starting_symbol: type, generator_for_recursive: Optional[Any] = None, dependent_values: Optional[dict[str:Any]] = {}):
 
     if generator_for_recursive is None:
 
-        def generator_for_recursive(symbol: type, dependent_values: dict[str:Any]):
+        def generator_for_recursive(symbol: type, dependent_values: Optional[dict[str:Any]] = {}):
             return iterate_grammar(grammar, symbol, generator_for_recursive, dependent_values)
 
     if starting_symbol is int:
