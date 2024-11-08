@@ -16,7 +16,8 @@ class IntRange(MetaHandlerGenerator):
     """IntRange(a,b) restricts ints to be between a and b.
 
     The range can be dynamically altered before the grammar extraction
-        Int.__init__.__annotations__["value"] = Annotated[int, IntRange(c,d)]
+    Int.__init__.__annotations__["value"] = Annotated[int,
+    IntRange(c,d)]
     """
 
     def __init__(self, min, max):

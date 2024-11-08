@@ -12,9 +12,10 @@ T = TypeVar("T")
 class VarRange(MetaHandlerGenerator):
     """VarRange([a, b, c]) represents the alternative between a, b, and c.
 
-    The list of options can be dynamically altered before the grammar extraction
-    with something like Var.__init__.__annotations__["name"] = Annotated[str, VarRange([d, e, f])].
-    The option list must not be empty.
+    The list of options can be dynamically altered before the grammar
+    extraction with something like Var.__init__.__annotations__["name"]
+    = Annotated[str, VarRange([d, e, f])]. The option list must not be
+    empty.
     """
 
     def __init__(self, options: list[T]):

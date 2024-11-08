@@ -112,13 +112,13 @@ class WeightedStringHandler(MetaHandlerGenerator):
     output complies with a given alphabet and a matrix of probabilities for
     each position.
 
-    Each row on the matrix should reflect the probability of
-    each character in that position. Thus, the number of cols
-    in the input matrix should be the same as the number of
-    characters in the alphabet.
+    Each row on the matrix should reflect the probability of each
+    character in that position. Thus, the number of cols in the input
+    matrix should be the same as the number of characters in the
+    alphabet.
 
-    This refinement will return a string with a
-    size == nrows in the matrix
+    This refinement will return a string with a size == nrows in the
+    matrix
     """
 
     def __init__(self, matrix, alphabet):

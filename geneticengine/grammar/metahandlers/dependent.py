@@ -27,7 +27,7 @@ class Dependent(MetaHandlerGenerator):
         t: Any = self.callable(*values)
         v = rec(Annotated[base_type, t])
         return v
-    
+
     def iterate(
         self,
         base_type: type,
