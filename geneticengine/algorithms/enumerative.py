@@ -116,7 +116,7 @@ def iterate_grammar(grammar: Grammar, starting_symbol: type, generator_for_recur
 
             # This reader will replace the generator with reading from the cache of previous levels
             # If the type is different, it generates it as it was previously done.
-            def rgenerator(t: type) -> Generator[Any, Any, Any]:
+            def rgenerator(t: type, dependent_values: dict[str,Any]) -> Generator[Any, Any, Any]:
                 if t is starting_symbol:
                     yield from cache
                 else:
