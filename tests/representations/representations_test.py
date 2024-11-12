@@ -124,7 +124,7 @@ class TestRepresentation:
         gp.search()
 
     def test_enumerative_combine(self) -> None:
-        def gen_bool(t):
+        def gen_bool(t, dependent_values):
             assert t is bool
             yield True
             yield False

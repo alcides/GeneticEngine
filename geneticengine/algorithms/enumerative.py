@@ -25,28 +25,34 @@ from geneticengine.solutions.individual import (
     Individual,
 )
 
-
 def frange(start, stop, step):
     return takewhile(lambda x: x < stop, count(start, step))
 
+def foundDict(d, target, result):
+    for key,value in d.items():
+        if target == value[0]:
+            d[key][1] = result
+            return
 
-def combine_list_types(ts: list[type], acc: list[Any], gen):
+
+def combine_list_types(ts: list[type], acc: list[Any], gen, dependent_values: Optional[dict[str,Any]]={}):
     match ts:
         case []:
             yield acc
         case _:
             head = ts[0]
             tail = ts[1:]
-            for x in gen(head):
-                yield from combine_list_types(tail, acc + [x], gen)
+            for x in gen(head,dependent_values):
+                foundDict(dependent_values, head, x)
+                yield from combine_list_types(tail, acc + [x], gen,dependent_values)
 
 
-def iterate_grammar(grammar: Grammar, starting_symbol: type, generator_for_recursive: Optional[Any] = None):
+def iterate_grammar(grammar: Grammar, starting_symbol: type, generator_for_recursive: Optional[Any] = None, dependent_values: Optional[dict[str,Any]] = {}):
 
     if generator_for_recursive is None:
 
-        def generator_for_recursive(symbol: type):
-            return iterate_grammar(grammar, symbol, generator_for_recursive)
+        def generator_for_recursive(symbol: type, dependent_values: Optional[dict[str,Any]] = {}):
+            return iterate_grammar(grammar, symbol, generator_for_recursive, dependent_values)
 
     if starting_symbol is int:
         yield from range(-100000000, 100000000)
@@ -57,7 +63,7 @@ def iterate_grammar(grammar: Grammar, starting_symbol: type, generator_for_recur
         yield False
     elif is_generic_tuple(starting_symbol):
         types = get_generic_parameters(starting_symbol)
-        for li in combine_list_types(types, [], generator_for_recursive):
+        for li in combine_list_types(types, [], generator_for_recursive,{}):
             yield tuple(li)
     elif is_generic_list(starting_symbol):
         inner_type = get_generic_parameter(starting_symbol)
@@ -65,7 +71,7 @@ def iterate_grammar(grammar: Grammar, starting_symbol: type, generator_for_recur
         length = 0
         while True:
             generator_list = [inner_type for _ in range(length)]
-            for concrete_list in combine_list_types(generator_list, [], generator_for_recursive):
+            for concrete_list in combine_list_types(generator_list, [], generator_for_recursive,{}):
                 yield concrete_list
             length += 1
 
@@ -74,7 +80,7 @@ def iterate_grammar(grammar: Grammar, starting_symbol: type, generator_for_recur
         base_type = get_generic_parameter(starting_symbol)
 
         if hasattr(metahandler, "iterate"):
-            yield from metahandler.iterate(base_type, lambda xs: combine_list_types(xs, [], generator_for_recursive))
+            yield from metahandler.iterate(base_type, lambda xs: combine_list_types(xs, [], generator_for_recursive,dependent_values), generator_for_recursive, dependent_values)
         else:
             base_type = get_generic_parameter(starting_symbol)
             for ins in generator_for_recursive(base_type):
@@ -110,7 +116,7 @@ def iterate_grammar(grammar: Grammar, starting_symbol: type, generator_for_recur
 
             # This reader will replace the generator with reading from the cache of previous levels
             # If the type is different, it generates it as it was previously done.
-            def rgenerator(t: type) -> Generator[Any, Any, Any]:
+            def rgenerator(t: type, dependent_values: dict[str,Any]) -> Generator[Any, Any, Any]:
                 if t is starting_symbol:
                     yield from cache
                 else:
@@ -127,9 +133,11 @@ def iterate_grammar(grammar: Grammar, starting_symbol: type, generator_for_recur
             # Normal production
             args = []
             # TODO: Add dependent types to enumerative
-            # dependent_values = {}
-            args = [argt for _, argt in get_arguments(starting_symbol)]
-            for li in combine_list_types(args, [], generator_for_recursive):
+            dependent_values = {}
+            for argn, argt in get_arguments(starting_symbol):
+                dependent_values[argn] = [argt,0]
+                args.append(argt)
+            for li in combine_list_types(args, [], generator_for_recursive, dependent_values):
                 yield apply_constructor(starting_symbol, li)
 
 
