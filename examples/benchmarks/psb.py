@@ -1,19 +1,19 @@
 from __future__ import annotations
 from abc import ABC
-from dataclasses import dataclass
+from dataclasses import dataclass, make_dataclass
 import os
 from pathlib import Path
 from typing import Annotated, Any, Optional, Union
 
 import numpy as np
-from numpy import dtype
 import pandas as pd
+from difflib import SequenceMatcher
 
 
 from examples.benchmarks.benchmark import Benchmark, example_run
 from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.grammar.grammar import Grammar
-from geneticengine.grammar.metahandlers.lists import ListSizeBetween
+from geneticengine.grammar.metahandlers.ints import IntRange
 from geneticengine.grammar.metahandlers.vars import VarRange
 from geneticengine.problems import MultiObjectiveProblem, Problem
 
@@ -39,176 +39,74 @@ def read_dataset(dataset, cache_dir) -> pd.DataFrame:
     return df
 
 
-def convert_dtype_to_stack(t: dtype) -> str:
-    if t == np.int64:
-        return "ints"
-    elif t == object:
-        return "strings"
-    else:
-        raise Exception(f"{t} does not have a stack")
+class Int(ABC):
+
+    def eval(self): ...
 
 
-defaults = {
-    "ints": 0,
-    "bools": 0,
-    "floats": 0.0,
-    "strings": "",
-}
+class Bool(ABC):
+
+    def eval(self): ...
 
 
-class Instruction(ABC): ...
+class String(ABC):
+
+    def eval(self): ...
 
 
 @dataclass
-class Program:
-    instructions: Annotated[list[Instruction], ListSizeBetween(1, 500)]
+class IntToString(String):
+    i: Int
+
+    def eval(self):
+        return [f"{v}" for v in self.i.eval()]
 
 
 @dataclass
-class Swap(Instruction):
-    stack: Annotated[str, VarRange(list(defaults.keys()))]
+class AppendChar(String):
+    s: String
+    c: Annotated[int, IntRange(0, 128)]
+
+    def eval(self):
+        return [f"{s}{chr(self.c)}" for s in self.s.eval()]
 
 
 @dataclass
-class Dup(Instruction):
-    stack: Annotated[str, VarRange(list(defaults.keys()))]
+class BoolIf(Int):
+    c: Bool
+    a: Bool
+    b: Bool
+
+    def eval(self):
+        return np.where(self.c.eval(), self.a.eval(), self.b.eval())
 
 
 @dataclass
-class Rotate(Instruction):
-    stack: Annotated[str, VarRange(list(defaults.keys()))]
+class IntLt(Bool):
+    a: Int
+    b: Int
+
+    def eval(self):
+        return self.a.eval() < self.b.eval()
 
 
 @dataclass
-class BooleanLiteral(Instruction):
-    val: bool
+class IntEq(Bool):
+    a: Int
+    b: Int
+
+    def eval(self):
+        return self.a.eval() == self.b.eval()
 
 
 @dataclass
-class BooleanAnd(Instruction):
-    pass
+class IntIf(Int):
+    c: Bool
+    a: Int
+    b: Int
 
-
-@dataclass
-class BooleanOr(Instruction):
-    pass
-
-
-@dataclass
-class BooleanNot(Instruction):
-    pass
-
-
-@dataclass
-class BooleanXor(Instruction):
-    pass
-
-
-@dataclass
-class BooleanIsZero(Instruction):
-    pass
-
-
-@dataclass
-class IntLiteral(Instruction):
-    val: int
-
-
-@dataclass
-class IntEq(Instruction):
-    pass
-
-
-@dataclass
-class IntLt(Instruction):
-    pass
-
-
-lang_operators = [
-    Swap,
-    Dup,
-    Rotate,
-    BooleanLiteral,
-    BooleanAnd,
-    BooleanOr,
-    BooleanNot,
-    BooleanXor,
-    BooleanIsZero,
-    IntLiteral,
-    IntEq,
-    IntLt,
-]
-
-
-def pop(stacks, type):
-    if stacks[type]:
-        return stacks[type].pop()
-    else:
-        return defaults[type]
-
-
-def program_eval(
-    e: Program,
-    row,
-    input_columns: list[tuple[str, dtype]],
-    output_columns: list[tuple[str, dtype]],
-) -> tuple[str, Any]:
-    stdout: list[str] = []
-    stacks: dict[str, list[Any]] = {
-        "ints": [],
-        "bools": [],
-        "floats": [],
-        "strings": [],
-    }
-
-    for col, ty in input_columns:
-        stacks[convert_dtype_to_stack(ty)].append(getattr(row, col))
-
-    for _, ins in zip(e.instructions, range(500)):
-        try:
-            match ins:
-                case Swap(stack=s):
-                    a = stacks[s].pop()
-                    stacks[s].insert(1, a)
-                case Dup(stack=s):
-                    stacks[s].insert(0, stacks[s][0])
-                case Rotate(stack=s):
-                    stacks[s].append(stacks[s].pop())
-                case BooleanAnd():
-                    a = stacks["bools"].pop()
-                    b = stacks["bools"].pop()
-                    stacks["bools"].insert(0, a and b)
-                case BooleanOr():
-                    a = stacks["bools"].pop()
-                    b = stacks["bools"].pop()
-                    stacks["bools"].insert(0, a or b)
-                case BooleanNot():
-                    a = stacks["bools"].pop()
-                    stacks["bools"].insert(0, not a)
-                case BooleanXor():
-                    a = stacks["bools"].pop()
-                    b = stacks["bools"].pop()
-                    stacks["bools"].insert(0, a ^ b)
-                case BooleanIsZero():
-                    stacks["bools"].insert(0, stacks["ints"][0] == 0)
-                case BooleanLiteral(val=v):
-                    stacks["bools"].insert(0, v)
-                case IntLiteral(val=v):
-                    stacks["ints"].insert(0, v)
-                case IntEq():
-                    a = stacks["ints"].pop()
-                    b = stacks["ints"].pop()
-                    stacks["bools"].insert(0, a == b)
-                case IntLt():
-                    a = stacks["ints"].pop()
-                    b = stacks["ints"].pop()
-                    stacks["bools"].insert(0, a < b)
-                case _:
-                    print("failed to process", ins)
-        except Exception as e:
-            pass
-
-    return ("".join(stdout), [pop(stacks, convert_dtype_to_stack(ty)) for (name, ty) in output_columns])
+    def eval(self):
+        return np.where(self.c.eval(), self.a.eval(), self.b.eval())
 
 
 def load_dataframe(program: str, path_to_psb1: str):
@@ -217,53 +115,145 @@ def load_dataframe(program: str, path_to_psb1: str):
     return df
 
 
+def prepare_input_and_outputs(
+    df: pd.DataFrame,
+) -> tuple[pd.DataFrame, list[tuple[str, np.dtype]], str, list[tuple[str, np.dtype]], pd.DataFrame]:
+    input_data = df
+    if "stdout" in df.columns:
+        stdout = df["stdout"].values
+        input_data = input_data.drop(["stdout"], axis="columns")
+    else:
+        stdout = ["" for _ in range(input_data.shape[0])]
+
+    output_columns = [
+        (col_name, input_data.dtypes[col_name])
+        for col_name in ["output", "output1", "output2"]
+        if col_name in input_data.columns
+    ]
+    output_vals = pd.DataFrame({col_name: input_data[col_name].values for (col_name, _) in output_columns})
+
+    input_data = input_data.drop([name for (name, _) in output_columns], axis="columns")
+    input_columns = list(zip(input_data.columns, input_data.dtypes))
+
+    return input_data, input_columns, stdout, output_columns, output_vals
+
+
+def sequence_matcher_edits(word_a, word_b):
+    required_edits = [
+        code for code in (SequenceMatcher(a=word_a, b=word_b, autojunk=False).get_opcodes()) if code[0] != "equal"
+    ]
+    return len(required_edits)
+
+
+def diff(ty, series_real, series_expected):
+    if ty == np.int64:
+        return series_real - series_expected
+    elif ty == np.bool:
+        return series_real - series_expected
+    elif ty == np.object_:
+        return np.array([sequence_matcher_edits(a, b) for (a, b) in zip(series_real, series_expected)])
+    else:
+        raise Exception(f"{ty} not supported")
+
+
+def convert(ty):
+    if ty == np.int64:
+        return Int
+    elif ty == np.bool:
+        return Bool
+    elif ty == np.object_:
+        return String
+    else:
+        raise Exception(f"{ty} not supported")
+
+
 class PSBBenchmark(Benchmark):
     def __init__(self, program: str, path_to_psb1: str = "datasets"):
         df = load_dataframe(program, path_to_psb1).head(10)
-        self.setup_problem(df)
-        self.setup_grammar(df)
+        input_data, input_columns, stdout, output_columns, output_vals = prepare_input_and_outputs(df)
+        self.setup_problem(input_data, output_columns, output_vals)
+        self.setup_grammar(input_columns, input_data, output_columns)
 
-    def setup_problem(self, df):
+    def setup_problem(self, input_data, output_columns, output_vals: pd.DataFrame):
 
         # Problem
-        def fitness_function(p: Program) -> list[Any]:
-            results = []
-            input_data = df
-            if "stdout" in df.columns:
-                stdout = df["stdout"].values
-                input_data = input_data.drop(["stdout"], axis="columns")
-            else:
-                stdout = ["" for _ in range(input_data.shape[0])]
+        def fitness_function(p: Any) -> list[Any]:
 
-            output_columns = [
-                (col_name, input_data.dtypes[col_name])
-                for col_name in ["output", "output1", "output2"]
-                if col_name in input_data.columns
-            ]
-            output_vals = [input_data[col_name].values for (col_name, _) in output_columns]
-            input_data = input_data.drop([name for (name, _) in output_columns], axis="columns")
-            col_info = list(zip(input_data.columns, input_data.dtypes))
+            output = p.eval()
+            for k in output:
+                output[k] = np.reshape(output[k], shape=(output_vals.shape[0],))
 
-            for row, stdout_expected, *outputs_expected in zip(
-                input_data.itertuples(index=False),
-                stdout,
-                *output_vals,
-            ):
-                stdout, outputs = program_eval(p, row, col_info, output_columns)
-                score_stdout = 0 if stdout == stdout_expected else 1
-                score_output = sum([0 if o == eo else 1 for (o, eo) in zip(outputs, outputs_expected)])
-                score = score_output + score_stdout
-                results.append(score)
-            return results
+            full_results = pd.DataFrame({col: diff(ty, output[col], output_vals[col]) for (col, ty) in output_columns})
+            return full_results.sum(axis=1)
 
         self.problem = MultiObjectiveProblem(
-            minimize=[True for _ in range(df.shape[0])],
+            minimize=[True for _ in range(input_data.shape[0])],
             fitness_function=fitness_function,
-            target=[0 for _ in range(df.shape[0])],
+            target=[0 for _ in range(input_data.shape[0])],
         )
 
-    def setup_grammar(self, df):
-        self.grammar = extract_grammar(lang_operators, Program)
+    def setup_grammar(self, input_columns, input_data, output_columns):
+        Program = make_dataclass("Program", [(name, convert(ty)) for name, ty in output_columns])
+
+        def f(self):
+            return {name: getattr(self, name).eval() for name, _ in output_columns}
+
+        custom_inputs = []
+        for col, ty in input_columns:
+            ctype = convert(ty)
+            var = make_dataclass(col, fields=[], bases=(ctype,))
+
+            def k(self):
+                return input_data[col]
+
+            var.eval = k
+
+            import inspect
+
+            print(inspect.isabstract(var))
+            custom_inputs.append(var)
+
+        Program.eval = f
+        n_instances = input_data.shape[0]
+
+        @dataclass
+        class BoolLit(Bool):
+            val: bool
+
+            def eval(self):
+                return np.full((n_instances,), self.val)
+
+        @dataclass
+        class IntLit(Int):
+            val: Annotated[int, VarRange([x for x in range(-256, 256)])]
+
+            def eval(self):
+                return np.full((n_instances,), self.val)
+
+        @dataclass
+        class EmptyString(String):
+
+            def eval(self):
+                return np.full((n_instances,), "")
+
+        self.grammar = extract_grammar(
+            [
+                Bool,
+                Int,
+                String,
+                BoolLit,
+                BoolIf,
+                IntLit,
+                IntIf,
+                IntLt,
+                IntEq,
+                EmptyString,
+                AppendChar,
+                IntToString,
+            ]
+            + custom_inputs,
+            Program,
+        )
 
     def get_problem(self) -> Problem:
         return self.problem
@@ -274,4 +264,4 @@ class PSBBenchmark(Benchmark):
 
 if __name__ == "__main__":
     path_to_psb1 = "/Users/alcides/Downloads/program-synthesis-benchmark-datasets-master/datasets/"
-    example_run(PSBBenchmark(program="smallest", path_to_psb1=path_to_psb1))
+    example_run(PSBBenchmark(program="checksum", path_to_psb1=path_to_psb1))

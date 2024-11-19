@@ -20,7 +20,7 @@ class DebugRecorder(SearchRecorder):
         self.slots = slots
 
     def register(self, tracker: Any, individual: Individual, problem: Problem, is_best: bool):
-        print(individual.get_fitness(problem).maximizing_aggregate, len(individual.get_phenotype().instructions))
+        print(individual.get_fitness(problem).maximizing_aggregate, individual.get_phenotype())
         # if is_best:
         #    print(individual.get_fitness(problem).maximizing_aggregate, individual.get_phenotype())
 
