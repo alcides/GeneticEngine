@@ -44,6 +44,7 @@ class ListSizeBetween(MetaHandlerGenerator):
         base_type: type,
         rec: Callable[[type[T]], T],
         dependent_values: dict[str, Any],
+        parent_values: list[dict[str, Any]],
     ):
         assert is_generic_list(base_type)
         inner_type = get_generic_parameter(base_type)

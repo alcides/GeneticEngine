@@ -8,7 +8,7 @@ from geneticengine.random.sources import RandomSource
 
 
 @dataclass
-class Dependent(MetaHandlerGenerator):
+class Parent(MetaHandlerGenerator):
     name: str
     callable: Callable[[Any], type]
 
@@ -24,7 +24,10 @@ class Dependent(MetaHandlerGenerator):
         dependent_values: dict[str, Any],
         parent_values: list[dict[str, Any]],
     ):
-        values = [dependent_values[name] for name in self.get_dependencies()]
+        values = [
+            next((x[name] for x in parent_values if name in x), None)
+            for name in self.get_dependencies()
+        ]
         t: Any = self.callable(*values)
         v = rec(Annotated[base_type, t])
         return v
@@ -42,7 +45,7 @@ class Dependent(MetaHandlerGenerator):
         return v
 
     def __hash__(self):
-        return hash(self.__class__) + hash(self.name) + hash(id(self.callable))
+        return hash(self.__class__) + hash(self.name)
 
     def get_dependencies(self):
         return self.name.split(",")

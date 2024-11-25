@@ -43,7 +43,7 @@ def random_node(
             decider=decider,
         ),
         starting_symbol,
-        context=LocalSynthesisContext(depth=0, nodes=0, expansions=0, dependent_values={}),
+        context=LocalSynthesisContext(depth=0, nodes=0, expansions=0, dependent_values={}, parent_values=[]),
     )
 
 
@@ -98,7 +98,7 @@ def mutate(
                 current_node=i,
             )
         elif not hasattr(i, "gengy_synthesis_context"):
-            return create_node(global_context, ty, LocalSynthesisContext(0, 0, 0, {}), dependent_values)
+            return create_node(global_context, ty, LocalSynthesisContext(0, 0, 0, {},[]), dependent_values, [])
         else:
             options = []
             if source_material and source_material[0] is not None:
@@ -113,7 +113,7 @@ def mutate(
         nargs = []
         dependent_values = {}
         ctx = i.gengy_synthesis_context
-        nctx = LocalSynthesisContext(ctx.depth + 1, ctx.nodes + 1, ctx.expansions + 1, dependent_values={})
+        nctx = LocalSynthesisContext(ctx.depth + 1, ctx.nodes + 1, ctx.expansions + 1, dependent_values={}, parent_values=[])
 
         seen = 0
         mutated: list[str] = []

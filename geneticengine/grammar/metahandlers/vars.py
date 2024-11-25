@@ -35,6 +35,7 @@ class VarRange(MetaHandlerGenerator):
         base_type: type,
         rec: Callable[[type[T]], T],
         dependent_values: dict[str, Any],
+        parent_values: list[dict[str, Any]],
     ):
         return random.choice(self.options)
 

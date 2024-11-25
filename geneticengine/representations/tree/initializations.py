@@ -119,7 +119,8 @@ class MaxDepthDecider(BaseDecider):
 
 
 class FullDecider(MaxDepthDecider):
-    """FullDecider will always preffer non-terminal productions within a maximum depth."""
+    """FullDecider will always preffer non-terminal productions within a
+    maximum depth."""
 
     def choose_production_alternatives(self, ty: type, alternatives: list[type], ctx: LocalSynthesisContext) -> type:
         assert len(alternatives) > 0, "No alternatives presented"
@@ -143,7 +144,8 @@ class FullDecider(MaxDepthDecider):
 
 
 class PositionIndependentGrowDecider(MaxDepthDecider):
-    """PositionIndependentGrowDecider will always randomly expand one path of the tree to get to the max depth, and others randomly."""
+    """PositionIndependentGrowDecider will always randomly expand one path of
+    the tree to get to the max depth, and others randomly."""
 
     def __init__(self, random: RandomSource, grammar: Grammar, max_depth: int = 10):
         super().__init__(random, grammar, max_depth)
@@ -171,7 +173,8 @@ class PositionIndependentGrowDecider(MaxDepthDecider):
 
 
 class ProgressivelyTerminalDecider(BaseDecider):
-    """Decides whether to restrict to non-recursive symbols based on the current depth, probabilistically."""
+    """Decides whether to restrict to non-recursive symbols based on the
+    current depth, probabilistically."""
 
     def choose_production_alternatives(self, ty: type, alternatives: list[type], ctx: LocalSynthesisContext) -> type:
         assert len(alternatives) > 0, "No alternatives presented"
@@ -227,9 +230,11 @@ def create_node(
     starting_symbol: type[Any],
     context: LocalSynthesisContext,
     dependent_values: dict[str, Any] | None = None,
+    parent_values: list[dict[str,Any]] | None = None,
     initial_values: dict[str, TreeNode] | None = None,
 ) -> Any:
     dependent_vals: dict[str, Any] = dependent_values if dependent_values is not None else {}
+    parent_vals: list[dict[str,Any]] = parent_values if parent_values is not None else []
     initial_vals: dict[str, TreeNode] = initial_values if initial_values is not None else {}
 
     decider = global_context.decider
@@ -247,7 +252,7 @@ def create_node(
     elif is_generic_list(starting_symbol):
         inner_type = get_generic_parameter(starting_symbol)
         length = decider.random_int(0, 10)
-        nctx = LocalSynthesisContext(context.depth + 1, context.nodes + 1, context.expansions + 1, dependent_vals)
+        nctx = LocalSynthesisContext(context.depth + 1, context.nodes + 1, context.expansions + 1, dependent_vals, parent_vals)
         nli = []
         for _ in range(length):
             nv = create_node(global_context, inner_type, nctx)
@@ -264,12 +269,13 @@ def create_node(
                 global_context,
                 starting_symbol=typ,
                 dependent_values=dependent_values,
-                context=LocalSynthesisContext(context.depth, context.nodes, context.expansions + 1, dependent_vals),
+                parent_values=parent_values,
+                context=LocalSynthesisContext(context.depth, context.nodes, context.expansions + 1, dependent_vals, parent_vals),
                 **kwargs,
             )
             return v
 
-        v = metahandler.generate(global_context.random, global_context.grammar, base_type, recurse, dependent_vals)
+        v = metahandler.generate(global_context.random, global_context.grammar, base_type, recurse, dependent_vals, parent_vals)
         return wrap_result(v, global_context, context)
     elif is_union(starting_symbol):
         t: type = decider.choose_production_alternatives(
@@ -277,7 +283,7 @@ def create_node(
             get_generic_parameters(starting_symbol),
             context,
         )
-        v = create_node(global_context, t, context, dependent_values, initial_values)
+        v = create_node(global_context, t, context, dependent_values, parent_values, initial_values)
         return wrap_result(v, global_context, context)
     else:
         if starting_symbol not in global_context.grammar.all_nodes:
@@ -298,6 +304,7 @@ def create_node(
                             context.nodes,
                             context.expansions + 1,
                             dependent_vals,
+                            parent_vals,
                         ),
                         initial_values=initial_vals,
                     )
@@ -309,7 +316,8 @@ def create_node(
             # Normal concrete type (Production)
             args = []
             dependent_values = {}
-            nctx = LocalSynthesisContext(context.depth + 1, context.nodes + 1, context.expansions + 1, dependent_vals)
+            parent_context = parent_values.copy()+[dependent_values]
+            nctx = LocalSynthesisContext(context.depth + 1, context.nodes + 1, context.expansions + 1, dependent_vals, parent_context)
             for argn, argt in get_arguments(starting_symbol):
                 arg: TreeNode
                 if argn in initial_vals:
@@ -324,6 +332,7 @@ def create_node(
                         argt,
                         nctx,
                         dependent_values,
+                        parent_context,
                     )
                 dependent_values[argn] = arg
                 args.append(arg)
