@@ -25,7 +25,7 @@ class Parent(MetaHandlerGenerator):
         parent_values: list[dict[str, Any]],
     ):
         values = [
-            next((x[name] for x in parent_values if name in x), None)
+            next((x[name] for x in reversed(parent_values) if name in x), None)
             for name in self.get_dependencies()
         ]
         t: Any = self.callable(*values)
