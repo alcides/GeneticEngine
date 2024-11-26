@@ -36,6 +36,7 @@ class StringSizeBetween(MetaHandlerGenerator):
         base_type: type,
         rec: Callable[[type[T]], T],
         dependent_values: dict[str, Any],
+        parent_values: list[dict[str, Any]],
     ) -> Any:
         size = random.randint(self.min, self.max)
         s = "".join(random.choice(self.options) for _ in range(size))
@@ -139,6 +140,7 @@ class WeightedStringHandler(MetaHandlerGenerator):
         base_type: type,
         rec: Callable[[type[T]], T],
         dependent_values: dict[str, Any],
+        parent_values: list[dict[str, Any]],
     ) -> str:
         out = ""
         for row in self.probability_matrix:

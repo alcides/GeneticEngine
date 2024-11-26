@@ -26,6 +26,7 @@ class IdMH(MetaHandlerGenerator):
         base_type: type,
         rec: Callable[[type[T]], T],
         dependent_values: dict[str, Any],
+        parent_values: list[dict[str,Any]],
     ):
         return rec(base_type)
 
@@ -41,6 +42,7 @@ class AnyContext(MetaHandlerGenerator):
         base_type: type,
         rec: Callable[[type[T]], T],
         dependent_values: dict[str, Any],
+        parent_values: list[dict[str,Any]],
     ):
         # Always creates an empty list.
         # Genetic Engine requires a specific wrapper (GengyList) with meta-information
@@ -64,6 +66,7 @@ class ContextMH(MetaHandlerGenerator):
         base_type: type,
         rec,  # : Callable[[type[T]], T] TODO: add kwargs
         dependent_values: dict[str, Any],
+        parent_values: list[dict[str,Any]],
     ):
         v = rec(base_type, initial_values={"ctx": self.ctx})
         return v
