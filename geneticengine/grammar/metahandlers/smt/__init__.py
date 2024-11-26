@@ -31,6 +31,7 @@ class SMT(MetaHandlerGenerator):
         base_type: type,
         rec: Any,
         dependent_values: dict[str, Any],
+        parent_values: list[dict[str, Any]],
     ):
         return base_type
         # # fix_types(self.restriction, context)
