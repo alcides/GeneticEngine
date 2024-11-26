@@ -307,6 +307,7 @@ def create_node(
                             parent_vals,
                         ),
                         initial_values=initial_vals,
+                        parent_values= parent_vals,
                     )
                     return wrap_result(v, global_context, context)
                 except SynthesisException:
@@ -316,7 +317,7 @@ def create_node(
             # Normal concrete type (Production)
             args = []
             dependent_values = {}
-            parent_context = parent_values.copy()+[dependent_values]
+            parent_context = parent_vals.copy()+[dependent_values]
             nctx = LocalSynthesisContext(context.depth + 1, context.nodes + 1, context.expansions + 1, dependent_vals, parent_context)
             for argn, argt in get_arguments(starting_symbol):
                 arg: TreeNode
