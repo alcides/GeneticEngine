@@ -31,6 +31,7 @@ class IntRange(MetaHandlerGenerator):
         base_type: type,
         rec: Callable[[type[T]], T],
         dependent_values: dict[str, Any],
+        parent_values: list[dict[str, Any]],
     ):
         return random.randint(self.min, self.max)
 
@@ -92,6 +93,7 @@ class IntervalRange(MetaHandlerGenerator):
         base_type: type,
         rec: Callable[[type[T]], T],
         dependent_values: dict[str, Any],
+        parent_values: list[dict[str, Any]],
     ):
 
         range_length = random.randint(self.minimum_length, self.maximum_length)

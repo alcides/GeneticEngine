@@ -14,6 +14,7 @@ class LocalSynthesisContext:
     nodes: int
     expansions: int
     dependent_values: dict[str, Any]
+    parent_values: list[dict[str, Any]]
 
 
 @runtime_checkable
