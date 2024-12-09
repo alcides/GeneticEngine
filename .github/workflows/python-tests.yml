@@ -5,48 +5,44 @@ name: Python Tests
 
 on:
   push:
-    branches: [main]
+    branches: ["*"]
   pull_request:
-    branches: [main]
+    branches: ["*"]
 
 jobs:
   tests:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.10", "3.11", "3.12"]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
 
     steps:
-      - uses: actions/checkout@v4.1.1
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - name: Install the latest version of uv and set the python version
+        uses: astral-sh/setup-uv@v4
         with:
           python-version: ${{ matrix.python-version }}
-      # - name: Set env
-      #   run: echo "VIRTUAL_ENV=$(python -c 'import sys; print(sys.prefix)')">> $GITHUB_ENV
+          enable-cache: true
+          cache-dependency-glob: |
+            **/requirements*.txt
+            **/pyproject.toml
+      - name: Create venv
+        run: |
+          uv venv
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade uv
-          uv pip install --system flake8 pytest mypy
-          if [ -f requirements.txt ]; then uv pip install --system -r requirements.txt; fi
-          if [ -f requirements-dev.txt ]; then uv pip install --system -r requirements-dev.txt; fi
+          if [ -f requirements.txt ]; then uv pip install -r requirements.txt; fi
+          if [ -f requirements-dev.txt ]; then uv pip install -r requirements-dev.txt; fi
       - name: Lint with mypy
         run: |
-          mypy --no-strict-optional --ignore-missing-imports --explicit-package-bases geneticengine
-      - name: Lint with flake8
-        run: |
-          # stop the build if there are Python syntax errors or undefined names
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+          uv run mypy --no-strict-optional --ignore-missing-imports --explicit-package-bases geneticengine
       - name: Check install
         run: |
-          uv pip install --system  -e .
+          uv pip install  -e .
       - name: Test with pytest
-        run: |
-          pytest --cov --benchmark-skip
+        run: uv run --frozen pytest --cov --benchmark-skip
       - name: Upload coverage reports to Codecov
-        if: ${{ (matrix.python-version == '3.11') }}
+        if: ${{ (matrix.python-version == '3.13') }}
         uses: codecov/codecov-action@v3
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

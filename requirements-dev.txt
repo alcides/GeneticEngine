@@ -4,6 +4,6 @@ mypy==1.13.0
 pre-commit
 pycln
 pytest
-pytest-cov
 pytest-codspeed
+pytest-cov
 ruff
