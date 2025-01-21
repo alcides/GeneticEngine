@@ -1,7 +1,7 @@
 dill==0.3.9
 lark==1.2.2
 loguru==0.7.3
-numpy==2.2.1
+numpy==2.2.2
 palettable==3.3.3
 pandas==2.2.3
 pathos==0.3.3
