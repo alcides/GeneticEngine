@@ -172,6 +172,7 @@ class SantaFeBenchmark(Benchmark):
 
         # Problem
         def fitness_function(i):
+            print(i)
             return simulate(i, map)
 
         target_food = map.count("#")
