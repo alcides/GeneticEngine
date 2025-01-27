@@ -17,6 +17,9 @@ from geneticengine.evaluation.tracker import ProgressTracker
 from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.tree.initializations import ProgressivelyTerminalDecider
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
+from examples.benchmarks.mario_level import MarioBenchmark
+from examples.benchmarks.lambda_calculus import LambdaCalculusBenchmark
+from examples.benchmarks.median import MedianBenchmark
 
 
 banknote = get_banknote()
@@ -34,6 +37,9 @@ benchmarks = [
     StringMatchBenchmark(),
     VectorialGPBenchmark(dataset),
     DominoBenchmark(blacks, top_target, side_target),
+    MarioBenchmark(),
+    LambdaCalculusBenchmark(),
+    MedianBenchmark(),
 ]
 
 
