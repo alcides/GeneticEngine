@@ -186,7 +186,12 @@ class ProgressivelyTerminalDecider(BaseDecider):
             else:
                 return target - self.grammar.get_distance_to_terminal(n)
 
-        weights = [w(alt) * self.grammar.get_weights()[alt] for alt in alternatives]
+        def base_type_of(t: Type) -> Type:
+            if is_metahandler(t):
+                return get_generic_parameter(t)
+            return t
+
+        weights = [w(alt) * self.grammar.get_weights().get(base_type_of(alt), 1) for alt in alternatives]
         return self.random.choice_weighted(alternatives, weights)
 
 
