@@ -84,13 +84,23 @@ class X:
     z: Z
 
 
+class Y(ABC):
+    pass
+
+
+@dataclass
+class W(Root):
+    y: Y
+
+
 def test_useful_grammar():
     positives = [A, B, C, D, E, F, G, H, IJ]
-    negatives = [Z, X]
+    negatives = [Z, X, Y, W]
     g = extract_grammar(positives + negatives, Root)
     g2 = g.usable_grammar()
 
     symbols = g2.considered_subtypes
+    print(dir(g2))
     for a in positives:
         assert a in symbols
     for a in negatives:

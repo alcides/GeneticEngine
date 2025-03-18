@@ -6,7 +6,7 @@ import warnings
 from abc import ABC
 from abc import ABCMeta
 from collections import defaultdict
-from typing import Any, get_args
+from typing import Any, Type, get_args
 from typing import Generic
 from typing import NamedTuple
 
@@ -52,6 +52,25 @@ class GrammarSummary(NamedTuple):
     depth_range: DepthRange
     number_of_non_terminals: int
     production_stats: ProductionSummary
+
+
+def is_mentioned_by(target: Type, ty: Type) -> bool:
+    if ty in [bool, int, float, str]:
+        return False
+    elif is_abstract(ty):
+        return False
+    elif is_dataclass(ty):
+        return any(is_mentioned_by(target, k) for _, k in get_arguments(ty))
+    elif is_metahandler(ty):
+        x = get_generic_parameter(ty)
+        return is_mentioned_by(target, x)
+    elif is_generic_list(ty):
+        x = get_generic_parameter(ty)
+        return is_mentioned_by(target, x)
+    elif is_generic(ty):
+        return any(is_mentioned_by(target, x) for x in get_generic_parameters(ty))
+    else:
+        assert False, f"Unimplemented mentions for {ty}"
 
 
 class Grammar:
@@ -356,40 +375,58 @@ class Grammar:
         self.preprocess()
         return self
 
+    def is_reachable(self, t1: Type, t2: Type) -> bool:
+        if t1 == t2:
+            return True
+        elif t1 in [bool, int, float, str]:
+            return False
+        elif is_abstract(t1):
+            if t1 in self.alternatives:
+                return any(self.is_reachable(p, t2) for p in self.alternatives[t1])
+            else:
+                return False
+        elif is_dataclass(t1):
+            return any(self.is_reachable(a, t2) for _, a in get_arguments(t1))
+        elif is_generic_list(t1):
+            return self.is_reachable(get_generic_parameter(t1), t2)
+        elif is_annotated(t1):
+            return self.is_reachable(get_generic_parameter(t1), t2)
+        elif is_generic(t1):
+            return any(self.is_reachable(p, t2) for p in get_generic_parameters(t1))
+        else:
+            assert False, f"Does not support {t1}"
+
+    def reaches_leaf(self, t: Type) -> bool:
+        if t in [bool, int, float, str]:
+            return True
+        elif is_abstract(t):
+            if t in self.alternatives:
+                return all(self.reaches_leaf(p) for p in self.alternatives[t])
+            else:
+                return False
+        elif is_dataclass(t):
+            return all(self.reaches_leaf(a) for _, a in get_arguments(t))
+        elif is_generic_list(t):
+            return self.reaches_leaf(get_generic_parameter(t))
+        elif is_annotated(t):
+            return self.reaches_leaf(get_generic_parameter(t))
+        elif is_generic(t):
+            return all(self.reaches_leaf(p) for p in get_generic_parameters(t))
+        else:
+            assert False, f"Does not support {t}"
+
     def usable_grammar(self) -> Grammar:
         """Returns a subset of the grammar that is actually reachable."""
-        considered_subtypes = [self.starting_symbol]
-        new_symbols = [self.starting_symbol]
 
-        def add(k):
-            if k not in considered_subtypes:
-                considered_subtypes.append(k)
-                new_symbols.append(k)
+        all_symbols = {
+            t
+            for t in self.get_all_mentioned_symbols()
+            if (is_abstract(t) or is_dataclass(t))
+            and self.is_reachable(self.starting_symbol, t)
+            and self.reaches_leaf(t)
+        }
 
-        while new_symbols:
-            c = new_symbols.pop(0)
-            if c in self.alternatives:
-                for k in self.alternatives[c]:
-                    add(k)
-            elif is_dataclass(c):
-                for _, k in get_arguments(c):
-                    if is_metahandler(k):
-                        k = get_generic_parameter(k)
-                        add(k)
-                    elif is_generic_list(k):
-                        k = get_generic_parameter(k)
-                        add(k)
-                    elif is_generic(k):
-                        for v in get_generic_parameters(k):
-                            add(v)
-                    else:
-                        add(k)
-            elif c in [bool, int, str, float, list, tuple]:
-                pass
-            else:
-                assert False
-
-        return extract_grammar(considered_subtypes, self.starting_symbol)
+        return extract_grammar(list(all_symbols), self.starting_symbol)
 
     def get_grammar_properties_summary(self) -> GrammarSummary:
         """Returns a summary of grammar properties:
