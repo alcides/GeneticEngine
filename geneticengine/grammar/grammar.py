@@ -73,6 +73,14 @@ def is_mentioned_by(target: Type, ty: Type) -> bool:
         assert False, f"Unimplemented mentions for {ty}"
 
 
+def all_with_recursion(s: list[bool | None]) -> bool:
+    """Returns whether there is a True in all elements. Recursion (None) is allows if there is at least another path."""
+    if all(el is None for el in s):
+        return False
+    else:
+        return all(i for i in s if i is not None)
+
+
 class Grammar:
     starting_symbol: type
     alternatives: dict[type, list[type]]
@@ -215,26 +223,34 @@ class Grammar:
         return (keys, sequence, sequence.union(keys).union(self.all_nodes))
 
     def collect_types(self, ty: type):
-        yield ty
-        if is_generic_list(ty):
-            gty = get_generic_parameter(ty)
-            yield from self.collect_types(gty)
-        elif is_annotated(ty):
-            gty = get_generic_parameter(ty)
-            yield from self.collect_types(gty)
-        elif is_generic(ty):
-            for p in get_generic_parameters(ty):
-                yield from self.collect_types(p)
-        elif is_metahandler(ty):
-            nt = get_args(ty)[0]
-            yield from self.collect_types(nt)
-        elif is_abstract(ty):
-            pass
-        else:
-            for _, argt in get_arguments(ty):
-                if argt != ty:
-                    yield from self.collect_types(argt)
-                # TODO: This does not support mutually recursive types.
+        visited = set()
+        to_visit = {ty}
+        while to_visit:
+            ty = to_visit.pop()
+            if ty in visited:
+                continue
+            visited.add(ty)
+
+            if is_generic_list(ty):
+                gty = get_generic_parameter(ty)
+                to_visit |= {gty}
+            elif is_annotated(ty):
+                gty = get_generic_parameter(ty)
+                to_visit |= {gty}
+            elif is_generic(ty):
+                for p in get_generic_parameters(ty):
+                    to_visit |= {p}
+            elif is_metahandler(ty):
+                nt = get_args(ty)[0]
+                to_visit |= {nt}
+            elif is_abstract(ty):
+                pass
+            else:
+                for _, argt in get_arguments(ty):
+                    if argt != ty:
+                        to_visit |= {argt}
+                    # TODO: This does not support mutually recursive types.
+        yield from visited
 
     def get_all_mentioned_symbols(self) -> set[type]:
         return {x for t in self.get_all_symbols()[2] for x in self.collect_types(t)}
@@ -376,42 +392,63 @@ class Grammar:
         return self
 
     def is_reachable(self, t1: Type, t2: Type) -> bool:
-        if t1 == t2:
-            return True
-        elif t1 in [bool, int, float, str]:
-            return False
-        elif is_abstract(t1):
-            if t1 in self.alternatives:
-                return any(self.is_reachable(p, t2) for p in self.alternatives[t1])
-            else:
-                return False
-        elif is_dataclass(t1):
-            return any(self.is_reachable(a, t2) for _, a in get_arguments(t1))
-        elif is_generic_list(t1):
-            return self.is_reachable(get_generic_parameter(t1), t2)
-        elif is_annotated(t1):
-            return self.is_reachable(get_generic_parameter(t1), t2)
-        elif is_generic(t1):
-            return any(self.is_reachable(p, t2) for p in get_generic_parameters(t1))
-        else:
-            assert False, f"Does not support {t1}"
+        visited = set()
+        to_visit = {t1}
 
-    def reaches_leaf(self, t: Type) -> bool:
-        if t in [bool, int, float, str]:
+        while to_visit:
+            t = to_visit.pop()
+            if t in visited:
+                continue
+            visited.add(t)
+            if t == t2:
+                return True
+            elif t in [bool, int, float, str]:
+                continue
+            elif is_abstract(t):
+                if t in self.alternatives:
+                    to_visit |= {p for p in self.alternatives[t]}
+                continue
+            elif is_dataclass(t):
+                to_visit |= {a for _, a in get_arguments(t)}
+                continue
+            elif is_generic_list(t):
+                to_visit |= {get_generic_parameter(t)}
+                continue
+            elif is_annotated(t):
+                to_visit |= {get_generic_parameter(t)}
+                continue
+            elif is_generic(t):
+                to_visit |= {p for p in get_generic_parameters(t)}
+                continue
+            else:
+                assert False, f"Does not support {t}"
+        return False
+
+    def reaches_leaf(self, t: Type, visited: set | None = None) -> bool | None:
+        """Returns whether a given type reaches a leaf type, or None if it causes a loop.
+
+        Loops should be ignored only if there is an alternative path.
+        """
+        if visited is None:
+            visited = set()
+
+        if t in visited:
+            return None
+        elif t in [bool, int, float, str]:
             return True
         elif is_abstract(t):
             if t in self.alternatives:
-                return all(self.reaches_leaf(p) for p in self.alternatives[t])
+                return all_with_recursion([self.reaches_leaf(p, visited | {t}) for p in self.alternatives[t]])
             else:
                 return False
         elif is_dataclass(t):
-            return all(self.reaches_leaf(a) for _, a in get_arguments(t))
+            return all_with_recursion([self.reaches_leaf(a, visited | {t}) for _, a in get_arguments(t)])
         elif is_generic_list(t):
-            return self.reaches_leaf(get_generic_parameter(t))
+            return self.reaches_leaf(get_generic_parameter(t), visited | {t})
         elif is_annotated(t):
-            return self.reaches_leaf(get_generic_parameter(t))
+            return self.reaches_leaf(get_generic_parameter(t), visited | {t})
         elif is_generic(t):
-            return all(self.reaches_leaf(p) for p in get_generic_parameters(t))
+            return all_with_recursion([self.reaches_leaf(p, visited | {t}) for p in get_generic_parameters(t)])
         else:
             assert False, f"Does not support {t}"
 
