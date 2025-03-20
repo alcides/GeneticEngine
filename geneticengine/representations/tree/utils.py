@@ -8,7 +8,6 @@ from geneticengine.grammar.grammar import Grammar
 from geneticengine.solutions.tree import TreeNode
 from geneticengine.grammar.utils import get_arguments
 from geneticengine.grammar.utils import is_abstract
-from geneticengine.grammar.utils import is_terminal
 import dataclasses
 
 
@@ -20,7 +19,6 @@ def relabel_nodes(
     """Recomputes node specifics in the tree.\n Returns the number of nodes,
     distance to terminal (depth), typed this way, and the weighted number of
     nodes (counting depth points instead of nodes)."""
-    non_terminals = g.non_terminals
     children: list[Any]
     if getattr(i, "gengy_labeled", False):
         return (
@@ -43,19 +41,6 @@ def relabel_nodes(
     elif dataclasses.is_dataclass(i):
         children = [(typ, getattr(i, aname)) for aname, typ in get_arguments(type(i))]
     elif is_builtin(type(i)):
-        return (
-            int(g.expansion_depthing),
-            int(g.expansion_depthing),
-            {type(i): [i]},
-            int(g.expansion_depthing),
-        )
-    elif is_terminal(type(i), non_terminals):
-        assert False, "DEBUG HERE"
-        i.gengy_labeled = True
-        i.gengy_distance_to_term = int(g.expansion_depthing)
-        i.gengy_nodes = int(g.expansion_depthing)
-        i.gengy_weighted_nodes = int(g.expansion_depthing)
-        i.gengy_types_this_way = {type(i): [i]}
         return (
             int(g.expansion_depthing),
             int(g.expansion_depthing),
