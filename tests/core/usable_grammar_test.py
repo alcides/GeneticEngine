@@ -47,6 +47,7 @@ class Loop(ABC):
     pass
 
 
+@dataclass
 class LoopGo(Loop):
     loop: Loop
 
