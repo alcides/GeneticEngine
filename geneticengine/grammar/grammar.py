@@ -75,6 +75,8 @@ def is_mentioned_by(target: Type, ty: Type) -> bool:
 
 def all_with_recursion(s: list[bool | None]) -> bool:
     """Returns whether there is a True in all elements. Recursion (None) is allows if there is at least another path."""
+    if s == []:
+        return True
     if all(el is None for el in s):
         return False
     else:
@@ -187,7 +189,10 @@ class Grammar:
             self.non_terminals.add(ty)
 
     def __repr__(self):
-        def wrap(n):
+        def wrap(n: Type) -> str:
+            if is_annotated(n):
+                args = ",".join(wrap(a) for a in get_generic_parameters(n))
+                return f"Annotated[{args}]"
             if hasattr(n, "__name__"):
                 return n.__name__
             if hasattr(n, "__metadata__"):
@@ -195,12 +200,12 @@ class Grammar:
                     return f"{n.__metadata__[0]} of {wrap(strip_annotations(n))}"
                 else:
                     return f"{n.__metadata__[0]}"
-            return n
+            return str(n)
 
         def format(x):
             def add_weight(prod):
                 if "weight" in get_gengy(prod):
-                    return f'<{get_gengy(prod)["weight"]}>'
+                    return f'<{get_gengy(prod)["weight"]:.2f}>'
                 return ""
 
             args = ", ".join(
@@ -208,13 +213,13 @@ class Grammar:
             )
             return f"{x.__name__}({args}){add_weight(x)}"
 
-        prods = ";".join(
+        prods = "\n\n".join(
             [
-                str(p.__name__) + " -> " + ("|".join([format(p) for p in self.alternatives[p]]))
+                str(p.__name__) + " -> " + ("|\n\t".join([format(p) for p in self.alternatives[p]]))
                 for p in self.alternatives
             ],
         )
-        return f"Grammar<Starting={self.starting_symbol.__name__},Productions=[{prods}]>"
+        return f"Grammar<Starting={self.starting_symbol.__name__},Productions={{\n{prods}\n}}"
 
     def get_all_symbols(self) -> tuple[set[type], set[type], set[type]]:
         """All symbols in the current grammar, including terminals."""
@@ -381,10 +386,10 @@ class Grammar:
             assert weights[weight] >= 0 and weights[weight] <= 1
 
         starting_symbol = self.starting_symbol
-        starting_symbol.__dict__["__gengy__"]["weight"] = weights[starting_symbol]
+        starting_symbol.__dict__["__gengy__"]["weight"] = weights.get(starting_symbol, 1)
         nodes = list()
         for node in self.considered_subtypes:
-            node.__dict__["__gengy__"]["weight"] = weights[node]
+            node.__dict__["__gengy__"]["weight"] = weights.get(node, 1)
             nodes.append(node)
         self.__init__(starting_symbol, nodes, self.expansion_depthing)
         self.register_type(starting_symbol)
@@ -438,7 +443,7 @@ class Grammar:
             return True
         elif is_abstract(t):
             if t in self.alternatives:
-                return all_with_recursion([self.reaches_leaf(p, visited | {t}) for p in self.alternatives[t]])
+                return any([self.reaches_leaf(p, visited | {t}) for p in self.alternatives[t]])
             else:
                 return False
         elif is_dataclass(t):
