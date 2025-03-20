@@ -37,42 +37,51 @@ def relabel_nodes(
         distance_to_term = 0
     types_this_way = defaultdict(lambda: [])
     types_this_way[type(i)] = [i]
-    if is_terminal(type(i), non_terminals) and (not isinstance(i, list)):
-        if not is_builtin(type(i)):
-            i.gengy_labeled = True
-            i.gengy_distance_to_term = int(g.expansion_depthing)
-            i.gengy_nodes = int(g.expansion_depthing)
-            i.gengy_weighted_nodes = int(g.expansion_depthing)
-            i.gengy_types_this_way = {type(i): [i]}
+
+    if isinstance(i, list):
+        children = [(type(obj), obj) for obj in i]
+    elif dataclasses.is_dataclass(i):
+        children = [(typ, getattr(i, aname)) for aname, typ in get_arguments(type(i))]
+    elif is_builtin(type(i)):
         return (
             int(g.expansion_depthing),
             int(g.expansion_depthing),
             {type(i): [i]},
             int(g.expansion_depthing),
         )
+    elif is_terminal(type(i), non_terminals):
+        assert False, "DEBUG HERE"
+        i.gengy_labeled = True
+        i.gengy_distance_to_term = int(g.expansion_depthing)
+        i.gengy_nodes = int(g.expansion_depthing)
+        i.gengy_weighted_nodes = int(g.expansion_depthing)
+        i.gengy_types_this_way = {type(i): [i]}
+        return (
+            int(g.expansion_depthing),
+            int(g.expansion_depthing),
+            {type(i): [i]},
+            int(g.expansion_depthing),
+        )
+    elif hasattr(i, "gengy_init_values"):
+        children = [(typ[1], i.gengy_init_values[idx]) for idx, typ in enumerate(get_arguments(i))]
     else:
-        if hasattr(i, "gengy_init_values"):
-            children = [(typ[1], i.gengy_init_values[idx]) for idx, typ in enumerate(get_arguments(i))]
-        elif isinstance(i, list):
-            children = [(type(obj), obj) for obj in i]
-        else:
-            assert False
+        assert False, f"Unsupported: {i} ({type(i)})"
 
-        for t, c in children:
-            nodes, dist, thisway, weighted_nodes = relabel_nodes(
-                c,
-                g,
-                isinstance(c, list),
-            )
-            abs_adjust = 0 if not is_abstract(t) or not g.expansion_depthing else g.abstract_dist_to_t[t][type(c)]
-            if isinstance(c, list) and g.expansion_depthing:
-                abs_adjust = 1
-            list_adjust = 0 if isinstance(c, list) else 1
-            number_of_nodes += abs_adjust + nodes
-            weighted_number_of_nodes += weighted_nodes
-            distance_to_term = max(distance_to_term, dist + abs_adjust + list_adjust)
-            for k, v in thisway.items():
-                types_this_way[k].extend(v)
+    for t, c in children:
+        nodes, dist, thisway, weighted_nodes = relabel_nodes(
+            c,
+            g,
+            isinstance(c, list),
+        )
+        abs_adjust = 0 if not is_abstract(t) or not g.expansion_depthing else g.abstract_dist_to_t[t][type(c)]
+        if isinstance(c, list) and g.expansion_depthing:
+            abs_adjust = 1
+        list_adjust = 0 if isinstance(c, list) else 1
+        number_of_nodes += abs_adjust + nodes
+        weighted_number_of_nodes += weighted_nodes
+        distance_to_term = max(distance_to_term, dist + abs_adjust + list_adjust)
+        for k, v in thisway.items():
+            types_this_way[k].extend(v)
 
     if not is_list:
         weighted_number_of_nodes += distance_to_term
