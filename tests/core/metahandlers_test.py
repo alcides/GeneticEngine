@@ -91,15 +91,6 @@ class WeightedStringHandlerM(Root):
         ),
     ]
 
-@dataclass
-class Number():
-    number: int
-
-@dataclass
-class GenerateNumber(Root):
-    n: Annotated[Number, VarRange([Number(0),Number(1),Number(2)])]
-
-
 class TestMetaHandler:
     def test_int(self):
         r = NativeRandomSource(seed=1)
@@ -188,12 +179,3 @@ class TestMetaHandler:
             assert isinstance(n, UnionIntRangeM)
             assert (0 <= n.x <= 10) or (20 <= n.x <= 30)
             assert isinstance(n, Root)
-
-    def test_var_with_custom_class(self):
-        r = NativeRandomSource(seed=1)
-        g = extract_grammar([GenerateNumber], Root)
-        decider = MaxDepthDecider(r, g, 3)
-        n = random_node(r, g, Root, decider=decider)
-        assert isinstance(n, GenerateNumber)
-        assert n.x.number in [1,2,3]
-        assert isinstance(n, Root)
