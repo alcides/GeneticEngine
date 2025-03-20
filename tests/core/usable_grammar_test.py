@@ -34,6 +34,39 @@ class A(Root):
 
 
 @dataclass
+class K(ABC):
+    pass
+
+
+@dataclass
+class N(K):
+    n: K
+
+
+class Loop(ABC):
+    pass
+
+
+class LoopGo(Loop):
+    loop: Loop
+
+
+@dataclass
+class Ok(K):
+    n: Loop
+
+
+@dataclass
+class L(K):
+    v: int
+
+
+@dataclass
+class M(Root):
+    k: K
+
+
+@dataclass
 class IJ:
     x: int
 
@@ -94,9 +127,12 @@ class W(Root):
     y: Y
 
 
+positives = [A, B, C, D, E, F, G, H, IJ, K, L, M, N]
+negatives = [Z, X, Y, W, Ok, Loop, LoopGo]
+
+
 def test_useful_grammar():
-    positives = [A, B, C, D, E, F, G, H, IJ]
-    negatives = [Z, X, Y, W]
+
     g = extract_grammar(positives + negatives, Root)
     g2 = g.usable_grammar()
 
@@ -109,13 +145,14 @@ def test_useful_grammar():
 
 
 def test_reaches():
-    positives = [A, B, C, D, E, F, G, H, IJ]
-    negatives = [Z, X, Y, W]
     g = extract_grammar(positives + negatives, Root)
 
     for p in positives:
         assert g.is_reachable(Root, p)
         assert g.reaches_leaf(p)
+
+    for n in negatives:
+        assert not g.is_reachable(Root, n) or not g.reaches_leaf(n)
 
 
 def test_all_with_recursion():
