@@ -2,7 +2,7 @@ from abc import ABC
 from dataclasses import dataclass
 from typing import Annotated, Any, Callable, TypeVar
 
-from geneticengine.grammar.grammar import Grammar, extract_grammar
+from geneticengine.grammar.grammar import Grammar, all_with_recursion, extract_grammar
 from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator
 from geneticengine.random.sources import RandomSource
 
@@ -82,16 +82,48 @@ class Z:
 class X:
     k: int
     z: Z
+    r: Root
+
+
+class Y(ABC):
+    pass
+
+
+@dataclass
+class W(Root):
+    y: Y
 
 
 def test_useful_grammar():
     positives = [A, B, C, D, E, F, G, H, IJ]
-    negatives = [Z, X]
+    negatives = [Z, X, Y, W]
     g = extract_grammar(positives + negatives, Root)
     g2 = g.usable_grammar()
 
     symbols = g2.considered_subtypes
+    print(dir(g2))
     for a in positives:
         assert a in symbols
     for a in negatives:
         assert a not in symbols
+
+
+def test_reaches():
+    positives = [A, B, C, D, E, F, G, H, IJ]
+    negatives = [Z, X, Y, W]
+    g = extract_grammar(positives + negatives, Root)
+
+    for p in positives:
+        assert g.is_reachable(Root, p)
+        assert g.reaches_leaf(p)
+
+
+def test_all_with_recursion():
+    assert all_with_recursion([True])
+    assert all_with_recursion([True, True])
+    assert all_with_recursion([True, True, None])
+    assert all_with_recursion([True, None, True, None])
+    assert not all_with_recursion([False])
+    assert not all_with_recursion([False, True])
+    assert not all_with_recursion([None])
+    assert not all_with_recursion([None, False])

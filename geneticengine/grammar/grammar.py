@@ -6,7 +6,7 @@ import warnings
 from abc import ABC
 from abc import ABCMeta
 from collections import defaultdict
-from typing import Any, get_args
+from typing import Any, Type, get_args
 from typing import Generic
 from typing import NamedTuple
 
@@ -52,6 +52,33 @@ class GrammarSummary(NamedTuple):
     depth_range: DepthRange
     number_of_non_terminals: int
     production_stats: ProductionSummary
+
+
+def is_mentioned_by(target: Type, ty: Type) -> bool:
+    if ty in [bool, int, float, str]:
+        return False
+    elif is_abstract(ty):
+        return False
+    elif is_dataclass(ty):
+        return any(is_mentioned_by(target, k) for _, k in get_arguments(ty))
+    elif is_metahandler(ty):
+        x = get_generic_parameter(ty)
+        return is_mentioned_by(target, x)
+    elif is_generic_list(ty):
+        x = get_generic_parameter(ty)
+        return is_mentioned_by(target, x)
+    elif is_generic(ty):
+        return any(is_mentioned_by(target, x) for x in get_generic_parameters(ty))
+    else:
+        assert False, f"Unimplemented mentions for {ty}"
+
+
+def all_with_recursion(s: list[bool | None]) -> bool:
+    """Returns whether there is a True in all elements. Recursion (None) is allows if there is at least another path."""
+    if all(el is None for el in s):
+        return False
+    else:
+        return all(i for i in s if i is not None)
 
 
 class Grammar:
@@ -196,26 +223,34 @@ class Grammar:
         return (keys, sequence, sequence.union(keys).union(self.all_nodes))
 
     def collect_types(self, ty: type):
-        yield ty
-        if is_generic_list(ty):
-            gty = get_generic_parameter(ty)
-            yield from self.collect_types(gty)
-        elif is_annotated(ty):
-            gty = get_generic_parameter(ty)
-            yield from self.collect_types(gty)
-        elif is_generic(ty):
-            for p in get_generic_parameters(ty):
-                yield from self.collect_types(p)
-        elif is_metahandler(ty):
-            nt = get_args(ty)[0]
-            yield from self.collect_types(nt)
-        elif is_abstract(ty):
-            pass
-        else:
-            for _, argt in get_arguments(ty):
-                if argt != ty:
-                    yield from self.collect_types(argt)
-                # TODO: This does not support mutually recursive types.
+        visited = set()
+        to_visit = {ty}
+        while to_visit:
+            ty = to_visit.pop()
+            if ty in visited:
+                continue
+            visited.add(ty)
+
+            if is_generic_list(ty):
+                gty = get_generic_parameter(ty)
+                to_visit |= {gty}
+            elif is_annotated(ty):
+                gty = get_generic_parameter(ty)
+                to_visit |= {gty}
+            elif is_generic(ty):
+                for p in get_generic_parameters(ty):
+                    to_visit |= {p}
+            elif is_metahandler(ty):
+                nt = get_args(ty)[0]
+                to_visit |= {nt}
+            elif is_abstract(ty):
+                pass
+            else:
+                for _, argt in get_arguments(ty):
+                    if argt != ty:
+                        to_visit |= {argt}
+                    # TODO: This does not support mutually recursive types.
+        yield from visited
 
     def get_all_mentioned_symbols(self) -> set[type]:
         return {x for t in self.get_all_symbols()[2] for x in self.collect_types(t)}
@@ -356,40 +391,79 @@ class Grammar:
         self.preprocess()
         return self
 
+    def is_reachable(self, t1: Type, t2: Type) -> bool:
+        visited = set()
+        to_visit = {t1}
+
+        while to_visit:
+            t = to_visit.pop()
+            if t in visited:
+                continue
+            visited.add(t)
+            if t == t2:
+                return True
+            elif t in [bool, int, float, str]:
+                continue
+            elif is_abstract(t):
+                if t in self.alternatives:
+                    to_visit |= {p for p in self.alternatives[t]}
+                continue
+            elif is_dataclass(t):
+                to_visit |= {a for _, a in get_arguments(t)}
+                continue
+            elif is_generic_list(t):
+                to_visit |= {get_generic_parameter(t)}
+                continue
+            elif is_annotated(t):
+                to_visit |= {get_generic_parameter(t)}
+                continue
+            elif is_generic(t):
+                to_visit |= {p for p in get_generic_parameters(t)}
+                continue
+            else:
+                assert False, f"Does not support {t}"
+        return False
+
+    def reaches_leaf(self, t: Type, visited: set | None = None) -> bool | None:
+        """Returns whether a given type reaches a leaf type, or None if it causes a loop.
+
+        Loops should be ignored only if there is an alternative path.
+        """
+        if visited is None:
+            visited = set()
+
+        if t in visited:
+            return None
+        elif t in [bool, int, float, str]:
+            return True
+        elif is_abstract(t):
+            if t in self.alternatives:
+                return all_with_recursion([self.reaches_leaf(p, visited | {t}) for p in self.alternatives[t]])
+            else:
+                return False
+        elif is_dataclass(t):
+            return all_with_recursion([self.reaches_leaf(a, visited | {t}) for _, a in get_arguments(t)])
+        elif is_generic_list(t):
+            return self.reaches_leaf(get_generic_parameter(t), visited | {t})
+        elif is_annotated(t):
+            return self.reaches_leaf(get_generic_parameter(t), visited | {t})
+        elif is_generic(t):
+            return all_with_recursion([self.reaches_leaf(p, visited | {t}) for p in get_generic_parameters(t)])
+        else:
+            assert False, f"Does not support {t}"
+
     def usable_grammar(self) -> Grammar:
         """Returns a subset of the grammar that is actually reachable."""
-        considered_subtypes = [self.starting_symbol]
-        new_symbols = [self.starting_symbol]
 
-        def add(k):
-            if k not in considered_subtypes:
-                considered_subtypes.append(k)
-                new_symbols.append(k)
+        all_symbols = {
+            t
+            for t in self.get_all_mentioned_symbols()
+            if (is_abstract(t) or is_dataclass(t))
+            and self.is_reachable(self.starting_symbol, t)
+            and self.reaches_leaf(t)
+        }
 
-        while new_symbols:
-            c = new_symbols.pop(0)
-            if c in self.alternatives:
-                for k in self.alternatives[c]:
-                    add(k)
-            elif is_dataclass(c):
-                for _, k in get_arguments(c):
-                    if is_metahandler(k):
-                        k = get_generic_parameter(k)
-                        add(k)
-                    elif is_generic_list(k):
-                        k = get_generic_parameter(k)
-                        add(k)
-                    elif is_generic(k):
-                        for v in get_generic_parameters(k):
-                            add(v)
-                    else:
-                        add(k)
-            elif c in [bool, int, str, float, list, tuple]:
-                pass
-            else:
-                assert False
-
-        return extract_grammar(considered_subtypes, self.starting_symbol)
+        return extract_grammar(list(all_symbols), self.starting_symbol)
 
     def get_grammar_properties_summary(self) -> GrammarSummary:
         """Returns a summary of grammar properties:
