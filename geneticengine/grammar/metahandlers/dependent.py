@@ -22,6 +22,7 @@ class Dependent(MetaHandlerGenerator):
         base_type: type,
         rec: Any,
         dependent_values: dict[str, Any],
+        parent_values: list[dict[str, Any]],
     ):
         values = [dependent_values[name] for name in self.get_dependencies()]
         t: Any = self.callable(*values)

@@ -31,6 +31,7 @@ class MetaHandlerGenerator(ABC):
         base_type: type,
         rec: Callable[[type[T]], T],
         dependent_values: dict[str, Any],
+        parent_values: list[dict[str, Any]],
     ) -> Any:
         """Generates an instance of type base_type, according to some
         criterion.
