@@ -333,6 +333,7 @@ def create_node(
                         inner_type = get_generic_parameter(list_type)
                         arg = GengyList(inner_type, arg)  # type: ignore
                 else:
+                    dependent_values[argn] = None
                     arg = create_node(
                         global_context,
                         argt,
