@@ -1,12 +1,15 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Annotated
+
+from egglog import EGraph, Expr, rewrite
 
 from geneticengine.grammar.decorators import weight
 from geneticengine.grammar.metahandlers.vars import VarRange
 
 
-class Expression(ABC):
+# TODO: preserve method?
+class Expression(Expr):
     @abstractmethod
     def to_sympy(self) -> str: ...
 
@@ -207,3 +210,17 @@ def make_var(options: list[str], relative_weight: float = 1):
 
 
 components = [Plus, Minus, Mult, SafeDiv, Pow, Sin, Cos, Log, Pi, E, Zero, One, Two, Ten]
+
+
+def optimize_expression(expr: Expression) -> Expression:
+    egraph = EGraph()
+    expr1 = egraph.let("expr1", expr)
+
+    @egraph.register
+    def _num_rule(a: Expression, b: Expression):
+        yield rewrite(Plus(a, b)).to(Plus(b, a))
+        yield rewrite(Plus(a, Zero())).to(a)
+        yield rewrite(Plus(Zero(), b)).to(b)
+
+    egraph.saturate()
+    return egraph.extract(expr1)
