@@ -41,6 +41,17 @@ class Lambda:
     arguments: Annotated[list[Name], ListSizeBetween(5,5)]
     exps: Annotated[list[Expr], ListSizeBetween(10,10)]
 
+@dataclass
+class Value:
+    v: Annotated[int, Parent("values",lambda values : IntRange(values[-1].v+1,values[-1].v+1000) if values else IntRange(50,1000))]
+
+@dataclass
+class OrderList:
+    values: Annotated[list[Value], ListSizeBetween(10,10)]
+
+    def isOrdered(self):
+        return all([v1.v < v2.v for v1, v2 in zip(self.values[:-1],self.values[1:])])
+
 def typecheck(ctx: list[Name], e:Lambda|Expr) -> bool:
     match e:
         case Literal(v=_):
@@ -66,3 +77,16 @@ def test_dependent_types_parent():
             for _ in range(10):
                 p = repr.mutate(r, el)
                 assert typecheck([], p)
+
+def test_dependent_types_parent_in_list():
+        r = NativeRandomSource(seed=1)
+        g = extract_grammar([Value, OrderList], OrderList)
+        decider = MaxDepthDecider(r, g, 4)
+        repr = TreeBasedRepresentation(g, decider=decider)
+
+        for _ in range(10):
+            el = repr.create_genotype(r)
+            print(el)
+            assert isinstance(el, OrderList)
+            assert el.isOrdered()
+            assert typecheck([], el)

@@ -1,7 +1,7 @@
-dill==0.3.9
+dill==0.4.0
 lark==1.2.2
 loguru==0.7.3
-numpy==2.2.3
+numpy==2.2.5
 palettable==3.3.3
 pandas==2.2.3
 pathos==0.3.3
@@ -11,5 +11,6 @@ pytest-benchmark==5.1.0
 scikit-learn==1.6.1
 seaborn==0.13.2
 sympy==1.13.3
-threadpoolctl==3.5.0
+threadpoolctl==3.6.0
 z3-solver==4.14.1.0
+z3-solver==4.14.0.0

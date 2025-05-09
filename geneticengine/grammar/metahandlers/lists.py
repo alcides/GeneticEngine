@@ -49,7 +49,8 @@ class ListSizeBetween(MetaHandlerGenerator):
         assert is_generic_list(base_type)
         inner_type = get_generic_parameter(base_type)
         size = random.randint(self.min, self.max)
-        li = []
+        li : list[Any] = []
+        parent_values[-1][next(reversed(parent_values[-1]))] = li
         for i in range(size):
             nv = rec(inner_type)
             li.append(nv)
