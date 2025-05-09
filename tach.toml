@@ -1,0 +1,63 @@
+interfaces = []
+exclude = [
+    "**/*__pycache__",
+    "**/*egg-info",
+    "**/docs",
+    "**/tests",
+    "**/venv",
+]
+source_roots = [
+    ".",
+]
+
+[[modules ]]
+path = "geneticengine.grammar"
+depends_on = ["geneticengine.representations.tree", "geneticengine.random", "geneticengine.solutions"]
+
+[[modules ]]
+path = "geneticengine.representations.stackgggp"
+depends_on = ["geneticengine.representations", "geneticengine.grammar", "geneticengine.random", "geneticengine.solutions", "geneticengine.representations.tree", "geneticengine"]
+
+[[modules ]]
+path = "geneticengine.algorithms.gp"
+depends_on = ["geneticengine.representations", "geneticengine.random", "geneticengine.problems", "geneticengine.algorithms", "geneticengine.grammar", "geneticengine.representations.tree", "geneticengine.solutions", "geneticengine.evaluation"]
+
+[[modules ]]
+path = "geneticengine"
+depends_on = ["geneticengine.random", "geneticengine.grammar", "geneticengine.algorithms.gp"]
+
+[[modules ]]
+path = "geneticengine.representations.tree"
+depends_on = ["geneticengine.grammar", "geneticengine.random", "geneticengine.algorithms.gp", "geneticengine.representations", "geneticengine.problems", "geneticengine", "geneticengine.solutions"]
+
+[[modules ]]
+path = "geml"
+depends_on = ["geneticengine.representations.stackgggp", "geneticengine.evaluation", "geneticengine.representations.tree", "geneticengine.random", "geneticengine.algorithms.gp", "geneticengine.grammar", "geneticengine.representations.grammatical_evolution", "geneticengine.algorithms", "geneticengine.problems", "geneticengine.solutions", "geneticengine"]
+
+[[modules ]]
+path = "geneticengine.representations"
+depends_on = ["geneticengine.algorithms.gp", "geneticengine.solutions", "geneticengine.problems", "geneticengine.random"]
+
+[[modules ]]
+path = "geneticengine.random"
+depends_on = []
+
+[[modules ]]
+path = "geneticengine.representations.grammatical_evolution"
+depends_on = ["geneticengine.solutions", "geneticengine.representations", "geneticengine.grammar", "geneticengine", "geneticengine.random", "geneticengine.representations.tree"]
+
+[[modules ]]
+path = "geneticengine.problems"
+depends_on = ["geneticengine.solutions"]
+
+[[modules ]]
+path = "geneticengine.algorithms"
+depends_on = ["geneticengine.problems", "geneticengine.representations", "geneticengine.grammar", "geneticengine.random", "geneticengine.evaluation", "geneticengine.representations.tree", "geneticengine.solutions", "geneticengine"]
+
+[[modules ]]
+path = "geneticengine.solutions"
+depends_on = ["geneticengine.representations", "geneticengine.problems", "geneticengine.grammar"]
+
+[[modules ]]
+path = "geneticengine.evaluation"
+depends_on = ["geneticengine.problems", "geneticengine.solutions"]
