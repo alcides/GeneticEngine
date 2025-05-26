@@ -69,7 +69,7 @@ Acknowledgements
 
 This work was supported by Fundação para a Ciência e Tecnologia (FCT) through:
 
-* [the LASIGE Research Unit](https://www.lasige.pt) (ref. UIDB/00408/2020 and UIDP/00408/2020)
+* [the LASIGE Research Unit](https://www.lasige.pt) (ref. UID/00408/2025)
 * Pedro Barbosa PhD fellowship (SFRH/BD/137062/2018)
 * Guilherme Espada PhD fellowship (UI/BD/151179/2021)
 * Paulo Santos CMU|Portugal PhD fellowship (SFRH/BD/151469/2021)
