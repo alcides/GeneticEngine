@@ -80,3 +80,32 @@ class TestFitnessHelpers:
         assert sorted_population[0].get_phenotype().a == 1
         assert sorted_population[1].get_phenotype().a == 2
         assert sorted_population[2].get_phenotype().a == 3
+
+
+
+def test_hyper_vol():
+    p = MultiObjectiveProblem(
+        fitness_function=lambda _: [0, 1, 10],
+        minimize=[False, False, False],
+    )
+
+    ind = ConcreteIndividual(instance=None)
+
+    evaluator = SequentialEvaluator()
+    evaluator.evaluate(p, [ ind])
+
+    assert ind.get_fitness().maximizing_aggregate > 0
+
+
+def test_hyper_vol_min():
+    p = MultiObjectiveProblem(
+        fitness_function=lambda _: [0, 1, 10],
+        minimize=[True, True, True],
+    )
+
+    ind = ConcreteIndividual(instance=None)
+
+    evaluator = SequentialEvaluator()
+    evaluator.evaluate(p, [ ind])
+
+    assert ind.get_fitness().maximizing_aggregate < 0
