@@ -39,7 +39,10 @@ class TournamentSelection(GeneticStep):
         candidates = list(population)
         evaluator.evaluate(problem, candidates)
 
-        goal = random.randint(0, problem.number_of_objectives()-1)
+        if problem.number_of_objectives() > 1:
+            goal = random.randint(0, problem.number_of_objectives()-1)
+        else:
+            goal = 0
 
         for _ in range(target_size):
             candidates = [random.choice(candidates) for _ in range(self.tournament_size)]
