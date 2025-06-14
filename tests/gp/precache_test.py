@@ -51,7 +51,7 @@ class CacheFitness(GeneticStep):
         generation: int,
     ) -> Iterator[PhenotypicIndividual]:
         for ind in population:
-            ind.set_fitness(problem, Fitness(-1.0, []))
+            ind.set_fitness(problem, Fitness([]))
         return population
 
 
@@ -76,7 +76,7 @@ class TestPreCache:
         problem = SingleObjectiveProblem(fitness_function=fitness_function)
         population_size = 1000
 
-        initial_population = [
+        initial_population : list[PhenotypicIndividual] = [
             PhenotypicIndividual(genotype=rep.create_genotype(r), representation=rep) for _ in range(population_size)
         ]
 
@@ -93,7 +93,7 @@ class TestPreCache:
                 evaluator=SequentialEvaluator(),
                 representation=rep,
                 random=r,
-                population=initial_population,
+                population=iter(initial_population),
                 target_size=population_size,
                 generation=i,
             )
