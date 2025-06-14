@@ -68,6 +68,12 @@ class SequentialObjectiveProblem(Problem[P]):
     """SequentialObjectiveProblem is defined by a list of objectives that are intended to be either maximized/minimized in order."""
 
     def is_better(self, a: Fitness, b: Fitness) -> bool:
+        match a.valid, b.valid:
+            case _, False:
+                return True
+            case False, True:
+                return False
+
         for af, bf, m in zip(a.fitness_components, b.fitness_components, self.minimize):
             if m and af > bf:
                 return False
@@ -86,6 +92,12 @@ class SingleObjectiveProblem(SequentialObjectiveProblem[P]):
 class MultiObjectiveProblem(Problem[P]):
     def is_better(self, a: Fitness, b: Fitness) -> bool:
         """To be better in a multi-objective setting, it needs to be better in all objectives."""
+        match a.valid, b.valid:
+            case _, False:
+                return True
+            case False, True:
+                return False
+
         return all(
             a <= t if mi else a >= t for (a, t, mi) in zip(a.fitness_components, b.fitness_components, self.minimize)
         )

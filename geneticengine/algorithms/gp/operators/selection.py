@@ -46,6 +46,7 @@ class TournamentSelection(GeneticStep):
 
         for _ in range(target_size):
             candidates = [random.choice(candidates) for _ in range(self.tournament_size)]
+
             winner = max(candidates, key=lambda ind: ind.get_fitness(problem).fitness_components[goal])
             yield winner
 

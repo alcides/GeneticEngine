@@ -61,7 +61,7 @@ class RegressionLexicaseBenchmark(Benchmark):
 
             return grouped_errors
 
-        n_objectives = len(y)
+        n_objectives = n_cases
         self.problem = MultiObjectiveProblem(
             fitness_function=lexicase_fitness_function,
             minimize=[True for _ in range(n_objectives)],
