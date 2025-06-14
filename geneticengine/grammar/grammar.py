@@ -434,6 +434,9 @@ class Grammar:
 
         Loops should be ignored only if there is an alternative path.
         """
+        if t in [bool, int, float, str]:
+            return True
+
         if visited is None:
             visited = set()
 
@@ -442,9 +445,8 @@ class Grammar:
         else:
             visited.add(t)
 
-        if t in [bool, int, float, str]:
-            return True
-        elif is_abstract(t):
+
+        if is_abstract(t):
             if t in self.alternatives:
                 return any([self.reaches_leaf(p, visited) for p in self.alternatives[t]])
             else:
@@ -462,7 +464,6 @@ class Grammar:
 
     def usable_grammar(self) -> Grammar:
         """Returns a subset of the grammar that is actually reachable."""
-
         all_symbols = {
             t
             for t in self.get_all_mentioned_symbols()

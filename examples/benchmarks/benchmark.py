@@ -34,7 +34,7 @@ def example_run(b: Benchmark):
     )
     best = alg.search()[0]
     print(
-        f"Fitness of {best.get_fitness(problem)} by genotype: {best.genotype} with phenotype: {best.get_phenotype()}",
+        f"Fitness of {best.get_fitness(problem)} by genotype: {best} with phenotype: {best.get_phenotype()}",
     )
 
 def example_run_Enumerative(b: Benchmark):

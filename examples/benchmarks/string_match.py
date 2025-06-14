@@ -17,7 +17,7 @@ class StringMatchBenchmark(Benchmark):
     def setup_problem(self, target):
 
         # Problem
-        def fitness_function(individual):
+        def fitness_function(individual) -> float:
             guess = str(individual)
             fitness: float = max(len(target), len(guess))
             # Loops as long as the shorter of two strings

@@ -99,7 +99,7 @@ class Number:
 @dataclass
 class GenerateNumber(Root):
     x: Annotated[Number, VarRange([Number(0), Number(1), Number(2)])]
-      
+
 class TestMetaHandler:
     def test_int(self):
         r = NativeRandomSource(seed=1)
