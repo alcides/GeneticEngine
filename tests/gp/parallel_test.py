@@ -15,7 +15,7 @@ from geneticengine.representations.tree.initializations import MaxDepthDecider
 from geneticengine.representations.tree.operators import FullInitializer
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.evaluation.parallel import ParallelEvaluator
-from geneticengine.solutions.individual import Individual
+from geneticengine.solutions.individual import Individual, PhenotypicIndividual
 
 
 class Root(ABC):
@@ -40,6 +40,7 @@ class UnderTest(Root):
 
 class TestRecorder(SearchRecorder):
     def register(self, tracker: Any, individual: Individual, problem: Problem, is_best: bool):
+        assert isinstance(individual, PhenotypicIndividual)
         x = individual.genotype
         assert isinstance(x, UnderTest)
         assert isinstance(x.a, Leaf)

@@ -20,6 +20,7 @@ class NoOp(MetaHandlerGenerator):
         base_type: type,
         rec: Callable[[type[T]], T],
         dependent_values: dict[str, Any],
+        parent_values: list[dict[str, Any]],
     ) -> Any:
         return rec(base_type)
 
@@ -138,7 +139,6 @@ def test_useful_grammar():
     g2 = g.usable_grammar()
 
     symbols = g2.considered_subtypes
-    print(dir(g2))
     for a in positives:
         assert a in symbols
     for a in negatives:

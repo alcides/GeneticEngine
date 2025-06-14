@@ -434,32 +434,36 @@ class Grammar:
 
         Loops should be ignored only if there is an alternative path.
         """
+        if t in [bool, int, float, str]:
+            return True
+
         if visited is None:
             visited = set()
 
         if t in visited:
             return None
-        elif t in [bool, int, float, str]:
-            return True
-        elif is_abstract(t):
+        else:
+            visited.add(t)
+
+
+        if is_abstract(t):
             if t in self.alternatives:
-                return any([self.reaches_leaf(p, visited | {t}) for p in self.alternatives[t]])
+                return any([self.reaches_leaf(p, visited) for p in self.alternatives[t]])
             else:
                 return False
         elif is_dataclass(t):
-            return all_with_recursion([self.reaches_leaf(a, visited | {t}) for _, a in get_arguments(t)])
+            return all_with_recursion([self.reaches_leaf(a, visited) for _, a in get_arguments(t)])
         elif is_generic_list(t):
-            return self.reaches_leaf(get_generic_parameter(t), visited | {t})
+            return self.reaches_leaf(get_generic_parameter(t), visited)
         elif is_annotated(t):
-            return self.reaches_leaf(get_generic_parameter(t), visited | {t})
+            return self.reaches_leaf(get_generic_parameter(t), visited)
         elif is_generic(t):
-            return all_with_recursion([self.reaches_leaf(p, visited | {t}) for p in get_generic_parameters(t)])
+            return all_with_recursion([self.reaches_leaf(p, visited) for p in get_generic_parameters(t)])
         else:
             assert False, f"Does not support {t}"
 
     def usable_grammar(self) -> Grammar:
         """Returns a subset of the grammar that is actually reachable."""
-
         all_symbols = {
             t
             for t in self.get_all_mentioned_symbols()
