@@ -20,5 +20,4 @@ class EvaluateStep(GeneticStep):
         target_size: int,
         generation: int,
     ) -> Iterator[PhenotypicIndividual]:
-        evaluator.evaluate(problem, population)
-        yield from population
+        yield from evaluator.evaluate(problem, population)

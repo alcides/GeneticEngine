@@ -31,6 +31,6 @@ class ElitismStep(GeneticStep):
         target_size: int,
         generation: int,
     ) -> Iterator[PhenotypicIndividual]:
-        evaluator.evaluate(problem, population)
-        best : Iterator[PhenotypicIndividual[Any, Any]] = non_dominated(population, problem)
+        candidates = evaluator.evaluate(problem, population)
+        best : Iterator[PhenotypicIndividual[Any, Any]] = non_dominated(iter(candidates), problem)
         yield from wrap(iter(best), target_size)

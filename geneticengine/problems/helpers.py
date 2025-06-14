@@ -11,10 +11,11 @@ def dominates(ind:T, other:T, problem:Problem):
 
 def non_dominated(population: Iterator[T], problem: Problem) -> Iterator[T]:
     """Returns the best individual of a population."""
+    pop = list(population)
     yield from (
         ind
-        for ind in population
-        if any( dominates(other_ind, ind, problem) for other_ind in population)
+        for ind in pop
+        if any( dominates(other_ind, ind, problem) for other_ind in pop)
     )
 
 

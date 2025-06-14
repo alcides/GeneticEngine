@@ -36,8 +36,7 @@ class TournamentSelection(GeneticStep):
         target_size: int,
         generation: int,
     ) -> Iterator[PhenotypicIndividual]:
-        candidates = list(population)
-        evaluator.evaluate(problem, candidates)
+        candidates : list[PhenotypicIndividual] = list(evaluator.evaluate(problem, population))
 
         if problem.number_of_objectives() > 1:
             goal = random.randint(0, problem.number_of_objectives()-1)
@@ -79,8 +78,7 @@ class LexicaseSelection(GeneticStep):
         generation: int,
     ) -> Iterator[PhenotypicIndividual]:
         assert isinstance(problem, MultiObjectiveProblem)
-        candidates = list(population)
-        evaluator.evaluate(problem, candidates)
+        candidates = list(evaluator.evaluate(problem, list(population)))
         n_cases = problem.number_of_objectives()
         cases = random.shuffle(list(range(n_cases)))
 

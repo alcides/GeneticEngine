@@ -12,10 +12,7 @@ class Fitness(NamedTuple):
     valid : bool = True
 
     def __str__(self):
-        if self.valid:
-            return "|".join([f"{d:.5f}" for d in self.fitness_components])
-        else:
-            return "<invalid_fitness>"
+        return "<invalid_fitness>"
 
 
 
@@ -39,11 +36,8 @@ class Problem(abc.ABC, Generic[P]):
         self.ff = {"ff": fitness_function}
 
     def evaluate(self, phenotype: P) -> Fitness:
-        try:
-            v = self.ff["ff"](phenotype)
-            return Fitness(v)
-        except InvalidFitnessException:
-            return Fitness([], valid=False)
+        v = self.ff["ff"](phenotype)
+        return Fitness(v)
 
     @abc.abstractmethod
     def is_better(self, a: Fitness, b: Fitness) -> bool:
@@ -54,9 +48,7 @@ class Problem(abc.ABC, Generic[P]):
         return len(self.minimize)
 
     def is_solved(self, fitness: Fitness) -> bool:
-        if not fitness.valid:
-            return False
-        elif self.target is None:
+        if self.target is None:
             return False
         else:
             return all(
@@ -68,12 +60,6 @@ class SequentialObjectiveProblem(Problem[P]):
     """SequentialObjectiveProblem is defined by a list of objectives that are intended to be either maximized/minimized in order."""
 
     def is_better(self, a: Fitness, b: Fitness) -> bool:
-        match a.valid, b.valid:
-            case _, False:
-                return True
-            case False, True:
-                return False
-
         for af, bf, m in zip(a.fitness_components, b.fitness_components, self.minimize):
             if m and af > bf:
                 return False
@@ -92,12 +78,6 @@ class SingleObjectiveProblem(SequentialObjectiveProblem[P]):
 class MultiObjectiveProblem(Problem[P]):
     def is_better(self, a: Fitness, b: Fitness) -> bool:
         """To be better in a multi-objective setting, it needs to be better in all objectives."""
-        match a.valid, b.valid:
-            case _, False:
-                return True
-            case False, True:
-                return False
-
         return all(
             a <= t if mi else a >= t for (a, t, mi) in zip(a.fitness_components, b.fitness_components, self.minimize)
         )
