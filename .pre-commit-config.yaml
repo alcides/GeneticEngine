@@ -20,15 +20,6 @@ repos:
     hooks:
     -   id: add-trailing-comma
         args: [--py36-plus]
--   repo: https://github.com/PyCQA/docformatter
-    rev: v1.7.5
-    hooks:
-      - id: docformatter
--   repo: https://github.com/hadialqattan/pycln
-    rev: v2.4.0
-    hooks:
-    -   id: pycln
-        args: [--config=pyproject.toml]
 -   repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.10.0
     hooks:

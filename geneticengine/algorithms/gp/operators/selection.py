@@ -3,7 +3,7 @@ from typing import Iterator
 
 import numpy as np
 
-from geneticengine.solutions.individual import Individual, PhenotypicIndividual
+from geneticengine.solutions.individual import PhenotypicIndividual
 from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.problems import Fitness, MultiObjectiveProblem
 from geneticengine.problems import Problem
@@ -36,11 +36,17 @@ class TournamentSelection(GeneticStep):
         target_size: int,
         generation: int,
     ) -> Iterator[PhenotypicIndividual]:
-        candidates = list(population)
-        evaluator.evaluate(problem, candidates)
+        candidates : list[PhenotypicIndividual] = list(evaluator.evaluate(problem, population))
+
+        if problem.number_of_objectives() > 1:
+            goal = random.randint(0, problem.number_of_objectives()-1)
+        else:
+            goal = 0
+
         for _ in range(target_size):
             candidates = [random.choice(candidates) for _ in range(self.tournament_size)]
-            winner = max(candidates, key=Individual.key_function(problem))
+
+            winner = max(candidates, key=lambda ind: ind.get_fitness(problem).fitness_components[goal])
             yield winner
 
             if not self.with_replacement:
@@ -72,8 +78,7 @@ class LexicaseSelection(GeneticStep):
         generation: int,
     ) -> Iterator[PhenotypicIndividual]:
         assert isinstance(problem, MultiObjectiveProblem)
-        candidates = list(population)
-        evaluator.evaluate(problem, candidates)
+        candidates = list(evaluator.evaluate(problem, list(population)))
         n_cases = problem.number_of_objectives()
         cases = random.shuffle(list(range(n_cases)))
 
@@ -94,8 +99,8 @@ class LexicaseSelection(GeneticStep):
                 if self.epsilon:
 
                     def get_fitness_value(ind: PhenotypicIndividual, c: int):
-                        (summary, values) = ind.get_fitness(problem)
-                        return values[c]
+                        fit = ind.get_fitness(problem)
+                        return fit.fitness_components[c]
 
                     fitness_values = np.array(
                         [get_fitness_value(x, c) for x in candidates_to_check if not np.isnan(get_fitness_value(x, c))],

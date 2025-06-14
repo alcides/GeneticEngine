@@ -4,13 +4,16 @@ import abc
 from typing import Callable, Generic, NamedTuple, Optional
 from typing import TypeVar
 
+class InvalidFitnessException(Exception):
+    pass
 
 class Fitness(NamedTuple):
-    maximizing_aggregate: float
     fitness_components: list[float]
+    valid : bool = True
 
     def __str__(self):
-        return "|".join([f"{d:.5f}" for d in self.fitness_components])
+        return "<invalid_fitness>"
+
 
 
 P = TypeVar("P")
@@ -34,13 +37,7 @@ class Problem(abc.ABC, Generic[P]):
 
     def evaluate(self, phenotype: P) -> Fitness:
         v = self.ff["ff"](phenotype)
-        key = sum([-v if mi else v for (v, mi) in zip(v, self.minimize)])
-        return Fitness(key, v)
-
-    def key_function(self, a: Fitness) -> float:
-        """Returns the (maximizing) fitness of the individual as a single
-        float."""
-        return a.maximizing_aggregate
+        return Fitness(v)
 
     @abc.abstractmethod
     def is_better(self, a: Fitness, b: Fitness) -> bool:
@@ -63,7 +60,12 @@ class SequentialObjectiveProblem(Problem[P]):
     """SequentialObjectiveProblem is defined by a list of objectives that are intended to be either maximized/minimized in order."""
 
     def is_better(self, a: Fitness, b: Fitness) -> bool:
-        return a.maximizing_aggregate > b.maximizing_aggregate
+        for af, bf, m in zip(a.fitness_components, b.fitness_components, self.minimize):
+            if m and af > bf:
+                return False
+            elif not m and af < bf:
+                return False
+        return True
 
 
 class SingleObjectiveProblem(SequentialObjectiveProblem[P]):
@@ -95,15 +97,14 @@ class LazyMultiObjectiveProblem(MultiObjectiveProblem):
         self.future_target = target
         super().__init__(fitness_function, None, None)
 
-    def evaluate(self, phenotype: P) -> Fitness:
+    def evaluate(self, phenotype: object) -> Fitness:
         v = self.ff["ff"](phenotype)
         if not self.initialized:
             self.minimize = [self.future_minimize for _ in v]
             if self.future_target is not None:
                 self.target = [self.future_target for _ in v]
             self.initialized = True
-        key = sum([-v if mi else v for (v, mi) in zip(v, self.minimize)])
-        return Fitness(key, v)
+        return Fitness(v)
 
     def number_of_objectives(self) -> int:
         assert self.minimize is not None, "Please evaluate an individual before consulting the number of objectives."

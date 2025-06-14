@@ -1,5 +1,5 @@
 from functools import reduce
-from typing import Iterator, Optional
+from typing import Iterator, Optional, TypeVar
 from geneticengine.algorithms.gp.gp import GeneticProgramming
 from geneticengine.algorithms.gp.operators.combinators import IdentityStep, ParallelStep, SequenceStep
 from geneticengine.algorithms.gp.operators.crossover import GenericCrossoverStep
@@ -73,7 +73,8 @@ class RandomizeParallelStep(ParallelStep):
         self.weights = [random.randint(0, 1000) for _ in range(4)]
 
 
-def best_of_population(population: Iterator[PhenotypicIndividual], problem: Problem) -> Individual:
+T = TypeVar("T", bound=Individual)
+def best_of_population(population: Iterator[T], problem: Problem) -> Individual:
     return reduce(
         lambda x, s: x if problem.is_better(x.get_fitness(problem), s.get_fitness(problem)) else s,
         list(population),
@@ -128,8 +129,8 @@ class GenericAdaptiveCrossoverStep(GenericCrossoverStep):
         target_size: int,
         generation: int,
     ) -> None:
-        evaluator.evaluate(problem, population)
-        best = best_of_population(population, problem)
+        candidates = list(evaluator.evaluate(problem, population))
+        best = best_of_population(iter(candidates), problem)
         best_fitness = best.get_fitness(problem)
         if self.first:
             self.first = False

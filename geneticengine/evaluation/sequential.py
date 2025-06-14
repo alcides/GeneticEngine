@@ -1,8 +1,7 @@
 from typing import Any, Iterable, Generator
 
-from geneticengine.solutions.individual import Individual
-from geneticengine.problems import Problem
-from geneticengine.evaluation.api import Evaluator
+from geneticengine.problems import InvalidFitnessException, Problem
+from geneticengine.evaluation.api import Evaluator, IndT
 
 
 class SequentialEvaluator(Evaluator):
@@ -11,11 +10,16 @@ class SequentialEvaluator(Evaluator):
     def evaluate_async(
         self,
         problem: Problem,
-        individuals: Iterable[Individual],
-    ) -> Generator[Individual, Any, Any]:
+        individuals: Iterable[IndT],
+    ) -> Generator[IndT, Any, Any]:
         for individual in individuals:
             if not individual.has_fitness(problem):
-                f = self.eval_single(problem, individual)
-                individual.set_fitness(problem, f)
-                self.register_evaluation(individual, problem)
-            yield individual
+                try:
+                    f = self.eval_single(problem, individual)
+                    individual.set_fitness(problem, f)
+                    self.register_evaluation(individual, problem)
+                    yield individual
+                except InvalidFitnessException:
+                    pass
+            else:
+                yield individual

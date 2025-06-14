@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC
 from dataclasses import dataclass
-from typing import Annotated
+from typing import Annotated, Any
 
 from geneticengine.grammar.metahandlers.floats import FloatRange
 from geneticengine.grammar.metahandlers.vars import VarRange
@@ -11,7 +11,7 @@ from geneticengine.grammar.metahandlers.vars import VarRange
 class Number(ABC):
     """Abstract Number."""
 
-    def evaluate(self, **kwargs): ...
+    def evaluate(self, **kwargs) -> Any: ...
 
 
 @dataclass

@@ -1,14 +1,22 @@
 from __future__ import annotations
-from typing import Iterator
+from itertools import cycle
+from typing import Any, Iterator, TypeVar
 
 from geneticengine.algorithms.gp.structure import GeneticStep
-from geneticengine.problems.helpers import sort_population
+from geneticengine.problems.helpers import non_dominated
 from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
 from geneticengine.representations.api import Representation
 from geneticengine.evaluation import Evaluator
 from geneticengine.solutions.individual import PhenotypicIndividual
 
+T = TypeVar("T")
+
+def wrap(els:Iterator[T], size:int) -> Iterator[T]:
+    for i, el in enumerate(cycle(els)):
+        if i >= size:
+            break
+        yield el
 
 class ElitismStep(GeneticStep):
     """Selects the best individuals from the population."""
@@ -23,7 +31,6 @@ class ElitismStep(GeneticStep):
         target_size: int,
         generation: int,
     ) -> Iterator[PhenotypicIndividual]:
-        evaluator.evaluate(problem, population)
-        # TODO: We do not need to sort here.
-        new_population = sort_population(list(population), problem)
-        yield from new_population[:target_size]
+        candidates = evaluator.evaluate(problem, population)
+        best : Iterator[PhenotypicIndividual[Any, Any]] = non_dominated(iter(candidates), problem)
+        yield from wrap(iter(best), target_size)

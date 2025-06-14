@@ -43,18 +43,6 @@ class Individual(Generic[P], ABC):
         else:
             raise IndividualNotEvaluatedException()
 
-    def ensure_fitness(self, problem: Problem):
-        if not self.has_fitness(problem):
-            self.set_fitness(problem, problem.evaluate(self.get_phenotype()))
-
-    @staticmethod
-    def key_function(problem: Problem):
-        def kf(ind):
-            ind.ensure_fitness(problem)
-            return ind.get_fitness(problem)[0]
-
-        return kf
-
 
 class ConcreteIndividual(Generic[P], Individual[P]):
     instance: P
