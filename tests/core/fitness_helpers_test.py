@@ -34,9 +34,9 @@ class TestFitnessHelpers:
         b = PhenotypicIndividual(genotype=Leaf(2), representation=representation)
 
         problem = SingleObjectiveProblem(fitness_function=lambda x: x.a, minimize=True)
-        evaluator.evaluate(problem, [a, b])
+        [ None for _ in evaluator.evaluate(problem, [a, b])]
         assert is_better(problem, a, b)
 
         problem = SingleObjectiveProblem(fitness_function=lambda x: x.a, minimize=False)
-        evaluator.evaluate(problem, [a, b])
+        [ None for _ in evaluator.evaluate(problem, [a, b])]
         assert not is_better(problem, a, b)
