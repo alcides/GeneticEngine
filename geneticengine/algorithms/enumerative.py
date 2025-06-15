@@ -69,7 +69,7 @@ def iterate_grammar(grammar: Grammar, starting_symbol: type, generator_for_recur
         inner_type = get_generic_parameter(starting_symbol)
 
         length = 0
-        while True:
+        for _ in range(1000):
             generator_list = [inner_type for _ in range(length)]
             for concrete_list in combine_list_types(generator_list, [], generator_for_recursive,{}):
                 yield concrete_list
@@ -122,13 +122,14 @@ def iterate_grammar(grammar: Grammar, starting_symbol: type, generator_for_recur
                 else:
                     yield from generator_for_recursive(t)
 
-            while True:
-                tmp = []
-                for prod in recursive:
-                    for v in iterate_grammar(grammar, prod, rgenerator):
-                        yield v
-                        tmp.append(v)
-                cache.extend(tmp)
+            if recursive:
+                for _ in range(10000):
+                    tmp = []
+                    for prod in recursive:
+                        for v in iterate_grammar(grammar, prod, rgenerator):
+                            yield v
+                            tmp.append(v)
+                    cache.extend(tmp)
         else:
             # Normal production
             args = []
