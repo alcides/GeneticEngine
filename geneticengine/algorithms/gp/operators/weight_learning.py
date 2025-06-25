@@ -50,9 +50,10 @@ class WeightLearningStep(GeneticStep):
         counting(individual)
         return counts
 
-    def production_probabilities(self, individual: Individual, g: Grammar):
+    def compute_production_probabilities(self, individual: Individual, g: Grammar):
         counts = self.count_productions(individual.get_phenotype(), g)
         probs = counts.copy()
+
         for rule in g.alternatives:
             prods = g.alternatives[rule]
             total_counts = 0
@@ -78,13 +79,14 @@ class WeightLearningStep(GeneticStep):
         generation: int,
     ) -> Iterator[PhenotypicIndividual]:
         population_list = list(population)
-        candidates = evaluator.evaluate(problem, iter(population_list))
+        candidates = evaluator.evaluate(problem, population_list)
         best = next(non_dominated(iter(candidates), problem))
+
         assert isinstance(representation, TreeBasedRepresentation)
-        probs = self.production_probabilities(best, representation.grammar)
+        probs = self.compute_production_probabilities(best, representation.grammar)
         representation.grammar = representation.grammar.update_weights(self.learning_rate, probs)
+
         for index, ind in enumerate(population_list):
             if index < target_size:
                 nind = self.wrap(representation, ind.genotype)
                 yield nind
-
