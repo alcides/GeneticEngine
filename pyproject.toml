@@ -48,6 +48,19 @@ documentation = "https://github.com/alcides/GeneticEngine/"
 [project.license]
 text = "https://opensource.org/licenses/MIT"
 
+[project.optional-dependencies]
+dev = [
+    "black",
+    "docformatter",
+    "mypy==1.16.1",
+    "pre-commit",
+    "pycln",
+    "pytest",
+    "pytest-codspeed",
+    "pytest-cov",
+    "ruff"
+]
+
 [build-system]
 build-backend = 'setuptools.build_meta'
 requires = ['setuptools >= 67.6.0']
