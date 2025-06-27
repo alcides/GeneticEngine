@@ -108,7 +108,7 @@ def iterate_grammar(grammar: Grammar, starting_symbol: type, generator_for_recur
 
             # Non-recursive
             for prod in non_recursive:
-                for v in generator_for_recursive(prod):
+                for v in generator_for_recursive(prod, dependent_values):
                     yield v
                     cache.append(v)  # Build level 0 of cache
 
@@ -120,7 +120,7 @@ def iterate_grammar(grammar: Grammar, starting_symbol: type, generator_for_recur
                 if t is starting_symbol:
                     yield from cache
                 else:
-                    yield from generator_for_recursive(t)
+                    yield from generator_for_recursive(t, dependent_values)
 
             if recursive:
                 for _ in range(10000):
