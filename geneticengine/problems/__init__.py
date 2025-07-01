@@ -12,7 +12,11 @@ class Fitness(NamedTuple):
     valid : bool = True
 
     def __str__(self):
-        return "<invalid_fitness>"
+        if self.valid:
+            m = ",".join([  str(x) for x in self.fitness_components])
+            return f"[{m}]"
+        else:
+            return "<invalid_fitness>"
 
 
 
