@@ -33,6 +33,9 @@ jobs:
         run: |
           if [ -f requirements.txt ]; then uv pip install -r requirements.txt; fi
           if [ -f requirements-dev.txt ]; then uv pip install -r requirements-dev.txt; fi
+      - name: Check architecture with Tach
+        run: |
+          uv run tach check
       - name: Lint with mypy
         run: |
           uv run mypy --no-strict-optional --ignore-missing-imports --explicit-package-bases geneticengine

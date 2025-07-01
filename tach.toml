@@ -1,0 +1,17 @@
+source_roots = ["."]  # Assuming project root is the source root
+
+[[modules]]
+path = "geneticengine"
+depends_on = []
+
+[[modules]]
+path = "geml"
+depends_on = ["geneticengine"]
+
+[[modules]]
+path = "examples"
+depends_on = ["geml", "geneticengine"]
+
+[[modules]]
+path = "tests"
+depends_on = ["geneticengine", "geml"]
