@@ -16,7 +16,7 @@ from geneticengine.algorithms.gp.operators.novelty import NoveltyStep
 from geneticengine.algorithms.gp.operators.selection import TournamentSelection
 from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.evaluation.budget import EvaluationBudget, TimeBudget
+from geneticengine.evaluation.budget import TimeBudget
 from geneticengine.algorithms.gp.operators.weight_learning import WeightLearningStep
 from geneticengine.representations.tree.initializations import MaxDepthDecider
 
@@ -50,12 +50,12 @@ def fitness_function(n: Node) -> float:
             good_count += 1
         elif isinstance(curr, Bad):
             bad_count += 1
-        
+
         if hasattr(curr, "__dict__"):
             for field in curr.__dict__.values():
                 if isinstance(field, Node):
                     q.append(field)
-    
+
     return float(good_count - bad_count)
 
 class TestWeightLearning:
@@ -93,7 +93,7 @@ class TestWeightLearning:
 
         gp_step = SequenceStep(
             WeightLearningStep(gp_params["learning_rate"]),
-            main_evolution_step
+            main_evolution_step,
         )
 
         alg = GeneticProgramming(

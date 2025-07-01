@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Iterator, TypeVar, Type
-from collections import Counter
-from itertools import cycle
+from typing import Any, Iterator
 
 from geneticengine.solutions.individual import PhenotypicIndividual, Individual
 from geneticengine.algorithms.gp.structure import GeneticStep
@@ -90,4 +88,4 @@ class WeightLearningStep(GeneticStep):
         probs = self.compute_production_probabilities(best_tree, representation.grammar)
         representation.grammar = representation.grammar.update_weights(self.learning_rate, probs)
 
-        return candidates
+        return iter(candidates)

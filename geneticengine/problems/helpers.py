@@ -15,7 +15,7 @@ def non_dominated(population: Iterator[T], problem: Problem) -> Iterator[T]:
     yield from (
         ind
         for ind in pop
-        if not any( dominates(other_ind, ind, problem) for other_ind in pop )
+        if not any( dominates(other_ind, ind, problem) for other_ind in pop)
     )
 
 

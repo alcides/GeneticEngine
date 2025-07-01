@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-import pytest
 from dataclasses import dataclass
 from typing import Any, List
 
 from geneticengine.prelude import abstract
 from geneticengine.solutions.individual import PhenotypicIndividual
 from geneticengine.problems import MultiObjectiveProblem, SingleObjectiveProblem
-from geneticengine.representations.api import Representation
-from geneticengine.grammar import Grammar, extract_grammar
+from geneticengine.grammar import extract_grammar
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.problems.helpers import non_dominated
 from geneticengine.representations.tree.initializations import MaxDepthDecider
@@ -42,12 +40,12 @@ def multi_objective_fitness(n: Node) -> List[float]:
             good_count += 1
         elif isinstance(curr, Bad):
             bad_count += 1
-        
+
         if hasattr(curr, "__dict__"):
             for field in curr.__dict__.values():
                 if isinstance(field, Node):
                     q.append(field)
-    
+
     return [float(good_count), float(-bad_count)]
 
 def single_objective_fitness(n: Node) -> float:
@@ -61,7 +59,7 @@ def single_objective_fitness(n: Node) -> float:
             good_count += 1
         elif isinstance(curr, Bad):
             bad_count += 1
-        
+
         if hasattr(curr, "__dict__"):
             for field in curr.__dict__.values():
                 if isinstance(field, Node):
@@ -76,10 +74,10 @@ class TestNonDominated:
         """
         grammar = extract_grammar([Good, Bad, Leaf], Node)
         representation = TreeBasedRepresentation(grammar, decider=MaxDepthDecider(NativeRandomSource(0), grammar, max_depth=5))
-        
+
         problem = MultiObjectiveProblem(
             fitness_function=multi_objective_fitness,
-            minimize=[False, False]
+            minimize=[False, False],
         )
 
         genotypes = [
@@ -89,7 +87,7 @@ class TestNonDominated:
             Leaf(),                # Fitness: [0.0, 0.0] -> Should be in front
             Good(Leaf()),          # Fitness: [1.0, 0.0] -> Should be in front
         ]
-        
+
         expected_pareto_front = [genotypes[0], genotypes[3], genotypes[4]]
 
         population = [PhenotypicIndividual(g, representation) for g in genotypes]
@@ -111,10 +109,10 @@ class TestNonDominated:
         """
         grammar = extract_grammar([Good, Bad, Leaf], Node)
         representation = TreeBasedRepresentation(grammar, decider=MaxDepthDecider(NativeRandomSource(0), grammar, max_depth=5))
-        
+
         problem = SingleObjectiveProblem(
             fitness_function=single_objective_fitness,
-            minimize=False
+            minimize=False,
         )
 
         genotypes = [
@@ -124,7 +122,7 @@ class TestNonDominated:
             Bad(Leaf()),           # Fitness: -1.0
             Bad(Bad(Leaf())),      # Fitness: -2.0
         ]
-        
+
         population = [PhenotypicIndividual(g, representation) for g in genotypes]
 
         evaluator = SequentialEvaluator()
@@ -135,5 +133,3 @@ class TestNonDominated:
         phenotypes = [ind.get_phenotype() for ind in pareto_front]
 
         assert all(expected == actual for expected, actual in zip(genotypes, phenotypes))
-        
-        

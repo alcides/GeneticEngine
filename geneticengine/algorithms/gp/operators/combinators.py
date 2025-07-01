@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Iterator
 
-from geneticengine.solutions.individual import Individual, PhenotypicIndividual
+from geneticengine.solutions.individual import PhenotypicIndividual
 from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
@@ -105,7 +105,7 @@ class ParallelStep(GeneticStep):
         target_size: int,
         generation: int,
     ) -> Iterator[PhenotypicIndividual]:
-        npopulation: list[Individual] = [i for i in population]
+        npopulation: list[PhenotypicIndividual] = [i for i in population]
         ranges = self.compute_ranges(npopulation, target_size)
         assert len(ranges) == len(self.steps)
 
