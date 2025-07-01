@@ -116,7 +116,7 @@ class ParallelStep(GeneticStep):
                     evaluator,
                     representation,
                     random,
-                    population,
+                    iter(npopulation),
                     end - start,
                     generation,
                 )
