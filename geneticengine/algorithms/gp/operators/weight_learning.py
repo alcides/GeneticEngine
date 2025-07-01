@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from typing import Any, Iterator
+from typing import Any, Iterator, TypeVar, Type
+from collections import Counter
+from itertools import cycle
 
 from geneticengine.solutions.individual import PhenotypicIndividual, Individual
 from geneticengine.algorithms.gp.structure import GeneticStep
@@ -29,7 +31,7 @@ class WeightLearningStep(GeneticStep):
         )
 
     def count_productions(self, individual: TreeNode, g: Grammar):
-        counts = {prod: 1 for prod in g.all_nodes}
+        counts = {prod: 0 for prod in g.all_nodes}
 
         def add_count(ty):
             if ty in counts.keys():
@@ -60,7 +62,7 @@ class WeightLearningStep(GeneticStep):
             for prod in prods:
                 total_counts += counts[prod]
             for prod in prods:
-                probs[prod] = counts[prod] / total_counts
+                probs[prod] = counts[prod] / total_counts if total_counts > 0 else 0
 
         for prod in probs.keys():
             if probs[prod] > 1:
@@ -79,14 +81,13 @@ class WeightLearningStep(GeneticStep):
         generation: int,
     ) -> Iterator[PhenotypicIndividual]:
         population_list = list(population)
-        candidates = evaluator.evaluate(problem, population_list)
-        best = next(non_dominated(iter(candidates), problem))
+        candidates = list(evaluator.evaluate(problem, population_list))
+
+        best = non_dominated(iter(candidates), problem)
+        best_tree = next(best)
 
         assert isinstance(representation, TreeBasedRepresentation)
-        probs = self.compute_production_probabilities(best, representation.grammar)
+        probs = self.compute_production_probabilities(best_tree, representation.grammar)
         representation.grammar = representation.grammar.update_weights(self.learning_rate, probs)
 
-        for index, ind in enumerate(population_list):
-            if index < target_size:
-                nind = self.wrap(representation, ind.genotype)
-                yield nind
+        return candidates
