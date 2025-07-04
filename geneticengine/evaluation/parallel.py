@@ -25,7 +25,7 @@ class ParallelEvaluator(Evaluator):
             try:
                 return self.eval_single(problem, ind)
             except InvalidFitnessException:
-                return None
+                return problem.get_invalid_fitness()
 
 
         from pathos.multiprocessing import ProcessingPool as Pool  # pyright: ignore
@@ -33,7 +33,6 @@ class ParallelEvaluator(Evaluator):
         with Pool(len(indivs)) as pool:
             fitnesses = pool.map(mapper, indivs)
             for i, f in zip(indivs, fitnesses):
-                if f is not None:
-                    i.set_fitness(problem, f)
-                    self.register_evaluation(i, problem)
-                    yield i
+                i.set_fitness(problem, f)
+                self.register_evaluation(i, problem)
+                yield i

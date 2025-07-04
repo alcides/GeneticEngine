@@ -48,8 +48,8 @@ class TestFitnessHelpers:
         representation = TreeBasedRepresentation(g, MaxDepthDecider(r, g, 2))
         evaluator = SequentialEvaluator()
 
-        a = PhenotypicIndividual(genotype=Leaf(1), representation=representation)
-        b = PhenotypicIndividual(genotype=Leaf(2), representation=representation)
+        a = PhenotypicIndividual(genotype=Leaf(2), representation=representation)
+        b = PhenotypicIndividual(genotype=Leaf(1), representation=representation)
 
         def custom_fit(l:Leaf):
             if l.a == 1:
@@ -59,4 +59,4 @@ class TestFitnessHelpers:
 
         problem = SingleObjectiveProblem(fitness_function=custom_fit, minimize=True)
         evaluated = [ ind for ind in evaluator.evaluate(problem, [a, b])]
-        assert len(evaluated) == 1
+        assert problem.is_better(evaluated[0].get_fitness(problem), evaluated[1].get_fitness(problem))

@@ -16,10 +16,10 @@ class SequentialEvaluator(Evaluator):
             if not individual.has_fitness(problem):
                 try:
                     f = self.eval_single(problem, individual)
-                    individual.set_fitness(problem, f)
-                    self.register_evaluation(individual, problem)
-                    yield individual
                 except InvalidFitnessException:
-                    pass
+                    f = problem.get_invalid_fitness()
+                individual.set_fitness(problem, f)
+                self.register_evaluation(individual, problem)
+                yield individual
             else:
                 yield individual
