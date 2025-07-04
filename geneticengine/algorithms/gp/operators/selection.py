@@ -39,7 +39,7 @@ class TournamentSelection(GeneticStep):
         initial = list(population)
         candidates : list[PhenotypicIndividual] = list(evaluator.evaluate(problem, initial))
         if not candidates:
-            return initial
+            yield from initial
 
         if problem.number_of_objectives() > 1:
             goal = random.randint(0, problem.number_of_objectives()-1)
