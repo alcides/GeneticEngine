@@ -36,7 +36,10 @@ class TournamentSelection(GeneticStep):
         target_size: int,
         generation: int,
     ) -> Iterator[PhenotypicIndividual]:
-        candidates : list[PhenotypicIndividual] = list(evaluator.evaluate(problem, population))
+        initial = list(population)
+        candidates : list[PhenotypicIndividual] = list(evaluator.evaluate(problem, initial))
+        if not candidates:
+            return initial
 
         if problem.number_of_objectives() > 1:
             goal = random.randint(0, problem.number_of_objectives()-1)
