@@ -2,7 +2,6 @@ from __future__ import annotations
 from typing import Iterator
 import numpy as np
 
-
 from geneticengine.solutions.individual import PhenotypicIndividual
 from geneticengine.algorithms.gp.structure import GeneticStep
 from geneticengine.problems import Fitness, MultiObjectiveProblem
