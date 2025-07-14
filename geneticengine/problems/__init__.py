@@ -59,6 +59,8 @@ class Problem(abc.ABC, Generic[P]):
     def is_solved(self, fitness: Fitness) -> bool:
         if self.target is None:
             return False
+        elif not fitness.valid:
+            return False
         else:
             return all(
                 a <= t if mi else a >= t for (a, t, mi) in zip(fitness.fitness_components, self.target, self.minimize)
