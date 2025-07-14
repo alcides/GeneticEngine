@@ -34,8 +34,8 @@ target_size = 10, generation = 1
 >       for ind in self.iterate(problem, evaluator, representation, random, population, target_size, generation):
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-geneticengine/algorithms/gp/structure.py:49: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+geneticengine/algorithms/gp/structure.py:49:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 self = <geneticengine.algorithms.gp.operators.weight_learning.WeightLearningStep object at 0x105b9ac90>
 problem = <geneticengine.problems.SingleObjectiveProblem object at 0x105e31040>
@@ -57,11 +57,11 @@ target_size = 10, generation = 1
     ) -> Iterator[PhenotypicIndividual]:
         population_list = list(population)
         candidates = list(evaluator.evaluate(problem, population_list))
-    
+
         print("Candidates:", [(candidate.get_phenotype(), candidate.get_fitness(problem)) for candidate in candidates])
-    
+
         best = non_dominated(iter(candidates), problem)
-    
+
 >       best_tree = next(best)
                     ^^^^^^^^^^
 E       StopIteration
@@ -76,7 +76,7 @@ self = <weight_learning_test.TestWeightLearning object at 0x121d70cb0>
         grammar = extract_grammar([Good, Bad, Leaf], Node)
         problem = SingleObjectiveProblem(fitness_function=fitness_function, minimize=False)
         representation = TreeBasedRepresentation(grammar, decider=MaxDepthDecider(NativeRandomSource(0), grammar, max_depth=5))
-    
+
         gp_params = {
             "population_size": 10,
             "n_elites": 2,
@@ -86,7 +86,7 @@ self = <weight_learning_test.TestWeightLearning object at 0x121d70cb0>
             "mutation_probability": 0.1,
             "learning_rate": 0.01,
         }
-    
+
         main_evolution_step = ParallelStep(
             [
                 ElitismStep(),
@@ -103,12 +103,12 @@ self = <weight_learning_test.TestWeightLearning object at 0x121d70cb0>
                 gp_params["population_size"] - gp_params["n_elites"] - gp_params["novelty_size"],
             ],
         )
-    
+
         gp_step = SequenceStep(
             WeightLearningStep(gp_params["learning_rate"]),
             main_evolution_step
         )
-    
+
         alg = GeneticProgramming(
             problem=problem,
             representation=representation,
@@ -117,16 +117,16 @@ self = <weight_learning_test.TestWeightLearning object at 0x121d70cb0>
             budget=TimeBudget(5),
             random=NativeRandomSource(42),
         )
-    
+
         all_initial_weights = grammar.get_weights()
         initial_weights = {prod_class: all_initial_weights[prod_class] for prod_class in grammar.alternatives[Node]}
         print(initial_weights)
-    
+
 >       print("Best solution tree", alg.search()[0])
                                     ^^^^^^^^^^^^
 
-tests/representations/tree_based/weight_learning_test.py:112: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/representations/tree_based/weight_learning_test.py:112:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 geneticengine/algorithms/api.py:44: in search
     return self.perform_search()
            ^^^^^^^^^^^^^^^^^^^^^
@@ -140,7 +140,7 @@ geneticengine/algorithms/gp/operators/combinators.py:57: in iterate
     yield from npopulation
 geneticengine/algorithms/gp/structure.py:49: in apply
     for ind in self.iterate(problem, evaluator, representation, random, population, target_size, generation):
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 self = <geneticengine.algorithms.gp.operators.combinators.ParallelStep object at 0x105b57080>
 problem = <geneticengine.problems.SingleObjectiveProblem object at 0x105e31040>
