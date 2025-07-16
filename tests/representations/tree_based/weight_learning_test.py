@@ -16,8 +16,8 @@ from geneticengine.algorithms.gp.operators.novelty import NoveltyStep
 from geneticengine.algorithms.gp.operators.selection import TournamentSelection
 from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
-from geneticengine.evaluation.budget import TimeBudget
-from geneticengine.algorithms.gp.operators.weight_learning import WeightLearningStep
+from geneticengine.evaluation.budget import TimeBudget, EvaluationBudget
+from geneticengine.algorithms.gp.operators.weight_learning import WeightLearningStep, ConditionalWeightLearningStep
 from geneticengine.representations.tree.initializations import MaxDepthDecider
 
 @abstract
@@ -55,8 +55,10 @@ def fitness_function(n: Node) -> float:
             for field in curr.__dict__.values():
                 if isinstance(field, Node):
                     q.append(field)
-
     return float(good_count - bad_count)
+
+def low_fitness_function(n: Node) -> float:
+    return 0.1
 
 class TestWeightLearning:
     def test_weight_learning_adapts_grammar(self):
@@ -101,8 +103,8 @@ class TestWeightLearning:
             representation=representation,
             step=gp_step,
             population_size=gp_params["population_size"],
-            budget=TimeBudget(5),
-            random=NativeRandomSource(42),
+            budget=EvaluationBudget(100),
+            random=NativeRandomSource(0),
         )
 
         all_initial_weights = grammar.get_weights()
@@ -116,3 +118,80 @@ class TestWeightLearning:
 
         assert final_weights[Good] > initial_weights[Good], "Good weights should increase"
         assert final_weights[Bad] < initial_weights[Bad], "Bad weights should decrease"
+
+    def test_conditional_weight_learning_does_not_trigger(self):
+        """Tests that ConditionalWeightLearningStep does nothing if fitness is below threshold."""
+        grammar = extract_grammar([Good, Bad, Leaf], Node)
+        # Use the fitness function that always returns a low score
+        problem = SingleObjectiveProblem(
+            fitness_function=low_fitness_function, minimize=False,
+        )
+        representation = TreeBasedRepresentation(
+            grammar, decider=MaxDepthDecider(NativeRandomSource(0), grammar, max_depth=5),
+        )
+
+        gp_step = ConditionalWeightLearningStep(fitness_threshold=0.5)
+
+        alg = GeneticProgramming(
+            problem=problem,
+            representation=representation,
+            step=gp_step,
+            population_size=5,
+            budget=TimeBudget(5),
+            random=NativeRandomSource(0),
+        )
+
+        all_initial_weights = grammar.get_weights()
+        initial_weights = {
+            prod_class: all_initial_weights[prod_class]
+            for prod_class in grammar.alternatives[Node]
+        }
+
+        alg.search()
+
+        all_final_weights = grammar.get_weights()
+        final_weights = {
+            prod_class: all_final_weights[prod_class]
+            for prod_class in grammar.alternatives[Node]
+        }
+
+        # Assert that the weights have not changed
+        assert final_weights == initial_weights
+
+    def test_conditional_weight_learning_triggers(self):
+        """Tests that ConditionalWeightLearningStep works if fitness is above threshold."""
+        grammar = extract_grammar([Good, Bad, Leaf], Node)
+        # Use the original fitness function that can exceed the threshold
+        problem = SingleObjectiveProblem(fitness_function=fitness_function, minimize=False)
+        representation = TreeBasedRepresentation(
+            grammar, decider=MaxDepthDecider(NativeRandomSource(0), grammar, max_depth=5),
+        )
+
+        gp_step = ConditionalWeightLearningStep(fitness_threshold=0.5)
+
+        alg = GeneticProgramming(
+            problem=problem,
+            representation=representation,
+            step=gp_step,
+            population_size=5,
+            budget=TimeBudget(5),
+            random=NativeRandomSource(0),
+        )
+
+        all_initial_weights = grammar.get_weights()
+        initial_weights = {
+            prod_class: all_initial_weights[prod_class]
+            for prod_class in grammar.alternatives[Node]
+        }
+
+        alg.search()
+
+        all_final_weights = grammar.get_weights()
+        final_weights = {
+            prod_class: all_final_weights[prod_class]
+            for prod_class in grammar.alternatives[Node]
+        }
+
+        # Assert that the weights have changed
+        assert final_weights != initial_weights
+        assert final_weights[Good] > initial_weights[Good]
