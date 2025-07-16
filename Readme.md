@@ -59,6 +59,8 @@ GeneticEngine has been developed at [LASIGE](https://www.lasige.pt), [University
 * [Pedro Barbosa](https://www.lasige.di.fc.ul.pt/user/661)
 * [Eduardo Madeira](https://www.lasige.pt/member/jose-eduardo-madeira)
 * [Lishun Su](https://lasige.pt/member/su-lishun/)
+* [Paulo Silva](https://github.com/PauloHS-Silva)
+* [Abhisek Limbu](https://github.com/AbhisekLimbu/AbhisekLimbu)
 
 Acknowledgements
 ----------------
