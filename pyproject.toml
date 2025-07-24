@@ -1,18 +1,14 @@
 [project]
 name = "GeneticEngine"
-version = "0.8.6"
+version = "0.8.7"
 description = "Genetic Programming with Types and Grammars"
 authors = [
-    { name = "Guilherme Espada", email = "gjespada@fc.ul.pt" },
-    { name = "Leon Ingelse", email = "leoningelse@gmail.com" },
-    { name = "Paulo Santos", email = "pacsantos@fc.ul.pt" },
-    { name = "Pedro Barbosa", email = "psbarbosa@ciencias.ulisboa.pt" },
-    { name = "Alcides Fonseca", email = "me@alcidesfonseca.com" },
+    { name = "Alcides Fonseca et al.", email = "me@alcidesfonseca.com" },
 ]
 readme = "Readme.md"
 requires-python = ">=3.10"
 keywords = [
-    "evolutionary computation", "genetic programming", "regression", "machine learning",
+    "program synthesis", "machine learning", "genetic programming"
 ]
 
 classifiers = [
