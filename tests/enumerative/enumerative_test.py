@@ -108,5 +108,7 @@ def test_enumerative_order():
         print(",", d, tree)
         assert d >= previous
         previous = d
-        if i > 100:
+        if i > 10:
             break
+
+    assert False
