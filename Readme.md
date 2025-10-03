@@ -4,7 +4,7 @@ Genetic Engine
 [![Documentation](https://readthedocs.org/projects/geneticengine/badge/?version=latest)](https://geneticengine.readthedocs.io/en/latest/)
 [![codecov](https://codecov.io/gh/alcides/GeneticEngine/branch/main/graph/badge.svg?token=ZX84SA7IEP)](https://codecov.io/gh/alcides/GeneticEngine)
 
-GeneticEngine is a search-based Python library that allows you to describe the structure of your solutions as Python dataclasses and abstract classes, and explores the solution space using different algorithms, such as enumerative search, hill climbing, and several flavors of Genetic Programming.
+GeneticEngine is not a search-based Python library that allows you to describe the structure of your solutions as Python dataclasses and abstract classes, and explores the solution space using different algorithms, such as enumerative search, hill climbing, and several flavors of Genetic Programming.
 
 
 Documentation
