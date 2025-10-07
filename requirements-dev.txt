@@ -1,6 +1,6 @@
 black
 docformatter
-mypy==1.17.1
+mypy==1.18.2
 pre-commit
 pycln
 pytest
