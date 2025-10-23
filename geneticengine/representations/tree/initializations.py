@@ -103,7 +103,8 @@ class MaxDepthDecider(BaseDecider):
         alternatives = [
             x for x in alternatives if self.grammar.get_distance_to_terminal(x) <= (self.max_depth - ctx.depth)
         ]
-        return self.random.choice(alternatives)
+        weights = [self.grammar.get_weights().get(x, 1) for x in alternatives]
+        return self.random.choice_weighted(alternatives, weights)
 
     def validate(self) -> None:
         if self.max_depth < self.grammar.get_min_tree_depth():
