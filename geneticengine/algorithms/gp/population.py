@@ -9,7 +9,6 @@ class Population:
         self.tracker = tracker
         self.individuals = []
         individual_list = list(it)
-        print(f"Total individuals in population: {len(individual_list)}")
         for ind in individual_list:
             ind.metadata["generation"] = generation
             self.individuals.append(ind)
