@@ -8,10 +8,11 @@ class Population:
     def __init__(self, it: Iterator[PhenotypicIndividual], tracker: ProgressTracker, generation: int = -1):
         self.tracker = tracker
         self.individuals = []
-        for ind in it:
+        individual_list = list(it)
+        for ind in individual_list:
             ind.metadata["generation"] = generation
-            self.tracker.evaluate_single(ind)
             self.individuals.append(ind)
+        self.tracker.evaluate(individual_list)
 
     def __iter__(self):
         return iter(self.individuals)
