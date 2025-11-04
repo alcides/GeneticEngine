@@ -74,6 +74,7 @@ representations
 genetic_operators
 optimizations
 autoapi/index
+synthetic_problems
 ```
 
 
