@@ -87,8 +87,29 @@ def iterate_grammar(grammar: Grammar, starting_symbol: type, generator_for_recur
                 if metahandler.validate(ins):
                     yield ins
     elif is_union(starting_symbol):
-        for alt in get_generic_parameters(starting_symbol):
-            yield from generator_for_recursive(alt)
+        # Breadth-first enumeration across union alternatives
+        alts = list(get_generic_parameters(starting_symbol))
+
+        cache: list[Any] = []
+
+        # Reader that yields previously generated instances for the same union type,
+        # ensuring expansions that recurse back into this union pull from prior levels.
+        def rgenerator(t: type, dependent_values: dict[str,Any]) -> Generator[Any, Any, Any]:
+            if t is starting_symbol:
+                yield from cache
+            else:
+                yield from generator_for_recursive(t, dependent_values)
+
+        # Expand alternatives level-by-level, interleaving outputs to respect BFS
+        for _ in range(10000):
+            tmp: list[Any] = []
+            for alt in alts:
+                for v in iterate_grammar(grammar, alt, rgenerator):
+                    yield v
+                    tmp.append(v)
+            if not tmp:
+                break
+            cache.extend(tmp)
     else:
         if starting_symbol not in grammar.all_nodes:
             raise GeneticEngineError(

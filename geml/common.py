@@ -8,6 +8,7 @@ import pandas as pd
 from sklearn.base import BaseEstimator, check_is_fitted, _fit_context
 from sklearn.exceptions import FitFailedWarning
 from sklearn.metrics import r2_score
+from sklearn.utils.validation import validate_data
 
 from geneticengine.evaluation.budget import SearchBudget, TimeBudget
 from geneticengine.evaluation.recorder import SearchRecorder
@@ -106,7 +107,7 @@ class GeneticEngineEstimator(GEBaseEstimator):
 
     def predict(self, X):
         check_is_fitted(self)
-        X = self._validate_data(X, accept_sparse=False, reset=False)
+        X = validate_data(self, X, accept_sparse=False, reset=False)
         feature_names, data = self.prepare_inputs(X)
         return forward_dataset(self._best_individual[0], data)
 
@@ -116,7 +117,7 @@ class GeneticEngineEstimator(GEBaseEstimator):
     @_fit_context(prefer_skip_nested_validation=True)
     def fit(self, X, y):
 
-        X, y = self._validate_data(X, y, accept_sparse=False)
+        X, y = validate_data(self, X, y, accept_sparse=False)
 
         random = NativeRandomSource(self.seed)
 
