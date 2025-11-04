@@ -33,3 +33,12 @@ class Container(Parent):
 ```
 
 See [the full library of MetaHandlers](api.md) for more examples.
+
+A field can also depend on previously generated fields of the same class using `Dependent`:
+
+```python
+@dataclass
+class SimplePair:
+    a: Annotated[int, IntRange(0, 3)]
+    b: Annotated[int, Dependent("a", lambda a: IntRange(a, 4))]
+```
