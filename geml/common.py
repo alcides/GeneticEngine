@@ -81,13 +81,15 @@ class PredictorWrapper(GEBaseEstimator):
 class GeneticEngineEstimator(GEBaseEstimator):
     max_time: float | int
 
-    def __init__(self, max_time: float | int = 1, seed: int = 0):
+    def __init__(self, max_time: float | int = 1, seed: int = 0, weight_features_by_correlation: bool = False):
         self.max_time = max_time
         self.seed = 0
+        self.weight_features_by_correlation = weight_features_by_correlation
 
     _parameter_constraints = {
         "max_time": [float, int],
         "seed": [int],
+        "weight_features_by_correlation": [bool],
     }
 
     def get_population(self) -> list[BaseEstimator]:

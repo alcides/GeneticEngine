@@ -1,4 +1,5 @@
 import numpy as np
+from typing import Annotated
 from geml.common import GeneticEngineEstimator, PopulationRecorder
 from geml.grammars.ruleset_classification import make_grammar
 from geneticengine.algorithms.gp.gp import GeneticProgramming
@@ -8,6 +9,8 @@ from geneticengine.algorithms.random_search import RandomSearch
 from geneticengine.evaluation.budget import SearchBudget
 from geneticengine.evaluation.tracker import ProgressTracker
 from geneticengine.grammar.grammar import Grammar, extract_grammar
+from geneticengine.grammar.metahandlers.vars import VarRangeWithProbabilities
+from geneticengine.grammar.metahandlers.vars import VarRange
 from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
 from geneticengine.representations.tree.initializations import ProgressivelyTerminalDecider
@@ -17,10 +20,31 @@ from geneticengine.solutions.individual import Individual
 
 class GeneticEngineClassifier(GeneticEngineEstimator):
 
+    def _maybe_weight_features(self, Var, feature_names: list[str], data, target) -> None:
+        if self.weight_features_by_correlation:
+            try:
+                y = target.reshape(-1) if hasattr(target, "reshape") else target
+                # For classification, use absolute Pearson correlation as a simple heuristic
+                corrs: list[float] = []
+                for i in range(len(feature_names)):
+                    xi = data[:, i]
+                    with np.errstate(all="ignore"):
+                        c = np.corrcoef(xi, y)[0, 1]
+                    if np.isnan(c):
+                        c = 0.0
+                    corrs.append(abs(float(c)))
+                s = float(sum(corrs))
+                if s > 0:
+                    weights = [c / s for c in corrs]
+                    Var.__init__.__annotations__["name"] = Annotated[str, VarRangeWithProbabilities(feature_names, weights)]  # type: ignore
+            except Exception:
+                pass
+
     def get_grammar(self, feature_names: list[str], data, target) -> Grammar:
         classes = np.unique(target).tolist()
         components, RuleSet = make_grammar(feature_names, classes)
         Var = components[-1]
+        self._maybe_weight_features(Var, feature_names, data, target)
         Var.feature_names = feature_names  # type:ignore
         index_of = {n: i for i, n in enumerate(feature_names)}
         Var.to_numpy = lambda s: f"dataset[:,{index_of[s.name]}]"  # type:ignore
@@ -56,14 +80,15 @@ class GeneticProgrammingClassifier(GeneticEngineClassifier):
 
 class HillClimbingClassifier(GeneticEngineClassifier):
 
-    def __init__(self, max_time: float | int = 1, seed: int = 0, number_of_mutations: int = 5):
-        super().__init__(max_time, seed)
+    def __init__(self, max_time: float | int = 1, seed: int = 0, number_of_mutations: int = 5, weight_features_by_correlation: bool = False):
+        super().__init__(max_time, seed, weight_features_by_correlation)
         self.number_of_mutations = number_of_mutations
 
     _parameter_constraints = {
         "max_time": [float, int],
         "seed": [int],
         "number_of_mutations": [int],
+        "weight_features_by_correlation": [bool],
     }
 
     def search(

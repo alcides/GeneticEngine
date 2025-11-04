@@ -1,8 +1,10 @@
 from abc import ABC, abstractmethod
+from typing import Annotated, Any
 
 from sklearn.base import BaseEstimator
 from geml.common import GeneticEngineEstimator, PopulationRecorder
 from geml.grammars.symbolic_regression import make_var, components, Expression
+from geneticengine.grammar.metahandlers.vars import VarRangeWithProbabilities
 from geneticengine.algorithms.gp.gp import GeneticProgramming
 from geneticengine.algorithms.hill_climbing import HC
 from geneticengine.algorithms.one_plus_one import OnePlusOne
@@ -34,8 +36,31 @@ class GeneticEngineRegressor(
     GeneticEngineEstimator,
 ):
 
+    def _maybe_weight_features(self, Var, feature_names: list[str], data, target) -> None:
+        if self.weight_features_by_correlation:
+            try:
+                import numpy as np  # local import to avoid polluting module namespace
+                y = target.reshape(-1) if hasattr(target, "reshape") else target
+                corrs: list[float] = []
+                for i in range(len(feature_names)):
+                    xi = data[:, i]
+                    with np.errstate(all="ignore"):
+                        c = np.corrcoef(xi, y)[0, 1]
+                    if np.isnan(c):
+                        c = 0.0
+                    corrs.append(abs(float(c)))
+                s = sum(corrs)
+                if s > 0:
+                    weights = [c / s for c in corrs]
+                    Var.__init__.__annotations__["name"] = Annotated[str, VarRangeWithProbabilities(feature_names, weights)]  # type: ignore
+            except Exception:
+                # If anything goes wrong, fall back to uniform selection
+                pass
+
     def get_grammar(self, feature_names: list[str], data, target) -> Grammar:
         Var = make_var(feature_names, relative_weight=10)
+        # Optionally weight features by their absolute Pearson correlation with target
+        self._maybe_weight_features(Var, feature_names, data, target)
         Var.feature_names = feature_names
         index_of = {n: i for i, n in enumerate(feature_names)}
         Var.to_numpy = lambda s: f"dataset[:,{index_of[s.name]}]"
@@ -72,14 +97,15 @@ class GeneticProgrammingRegressor(GeneticEngineRegressor):
 
 class HillClimbingRegressor(GeneticEngineRegressor):
 
-    def __init__(self, max_time: float | int = 1, seed: int = 0, number_of_mutations: int = 5):
-        super().__init__(max_time, seed)
+    def __init__(self, max_time: float | int = 1, seed: int = 0, number_of_mutations: int = 5, weight_features_by_correlation: bool = False):
+        super().__init__(max_time, seed, weight_features_by_correlation)
         self.number_of_mutations = number_of_mutations
 
     _parameter_constraints = {
         "max_time": [float, int],
         "seed": [int],
         "number_of_mutations": [int],
+        "weight_features_by_correlation": [bool],
     }
 
     def search(
