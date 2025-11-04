@@ -39,3 +39,9 @@ Here are a few MetaHandlers provided by GeneticEngine
 ```{eval-rst}
 .. autoapiclass:: geneticengine.grammar.metahandlers.vars.VarRange
 ```
+
+#### Dependent
+
+```{eval-rst}
+.. autoapiclass:: geneticengine.grammar.metahandlers.dependent.Dependent
+```
