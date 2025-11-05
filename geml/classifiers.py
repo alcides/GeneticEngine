@@ -1,3 +1,4 @@
+from geneticengine.grammar.decorators import weight
 import numpy as np
 from typing import Annotated
 from geml.common import GeneticEngineEstimator, PopulationRecorder
@@ -19,31 +20,17 @@ from geneticengine.solutions.individual import Individual
 
 class GeneticEngineClassifier(GeneticEngineEstimator):
 
-    def _maybe_weight_features(self, Var, feature_names: list[str], data, target) -> None:
-        if self.weight_features_by_correlation:
-            y = target.reshape(-1) if hasattr(target, "reshape") else target
-            # For classification, use absolute Pearson correlation as a simple heuristic
-            corrs: list[float] = []
-            for i in range(len(feature_names)):
-                xi = data[:, i]
-                with np.errstate(all="ignore"):
-                    c = np.corrcoef(xi, y)[0, 1]
-                if np.isnan(c):
-                    c = 0.0
-                corrs.append(abs(float(c)))
-            s = float(sum(corrs))
-            if s > 0:
-                weights = [c / s for c in corrs]
-                Var.__init__.__annotations__["name"] = Annotated[str, VarRangeWithProbabilities(feature_names, weights)]
 
     def get_grammar(self, feature_names: list[str], data, target) -> Grammar:
         classes = np.unique(target).tolist()
         components, RuleSet = make_grammar(feature_names, classes)
         Var = components[-1]
-        self._maybe_weight_features(Var, feature_names, data, target)
+        weights = self.correlation_weights(feature_names, data, target)
+        Var.__init__.__annotations__["name"] = Annotated[str, VarRangeWithProbabilities(feature_names, weights)] # type:ignore
         Var.feature_names = feature_names  # type:ignore
         index_of = {n: i for i, n in enumerate(feature_names)}
         Var.to_numpy = lambda s: f"dataset[:,{index_of[s.name]}]"  # type:ignore
+        Var = weight(10)(Var)
         return extract_grammar(components, RuleSet)
 
     def get_goal(self) -> tuple[bool, float]:

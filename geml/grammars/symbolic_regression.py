@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Annotated
 
 from geneticengine.grammar.decorators import weight
-from geneticengine.grammar.metahandlers.vars import VarRange
+from geneticengine.grammar.metahandlers.vars import VarRangeWithProbabilities
 
 
 class Expression(ABC):
@@ -190,18 +190,19 @@ class FloatLiteral(Expression):
         return f"{self.value}"
 
 
-def make_var(options: list[str], relative_weight: float = 1):
+def make_var(options: list[str], weights: list[float], relative_weight: float = 1):
     @weight(relative_weight)
     @dataclass
     class Var(Expression):
-        name: Annotated[str, VarRange(options)]
-        # The list of vars should always be filled in dynamically
+        name: Annotated[str, VarRangeWithProbabilities(options, weights)]
+        feature_names : list[str]
 
         def to_sympy(self) -> str:
             return f"{self.name}"
 
         def to_numpy(self) -> str:
-            return f"{self.name}"
+            index_of = {n: i for i, n in enumerate(options)}
+            return f"dataset[:,{index_of[self.name]}]"
 
     return Var
 

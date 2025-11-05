@@ -179,3 +179,11 @@ class GeneticEngineEstimator(GEBaseEstimator):
         budget: SearchBudget,
         population_recorder: PopulationRecorder,
     ) -> list[Individual] | None: ...
+
+
+    def correlation_weights(self, feature_names: list[str], data, target) -> list[float]:
+
+        def wrapper(v:float) -> float:
+            return 1 - abs(float(np.average(v))) + 0.00001
+
+        return [wrapper(np.corrcoef(data[:, i], target)) for i in range(len(feature_names))]
