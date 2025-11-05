@@ -79,6 +79,24 @@ synthetic_problems
 
 
 
+## Running examples with uv and Codon (optional)
+
+- Install uv (`https://docs.astral.sh/uv/getting-started/installation/`). The script will automatically use uv to run Python and resolve dependencies from the project.
+- Run all examples normally:
+
+```bash
+./run_examples.sh
+```
+
+- To enable Codon, install Codon (`https://exaloop.io/docs/codon/latest/guide/installation`) and run:
+
+```bash
+CODON=1 ./run_examples.sh
+```
+
+When `CODON=1`, the script will try to run each example with `codon run -release` when feasible and automatically fall back to `uv run python` for examples that require third-party packages unsupported by Codon.
+
+
 ## Indices and tables
 
 * {ref}`genindex`

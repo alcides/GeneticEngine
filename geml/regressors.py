@@ -35,10 +35,12 @@ class GeneticEngineRegressor(
 ):
 
     def get_grammar(self, feature_names: list[str], data, target) -> Grammar:
-        Var = make_var(feature_names, relative_weight=10)
+        weights = self.correlation_weights(feature_names, data, target) if self.weight_features_by_correlation else None
+        Var = make_var(feature_names, weights=weights, relative_weight=10)
+
         Var.feature_names = feature_names
         index_of = {n: i for i, n in enumerate(feature_names)}
-        Var.to_numpy = lambda s: f"dataset[:,{index_of[s.name]}]"
+        Var.to_numpy = lambda s: f"dataset[:,{index_of[s.name]}]"  # pyright:ignore
         complete_components = components + [Var]
         return extract_grammar(complete_components, Expression)
 
@@ -72,14 +74,15 @@ class GeneticProgrammingRegressor(GeneticEngineRegressor):
 
 class HillClimbingRegressor(GeneticEngineRegressor):
 
-    def __init__(self, max_time: float | int = 1, seed: int = 0, number_of_mutations: int = 5):
-        super().__init__(max_time, seed)
+    def __init__(self, max_time: float | int = 1, seed: int = 0, number_of_mutations: int = 5, weight_features_by_correlation: bool = False):
+        super().__init__(max_time, seed, weight_features_by_correlation)
         self.number_of_mutations = number_of_mutations
 
     _parameter_constraints = {
         "max_time": [float, int],
         "seed": [int],
         "number_of_mutations": [int],
+        "weight_features_by_correlation": [bool],
     }
 
     def search(

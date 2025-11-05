@@ -81,13 +81,15 @@ class PredictorWrapper(GEBaseEstimator):
 class GeneticEngineEstimator(GEBaseEstimator):
     max_time: float | int
 
-    def __init__(self, max_time: float | int = 1, seed: int = 0):
+    def __init__(self, max_time: float | int = 1, seed: int = 0, weight_features_by_correlation: bool = False):
         self.max_time = max_time
-        self.seed = 0
+        self.seed = seed
+        self.weight_features_by_correlation = weight_features_by_correlation
 
     _parameter_constraints = {
         "max_time": [float, int],
         "seed": [int],
+        "weight_features_by_correlation": [bool],
     }
 
     def get_population(self) -> list[BaseEstimator]:
@@ -177,3 +179,28 @@ class GeneticEngineEstimator(GEBaseEstimator):
         budget: SearchBudget,
         population_recorder: PopulationRecorder,
     ) -> list[Individual] | None: ...
+
+
+    def correlation_weights(self, feature_names: list[str], data, target) -> list[float]:
+
+        def safe_corrcoef(xv, yv) -> float:
+            with np.errstate(all="ignore"):
+                x = np.asarray(xv, dtype=float)
+                y = np.asarray(yv, dtype=float)
+                if len(x) < 2:
+                    return 0.0
+                c = np.corrcoef(x, y)
+                # For 2x2 corr matrix, off-diagonal holds the correlation
+                try:
+                    corr = float(c[0, 1])
+                except Exception:
+                    corr = 0.0
+                if not np.isfinite(corr):
+                    return 0.0
+                return corr
+
+        def wrapper(corr_value: float) -> float:
+            # Higher absolute correlation -> smaller weight (bias search), add epsilon
+            return 1 - abs(corr_value) + 0.00001
+
+        return [wrapper(safe_corrcoef(data[:, i], target)) for i in range(len(feature_names))]

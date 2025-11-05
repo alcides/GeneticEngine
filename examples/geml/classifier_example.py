@@ -27,5 +27,5 @@ for model_class in [GeneticProgrammingClassifier, HillClimbingClassifier, Random
     model = model_class(max_time=20.0, seed=seed)
     model.fit(data, target)
     y_pred = model.predict(test_data)
-    r2 = f1_score(test_target, y_pred)
+    r2 = f1_score(test_target, y_pred, average="weighted")
     print(f"{model}: {r2}")

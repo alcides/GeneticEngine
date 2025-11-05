@@ -30,3 +30,7 @@ model.fit(X, y)
 
 
 For complete examples, check the `sklearn-type-examples.py` in the examples folder.
+
+## Feature probability weighting
+
+All sklearn-compatible estimators accept an optional parameter `weight_features_by_correlation` (default: `False`). When enabled, terminals corresponding to input features are sampled with probabilities proportional to their absolute Pearson correlation with the output, biasing the grammar towards more predictive variables.
