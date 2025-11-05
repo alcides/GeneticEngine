@@ -1,6 +1,6 @@
-from geneticengine.grammar.decorators import weight
 import numpy as np
 from typing import Annotated
+from geneticengine.grammar.decorators import weight
 from geml.common import GeneticEngineEstimator, PopulationRecorder
 from geml.grammars.ruleset_classification import make_grammar
 from geneticengine.algorithms.gp.gp import GeneticProgramming

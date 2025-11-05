@@ -26,7 +26,12 @@ class RandomSource(abc.ABC):
         choices: list[T],
         weights: list[float],
     ) -> T:
-        acc_weights: list[int] = [int(x * 100000) for x in accumulate(weights)]
+        # Sanitize weights: replace non-finite values with 0 and ensure non-negative totals.
+        sanitized: list[float] = [w if isinstance(w, (int, float)) and math.isfinite(w) and w > 0 else 0.0 for w in weights]
+        # If all weights are zero or negative, fall back to uniform selection.
+        if not any(sanitized):
+            return self.choice(choices)
+        acc_weights: list[int] = [int(x * 100000) for x in accumulate(sanitized)]
         total = acc_weights[-1]
         rand_value: float = self.randint(0, total)
 

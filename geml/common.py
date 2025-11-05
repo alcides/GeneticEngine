@@ -183,7 +183,24 @@ class GeneticEngineEstimator(GEBaseEstimator):
 
     def correlation_weights(self, feature_names: list[str], data, target) -> list[float]:
 
-        def wrapper(v:float) -> float:
-            return 1 - abs(float(np.average(v))) + 0.00001
+        def safe_corrcoef(xv, yv) -> float:
+            with np.errstate(all="ignore"):
+                x = np.asarray(xv, dtype=float)
+                y = np.asarray(yv, dtype=float)
+                if len(x) < 2:
+                    return 0.0
+                c = np.corrcoef(x, y)
+                # For 2x2 corr matrix, off-diagonal holds the correlation
+                try:
+                    corr = float(c[0, 1])
+                except Exception:
+                    corr = 0.0
+                if not np.isfinite(corr):
+                    return 0.0
+                return corr
 
-        return [wrapper(np.corrcoef(data[:, i], target)) for i in range(len(feature_names))]
+        def wrapper(corr_value: float) -> float:
+            # Higher absolute correlation -> smaller weight (bias search), add epsilon
+            return 1 - abs(corr_value) + 0.00001
+
+        return [wrapper(safe_corrcoef(data[:, i], target)) for i in range(len(feature_names))]

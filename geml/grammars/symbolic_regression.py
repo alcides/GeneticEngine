@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Annotated
+from typing import cast
 
 from geneticengine.grammar.decorators import weight
 from geneticengine.grammar.metahandlers.vars import VarRangeWithProbabilities
@@ -190,19 +191,30 @@ class FloatLiteral(Expression):
         return f"{self.value}"
 
 
-def make_var(options: list[str], weights: list[float], relative_weight: float = 1):
+def make_var(options: list[str], weights: list[float] | int | float | None = None, relative_weight: float = 1):
+    # Backward/lenient compatibility: if the second positional argument is a number,
+    # interpret it as relative_weight and default to uniform feature weights.
+    if isinstance(weights, (int, float)) and relative_weight == 1:
+        relative_weight = int(weights)
+        weights = None
+    # If no explicit weights are provided, use uniform weights.
+    if weights is None:
+        weights_list: list[float] = [1.0 for _ in options]
+    else:
+        weights_list = [float(w) for w in cast(list[float], weights)]
+    # Ensure static type correctness for annotation usage below.
+    probabilities: list[float] = weights_list
     @weight(relative_weight)
     @dataclass
     class Var(Expression):
-        name: Annotated[str, VarRangeWithProbabilities(options, weights)]
-        feature_names : list[str]
+        name: Annotated[str, VarRangeWithProbabilities(options, probabilities)]
+        feature_names: list[str] = field(default_factory=list)
 
         def to_sympy(self) -> str:
             return f"{self.name}"
 
         def to_numpy(self) -> str:
-            index_of = {n: i for i, n in enumerate(options)}
-            return f"dataset[:,{index_of[self.name]}]"
+            return f"{self.name}"
 
     return Var
 

@@ -37,6 +37,13 @@ class GeneticEngineRegressor(
     def get_grammar(self, feature_names: list[str], data, target) -> Grammar:
         weights = self.correlation_weights(feature_names, data, target)
         Var = make_var(feature_names, weights=weights, relative_weight=10)
+        # Align Var with dataset-based evaluation used during training
+        from typing import Annotated
+        from geneticengine.grammar.metahandlers.vars import VarRangeWithProbabilities
+        Var.__init__.__annotations__["name"] = Annotated[str, VarRangeWithProbabilities(feature_names, weights)]
+        Var.feature_names = feature_names
+        index_of = {n: i for i, n in enumerate(feature_names)}
+        Var.to_numpy = lambda s: f"dataset[:,{index_of[s.name]}]"  # pyright:ignore
         complete_components = components + [Var]
         return extract_grammar(complete_components, Expression)
 
