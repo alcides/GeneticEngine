@@ -83,7 +83,7 @@ class GeneticEngineEstimator(GEBaseEstimator):
 
     def __init__(self, max_time: float | int = 1, seed: int = 0, weight_features_by_correlation: bool = False):
         self.max_time = max_time
-        self.seed = 0
+        self.seed = seed
         self.weight_features_by_correlation = weight_features_by_correlation
 
     _parameter_constraints = {

@@ -10,7 +10,6 @@ from geneticengine.evaluation.budget import SearchBudget
 from geneticengine.evaluation.tracker import ProgressTracker
 from geneticengine.grammar.grammar import Grammar, extract_grammar
 from geneticengine.grammar.metahandlers.vars import VarRangeWithProbabilities
-from geneticengine.grammar.metahandlers.vars import VarRange
 from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
 from geneticengine.representations.tree.initializations import ProgressivelyTerminalDecider
@@ -22,23 +21,20 @@ class GeneticEngineClassifier(GeneticEngineEstimator):
 
     def _maybe_weight_features(self, Var, feature_names: list[str], data, target) -> None:
         if self.weight_features_by_correlation:
-            try:
-                y = target.reshape(-1) if hasattr(target, "reshape") else target
-                # For classification, use absolute Pearson correlation as a simple heuristic
-                corrs: list[float] = []
-                for i in range(len(feature_names)):
-                    xi = data[:, i]
-                    with np.errstate(all="ignore"):
-                        c = np.corrcoef(xi, y)[0, 1]
-                    if np.isnan(c):
-                        c = 0.0
-                    corrs.append(abs(float(c)))
-                s = float(sum(corrs))
-                if s > 0:
-                    weights = [c / s for c in corrs]
-                    Var.__init__.__annotations__["name"] = Annotated[str, VarRangeWithProbabilities(feature_names, weights)]  # type: ignore
-            except Exception:
-                pass
+            y = target.reshape(-1) if hasattr(target, "reshape") else target
+            # For classification, use absolute Pearson correlation as a simple heuristic
+            corrs: list[float] = []
+            for i in range(len(feature_names)):
+                xi = data[:, i]
+                with np.errstate(all="ignore"):
+                    c = np.corrcoef(xi, y)[0, 1]
+                if np.isnan(c):
+                    c = 0.0
+                corrs.append(abs(float(c)))
+            s = float(sum(corrs))
+            if s > 0:
+                weights = [c / s for c in corrs]
+                Var.__init__.__annotations__["name"] = Annotated[str, VarRangeWithProbabilities(feature_names, weights)]
 
     def get_grammar(self, feature_names: list[str], data, target) -> Grammar:
         classes = np.unique(target).tolist()

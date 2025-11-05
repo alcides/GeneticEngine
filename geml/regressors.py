@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Annotated, Any
+from typing import Annotated
 
 from sklearn.base import BaseEstimator
 from geml.common import GeneticEngineEstimator, PopulationRecorder
@@ -38,24 +38,20 @@ class GeneticEngineRegressor(
 
     def _maybe_weight_features(self, Var, feature_names: list[str], data, target) -> None:
         if self.weight_features_by_correlation:
-            try:
-                import numpy as np  # local import to avoid polluting module namespace
-                y = target.reshape(-1) if hasattr(target, "reshape") else target
-                corrs: list[float] = []
-                for i in range(len(feature_names)):
-                    xi = data[:, i]
-                    with np.errstate(all="ignore"):
-                        c = np.corrcoef(xi, y)[0, 1]
-                    if np.isnan(c):
-                        c = 0.0
-                    corrs.append(abs(float(c)))
-                s = sum(corrs)
-                if s > 0:
-                    weights = [c / s for c in corrs]
-                    Var.__init__.__annotations__["name"] = Annotated[str, VarRangeWithProbabilities(feature_names, weights)]  # type: ignore
-            except Exception:
-                # If anything goes wrong, fall back to uniform selection
-                pass
+            import numpy as np  # local import to avoid polluting module namespace
+            y = target.reshape(-1) if hasattr(target, "reshape") else target
+            corrs: list[float] = []
+            for i in range(len(feature_names)):
+                xi = data[:, i]
+                with np.errstate(all="ignore"):
+                    c = np.corrcoef(xi, y)[0, 1]
+                if np.isnan(c):
+                    c = 0.0
+                corrs.append(abs(float(c)))
+            s = sum(corrs)
+            if s > 0:
+                weights = [c / s for c in corrs]
+                Var.__init__.__annotations__["name"] = Annotated[str, VarRangeWithProbabilities(feature_names, weights)]
 
     def get_grammar(self, feature_names: list[str], data, target) -> Grammar:
         Var = make_var(feature_names, relative_weight=10)
