@@ -1,4 +1,4 @@
-from __future__ import annotations
+
 
 from geneticengine.algorithms.gp.gp import GeneticProgramming
 from geneticengine.evaluation.budget import EvaluationBudget

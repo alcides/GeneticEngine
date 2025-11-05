@@ -1,4 +1,4 @@
-from __future__ import annotations
+
 
 from geneticengine.grammar.decorators import abstract
 from geneticengine.grammar.grammar import extract_grammar

@@ -1,4 +1,4 @@
-from __future__ import annotations
+
 
 from abc import ABC
 from dataclasses import dataclass
@@ -42,7 +42,7 @@ class Basic(Root):
 
 @dataclass
 class UnionT(Root):
-    x: Union[int, Concrete]
+    x: Union[int, "Concrete"]
 
 
 @dataclass

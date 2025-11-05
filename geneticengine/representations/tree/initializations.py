@@ -1,4 +1,4 @@
-from __future__ import annotations
+
 from abc import ABC
 import abc
 from dataclasses import dataclass
@@ -27,7 +27,7 @@ sys.setrecursionlimit(10000)
 class GlobalSynthesisContext:
     random: RandomSource
     grammar: Grammar
-    decider: SynthesisDecider
+    decider: "SynthesisDecider"
 
 
 T = TypeVar("T")

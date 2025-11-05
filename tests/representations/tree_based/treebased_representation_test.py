@@ -1,4 +1,4 @@
-from __future__ import annotations
+
 
 from dataclasses import dataclass
 from typing import Annotated
@@ -13,7 +13,7 @@ from geneticengine.grammar.metahandlers.lists import ListSizeBetween
 
 @dataclass
 class Root:
-    l: Annotated[list[B], ListSizeBetween(1, 6)]
+    l: Annotated[list["B"], ListSizeBetween(1, 6)]
 
 
 @dataclass

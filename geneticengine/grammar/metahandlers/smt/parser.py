@@ -1,4 +1,4 @@
-from __future__ import annotations
+
 
 from lark import Lark
 from lark import Transformer

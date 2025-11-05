@@ -1,4 +1,4 @@
-from __future__ import annotations
+
 from itertools import count, takewhile
 from typing import Any, Generator, Optional
 

@@ -1,4 +1,4 @@
-from __future__ import annotations
+
 
 
 from examples.benchmarks.benchmark import Benchmark, example_run

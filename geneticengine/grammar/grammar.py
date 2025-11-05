@@ -1,4 +1,4 @@
-from __future__ import annotations
+
 
 from dataclasses import is_dataclass
 import inspect
@@ -462,7 +462,7 @@ class Grammar:
         else:
             assert False, f"Does not support {t}"
 
-    def usable_grammar(self) -> Grammar:
+    def usable_grammar(self) -> "Grammar":
         """Returns a subset of the grammar that is actually reachable."""
         all_symbols = {
             t

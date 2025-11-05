@@ -4,7 +4,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
-from __future__ import annotations
+
 
 project = "Genetic Engine"
 copyright = "2022, Alcides Fonseca et al."

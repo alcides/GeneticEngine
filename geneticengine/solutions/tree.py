@@ -1,4 +1,4 @@
-from __future__ import annotations
+
 
 from dataclasses import dataclass
 from typing import Any, Generic, TypeVar
@@ -46,7 +46,7 @@ class GengyList(list, Generic[T]):
         self.typ = typ
         self.gengy_init_values = vals
 
-    def new_like(self, *newargs) -> GengyList[T]:
+    def new_like(self, *newargs) -> "GengyList[T]":
         n: GengyList[T] = GengyList(self.typ, newargs)
         assert isinstance(self, TreeNode)
         return n
@@ -54,6 +54,6 @@ class GengyList(list, Generic[T]):
     def __hash__(self):  # pyright: ignore
         return sum(hash(o) for o in self)
 
-    def __add__(self, value) -> GengyList[T]:
+    def __add__(self, value) -> "GengyList[T]":
         v = super().__add__(value)
         return GengyList(self.typ, v)
