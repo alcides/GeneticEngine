@@ -33,7 +33,7 @@ jobs:
         if: matrix.codon == true
         shell: bash
         run: |
-          curl -LsSf https://exaloop.io/install.sh | sh
+          curl -LsSf https://exaloop.io/install.sh | bash
           echo "$HOME/.codon/bin" >> $GITHUB_PATH
 
       - name: Show tool versions
@@ -51,5 +51,3 @@ jobs:
         run: |
           chmod +x ./run_examples.sh
           ./run_examples.sh
-
-
