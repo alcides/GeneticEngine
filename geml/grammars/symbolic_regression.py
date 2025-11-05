@@ -4,7 +4,7 @@ from typing import Annotated
 from typing import cast
 
 from geneticengine.grammar.decorators import weight
-from geneticengine.grammar.metahandlers.vars import VarRangeWithProbabilities
+from geneticengine.grammar.metahandlers.vars import VarRange, VarRangeWithProbabilities
 
 
 class Expression(ABC):
@@ -197,17 +197,11 @@ def make_var(options: list[str], weights: list[float] | int | float | None = Non
     if isinstance(weights, (int, float)) and relative_weight == 1:
         relative_weight = int(weights)
         weights = None
-    # If no explicit weights are provided, use uniform weights.
-    if weights is None:
-        weights_list: list[float] = [1.0 for _ in options]
-    else:
-        weights_list = [float(w) for w in cast(list[float], weights)]
-    # Ensure static type correctness for annotation usage below.
-    probabilities: list[float] = weights_list
+
     @weight(relative_weight)
     @dataclass
     class Var(Expression):
-        name: Annotated[str, VarRangeWithProbabilities(options, probabilities)]
+        name: str  # Annotation will be set dynamically below
         feature_names: list[str] = field(default_factory=list)
 
         def to_sympy(self) -> str:
@@ -215,6 +209,15 @@ def make_var(options: list[str], weights: list[float] | int | float | None = Non
 
         def to_numpy(self) -> str:
             return f"{self.name}"
+
+    # Choose metahandler based on whether weights are provided
+    if weights is None:
+        # Use uniform selection (no probabilities)
+        Var.__init__.__annotations__["name"] = Annotated[str, VarRange(options)]
+    else:
+        # Use weighted selection with probabilities
+        weights_list = [float(w) for w in cast(list[float], weights)]
+        Var.__init__.__annotations__["name"] = Annotated[str, VarRangeWithProbabilities(options, weights_list)]
 
     return Var
 
