@@ -149,9 +149,12 @@ class GeneticEngineEstimator(GEBaseEstimator):
 
         def make_pair(ind: Individual) -> tuple[str, str]:
             assert isinstance(ind, Individual)
+            # Simplify the phenotype before converting to strings
+            from geml.simplifier import simplify
+            simplified_phenotype = simplify(ind.get_phenotype())
             return (
-                ind.get_phenotype().to_numpy(),
-                ind.get_phenotype().to_sympy(),
+                simplified_phenotype.to_numpy(),
+                simplified_phenotype.to_sympy(),
             )
 
         self._best_individual = make_pair(best_individual)
