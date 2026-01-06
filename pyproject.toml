@@ -29,7 +29,7 @@ dependencies = [
     'polyleven==0.9.0',
     'pytest==9.0.2',
     'pytest-benchmark==5.2.3',
-    'scikit-learn==1.7.2',
+    'scikit-learn==1.8.0',
     'seaborn==0.13.2',
     'sympy==1.14.0',
     'threadpoolctl==3.6.0',
