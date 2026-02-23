@@ -82,12 +82,13 @@ class LexicaseSelection(GeneticStep):
         assert isinstance(problem, MultiObjectiveProblem)
         candidates = list(evaluator.evaluate(problem, list(population)))
         n_cases = problem.number_of_objectives()
-        cases = random.shuffle(list(range(n_cases)))
+        all_cases = list(range(n_cases))
 
         assert isinstance(problem.minimize, list)
 
         for _ in range(target_size):
             candidates_to_check: list[PhenotypicIndividual] = candidates.copy()
+            cases = random.shuffle(all_cases.copy())
 
             while len(candidates_to_check) > 1 and cases:
                 new_candidates: list[PhenotypicIndividual] = list()
