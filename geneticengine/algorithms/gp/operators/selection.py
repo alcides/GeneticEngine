@@ -127,9 +127,177 @@ class LexicaseSelection(GeneticStep):
             yield winner
             candidates.remove(winner)
 
+class WeightedLexicaseSelection(LexicaseSelection):
+    """
+    Lexicase selection with accuracy-biased objective ordering.
+    Uses weighted random permutation:
+    - Objectives [0,1,2] (accuracy splits): weight 4.0 each
+    - Objectives [3,4] (costs): weight 1.0 each
+    """
 
+    def __init__(self, epsilon: bool = True, objective_weights: list[float] | None = None):
+        super().__init__(epsilon)
+        self.objective_weights = objective_weights
 
+    def _weighted_case_order(self, random:RandomSource, n_cases: int) -> list[int]:
+        all_cases = list(range(n_cases))
+        weights = self.objective_weights if self.objective_weights else [1.0] * n_cases
 
+        if len(weights) != n_cases:
+            return random.shuffle(all_cases.copy())
+
+        clean = [float(w) if isinstance(w, (int, float)) and np.isfinite(w) and w > 0 else 0.0 for w in weights]
+        if sum(clean) <= 0.0:
+            return random.shuffle(all_cases.copy())
+
+        remaining = all_cases.copy()
+        order: list[int] = []
+
+        while remaining:
+            remaining_weights = [clean[i] for i in remaining]
+            if sum(remaining_weights) <= 0.0:
+                order.extend(random.shuffle(remaining.copy())) #prevent calling random.choice_weighted with all zero weights
+                break
+            chosen = random.choice_weighted(remaining, weights=remaining_weights) #pick from remaining cases with weighted probabilities
+            order.append(chosen)
+            remaining.remove(chosen)
+        return order
+
+    def iterate(
+        self,
+        problem: Problem,
+        evaluator: Evaluator,
+        representation: Representation,
+        random: RandomSource,
+        population: Iterator[PhenotypicIndividual],
+        target_size: int,
+        generation: int,
+    ) -> Iterator[PhenotypicIndividual]:
+        assert isinstance(problem, MultiObjectiveProblem)
+        assert isinstance(problem.minimize, list)
+
+        candidates = list(evaluator.evaluate(problem, list(population)))
+        n_cases = problem.number_of_objectives()
+
+        for _ in range(target_size):
+            candidates_to_check = candidates.copy()
+            cases = self._weighted_case_order(random, n_cases)
+
+            while len(candidates_to_check) > 1 and cases:
+                c = cases.pop(0)
+                choose_best = min if problem.minimize[c] else max
+
+                best_fitness = choose_best(
+                    [x.get_fitness(problem).fitness_components[c] for x in candidates_to_check],
+                )
+                checking_value = best_fitness
+
+                if self.epsilon:
+                    vals = np.array(
+                        [
+                            x.get_fitness(problem).fitness_components[c]
+                            for x in candidates_to_check
+                            if not np.isnan(x.get_fitness(problem).fitness_components[c])
+                        ],
+                    )
+                    mad = np.median(np.abs(vals - np.median(vals))) #mean absolute deviation from median
+                    checking_value = best_fitness + mad if problem.minimize[c] else best_fitness - mad
+
+                new_candidates = []
+                for checking_candidate in candidates_to_check:
+                    fitness = checking_candidate.get_fitness(problem).fitness_components[c]
+                    ok = (fitness <= checking_value) if problem.minimize[c] else (fitness >= checking_value)
+                    if ok:
+                        new_candidates.append(checking_candidate)
+
+                candidates_to_check = new_candidates
+
+            winner = random.choice(candidates_to_check) if len(candidates_to_check) > 1 else candidates_to_check[0]
+            yield winner
+            candidates.remove(winner)
+
+class PriorityLexicaseSelection(LexicaseSelection):
+    """
+    Priority Lexicase:
+    - Lower integer means higher priority
+    - Objectives in the same priority level are shuffled.
+    Example: objective_priorities=[1, 1, 2, 3] -> [0/1 shuffled], then 2, then 3.
+    """
+
+    def __init__(self, epsilon: bool = True, objective_priorities: list[int] | None = None):
+        super().__init__(epsilon)
+        self.objective_priorities = objective_priorities
+
+    def _priority_case_order(self, random:RandomSource, n_cases: int) -> list[int]:
+        all_cases = list(range(n_cases))
+
+        if self.objective_priorities is None:
+            return random.shuffle(all_cases.copy()) #if no priorities given, just random order
+
+        if len(self.objective_priorities) != n_cases:
+            raise ValueError("Length of objective_priorities must match number of objectives")
+
+        levels: dict[int, list[int]] = {}
+        for i, p in enumerate(self.objective_priorities):
+            if not isinstance(p, int):
+                raise ValueError(f"Invalid priority {p} for objective {i}.")
+            levels.setdefault(p, []).append(i)
+
+        order: list[int] = []
+        for level in sorted(levels):
+            order.extend(random.shuffle(levels[level].copy())) #random order within same priority level
+
+        return order
+
+    def iterate(
+        self,
+        problem: Problem,
+        evaluator: Evaluator,
+        representation: Representation,
+        random: RandomSource,
+        population: Iterator[PhenotypicIndividual],
+        target_size: int,
+        generation: int,
+    ) -> Iterator[PhenotypicIndividual]:
+        assert isinstance(problem, MultiObjectiveProblem)
+        assert isinstance(problem.minimize, list)
+
+        candidates = list(evaluator.evaluate(problem, list(population)))
+        n_cases = problem.number_of_objectives()
+
+        for _ in range(target_size):
+            candidates_to_check = candidates.copy()
+            cases = self._priority_case_order(random, n_cases)
+
+            while len(candidates_to_check) > 1 and cases:
+                new_candidates: list[PhenotypicIndividual] = []
+                c = cases.pop(0)
+
+                choose_best = min if problem.minimize[c] else max
+                best_fitness = choose_best([x.get_fitness(problem).fitness_components[c] for x in candidates_to_check])
+                checking_value = best_fitness
+
+                if self.epsilon:
+
+                    def get_fitness_value(ind: PhenotypicIndividual, c: int):
+                        fit = ind.get_fitness(problem)
+                        return fit.fitness_components[c]
+
+                    fitness_values = np.array(
+                        [get_fitness_value(x, c) for x in candidates_to_check if not np.isnan(get_fitness_value(x, c))],
+                    )
+                    mad = np.median(np.absolute(fitness_values - np.median(fitness_values)))
+                    checking_value = best_fitness + mad if problem.minimize[c] else best_fitness - mad
+
+                for checking_candidate in candidates_to_check:
+                    fitness = checking_candidate.get_fitness(problem).fitness_components[c]
+                    ok = (fitness <= checking_value) if problem.minimize[c] else (fitness >= checking_value)
+                    if ok:
+                        new_candidates.append(checking_candidate)
+                candidates_to_check = new_candidates
+            winner = random.choice(candidates_to_check) if len(candidates_to_check) > 1 else candidates_to_check[0]
+            yield winner
+            candidates.remove(winner)
 
 class InformedDownsamplingSelection(GeneticStep):
     """
