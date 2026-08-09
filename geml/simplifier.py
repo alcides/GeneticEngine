@@ -29,14 +29,7 @@ class Math(egglog.Expr):
 
 
 def simplify(expr: Expression) -> Expression:
-    """Simplify an Expression using egglog equality saturation.
-
-    Args:
-        expr: The Expression to simplify.
-
-    Returns:
-        A simplified Expression.
-    """
+    """Simplify a symbolic-regression Expression using egglog and sympy."""
     try:
         # Convert Expression to sympy first (as intermediary)
         sympy_expr = _to_sympy(expr)
@@ -51,8 +44,10 @@ def simplify(expr: Expression) -> Expression:
         # If egglog is not available, return the original expression
         return expr
     except Exception:
-        # If simplification fails for any reason, return the original
-        return expr
+        try:
+            return _from_sympy(sympy.simplify(_to_sympy(expr)), expr)
+        except Exception:
+            return expr
 
 
 def _simplify_with_egglog(sympy_expr: sympy.Expr) -> sympy.Expr:

@@ -17,7 +17,7 @@ from geneticengine.problems import Problem
 from geneticengine.random.sources import RandomSource
 from geneticengine.solutions.individual import Individual
 
-from geml.grammars.symbolic_regression import Expression
+from geml.grammars.symbolic_regression import Expression as SymbolicRegressionExpression
 from geneticengine.problems import SingleObjectiveProblem
 from geneticengine.random.sources import NativeRandomSource
 
@@ -129,7 +129,7 @@ class GeneticEngineEstimator(GEBaseEstimator):
 
         grammar = self.get_grammar(feature_names, data, y)
 
-        def fitness_function(x: Expression) -> float:
+        def fitness_function(x: SymbolicRegressionExpression) -> float:
             try:
                 y_pred = forward_dataset(x.to_numpy(), data)
                 with np.errstate(all="ignore"):
@@ -149,12 +149,14 @@ class GeneticEngineEstimator(GEBaseEstimator):
 
         def make_pair(ind: Individual) -> tuple[str, str]:
             assert isinstance(ind, Individual)
-            # Simplify the phenotype before converting to strings
-            from geml.simplifier import simplify
-            simplified_phenotype = simplify(ind.get_phenotype())
+            phenotype = ind.get_phenotype()
+            if isinstance(phenotype, SymbolicRegressionExpression):
+                from geml.simplifier import simplify
+
+                phenotype = simplify(phenotype)
             return (
-                simplified_phenotype.to_numpy(),
-                simplified_phenotype.to_sympy(),
+                phenotype.to_numpy(),
+                phenotype.to_sympy(),
             )
 
         self._best_individual = make_pair(best_individual)
