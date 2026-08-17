@@ -120,6 +120,13 @@ users to update imports on every release.
 
 Deliverable: a baseline graph and a checked-in list of supported imports.
 
+This proposal now includes an initial checked-in `tach.toml` and a GitHub
+Actions workflow. The initial rules track the three existing package domains:
+`geneticengine` is core, `geml` is an integration layer over the core, and
+`examples` is an application layer over both. The workflow runs
+`tach check --dependencies --interfaces` on pushes to `main` and on pull
+requests.
+
 ### Phase 2: introduce compatibility facades
 
 - Add `__init__.py` exports for algorithms, evaluation, grammar, problems,

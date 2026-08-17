@@ -1,0 +1,21 @@
+source_roots = ["."]
+exclude = [
+  "**/tests",
+  "**/docs",
+  "**/*__pycache__",
+  "**/*egg-info",
+  "**/venv",
+  "experiments",
+]
+forbid_circular_dependencies = true
+[[modules]]
+path = "geneticengine"
+depends_on = []
+
+[[modules]]
+path = "geml"
+depends_on = ["geneticengine"]
+
+[[modules]]
+path = "examples"
+depends_on = ["geneticengine", "geml"]
