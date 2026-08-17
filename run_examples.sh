@@ -70,6 +70,7 @@ run_example examples/mathematical_programming/fixed_egyptian_fractions.py
 run_example examples/mathematical_programming/rational_egyptian_fractions.py
 run_example examples/mathematical_programming/reptend_fraction.py
 run_example examples/mathematical_programming/incremented_reciprocal.py
+run_example examples/mathematical_programming/pells_equation.py
 
 
 run_example examples/progsys/Number_IO.py
