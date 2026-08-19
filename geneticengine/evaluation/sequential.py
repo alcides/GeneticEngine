@@ -17,7 +17,8 @@ class SequentialEvaluator(Evaluator):
                 try:
                     f = self.eval_single(problem, individual)
                 except InvalidFitnessException:
-                    f = problem.get_invalid_fitness()
+                    self.register_invalid_evaluation()
+                    continue
                 individual.set_fitness(problem, f)
                 self.register_evaluation(individual, problem)
                 yield individual

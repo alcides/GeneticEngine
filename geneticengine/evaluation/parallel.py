@@ -1,38 +1,42 @@
-from abc import ABCMeta
-from pickle import _Pickler as StockPickler
-from typing import Any, Generator, Iterable, Optional  # attr-defined: ignore
-from dill import register
+from concurrent.futures import ThreadPoolExecutor
+from itertools import islice
+from os import cpu_count
+from typing import Any, Generator, Iterable
+
 from geneticengine.problems import Fitness, InvalidFitnessException, Problem
 from geneticengine.evaluation.api import Evaluator, IndT
 
 
-@register(ABCMeta)
-def save_abc(pickler, obj):
-    StockPickler.save_type(pickler, obj)  # pyright: ignore
-
-
 class ParallelEvaluator(Evaluator):
-    """Evaluates individuals in parallel, each time they are needed."""
+    """Evaluates individuals lazily in bounded batches of worker threads."""
 
     def evaluate_async(
         self,
         problem: Problem,
         individuals: Iterable[IndT],
     ) -> Generator[IndT, Any, Any]:
-        indivs = list(individuals)
-
-        def mapper(ind: IndT) -> Optional[Fitness]:
+        def mapper(ind: IndT) -> tuple[IndT, Fitness | None, bool]:
+            if ind.has_fitness(problem):
+                return ind, ind.get_fitness(problem), False
             try:
-                return self.eval_single(problem, ind)
+                return ind, self.eval_single(problem, ind), True
             except InvalidFitnessException:
-                return problem.get_invalid_fitness()
+                return ind, None, True
 
+        with ThreadPoolExecutor(max_workers=self.workers) as executor:
+            while batch := list(islice(individuals, self.workers)):
+                fitnesses = executor.map(mapper, batch)
+                fitnesses = list(fitnesses)
 
-        from pathos.multiprocessing import ProcessingPool as Pool  # pyright: ignore
+                for i, f, evaluated in fitnesses:
+                    if f is None:
+                        self.register_invalid_evaluation()
+                        continue
+                    if evaluated:
+                        i.set_fitness(problem, f)
+                        self.register_evaluation(i, problem)
+                    yield i
 
-        with Pool(len(indivs)) as pool:
-            fitnesses = pool.map(mapper, indivs)
-            for i, f in zip(indivs, fitnesses):
-                i.set_fitness(problem, f)
-                self.register_evaluation(i, problem)
-                yield i
+    def __init__(self, workers: int | None = None):
+        super().__init__()
+        self.workers = workers or min(cpu_count() or 1, 8)
