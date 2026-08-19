@@ -20,6 +20,7 @@ from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from examples.benchmarks.mario_level import MarioBenchmark
 from examples.benchmarks.lambda_calculus import LambdaCalculusBenchmark
 from examples.benchmarks.median import MedianBenchmark
+from examples.benchmarks.pell import PellsEquationBenchmark
 
 
 banknote = get_banknote()
@@ -40,6 +41,7 @@ benchmarks = [
     MarioBenchmark(),
     LambdaCalculusBenchmark(),
     MedianBenchmark(),
+    PellsEquationBenchmark(),
 ]
 
 

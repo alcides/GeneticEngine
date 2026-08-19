@@ -4,6 +4,9 @@ from examples.benchmarks.mathematical import FixedEgyptianFractionBenchmark
 from examples.benchmarks.mathematical import IncrementedReciprocalBenchmark
 from examples.benchmarks.mathematical import RationalEgyptianFractionBenchmark
 from examples.benchmarks.mathematical import ReptendFractionBenchmark
+from examples.benchmarks.pell import PellsEquationBenchmark
+from examples.benchmarks.pell import PellPair
+from examples.benchmarks.pell import pell_fitness
 from examples.benchmarks.mathematical import fixed_egyptian_fraction
 from examples.benchmarks.mathematical import incremented_reciprocal
 from examples.benchmarks.mathematical import reptend_fraction
@@ -42,5 +45,12 @@ def test_all_benchmark_grammars_are_constructible():
         RationalEgyptianFractionBenchmark(),
         ReptendFractionBenchmark(),
         IncrementedReciprocalBenchmark(),
+        PellsEquationBenchmark(),
     ):
         assert benchmark.get_grammar() is not None
+
+
+def test_pells_equation_minimizes_the_smallest_positive_solution():
+    assert pell_fitness(PellPair(3, 2)) == 5
+    assert pell_fitness(PellPair(1, 1)) > pell_fitness(PellPair(3, 2))
+    assert PellsEquationBenchmark().get_problem().target == [5]
