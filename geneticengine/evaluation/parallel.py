@@ -1,14 +1,22 @@
-from concurrent.futures import ThreadPoolExecutor
+from abc import ABCMeta
 from itertools import islice
 from os import cpu_count
+from pickle import _Pickler as StockPickler
 from typing import Any, Generator, Iterable
+
+from dill import register
 
 from geneticengine.problems import Fitness, InvalidFitnessException, Problem
 from geneticengine.evaluation.api import Evaluator, IndT
 
 
+@register(ABCMeta)
+def save_abc(pickler, obj):
+    StockPickler.save_type(pickler, obj)  # pyright: ignore
+
+
 class ParallelEvaluator(Evaluator):
-    """Evaluates individuals lazily in bounded batches of worker threads."""
+    """Evaluates individuals lazily in bounded batches of worker processes."""
 
     def evaluate_async(
         self,
@@ -21,9 +29,11 @@ class ParallelEvaluator(Evaluator):
             except InvalidFitnessException:
                 return ind, None
 
-        with ThreadPoolExecutor(max_workers=self.workers) as executor:
+        from pathos.multiprocessing import ProcessingPool as Pool  # pyright: ignore
+
+        with Pool(self.workers) as pool:
             while batch := list(islice(individuals, self.workers)):
-                fitnesses = list(executor.map(mapper, batch))
+                fitnesses = pool.map(mapper, batch)
 
                 for i, f in fitnesses:
                     if f is None:
