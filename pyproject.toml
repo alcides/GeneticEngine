@@ -48,7 +48,7 @@ text = "https://opensource.org/licenses/MIT"
 dev = [
     "black",
     "docformatter",
-    "mypy==2.3.0",
+    "mypy==2.3.1",
     "pre-commit",
     "pycln",
     "pytest",
