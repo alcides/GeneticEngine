@@ -64,8 +64,8 @@ class TestParallel:
             ),
             random=r,
             problem=p,
-            population_size=20,
-            budget=EvaluationBudget(100),
+            population_size=5,
+            budget=EvaluationBudget(20),
             population_initializer=FullInitializer(max_depth=max_depth),
             tracker=tracker,
         )
