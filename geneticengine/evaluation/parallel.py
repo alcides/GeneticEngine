@@ -25,8 +25,7 @@ class ParallelEvaluator(Evaluator):
 
         with ThreadPoolExecutor(max_workers=self.workers) as executor:
             while batch := list(islice(individuals, self.workers)):
-                fitnesses = executor.map(mapper, batch)
-                fitnesses = list(fitnesses)
+                fitnesses = list(executor.map(mapper, batch))
 
                 for i, f, evaluated in fitnesses:
                     if f is None:
