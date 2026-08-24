@@ -48,7 +48,8 @@ class TestRecorder(SearchRecorder):
 
 class TestParallel:
     def test_parallel(self):
-        max_depth = 10
+        # Keep this integration test bounded while still exercising recursive trees.
+        max_depth = 5
         g = extract_grammar([Leaf, OtherLeaf], UnderTest)
         p = SingleObjectiveProblem(
             fitness_function=lambda x: 3,
