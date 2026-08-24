@@ -1,75 +1,21 @@
-from __future__ import annotations
-
-from abc import ABC
-from dataclasses import dataclass
-from typing import Any
-
-from geneticengine.algorithms.gp.gp import GeneticProgramming
-from geneticengine.evaluation.budget import EvaluationBudget
-from geneticengine.evaluation.recorder import SearchRecorder
-from geneticengine.evaluation.tracker import ProgressTracker
-from geneticengine.grammar.grammar import extract_grammar
-from geneticengine.problems import Problem, SingleObjectiveProblem
-from geneticengine.random.sources import NativeRandomSource
-from geneticengine.representations.tree.initializations import MaxDepthDecider
-from geneticengine.representations.tree.operators import FullInitializer
-from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.evaluation.parallel import ParallelEvaluator
-from geneticengine.solutions.individual import Individual, PhenotypicIndividual
-
-
-class Root(ABC):
-    pass
-
-
-@dataclass
-class Leaf(Root):
-    pass
-
-
-@dataclass
-class OtherLeaf(Root):
-    pass
-
-
-@dataclass
-class UnderTest(Root):
-    a: Leaf
-    b: Root
-
-
-class TestRecorder(SearchRecorder):
-    def register(self, tracker: Any, individual: Individual, problem: Problem, is_best: bool):
-        assert isinstance(individual, PhenotypicIndividual)
-        x = individual.genotype
-        assert isinstance(x, UnderTest)
-        assert isinstance(x.a, Leaf)
+from geneticengine.problems import InvalidFitnessException, SingleObjectiveProblem
+from geneticengine.solutions.individual import ConcreteIndividual
 
 
 class TestParallel:
-    def test_parallel(self):
-        # Keep this integration test bounded while still exercising recursive trees.
-        max_depth = 5
-        g = extract_grammar([Leaf, OtherLeaf], UnderTest)
-        p = SingleObjectiveProblem(
-            fitness_function=lambda x: 3,
-            minimize=True,
-        )
-        r = NativeRandomSource(seed=123)
-        tracker = ProgressTracker(problem=p, evaluator=ParallelEvaluator(), recorders=[TestRecorder()])
-        gp = GeneticProgramming(
-            representation=TreeBasedRepresentation(
-                g,
-                MaxDepthDecider(r, g, max_depth=max_depth),
-            ),
-            random=r,
-            problem=p,
-            population_size=5,
-            budget=EvaluationBudget(20),
-            population_initializer=FullInitializer(max_depth=max_depth),
-            tracker=tracker,
-        )
-        ind = gp.search()[0]
-        tree = ind.get_phenotype()
-        assert isinstance(tree, UnderTest)
-        assert isinstance(tree.a, Leaf)
+    def test_parallel_evaluation_consumes_a_stream(self):
+        evaluator = ParallelEvaluator(workers=2)
+
+        def fitness(value: int):
+            if value == 1:
+                raise InvalidFitnessException()
+            return value
+
+        problem = SingleObjectiveProblem(fitness_function=fitness, minimize=True)
+        individuals = (ConcreteIndividual(value) for value in [1, 2, 3, 4])
+
+        evaluated = list(evaluator.evaluate(problem, individuals))
+
+        assert [individual.get_phenotype() for individual in evaluated] == [2, 3, 4]
+        assert evaluator.number_of_evaluations() == 4
