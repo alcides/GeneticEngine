@@ -15,25 +15,22 @@ class ParallelEvaluator(Evaluator):
         problem: Problem,
         individuals: Iterable[IndT],
     ) -> Generator[IndT, Any, Any]:
-        def mapper(ind: IndT) -> tuple[IndT, Fitness | None, bool]:
-            if ind.has_fitness(problem):
-                return ind, ind.get_fitness(problem), False
+        def mapper(ind: IndT) -> tuple[IndT, Fitness | None]:
             try:
-                return ind, self.eval_single(problem, ind), True
+                return ind, self.eval_single(problem, ind)
             except InvalidFitnessException:
-                return ind, None, True
+                return ind, None
 
         with ThreadPoolExecutor(max_workers=self.workers) as executor:
             while batch := list(islice(individuals, self.workers)):
                 fitnesses = list(executor.map(mapper, batch))
 
-                for i, f, evaluated in fitnesses:
+                for i, f in fitnesses:
                     if f is None:
                         self.register_invalid_evaluation()
                         continue
-                    if evaluated:
-                        i.set_fitness(problem, f)
-                        self.register_evaluation(i, problem)
+                    i.set_fitness(problem, f)
+                    self.register_evaluation(i, problem)
                     yield i
 
     def __init__(self, workers: int | None = None):
