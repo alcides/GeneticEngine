@@ -30,6 +30,10 @@ class Evaluator(ABC):
         if problem.is_solved(individual.get_fitness(problem)):
             raise IndividualFoundException(individual)
 
+    def register_invalid_evaluation(self):
+        """Count an attempted evaluation whose individual must be skipped."""
+        self.count += 1
+
     def number_of_evaluations(self):
         return self.count
 
