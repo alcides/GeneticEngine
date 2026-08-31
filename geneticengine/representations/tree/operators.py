@@ -118,13 +118,23 @@ class RampedHalfAndHalfInitializer(PopulationInitializer):
         representation: Representation,
         random: RandomSource,
         target_size: int,
+        **kwargs,
     ) -> Iterator[PhenotypicIndividual]:
         assert isinstance(representation, TreeBasedRepresentation)
-        for _ in range(target_size):
-
+        grammar = representation.grammar
+        min_depth = min(grammar.get_min_tree_depth(), self.max_depth)
+        half = target_size // 2
+        for i in range(target_size):
+            depth = self.max_depth if i < half else random.randint(min_depth, self.max_depth)
+            if random.random_bool():
+                # FullDecider generates trees of depth exactly max_depth - 1.
+                decider = FullDecider(random, grammar, max_depth=depth + 1)
+            else:
+                decider = MaxDepthDecider(random, grammar, max_depth=depth)
             yield PhenotypicIndividual(
                 representation.create_genotype(
                     random,
+                    decider=decider,
                 ),
                 representation=representation,
             )
