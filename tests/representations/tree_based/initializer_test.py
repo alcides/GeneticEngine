@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Annotated
 
+import pytest
+
 from geneticengine.problems import SingleObjectiveProblem
 
 
@@ -11,10 +13,15 @@ from geneticengine.grammar.grammar import extract_grammar
 from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.tree.initializations import (
     FullDecider,
+    MaxDepthDecider,
     PositionIndependentGrowDecider,
     ProgressivelyTerminalDecider,
 )
-from geneticengine.representations.tree.operators import FullInitializer, GrowInitializer
+from geneticengine.representations.tree.operators import (
+    FullInitializer,
+    GrowInitializer,
+    RampedHalfAndHalfInitializer,
+)
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
 from geneticengine.grammar.metahandlers.floats import FloatRange
 from geneticengine.grammar.metahandlers.ints import IntervalRange
@@ -53,6 +60,22 @@ class C(A):
     two: A
 
 
+@abstract
+class Expr:
+    pass
+
+
+@dataclass
+class Leaf(Expr):
+    pass
+
+
+@dataclass
+class Branch(Expr):
+    left: Expr
+    right: Expr
+
+
 class TestInitializers:
     def test_full(self):
         target_size = 10
@@ -83,6 +106,31 @@ class TestInitializers:
         assert len(population) == target_size
         for ind in population:
             assert ind.get_phenotype().gengy_distance_to_term <= target_depth
+
+    @pytest.mark.xfail(strict=True, reason="https://github.com/alcides/GeneticEngine/issues/259")
+    def test_ramped_half_and_half_respects_max_depth(self):
+        """Regression test for https://github.com/alcides/GeneticEngine/issues/259.
+
+        RampedHalfAndHalfInitializer receives a max_depth, but ignores it:
+        initialize() calls representation.create_genotype() without a
+        depth-bounded decider, so individuals are generated with the
+        representation's default decider instead.
+        """
+        target_size = 20
+        target_depth = 3
+
+        g = extract_grammar([Leaf, Branch], Expr)
+        f = RampedHalfAndHalfInitializer(max_depth=target_depth)
+        p = SingleObjectiveProblem(lambda x: 3)
+        rs = NativeRandomSource(5)
+        repr = TreeBasedRepresentation(grammar=g, decider=MaxDepthDecider(rs, g, max_depth=10))
+
+        population = list(f.initialize(p, repr, rs, target_size))
+        assert len(population) == target_size
+        depths = [ind.get_phenotype().gengy_distance_to_term for ind in population]
+        assert all(
+            depth <= target_depth for depth in depths
+        ), f"RampedHalfAndHalfInitializer(max_depth={target_depth}) produced trees with depths {depths}"
 
     def test_progressive(self):
         target_size = 10
