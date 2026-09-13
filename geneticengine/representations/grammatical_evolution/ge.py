@@ -13,7 +13,7 @@ from geneticengine.representations.api import (
 from geneticengine.representations.tree.initializations import SynthesisDecider
 from geneticengine.representations.tree.treebased import random_node
 from geneticengine.solutions.tree import TreeNode
-from geneticengine.nxt.linear_mutation import LinearGenomeMutation, PointMutation
+from geneticengine.representations.linear_mutation import LinearGenomeMutation, PointMutation
 
 
 @dataclass
@@ -54,8 +54,8 @@ class GrammaticalEvolutionRepresentation(
             decider (SynthesisDecider): Controls phenotype tree construction depth
             gene_length (int): Initial genome length for new individuals
             mutation: Mutation strategy for the integer codon list. Defaults to
-                :class:`~geneticengine.nxt.linear_mutation.PointMutation`. Pass
-                :class:`~geneticengine.nxt.linear_mutation.UMAD` for
+                :class:`~geneticengine.representations.linear_mutation.PointMutation`. Pass
+                :class:`~geneticengine.representations.linear_mutation.UMAD` for
                 addition/deletion mutation.
         """
         self.grammar = grammar

@@ -18,7 +18,7 @@ from geneticengine.representations.api import (
 )
 from geneticengine.representations.tree.initializations import apply_constructor
 from geneticengine.solutions.tree import TreeNode
-from geneticengine.nxt.linear_mutation import LinearGenomeMutation, PointMutation
+from geneticengine.representations.linear_mutation import LinearGenomeMutation, PointMutation
 from geneticengine.grammar.utils import (
     get_arguments,
     get_generic_parameter,
@@ -163,8 +163,8 @@ class StackBasedGGGPRepresentation(
             gene_length: Initial genome length for new individuals
             failures_limit: Max mapping failures before giving up
             mutation: Mutation strategy for the integer gene list. Defaults to
-                :class:`~geneticengine.nxt.linear_mutation.PointMutation`. Pass
-                :class:`~geneticengine.nxt.linear_mutation.UMAD` for
+                :class:`~geneticengine.representations.linear_mutation.PointMutation`. Pass
+                :class:`~geneticengine.representations.linear_mutation.UMAD` for
                 addition/deletion mutation.
         """
         self.grammar = grammar

@@ -4,10 +4,10 @@ from abc import ABC
 from dataclasses import dataclass
 
 from geneticengine.grammar.grammar import extract_grammar
-from geneticengine.nxt.grammatical_evolution.ge import GrammaticalEvolutionRepresentation
-from geneticengine.nxt.linear_mutation import PointMutation, UMAD, size_neutral_deletion_rate
-from geneticengine.nxt.stackgggp import StackBasedGGGPRepresentation
-from geneticengine.nxt.tree.initializations import MaxDepthDecider
+from geneticengine.representations.grammatical_evolution.ge import GrammaticalEvolutionRepresentation
+from geneticengine.representations.linear_mutation import PointMutation, UMAD, size_neutral_deletion_rate
+from geneticengine.representations.stackgggp import StackBasedGGGPRepresentation
+from geneticengine.representations.tree.initializations import MaxDepthDecider
 from geneticengine.random.sources import NativeRandomSource
 
 
