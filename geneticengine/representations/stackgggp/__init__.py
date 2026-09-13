@@ -18,6 +18,7 @@ from geneticengine.representations.api import (
 )
 from geneticengine.representations.tree.initializations import apply_constructor
 from geneticengine.solutions.tree import TreeNode
+from geneticengine.nxt.linear_umad import umad
 from geneticengine.grammar.utils import (
     get_arguments,
     get_generic_parameter,
@@ -154,10 +155,27 @@ class StackBasedGGGPRepresentation(
         grammar: Grammar,
         gene_length: int = 1024,
         failures_limit: int = 100,
+        mutation: str = "point",
+        umad_addition_rate: float = 0.1,
+        umad_deletion_rate: float | None = None,
     ):
+        """
+        Args:
+            grammar: Grammar used for stack-based mapping
+            gene_length: Initial genome length for new individuals
+            failures_limit: Max mapping failures before giving up
+            mutation: ``"point"`` or ``"umad"``
+            umad_addition_rate: UMAD addition probability (default 0.1)
+            umad_deletion_rate: UMAD deletion probability; ``None`` = size-neutral
+        """
+        if mutation not in {"point", "umad"}:
+            raise ValueError(f"Unknown mutation {mutation!r}; use 'point' or 'umad'")
         self.grammar = grammar
         self.gene_length = gene_length
         self.failures_limit = failures_limit
+        self.mutation = mutation
+        self.umad_addition_rate = umad_addition_rate
+        self.umad_deletion_rate = umad_deletion_rate
 
     def create_genotype(self, random: RandomSource, **kwargs) -> Genotype:
         return Genotype(dna=[random.randint(0, sys.maxsize) for _ in range(self.gene_length)])
@@ -165,10 +183,26 @@ class StackBasedGGGPRepresentation(
     def genotype_to_phenotype(self, genotype: Genotype) -> TreeNode:
         return create_tree_using_stacks(self.grammar, ListWrapper(genotype.dna), failures_limit=self.failures_limit)
 
+    def _random_gene(self, random: RandomSource) -> int:
+        return random.randint(0, sys.maxsize)
+
     def mutate(self, random: RandomSource, genotype: Genotype, **kwargs) -> Genotype:
-        rindex = random.randint(0, self.gene_length - 1)
-        clone = [i for i in genotype.dna]
-        clone[rindex] = random.randint(0, 10000)
+        if self.mutation == "umad":
+            dna = umad(
+                list(genotype.dna),
+                random,
+                addition_rate=self.umad_addition_rate,
+                deletion_rate=self.umad_deletion_rate,
+                gene_factory=lambda: self._random_gene(random),
+                min_length=1,
+            )
+            return Genotype(dna)
+
+        if not genotype.dna:
+            return Genotype([self._random_gene(random) for _ in range(self.gene_length)])
+        rindex = random.randint(0, len(genotype.dna) - 1)
+        clone = list(genotype.dna)
+        clone[rindex] = self._random_gene(random)
         return Genotype(clone)
 
     def crossover(
@@ -178,8 +212,10 @@ class StackBasedGGGPRepresentation(
         parent2: Genotype,
         **kwargs,
     ) -> tuple[Genotype, Genotype]:
-        rindex = random.randint(0, 255)
-
+        limit = min(len(parent1.dna), len(parent2.dna))
+        if limit <= 0:
+            return (Genotype(list(parent1.dna)), Genotype(list(parent2.dna)))
+        rindex = random.randint(0, limit - 1)
         c1 = parent1.dna[:rindex] + parent2.dna[rindex:]
         c2 = parent2.dna[:rindex] + parent1.dna[rindex:]
         return (Genotype(c1), Genotype(c2))
