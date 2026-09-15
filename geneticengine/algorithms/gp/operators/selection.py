@@ -69,6 +69,74 @@ class LexicaseSelection(GeneticStep):
         """
         self.epsilon = epsilon
 
+    @staticmethod
+    def _assign_invalid_fitness(
+        problem: Problem,
+        individuals: list[PhenotypicIndividual],
+    ) -> list[PhenotypicIndividual]:
+        """Attach an invalid fitness to every individual and return them.
+
+        Used when the evaluator drops all (or remaining) candidates so selection
+        can continue instead of crashing on an empty pool.
+        """
+        invalid = problem.get_invalid_fitness()
+        for ind in individuals:
+            ind.set_fitness(problem, invalid)
+        return list(individuals)
+
+    def _ensure_candidates(
+        self,
+        problem: Problem,
+        candidates: list[PhenotypicIndividual],
+        original_population: list[PhenotypicIndividual],
+    ) -> list[PhenotypicIndividual]:
+        """Rule 1: if the candidate pool is empty, refill from the original population."""
+        if candidates:
+            return candidates
+        return self._assign_invalid_fitness(problem, original_population)
+
+    def _filter_case(
+        self,
+        problem: Problem,
+        candidates_to_check: list[PhenotypicIndividual],
+        case: int,
+    ) -> list[PhenotypicIndividual]:
+        """Filter on one lexicase case.
+
+        Rule 2: if filtering would empty the pool (e.g. all-NaN fitness on that
+        case), keep the pre-filter set instead.
+        """
+        before = candidates_to_check
+        choose_best = min if problem.minimize[case] else max
+        best_fitness = choose_best(
+            [x.get_fitness(problem).fitness_components[case] for x in candidates_to_check],
+        )
+        checking_value = best_fitness
+
+        if self.epsilon:
+
+            def get_fitness_value(ind: PhenotypicIndividual, c: int):
+                return ind.get_fitness(problem).fitness_components[c]
+
+            fitness_values = np.array(
+                [get_fitness_value(x, case) for x in candidates_to_check if not np.isnan(get_fitness_value(x, case))],
+            )
+            if fitness_values.size:
+                mad = np.median(np.absolute(fitness_values - np.median(fitness_values)))
+                checking_value = best_fitness + mad if problem.minimize[case] else best_fitness - mad
+
+        new_candidates: list[PhenotypicIndividual] = []
+        for checking_candidate in candidates_to_check:
+            fitness: Fitness = checking_candidate.get_fitness(problem)
+            if problem.minimize[case]:
+                add_candidate = fitness.fitness_components[case] <= checking_value
+            else:
+                add_candidate = fitness.fitness_components[case] >= checking_value
+            if add_candidate:
+                new_candidates.append(checking_candidate)
+
+        return new_candidates if new_candidates else before
+
     def iterate(
         self,
         problem: Problem,
@@ -80,52 +148,38 @@ class LexicaseSelection(GeneticStep):
         generation: int,
     ) -> Iterator[PhenotypicIndividual]:
         assert isinstance(problem, MultiObjectiveProblem)
-        candidates = list(evaluator.evaluate(problem, list(population)))
+        assert isinstance(problem.minimize, list)
+
+        original_population = list(population)
+        candidates = list(evaluator.evaluate(problem, original_population))
+        candidates = self._ensure_candidates(problem, candidates, original_population)
+        if not candidates:
+            return
+
         n_cases = problem.number_of_objectives()
         all_cases = list(range(n_cases))
 
-        assert isinstance(problem.minimize, list)
-
         for _ in range(target_size):
+            candidates = self._ensure_candidates(problem, candidates, original_population)
+            if not candidates:
+                return
+
             candidates_to_check: list[PhenotypicIndividual] = candidates.copy()
             cases = random.shuffle(all_cases.copy())
 
             while len(candidates_to_check) > 1 and cases:
-                new_candidates: list[PhenotypicIndividual] = list()
                 c = cases.pop(0)
+                candidates_to_check = self._filter_case(problem, candidates_to_check, c)
 
-                choose_best = min if problem.minimize[c] else max
-
-                best_fitness = choose_best([x.get_fitness(problem).fitness_components[c] for x in candidates_to_check])
-                checking_value = best_fitness
-
-                if self.epsilon:
-
-                    def get_fitness_value(ind: PhenotypicIndividual, c: int):
-                        fit = ind.get_fitness(problem)
-                        return fit.fitness_components[c]
-
-                    fitness_values = np.array(
-                        [get_fitness_value(x, c) for x in candidates_to_check if not np.isnan(get_fitness_value(x, c))],
-                    )
-                    mad = np.median(np.absolute(fitness_values - np.median(fitness_values)))
-                    checking_value = best_fitness + mad if problem.minimize[c] else best_fitness - mad
-
-                for checking_candidate in candidates_to_check:
-                    fitness: Fitness = checking_candidate.get_fitness(problem)
-                    if problem.minimize[c]:
-                        add_candidate = fitness.fitness_components[c] <= checking_value
-                    else:
-                        add_candidate = fitness.fitness_components[c] >= checking_value
-                    if add_candidate:
-                        new_candidates.append(checking_candidate)
-
-                candidates_to_check = new_candidates.copy()
-
-            winner = random.choice(candidates_to_check) if len(candidates_to_check) > 1 else candidates_to_check[0]
+            winner = (
+                random.choice(candidates_to_check)
+                if len(candidates_to_check) > 1
+                else candidates_to_check[0]
+            )
             assert isinstance(winner.get_fitness(problem).fitness_components, list)
             yield winner
-            candidates.remove(winner)
+            if winner in candidates:
+                candidates.remove(winner)
 
 class WeightedLexicaseSelection(LexicaseSelection):
     """
@@ -176,45 +230,34 @@ class WeightedLexicaseSelection(LexicaseSelection):
         assert isinstance(problem, MultiObjectiveProblem)
         assert isinstance(problem.minimize, list)
 
-        candidates = list(evaluator.evaluate(problem, list(population)))
+        original_population = list(population)
+        candidates = list(evaluator.evaluate(problem, original_population))
+        candidates = self._ensure_candidates(problem, candidates, original_population)
+        if not candidates:
+            return
+
         n_cases = problem.number_of_objectives()
 
         for _ in range(target_size):
+            candidates = self._ensure_candidates(problem, candidates, original_population)
+            if not candidates:
+                return
+
             candidates_to_check = candidates.copy()
             cases = self._weighted_case_order(random, n_cases)
 
             while len(candidates_to_check) > 1 and cases:
                 c = cases.pop(0)
-                choose_best = min if problem.minimize[c] else max
+                candidates_to_check = self._filter_case(problem, candidates_to_check, c)
 
-                best_fitness = choose_best(
-                    [x.get_fitness(problem).fitness_components[c] for x in candidates_to_check],
-                )
-                checking_value = best_fitness
-
-                if self.epsilon:
-                    vals = np.array(
-                        [
-                            x.get_fitness(problem).fitness_components[c]
-                            for x in candidates_to_check
-                            if not np.isnan(x.get_fitness(problem).fitness_components[c])
-                        ],
-                    )
-                    mad = np.median(np.abs(vals - np.median(vals))) #mean absolute deviation from median
-                    checking_value = best_fitness + mad if problem.minimize[c] else best_fitness - mad
-
-                new_candidates = []
-                for checking_candidate in candidates_to_check:
-                    fitness = checking_candidate.get_fitness(problem).fitness_components[c]
-                    ok = (fitness <= checking_value) if problem.minimize[c] else (fitness >= checking_value)
-                    if ok:
-                        new_candidates.append(checking_candidate)
-
-                candidates_to_check = new_candidates
-
-            winner = random.choice(candidates_to_check) if len(candidates_to_check) > 1 else candidates_to_check[0]
+            winner = (
+                random.choice(candidates_to_check)
+                if len(candidates_to_check) > 1
+                else candidates_to_check[0]
+            )
             yield winner
-            candidates.remove(winner)
+            if winner in candidates:
+                candidates.remove(winner)
 
 class PriorityLexicaseSelection(LexicaseSelection):
     """
@@ -262,42 +305,34 @@ class PriorityLexicaseSelection(LexicaseSelection):
         assert isinstance(problem, MultiObjectiveProblem)
         assert isinstance(problem.minimize, list)
 
-        candidates = list(evaluator.evaluate(problem, list(population)))
+        original_population = list(population)
+        candidates = list(evaluator.evaluate(problem, original_population))
+        candidates = self._ensure_candidates(problem, candidates, original_population)
+        if not candidates:
+            return
+
         n_cases = problem.number_of_objectives()
 
         for _ in range(target_size):
+            candidates = self._ensure_candidates(problem, candidates, original_population)
+            if not candidates:
+                return
+
             candidates_to_check = candidates.copy()
             cases = self._priority_case_order(random, n_cases)
 
             while len(candidates_to_check) > 1 and cases:
-                new_candidates: list[PhenotypicIndividual] = []
                 c = cases.pop(0)
+                candidates_to_check = self._filter_case(problem, candidates_to_check, c)
 
-                choose_best = min if problem.minimize[c] else max
-                best_fitness = choose_best([x.get_fitness(problem).fitness_components[c] for x in candidates_to_check])
-                checking_value = best_fitness
-
-                if self.epsilon:
-
-                    def get_fitness_value(ind: PhenotypicIndividual, c: int):
-                        fit = ind.get_fitness(problem)
-                        return fit.fitness_components[c]
-
-                    fitness_values = np.array(
-                        [get_fitness_value(x, c) for x in candidates_to_check if not np.isnan(get_fitness_value(x, c))],
-                    )
-                    mad = np.median(np.absolute(fitness_values - np.median(fitness_values)))
-                    checking_value = best_fitness + mad if problem.minimize[c] else best_fitness - mad
-
-                for checking_candidate in candidates_to_check:
-                    fitness = checking_candidate.get_fitness(problem).fitness_components[c]
-                    ok = (fitness <= checking_value) if problem.minimize[c] else (fitness >= checking_value)
-                    if ok:
-                        new_candidates.append(checking_candidate)
-                candidates_to_check = new_candidates
-            winner = random.choice(candidates_to_check) if len(candidates_to_check) > 1 else candidates_to_check[0]
+            winner = (
+                random.choice(candidates_to_check)
+                if len(candidates_to_check) > 1
+                else candidates_to_check[0]
+            )
             yield winner
-            candidates.remove(winner)
+            if winner in candidates:
+                candidates.remove(winner)
 
 class InformedDownsamplingSelection(GeneticStep):
     """
