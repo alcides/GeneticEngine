@@ -97,7 +97,7 @@ def create_tree_using_stacks(g: Grammar, r: ListWrapper, failures_limit=100):
     while True:
         if last_good is not None and r.completed_one_pass():
             return last_good
-        if last_good is None and failures >= failures_limit:
+        if last_good is None and (failures >= failures_limit or r.completed_one_pass()):
             break
         try:
             weights = g.get_weights()
