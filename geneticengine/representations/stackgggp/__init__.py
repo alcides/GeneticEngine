@@ -39,8 +39,13 @@ class Genotype:
 class ListWrapper(RandomSource):
     dna: list[int]
     index: int = 0
+    # Total codon reads (does not wrap); used to detect one full genome pass.
+    consumed: int = 0
 
     def randint(self, min: int, max: int) -> int:
+        if not self.dna:
+            raise IndexError("empty stack genome")
+        self.consumed += 1
         self.index = (self.index + 1) % len(self.dna)
         v = self.dna[self.index]
         return v % (max - min + 1) + min
@@ -51,6 +56,10 @@ class ListWrapper(RandomSource):
         k = pow(b, e)
         v = 1 * (max - min) / k + min
         return v
+
+    def completed_one_pass(self) -> bool:
+        """Whether at least one full pass over ``dna`` has been consumed."""
+        return bool(self.dna) and self.consumed >= len(self.dna)
 
 
 def add_to_stacks(stacks: dict[type, list[Any]], t: type, v: Any):
@@ -67,13 +76,29 @@ def find_element_that_meets_mh(stack, metahandler):
 
 
 def create_tree_using_stacks(g: Grammar, r: ListWrapper, failures_limit=100):
+    """Map a linear genome to a tree via typed stacks.
+
+    Translation continues until **both**:
+
+    1. the start-symbol stack holds at least one value, and
+    2. the genome has been consumed at least once (``len(dna)`` codon reads),
+
+    ``failures_limit`` applies only until the first start-symbol value appears;
+    after that, mapping continues until one full genome pass. The phenotype is
+    the last start-symbol value observed when both conditions first hold.
+    """
     all_stack_types = g.get_all_mentioned_symbols()
 
     stacks: dict[type, list[Any]] = {k: [] for k in all_stack_types}
 
     failures = 0
+    last_good: Any | None = None
 
-    while not stacks[g.starting_symbol] and failures < failures_limit:
+    while True:
+        if last_good is not None and r.completed_one_pass():
+            return last_good
+        if last_good is None and failures >= failures_limit:
+            break
         try:
             weights = g.get_weights()
             target_type: type[Any] = r.choice_weighted(
@@ -135,11 +160,13 @@ def create_tree_using_stacks(g: Grammar, r: ListWrapper, failures_limit=100):
                 v = apply_constructor(target_type, args)
                 add_to_stacks(stacks, target_type, v)
         except IndexError:
-            failures += 1
-    if stacks[g.starting_symbol]:
-        return stacks[g.starting_symbol][0]
-    else:
-        raise GeneticEngineError("Stack genome not enough.")
+            # Only count mapping failures before the first start-symbol value;
+            # afterwards keep consuming the genome until one full pass is done.
+            if last_good is None:
+                failures += 1
+        if stacks[g.starting_symbol]:
+            last_good = stacks[g.starting_symbol][-1]
+    raise GeneticEngineError("Stack genome not enough.")
 
 
 class StackBasedGGGPRepresentation(
@@ -148,7 +175,11 @@ class StackBasedGGGPRepresentation(
     RepresentationWithCrossover[Genotype],
 ):
     """This representation uses a list of integers to guide the generation of
-    trees in the phenotype."""
+    trees in the phenotype.
+
+    Mapping stops once the start-symbol stack is non-empty **and** the genome
+    has been read at least once; the last start-symbol value is returned.
+    """
 
     def __init__(
         self,
