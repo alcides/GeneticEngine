@@ -1,0 +1,18 @@
+name: Dependency compatibility
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        z3: ['4.15.0.0', '4.15.3.0', '5.1.0.0']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v4
+        with:
+          python-version: '3.12'
+      - run: uv run --with 'z3-solver==${{ matrix.z3 }}' pytest --benchmark-skip

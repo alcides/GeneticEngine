@@ -11,6 +11,7 @@ name: Upload Python Package
 on:
   push:
     tags: ["*"]
+  workflow_dispatch:
 
 
 jobs:
@@ -45,5 +46,7 @@ jobs:
           uv pip install  -e .
       - name: Build package
         run: uv build
+      - name: Verify Z3 5.1 compatibility
+        run: uv run --with z3-solver==5.1.0.0 pytest tests/depedenttypes/z3_compatibility_test.py --benchmark-skip
       - name: Publish
         run: uv publish -t ${{ secrets.PYPI_API_TOKEN }}
