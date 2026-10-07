@@ -6,7 +6,7 @@ from abc import ABC
 from dataclasses import dataclass
 
 from geneticengine.grammar.grammar import extract_grammar
-from geneticengine.nxt.stackgggp import ListWrapper, StackBasedGGGPRepresentation, create_tree_using_stacks
+from geneticengine.representations.stackgggp import ListWrapper, StackBasedGGGPRepresentation, create_tree_using_stacks
 from geneticengine.random.sources import NativeRandomSource
 
 
