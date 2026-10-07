@@ -7,6 +7,7 @@ from geneticengine.solutions.individual import PhenotypicIndividual
 
 from geneticengine.grammar.grammar import Grammar, extract_grammar
 from geneticengine.random.sources import NativeRandomSource, RandomSource
+from geneticengine.representations.grammatical_evolution.ge import ExtensibleGrammaticalEvolutionRepresentation
 from geneticengine.representations.grammatical_evolution.ge import GrammaticalEvolutionRepresentation
 from geneticengine.grammar.metahandlers.base import MetaHandlerGenerator
 
@@ -51,3 +52,13 @@ def test_metahandler_gen():
     ind = PhenotypicIndividual(genotype=rep.create_genotype(random=r), representation=rep)
 
     assert ind.get_phenotype()
+
+
+def test_extensible_ge_grows_an_exhausted_genotype():
+    r = NativeRandomSource(seed=1)
+    g = extract_grammar([Leaf], Root)
+    d = MaxDepthDecider(r, g, 2)
+    rep = ExtensibleGrammaticalEvolutionRepresentation(g, d, gene_length=1)
+    genotype = rep.create_genotype(random=r)
+    rep.genotype_to_phenotype(genotype)
+    assert len(genotype.dna) > 1

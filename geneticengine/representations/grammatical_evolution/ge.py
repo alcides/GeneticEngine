@@ -5,6 +5,7 @@ import sys
 
 from geneticengine.grammar.grammar import Grammar
 from geneticengine.random.sources import RandomSource
+from geneticengine.random.sources import NativeRandomSource
 from geneticengine.representations.api import (
     RepresentationWithCrossover,
     RepresentationWithMutation,
@@ -25,10 +26,21 @@ class Genotype:
 class ListWrapper(RandomSource):
     dna: list[int]
     index: int = 0
+    random: RandomSource | None = None
+    extend: bool = False
+
+    def _next_gene(self) -> int:
+        if self.index >= len(self.dna):
+            if not self.extend or self.random is None:
+                self.index = (self.index + 1) % len(self.dna)
+            else:
+                self.dna.append(self.random.randint(0, sys.maxsize))
+        value = self.dna[self.index]
+        self.index += 1
+        return value
 
     def randint(self, min: int, max: int) -> int:
-        self.index = (self.index + 1) % len(self.dna)
-        v = self.dna[self.index]
+        v = self._next_gene()
         return v % (max - min + 1) + min
 
     def random_float(self, min: float, max: float) -> float:
@@ -47,6 +59,7 @@ class GrammaticalEvolutionRepresentation(
         decider: SynthesisDecider,
         gene_length: int = 256,
         mutation: LinearGenomeMutation[int] | None = None,
+        extend_genotype: bool = False,
     ):
         """
         Args:
@@ -62,12 +75,17 @@ class GrammaticalEvolutionRepresentation(
         self.decider = decider
         self.gene_length = gene_length
         self.mutation: LinearGenomeMutation[int] = mutation if mutation is not None else PointMutation()
+        self.extend_genotype = extend_genotype
 
     def create_genotype(self, random: RandomSource, **kwargs) -> Genotype:
         return Genotype([random.randint(0, sys.maxsize) for _ in range(self.gene_length)])
 
     def genotype_to_phenotype(self, genotype: Genotype) -> TreeNode:
-        rand: RandomSource = ListWrapper(genotype.dna)
+        rand: RandomSource = ListWrapper(
+            genotype.dna,
+            random=NativeRandomSource(0) if self.extend_genotype else None,
+            extend=self.extend_genotype,
+        )
         return random_node(rand, self.grammar, self.grammar.starting_symbol, self.decider)
 
     def _random_gene(self, random: RandomSource) -> int:
@@ -95,3 +113,10 @@ class GrammaticalEvolutionRepresentation(
         c1 = parent1.dna[:rindex] + parent2.dna[rindex:]
         c2 = parent2.dna[:rindex] + parent1.dna[rindex:]
         return (Genotype(c1), Genotype(c2))
+
+
+class ExtensibleGrammaticalEvolutionRepresentation(GrammaticalEvolutionRepresentation):
+    """GE variant that appends random codons when mapping exhausts the genome."""
+
+    def __init__(self, grammar: Grammar, decider: SynthesisDecider, gene_length: int = 256):
+        super().__init__(grammar, decider, gene_length=gene_length, extend_genotype=True)
