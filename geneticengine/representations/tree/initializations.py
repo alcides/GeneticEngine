@@ -119,6 +119,44 @@ class MaxDepthDecider(BaseDecider):
             )
 
 
+class PTC2Decider(BaseDecider):
+    """Choose productions subject to a sampled maximum tree-size budget."""
+
+    def __init__(self, random: RandomSource, grammar: Grammar, target_size: int):
+        super().__init__(random, grammar)
+        if target_size < 1:
+            raise GeneticEngineError("PTC2 target size must be positive")
+        self.target_size = target_size
+
+    def _minimum_nodes(self, ty: type) -> int:
+        if ty in (int, float, bool, str) or ty not in self.grammar.alternatives:
+            return 1
+        return min(
+            1 + sum(self._minimum_nodes(arg) for _, arg in get_arguments(production))
+            for production in self.grammar.alternatives[ty]
+        )
+
+    def choose_production_alternatives(self, ty: type, alternatives: list[type], ctx: LocalSynthesisContext) -> type:
+        remaining = self.target_size - ctx.nodes - 1
+        feasible = [
+            production
+            for production in alternatives
+            if self._minimum_nodes(production) - 1 <= remaining
+        ]
+        if not feasible:
+            # The synthesis engine may account for container/field nodes in a
+            # context before asking for the final production. In that case,
+            # force a terminal production if one exists rather than failing
+            # an otherwise valid partial tree.
+            feasible = [
+                production
+                for production in alternatives
+                if production not in self.grammar.recursive_prods
+            ] or alternatives
+        recursive = [production for production in feasible if production in self.grammar.recursive_prods]
+        return self.random.choice(recursive if remaining > 0 and recursive else feasible)
+
+
 class FullDecider(MaxDepthDecider):
     """FullDecider will always preffer non-terminal productions within a
     maximum depth."""
