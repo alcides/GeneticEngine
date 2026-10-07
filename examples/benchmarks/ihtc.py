@@ -9,6 +9,7 @@ See https://ihtc2024.github.io for the complete problem and file format.
 
 from __future__ import annotations
 
+import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Annotated
@@ -22,6 +23,68 @@ from geneticengine.problems import Problem, SingleObjectiveProblem
 DAYS = 5
 ROOM_CAPACITY = (2, 2)
 SHIFT_NAMES = ("early", "late")
+
+
+def load_ihtp_instance(path: str) -> dict:
+    """Load an official IHTC-2024 JSON instance.
+
+    The competition publishes each instance as one JSON document.  Keeping
+    the loader deliberately format-preserving makes it possible to use the
+    official validator and avoids bundling the 30 large public instances.
+    """
+    with open(path, encoding="utf-8") as instance_file:
+        instance = json.load(instance_file)
+    required = {"days", "occupants", "patients", "nurses", "surgeons", "operating_theaters", "rooms"}
+    missing = required - instance.keys()
+    if missing:
+        raise ValueError(f"IHTP instance is missing fields: {sorted(missing)}")
+    return instance
+
+
+def load_ihtp_solution(path: str) -> dict:
+    """Load an official IHTC-2024 solution JSON document."""
+    with open(path, encoding="utf-8") as solution_file:
+        solution = json.load(solution_file)
+    if not {"patients", "nurses"} <= solution.keys():
+        raise ValueError("IHTP solution must contain patients and nurses")
+    return solution
+
+
+def validate_ihtp_solution(instance: dict, solution: dict) -> list[str]:
+    """Return basic structural violations in an official-format solution."""
+    errors = []
+    patient_ids = {patient["id"] for patient in instance["patients"]}
+    room_ids = {room["id"] for room in instance["rooms"]}
+    theater_ids = {theater["id"] for theater in instance["operating_theaters"]}
+    nurse_ids = {nurse["id"] for nurse in instance["nurses"]}
+    if len({patient.get("id") for patient in solution["patients"]}) != len(solution["patients"]):
+        errors.append("duplicate patient assignment")
+    for patient in solution["patients"]:
+        if patient.get("id") not in patient_ids:
+            errors.append(f"unknown patient: {patient.get('id')}")
+        if patient.get("admission_day") == "none":
+            continue
+        day = patient.get("admission_day")
+        if not isinstance(day, int) or not 0 <= day < instance["days"]:
+            errors.append(f"invalid admission day for {patient.get('id')}")
+        if patient.get("room") not in room_ids:
+            errors.append(f"invalid room for {patient.get('id')}")
+        if patient.get("operating_theater") not in theater_ids:
+            errors.append(f"invalid operating theater for {patient.get('id')}")
+    for nurse in solution["nurses"]:
+        if nurse.get("id") not in nurse_ids:
+            errors.append(f"unknown nurse: {nurse.get('id')}")
+        for assignment in nurse.get("assignments", []):
+            if not isinstance(assignment.get("day"), int) or not 0 <= assignment["day"] < instance["days"]:
+                errors.append(f"invalid nurse assignment day for {nurse.get('id')}")
+            if assignment.get("shift") not in instance["shift_types"]:
+                errors.append(f"invalid nurse shift for {nurse.get('id')}")
+            errors.extend(
+                f"invalid room {room} for nurse {nurse.get('id')}"
+                for room in assignment.get("rooms", [])
+                if room not in room_ids
+            )
+    return errors
 
 
 @dataclass(frozen=True)
