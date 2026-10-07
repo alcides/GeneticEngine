@@ -58,6 +58,7 @@ run_example examples/benchmarks/classification.py
 run_example examples/benchmarks/classification_lexicase.py
 run_example examples/benchmarks/domino.py
 run_example examples/benchmarks/game_of_life_vectorial.py
+run_example examples/benchmarks/ihtc.py
 run_example examples/benchmarks/mario_level.py
 run_example examples/benchmarks/pymax.py
 run_example examples/benchmarks/regression.py
