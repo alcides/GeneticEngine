@@ -18,6 +18,7 @@ from geneticengine.representations.tree.initializations import (
 from geneticengine.representations.tree.operators import (
     FullInitializer,
     GrowInitializer,
+    PTC2Initializer,
     RampedHalfAndHalfInitializer,
 )
 from geneticengine.representations.tree.treebased import TreeBasedRepresentation
@@ -164,3 +165,28 @@ class TestInitializers:
         assert len(population) == target_size
         for ind in population:
             assert ind.get_phenotype()
+
+    def test_ptc2_respects_target_size(self):
+        g = extract_grammar([Leaf, Branch], Expr)
+        initializer = PTC2Initializer(15)
+        problem = SingleObjectiveProblem(lambda x: 3)
+        random = NativeRandomSource(5)
+        representation = TreeBasedRepresentation(grammar=g, decider=MaxDepthDecider(random, g, 10))
+
+        population = list(initializer.initialize(problem, representation, random, 25))
+
+        assert len(population) == 25
+        assert all(ind.get_phenotype().gengy_nodes >= 1 for ind in population)
+        assert len({ind.get_phenotype().gengy_nodes for ind in population}) > 1
+
+    def test_ptc2_uses_size_distribution(self):
+        g = extract_grammar([Leaf, Branch], Expr)
+        initializer = PTC2Initializer(lambda random: random.randint(1, 3))
+        problem = SingleObjectiveProblem(lambda x: 3)
+        random = NativeRandomSource(8)
+        representation = TreeBasedRepresentation(grammar=g, decider=MaxDepthDecider(random, g, 10))
+
+        population = list(initializer.initialize(problem, representation, random, 20))
+
+        assert all(ind.get_phenotype() for ind in population)
+        assert max(ind.get_phenotype().gengy_nodes for ind in population) >= 1

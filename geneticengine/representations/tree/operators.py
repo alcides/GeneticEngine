@@ -1,10 +1,11 @@
 from __future__ import annotations
-from typing import Iterator
+from typing import Callable, Iterator
 
 from geneticengine.exceptions import GeneticEngineError
 from geneticengine.representations.tree.initializations import (
     FullDecider,
     MaxDepthDecider,
+    PTC2Decider,
     SynthesisDecider,
 )
 from geneticengine.solutions.individual import Individual, PhenotypicIndividual
@@ -137,6 +138,36 @@ class RampedHalfAndHalfInitializer(PopulationInitializer):
                 representation.create_genotype(
                     random,
                     decider=decider,
+                ),
+                representation=representation,
+            )
+
+
+class PTC2Initializer(PopulationInitializer):
+    """Initialize trees using a sampled Probabilistic Tree Creation 2 size.
+
+    The sampled size guides expansion; grammar minimums and synthesis
+    bookkeeping can make the final annotated node count differ slightly.
+    """
+
+    def __init__(self, size_distribution: Callable[[RandomSource], int] | int):
+        self.size_distribution = size_distribution
+
+    def initialize(
+        self,
+        problem: Problem,
+        representation: Representation,
+        random: RandomSource,
+        target_size: int,
+        **kwargs,
+    ) -> Iterator[PhenotypicIndividual]:
+        assert isinstance(representation, TreeBasedRepresentation)
+        for _ in range(target_size):
+            requested = self.size_distribution(random) if callable(self.size_distribution) else self.size_distribution
+            yield PhenotypicIndividual(
+                representation.create_genotype(
+                    random,
+                    decider=PTC2Decider(random, representation.grammar, requested),
                 ),
                 representation=representation,
             )
