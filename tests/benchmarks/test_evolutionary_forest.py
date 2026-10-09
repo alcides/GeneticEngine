@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 from dataclasses import dataclass
+from typing import get_type_hints
 
 from examples.benchmarks.evolutionary_forest import EvolutionaryForest, EvolutionaryForestBenchmark
 from geml.grammars.symbolic_regression import Expression, Plus
@@ -30,3 +31,8 @@ def test_evolutionary_forest_benchmark_builds_and_scores():
     benchmark = EvolutionaryForestBenchmark(X, y, ["x"])
     assert benchmark.get_problem()
     assert benchmark.get_grammar()
+
+
+def test_forest_uses_reference_ensemble_size():
+    size = get_type_hints(EvolutionaryForest, include_extras=True)["trees"].__metadata__[0]
+    assert (size.min, size.max) == (100, 100)

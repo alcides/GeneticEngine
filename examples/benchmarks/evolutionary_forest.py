@@ -23,7 +23,8 @@ from geneticengine.problems import Problem, SingleObjectiveProblem
 
 @dataclass
 class EvolutionaryForest:
-    trees: Annotated[list[Expression], ListSizeBetween(2, 5)]
+    # The reference EvolutionaryForest estimator defaults to ensemble_size=100.
+    trees: Annotated[list[Expression], ListSizeBetween(100, 100)]
 
     def to_numpy(self) -> str:
         predictions = ", ".join(tree.to_numpy() for tree in self.trees)
