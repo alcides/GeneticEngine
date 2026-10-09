@@ -76,9 +76,13 @@ def mutate(
     ty: type,
     dependent_values: dict[str, Any] | None = None,
     source_material: list[TreeNode] | None = None,
+    depth: int = 0,
+    max_depth: int | None = None,
 ) -> TreeNode:
     """Generates all nodes that can be mutable in a program."""
-    if not hasattr(i, "synthesis_context"):
+    if max_depth is not None and depth >= max_depth:
+        node_to_mutate = 0
+    elif not hasattr(i, "synthesis_context"):
         node_to_mutate = 0
     else:
         node_to_mutate = global_context.decider.random_int(0, i.gengy_weighted_nodes + 1)
@@ -132,7 +136,7 @@ def mutate(
 
             if should_mutate:
                 mutated.append(parn)
-                narg = mutate(global_context, arg, part, dependent_values=dependent_values)
+                narg = mutate(global_context, arg, part, dependent_values=dependent_values, depth=depth + 1, max_depth=max_depth)
             else:
                 narg = arg
             seen += get_weighted_nodes(arg)
@@ -154,10 +158,11 @@ def tree_mutate(
     i: TreeNode,
     target_type: type,
     decider: SynthesisDecider,
+    max_depth: int | None = None,
 ) -> Any:
     global_context: GlobalSynthesisContext = GlobalSynthesisContext(r, g, decider)
 
-    new_tree = mutate(global_context, i, target_type, dependent_values={})
+    new_tree = mutate(global_context, i, target_type, dependent_values={}, max_depth=max_depth)
     relabeled_new_tree = relabel_nodes_of_trees(new_tree, g)
     return relabeled_new_tree
 
@@ -168,6 +173,7 @@ def tree_crossover(
     p1: TreeNode,
     p2: TreeNode,
     decider: SynthesisDecider,
+    max_depth: int | None = None,
 ) -> tuple[TreeNode, TreeNode]:
     """Given the two input trees [p1] and [p2], the grammar and the random
     source, this function returns two trees that are created by crossing over.
@@ -178,11 +184,12 @@ def tree_crossover(
     has [p2] as a base.
     """
     global_context: GlobalSynthesisContext = GlobalSynthesisContext(r, g, decider)
-    return mutate(global_context, p1, g.starting_symbol, source_material=[p2]), mutate(
+    return mutate(global_context, p1, g.starting_symbol, source_material=[p2], max_depth=max_depth), mutate(
         global_context,
         p2,
         g.starting_symbol,
         source_material=[p1],
+        max_depth=max_depth,
     )
 
 
@@ -197,9 +204,12 @@ class TreeBasedRepresentation(
     same.
     """
 
-    def __init__(self, grammar: Grammar, decider: SynthesisDecider):
+    def __init__(self, grammar: Grammar, decider: SynthesisDecider, max_operation_depth: int | None = None):
         self.grammar = grammar
         self.decider = decider
+        if max_operation_depth is not None and max_operation_depth < 0:
+            raise ValueError("max_operation_depth must be non-negative")
+        self.max_operation_depth = max_operation_depth
         assert isinstance(decider, SynthesisDecider)
 
     def create_genotype(self, random: RandomSource, **kwargs) -> TreeNode:
@@ -217,6 +227,7 @@ class TreeBasedRepresentation(
             genotype,
             decider=decider,
             target_type=self.grammar.starting_symbol,
+            max_depth=self.max_operation_depth,
         )
 
     def crossover(
@@ -227,4 +238,11 @@ class TreeBasedRepresentation(
         **kwargs,
     ) -> tuple[TreeNode, TreeNode]:
         decider = kwargs.get("decider", self.decider)
-        return tree_crossover(random, self.grammar, parent1, parent2, decider=decider)
+        return tree_crossover(
+            random,
+            self.grammar,
+            parent1,
+            parent2,
+            decider=decider,
+            max_depth=self.max_operation_depth,
+        )
