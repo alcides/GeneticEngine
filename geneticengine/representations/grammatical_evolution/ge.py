@@ -28,8 +28,10 @@ class ListWrapper(RandomSource):
     index: int = 0
     random: RandomSource | None = None
     extend: bool = False
+    consumed: int = 0
 
     def _next_gene(self) -> int:
+        self.consumed += 1
         if self.index >= len(self.dna):
             if not self.extend or self.random is None:
                 self.index = (self.index + 1) % len(self.dna)
@@ -77,6 +79,16 @@ class GrammaticalEvolutionRepresentation(
         self.mutation: LinearGenomeMutation[int] = mutation if mutation is not None else PointMutation()
         self.extend_genotype = extend_genotype
 
+    def _expressed_length(self, genotype: Genotype) -> int:
+        """Return the number of codons used to map ``genotype``."""
+        rand = ListWrapper(
+            list(genotype.dna),
+            random=NativeRandomSource(0) if self.extend_genotype else None,
+            extend=self.extend_genotype,
+        )
+        random_node(rand, self.grammar, self.grammar.starting_symbol, self.decider)
+        return min(rand.consumed, len(genotype.dna))
+
     def create_genotype(self, random: RandomSource, **kwargs) -> Genotype:
         return Genotype([random.randint(0, sys.maxsize) for _ in range(self.gene_length)])
 
@@ -91,7 +103,15 @@ class GrammaticalEvolutionRepresentation(
     def _random_gene(self, random: RandomSource) -> int:
         return random.randint(0, sys.maxsize)
 
-    def mutate(self, random: RandomSource, genotype: Genotype, **kwargs) -> Genotype:
+    def mutate(self, random: RandomSource, genotype: Genotype, effective: bool = False, **kwargs) -> Genotype:
+        active_length = self._expressed_length(genotype) if effective else None
+        if effective and active_length == 0:
+            return Genotype(list(genotype.dna))
+        if effective and isinstance(self.mutation, PointMutation):
+            dna = list(genotype.dna)
+            index = random.randint(0, active_length - 1)
+            dna[index] = self._random_gene(random)
+            return Genotype(dna)
         dna = self.mutation.mutate(
             list(genotype.dna),
             random,
@@ -104,9 +124,14 @@ class GrammaticalEvolutionRepresentation(
         random: RandomSource,
         parent1: Genotype,
         parent2: Genotype,
+        effective: bool = False,
         **kwargs,
     ) -> tuple[Genotype, Genotype]:
         limit = min(len(parent1.dna), len(parent2.dna))
+        if limit <= 0:
+            return (Genotype(list(parent1.dna)), Genotype(list(parent2.dna)))
+        if effective:
+            limit = min(limit, self._expressed_length(parent1), self._expressed_length(parent2))
         if limit <= 0:
             return (Genotype(list(parent1.dna)), Genotype(list(parent2.dna)))
         rindex = random.randint(0, limit - 1)

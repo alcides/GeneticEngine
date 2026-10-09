@@ -62,3 +62,25 @@ def test_extensible_ge_grows_an_exhausted_genotype():
     genotype = rep.create_genotype(random=r)
     rep.genotype_to_phenotype(genotype)
     assert len(genotype.dna) > 1
+
+
+def test_effective_mutation_only_changes_expressed_codons():
+    r = NativeRandomSource(seed=1)
+    g = extract_grammar([Leaf], Root)
+    rep = GrammaticalEvolutionRepresentation(g, MaxDepthDecider(r, g, 2), gene_length=8)
+    genotype = rep.create_genotype(r)
+    active = rep._expressed_length(genotype)
+    mutated = rep.mutate(NativeRandomSource(2), genotype, effective=True)
+    assert mutated.dna[active:] == genotype.dna[active:]
+
+
+def test_effective_crossover_cuts_within_expressed_region():
+    r = NativeRandomSource(seed=1)
+    g = extract_grammar([Leaf], Root)
+    rep = GrammaticalEvolutionRepresentation(g, MaxDepthDecider(r, g, 2), gene_length=8)
+    first = rep.create_genotype(r)
+    second = rep.create_genotype(r)
+    active = min(rep._expressed_length(first), rep._expressed_length(second))
+    child1, child2 = rep.crossover(NativeRandomSource(2), first, second, effective=True)
+    assert child1.dna[:active] != first.dna[:active] or child2.dna[:active] != second.dna[:active]
+    assert sorted(child1.dna[active:] + child2.dna[active:]) == sorted(first.dna[active:] + second.dna[active:])
