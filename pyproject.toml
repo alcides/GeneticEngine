@@ -56,6 +56,11 @@ dev = [
     "pytest-cov",
     "ruff"
 ]
+sgd = [
+    "equinox",
+    "jax",
+    "sympy2jax",
+]
 
 [build-system]
 build-backend = 'setuptools.build_meta'
