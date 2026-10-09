@@ -1,4 +1,5 @@
 from __future__ import annotations
+from collections.abc import Callable
 from typing import Iterator
 import numpy as np
 
@@ -55,6 +56,69 @@ class TournamentSelection(GeneticStep):
                 candidates.remove(winner)
                 if not candidates:
                     candidates = list(population)
+
+
+class BloatControlledTournamentSelection(TournamentSelection):
+    """Tournament selection with optional size limits and parsimony pressure.
+
+    ``max_nodes`` may be an integer or a function of the generation, which
+    enables dynamic bloat limits. Individuals over the limit are excluded when
+    at least one eligible candidate exists. ``parsimony_coefficient`` adds a
+    linear penalty for tree size to tournament comparisons.
+    """
+
+    def __init__(
+        self,
+        tournament_size: int,
+        max_nodes: int | Callable[[int], int] | None = None,
+        parsimony_coefficient: float = 0.0,
+        with_replacement: bool = False,
+    ):
+        super().__init__(tournament_size, with_replacement)
+        if parsimony_coefficient < 0:
+            raise ValueError("parsimony_coefficient must be non-negative")
+        self.max_nodes = max_nodes
+        self.parsimony_coefficient = parsimony_coefficient
+
+    def _node_limit(self, generation: int) -> int | None:
+        if self.max_nodes is None:
+            return None
+        limit = self.max_nodes(generation) if callable(self.max_nodes) else self.max_nodes
+        if limit < 1:
+            raise ValueError("max_nodes must be positive")
+        return limit
+
+    def iterate(
+        self,
+        problem: Problem,
+        evaluator: Evaluator,
+        representation: Representation,
+        random: RandomSource,
+        population: Iterator[PhenotypicIndividual],
+        target_size: int,
+        generation: int,
+    ) -> Iterator[PhenotypicIndividual]:
+        initial = list(population)
+        candidates = list(evaluator.evaluate(problem, initial))
+        limit = self._node_limit(generation)
+        if limit is not None:
+            eligible = [ind for ind in candidates if getattr(ind.get_phenotype(), "gengy_nodes", 1) <= limit]
+            if eligible:
+                candidates = eligible
+        if not candidates:
+            return
+
+        for _ in range(target_size):
+            tournament = [random.choice(candidates) for _ in range(self.tournament_size)]
+
+            def score(ind: PhenotypicIndividual) -> float:
+                fitness = ind.get_fitness(problem).fitness_components[0]
+                size = getattr(ind.get_phenotype(), "gengy_nodes", 1)
+                penalty = self.parsimony_coefficient * size
+                return fitness + penalty if problem.minimize[0] else fitness - penalty
+
+            winner = min(tournament, key=score)
+            yield winner
 
 
 class LexicaseSelection(GeneticStep):
