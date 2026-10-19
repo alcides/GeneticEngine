@@ -13,4 +13,4 @@ scikit-learn==1.9.1
 seaborn==0.13.2
 sympy==1.14.0
 threadpoolctl==3.7.0
-z3-solver==5.1.0.0
+z3-solver==5.3.1.0
