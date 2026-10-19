@@ -6,7 +6,7 @@ numpy==2.4.6
 palettable==3.3.3
 pandas==3.0.6
 pathos==0.3.5
-polyleven==0.11.0
+polyleven==0.12.0
 pytest==9.1.1
 pytest-benchmark==5.3.0
 scikit-learn==1.9.1
